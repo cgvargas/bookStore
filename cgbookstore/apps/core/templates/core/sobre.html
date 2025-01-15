@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Sobre{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">CG BookStore</h1>
+    <p class="lead text-center">A sua livraria virtual favorita, onde o amor pelos livros encontra a tecnologia.</p>
+
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h3>A Nossa História</h3>
+            <p>A CG BookStore foi fundada em 2023 com a missão de conectar leitores ao vasto universo literário.</p>
+        </div>
+        <div class="col-md-6">
+            <h3>O que Oferecemos</h3>
+            <p>Na CG BookStore, você encontrará uma extensa coleção de informações sobre livros em diversas categorias.</p>
+            <ul>
+                <li>Informações detalhadas de livros físicos e eBooks</li>
+                <li>Recomendações baseadas em tendências</li>
+                <li>Links para aquisição em livrarias</li>
+                <li>Navegação rápida e intuitiva</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

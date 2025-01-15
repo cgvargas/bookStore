@@ -1,0 +1,42 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Livros em Destaque -->
+    <h1 class="section-title main">Livros em Destaque</h1>
+    <div class="row">
+        {% for livro in livros_destaque %}
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ livro.titulo }}</h5>
+                    <p class="card-text">{{ livro.autor }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Nenhum livro em destaque.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Livros Mais Vendidos -->
+    <h1 class="section-title sub">Livros Mais Vendidos</h1>
+    <div class="row">
+        {% for livro in livros_mais_vendidos %}
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ livro.titulo }}</h5>
+                    <p class="card-text">{{ livro.autor }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Nenhum livro disponível.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

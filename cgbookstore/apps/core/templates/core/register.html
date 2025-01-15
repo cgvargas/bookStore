@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+    <div class="card p-4" style="max-width: 400px; width: 100%; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); border-radius: 15px;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Criar Conta</h2>
+            <p class="text-muted">Junte-se à nossa comunidade de leitores</p>
+        </div>
+
+        <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <!-- Nome Completo -->
+            <div class="form-group mb-3">
+                <label for="nome_completo">Nome Completo *</label>
+                <input type="text" name="nome_completo" id="nome_completo" class="form-control" required>
+            </div>
+
+            <!-- Username -->
+            <div class="form-group mb-3">
+                <label for="username">Usuário *</label>
+                <input type="text" name="username" id="username" class="form-control" required>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group mb-3">
+                <label for="email">Email *</label>
+                <input type="email" name="email" id="email" class="form-control" required>
+            </div>
+
+            <!-- Senha -->
+            <div class="form-group mb-3">
+                <label for="password1">Senha *</label>
+                <input type="password" name="password1" id="password1" class="form-control" required>
+            </div>
+
+            <!-- Confirmar Senha -->
+            <div class="form-group mb-3">
+                <label for="password2">Confirmar Senha *</label>
+                <input type="password" name="password2" id="password2" class="form-control" required>
+            </div>
+
+            <!-- Termos de Uso -->
+            <div class="form-group mb-4">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                    <label class="form-check-label" for="termsCheck">
+                        Eu concordo com os <a href="{% url 'termos_uso' %}">Termos de Uso</a> e
+                        <a href="{% url 'politica_privacidade' %}">Política de Privacidade</a>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Criar Conta</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <p class="text-muted">
+                Já possui uma conta? <a href="{% url 'login' %}">Entrar</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
