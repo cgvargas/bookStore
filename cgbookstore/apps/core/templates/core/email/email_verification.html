@@ -1,0 +1,15 @@
+{# core/templates/core/email/email_verification.html #}
+{% autoescape off %}
+Olá {{ user.get_full_name }},
+
+Bem-vindo(a) à CG BookStore! Para ativar sua conta, por favor clique no link abaixo:
+
+{{ protocol }}://{{ domain }}{% url 'verify_email' uidb64=uid token=token %}
+
+Este link é válido por 24 horas.
+
+Se você não se cadastrou na CG BookStore, por favor ignore este email.
+
+Atenciosamente,
+Equipe CGVargas Informática.
+{% endautoescape %}

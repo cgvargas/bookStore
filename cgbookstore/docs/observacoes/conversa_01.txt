@@ -1,0 +1,5 @@
+Segue documentação referente a status de projeto Django e estrutura do mesmo em relação a ultimo chat que tivemos,
+para dar continuidade de onde paramos:
+Obs.: Após analise os códigos só poderão ser gerados com minha autorização, e todo código para ser criado deve ser
+analisado a estruturas e até mesmo outros arquivos existentes e necessário para desenvolver a lógica e o algoritmo.
+

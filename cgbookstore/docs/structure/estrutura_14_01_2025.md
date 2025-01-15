@@ -1,8 +1,8 @@
 # Estrutura do Projeto
 
-📦 marketplace
+📦 bookstore
  ┣ 📂 .venv
- ┣ 📂 cgmarketplace
+ ┣ 📂 cgbookstore
  ┃ ┣ 📂 apps
  ┃ ┃ ┣ 📂 core
  ┃ ┃ ┃ ┣ 📂 migrations
@@ -20,14 +20,24 @@
  ┃ ┃ ┃ ┃ ┃ ┣ politica_privacidade.html
  ┃ ┃ ┃ ┃ ┃ ┣ register.html
  ┃ ┃ ┃ ┃ ┃ ┣ sobre.html
- ┃ ┃ ┃ ┃ ┃ ┗ termos_uso.html
+ ┃ ┃ ┃ ┃ ┃ ┣ termos_uso.html
+ ┃ ┃ ┃ ┃ ┃ ┣ login.html
+ ┃ ┃ ┃ ┃ ┃ ┗ 📂 password
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ password_reset_form.html
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ password_reset_done.html
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ password_reset_confirm.html
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ password_reset_complete.html
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ password_reset_email.html
+ ┃ ┃ ┃ ┃ ┃ ┃ ┗ password_reset_subject.txt
  ┃ ┃ ┃ ┣ 📂 tests
  ┃ ┃ ┃ ┣ 📂 views
  ┃ ┃ ┃ ┃ ┣ __init__.py
- ┃ ┃ ┃ ┃ ┗ general.py
+ ┃ ┃ ┃ ┃ ┣ general.py
+ ┃ ┃ ┃ ┃ ┗ auth.py
  ┃ ┃ ┃ ┣ __init__.py
  ┃ ┃ ┃ ┣ admin.py
  ┃ ┃ ┃ ┣ apps.py
+ ┃ ┃ ┃ ┣ forms.py
  ┃ ┃ ┃ ┣ tests.py
  ┃ ┃ ┃ ┗ urls.py
  ┃ ┃ ┗ __init__.py
@@ -45,57 +55,9 @@
  ┃ ┃ ┣ 📂 images
  ┃ ┃ ┃ ┗ logo.png
  ┃ ┃ ┗ 📂 js
+ ┃ ┃ ┃ ┗ csrf-setup.js
  ┃ ┣ __init__.py
  ┃ ┗ requirements.txt
  ┣ .env
  ┣ manage.py
  ┗ requirements.txt
-
-# Status do Projeto
-
-## Implementado ✅
-- Estrutura base do projeto
-- Templates principais (base, home, register, etc)
-- Configurações iniciais
-- URLs básicas
-- Views básicas
-
-## Próximos Passos 🚀
-
-### Prioridade Alta
-1. Sistema de Autenticação
-   - [ ] Registro de usuários
-   - [ ] Login/Logout
-   - [ ] Recuperação de senha
-
-2. Models Base
-   - [ ] Produto
-   - [ ] Categoria
-   - [ ] Vendedor
-
-### Prioridade Média
-1. Funcionalidades Principais
-   - [ ] CRUD de produtos
-   - [ ] Sistema de busca
-   - [ ] Carrinho de compras
-
-2. Interface
-   - [ ] Melhorias no layout
-   - [ ] Responsividade
-   - [ ] Componentes dinâmicos
-
-### Prioridade Baixa
-1. Otimizações
-   - [ ] Cache
-   - [ ] SEO
-   - [ ] Performance
-
-## Ações Imediatas ⚡
-1. Implementar autenticação completa
-2. Criar models básicos
-3. Configurar ambiente de desenvolvimento
-
-## Observações 📝
-- Base estrutural sólida implementada
-- Código organizado seguindo boas práticas
-- Pronto para evolução das funcionalidades

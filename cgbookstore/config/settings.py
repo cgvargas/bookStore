@@ -1,6 +1,4 @@
-"""
-Django settings for config project.
-"""
+# Django settings for config project.
 import os
 from pathlib import Path
 import environ
@@ -22,6 +20,10 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    # Apps locais
+    'cgbookstore.apps.core.apps.CoreConfig',
+
+    # Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -32,9 +34,6 @@ INSTALLED_APPS = [
     # Apps terceiros
     'stdimage',
     'django_extensions',
-
-    # Apps locais
-    'apps.core.apps.CoreConfig',
 ]
 
 MIDDLEWARE = [
@@ -47,7 +46,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'cgbookstore.config.urls'
 
 TEMPLATES = [
     {
@@ -65,17 +64,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = 'cgbookstore.config.wsgi.application'
 
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='cgbookstore'),
-        'USER': env('DB_USER', default='postgres'),
-        'PASSWORD': env('DB_PASSWORD', default='postgres'),
-        'HOST': env('DB_HOST', default='localhost'),
-        'PORT': env('DB_PORT', default='5432'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -115,6 +110,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_USER_MODEL = 'core.User'
+
 # Configurações de E-mail
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = env('EMAIL_HOST', default='localhost')
@@ -129,3 +126,13 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+
+# Configurações de Autenticação
+LOGIN_REDIRECT_URL = 'index'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'index'
+
+# Configurações de Sessão
+SESSION_COOKIE_AGE = 604800  # 1 semana em segundos
+SESSION_COOKIE_SECURE = True  # Cookies apenas via HTTPS
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Sessão persiste após fechar navegador
