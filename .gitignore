@@ -60,4 +60,5 @@ coverage.xml
 .env.production.local
 
 # Dependencies
-node_modules/
+node_modules/__pycache__/
+*.pyc
