@@ -8,11 +8,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
     <title>{% block title %}CG.BookStore Online{% endblock %}</title>
     {% block extra_css %}
     {% endblock %}
@@ -27,11 +29,14 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <!-- Atualizar a navbar removendo links não definidos -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
+                <!-- Links de navegação -->
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'index' %}">Início</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/books/' %}active{% endif %}" href="{% url 'book_search' %}">Buscar Livro</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == '/sobre/' %}active{% endif %}" href="{% url 'sobre' %}">Sobre</a>
@@ -40,6 +45,18 @@
                     <a class="nav-link {% if request.path == '/contato/' %}active{% endif %}" href="{% url 'contato' %}">Contato</a>
                 </li>
                 {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/profile/' %}active{% endif %}" href="{% url 'profile' %}">Perfil</a>
+                    </li>
+                    {% if user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin/' %}active{% endif %}" href="{% url 'admin:index' %}">Admin</a>
+                        </li>
+                        <!-- Adicione aqui o novo link para Analytics -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/analytics/dashboard/' %}active{% endif %}" href="#">Analytics</a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}" class="d-inline">
                             {% csrf_token %}
@@ -139,6 +156,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+
 <script>
     // Verificar se jQuery carregou
     if (typeof jQuery === 'undefined') {
@@ -151,6 +170,8 @@
 
 <!-- CSRF Setup -->
 <script src="{% static 'js/csrf-setup.js' %}"></script>
+
+<script src="{% static 'js/profile.js' %}"></script>
 
 <!-- Script de verificação e recuperação -->
 <script>

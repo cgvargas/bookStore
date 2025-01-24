@@ -1,0 +1,59 @@
+/* Estilos adicionais para complementar o Bootstrap */
+
+/* Hover effect nos cards */
+.hover-shadow {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-shadow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+/* Ajustes na capa do livro */
+.book-cover {
+    width: 100%;
+    height: 350px;
+    object-fit: contain;
+}
+
+/* Limite de linhas na descrição */
+.book-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+/* Estilos para paginação */
+.page-numbers {
+    gap: 0.5rem;
+}
+
+/* Ajuste nas cores e estilos do texto */
+.book-title {
+    color: #1a237e;
+    font-weight: 600;
+}
+
+.book-author {
+    color: #f57c00;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.book-date {
+    font-size: 0.9rem;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    .book-cover {
+        height: 250px;
+    }
+
+    .book-description {
+        -webkit-line-clamp: 3;
+    }
+}

@@ -9,10 +9,12 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView
 )
+from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
@@ -35,7 +37,7 @@ class CustomLoginView(LoginView):
                            'Conta inativa. Por favor, verifique seu email ou entre em contato com o suporte.')
             return self.form_invalid(form)
 
-        if not user.email_verified:
+        if not user.email_verified and not user.is_superuser:
             logger.warning(f'Tentativa de login sem verificação de email: {user.username}')
             messages.error(self.request,
                            'Por favor, verifique seu email para ativar sua conta.')
@@ -143,31 +145,42 @@ class EmailVerificationView(View):
 
 
 def send_verification_email(request, user):
-    token = default_token_generator.make_token(user)
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-    mail_subject = 'Ative sua conta na CG BookStore'
-    message = render_to_string('core/email/email_verification.html', {
-        'user': user,
-        'domain': request.get_host(),
-        'protocol': 'https' if request.is_secure() else 'http',
-        'uid': uid,
-        'token': token,
-    })
-
-    user.email_verification_token = token
-    user.save()
-
     try:
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        logger.info(f'Gerando token de verificação para usuário: {user.username}')
+
+        context = {
+            'user': user,
+            'domain': request.get_host(),
+            'protocol': 'https' if request.is_secure() else 'http',
+            'uid': uid,
+            'token': token,
+        }
+
+        mail_subject = 'Ative sua conta na CG BookStore'
+        html_message = render_to_string('core/email/email_verification.html', context)
+        plain_message = strip_tags(html_message)
+
+        user.email_verification_token = token
+        user.save()
+
+        logger.info(f'Tentando enviar email para: {user.email}')
+
         send_mail(
-            mail_subject,
-            message,
-            'noreply@cgbookstore.com',
-            [user.email],
+            subject=mail_subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
             fail_silently=False
         )
-        logger.info(f'Email de verificação enviado para: {user.email}')
+
+        logger.info(f'Email de verificação enviado com sucesso para: {user.email}')
         return True
+
     except Exception as e:
-        logger.error(f'Erro ao enviar email de verificação para {user.email}: {str(e)}')
+        logger.error(f'Erro ao enviar email de verificação para {user.email}. Erro: {str(e)}')
+        logger.error(f'Detalhes da configuração: EMAIL_BACKEND={settings.EMAIL_BACKEND}')
         return False

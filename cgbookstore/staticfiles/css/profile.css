@@ -1,0 +1,167 @@
+/* cgbookstore/static/css/profile.css */
+
+/* ==========================================================================
+   1. Container Principal
+   ========================================================================== */
+.profile-container {
+    padding: 2rem 0;
+}
+
+/* ==========================================================================
+   2. Card do Perfil
+   ========================================================================== */
+.profile-image {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.avatar-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #f0f2f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-placeholder i {
+    font-size: 4rem;
+    color: #999;
+}
+
+/* Profile Stats */
+.profile-stats {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    margin: 1rem 0;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* ==========================================================================
+   3. Prateleiras de Livros
+   ========================================================================== */
+.book-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.book-item {
+    flex: 0 0 160px;
+    max-width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+}
+
+.book-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.book-cover {
+    width: 140px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.book-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0.5rem 0;
+    line-height: 1.4;
+    max-height: 2.8em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.book-author {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0.25rem 0;
+}
+
+.book-date {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: auto;
+}
+
+/* ==========================================================================
+   4. Responsividade
+   ========================================================================== */
+@media (max-width: 768px) {
+    .book-container {
+        justify-content: center;
+    }
+
+    .book-card {
+        flex: 0 0 140px;
+        max-width: 140px;
+    }
+
+    .book-cover {
+        width: 120px;
+        height: 180px;
+    }
+}
+
+/* ==========================================================================
+   5. Utilities
+   ========================================================================== */
+.rounded-circle {
+    object-fit: cover;
+}
+
+/* Card Headers com Ícones */
+.card-header i {
+    margin-right: 0.5rem;
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+}
+
+/* Botões */
+.btn i {
+    margin-right: 0.3rem;
+}

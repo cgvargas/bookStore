@@ -1,0 +1,581 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ book.titulo }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/book-details.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'profile' %}">Minhas Prateleiras</a></li>
+            {% if shelf_display %}
+            <li class="breadcrumb-item"><a href="{% url 'profile' %}#{{ shelf }}">{{ shelf_display }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">{{ book.titulo }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Sidebar com capa e ações -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="book-cover-container">
+                    <img src="{{ book.get_capa_url }}" alt="Capa do livro {{ book.titulo }}" class="book-cover img-fluid">
+                </div>
+                {% if shelf %}
+                <div class="card-body">
+                    <div class="shelf-badge mb-3">
+                        <span class="badge bg-primary">{{ shelf_display }}</span>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="openEditModal()">
+                            <i class="bi bi-pencil"></i> Editar Informações
+                        </button>
+                        <button class="btn btn-info" onclick="openMoveModal()">
+                            <i class="bi bi-arrows-move"></i> Mover para Outra Prateleira
+                        </button>
+                        <button class="btn btn-danger" onclick="confirmRemove()">
+                            <i class="bi bi-trash"></i> Remover da Prateleira
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="col-md-8">
+            <div class="book-details">
+                <!-- Sistema de abas -->
+                <ul class="nav nav-tabs" id="bookTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic" type="button">
+                            <i class="bi bi-info-circle"></i> Informações Básicas
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#content" type="button">
+                            <i class="bi bi-book"></i> Conteúdo
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#extra" type="button">
+                            <i class="bi bi-plus-circle"></i> Extras
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content p-4" id="bookTabsContent">
+                    <!-- Informações Básicas -->
+                    <div class="tab-pane fade show active" id="basic">
+                        <h1 class="book-title mb-3">{{ book.titulo }}</h1>
+                        {% if book.subtitulo %}
+                        <h4 class="book-subtitle text-muted mb-4">{{ book.subtitulo }}</h4>
+                        {% endif %}
+
+                        <div class="info-grid">
+                            {% if book.autor %}
+                            <div class="info-item">
+                                <strong>Autor:</strong> {{ book.autor }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.tradutor %}
+                            <div class="info-item">
+                                <strong>Tradutor:</strong> {{ book.tradutor }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.ilustrador %}
+                            <div class="info-item">
+                                <strong>Ilustrador:</strong> {{ book.ilustrador }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.editora %}
+                            <div class="info-item">
+                                <strong>Editora:</strong> {{ book.editora }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.isbn %}
+                            <div class="info-item">
+                                <strong>ISBN:</strong> {{ book.isbn }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.edicao %}
+                            <div class="info-item">
+                                <strong>Edição:</strong> {{ book.edicao }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.data_publicacao %}
+                            <div class="info-item">
+                                <strong>Publicação:</strong> {{ book.data_publicacao|date:"d/m/Y" }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.numero_paginas %}
+                            <div class="info-item">
+                                <strong>Páginas:</strong> {{ book.numero_paginas }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.idioma %}
+                            <div class="info-item">
+                                <strong>Idioma:</strong> {{ book.idioma }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.formato %}
+                            <div class="info-item">
+                                <strong>Formato:</strong> {{ book.formato }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.dimensoes %}
+                            <div class="info-item">
+                                <strong>Dimensões:</strong> {{ book.dimensoes }}
+                            </div>
+                            {% endif %}
+
+                            {% if book.peso %}
+                            <div class="info-item">
+                                <strong>Peso:</strong> {{ book.peso }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo -->
+                    <div class="tab-pane fade" id="content">
+                        {% if book.descricao %}
+                        <div class="content-section mb-4">
+                            <h3>Sinopse</h3>
+                            <div class="content-text">{{ book.descricao|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.genero %}
+                        <div class="content-section mb-4">
+                            <h3>Gênero Literário</h3>
+                            <div class="content-text">{{ book.genero }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.temas %}
+                        <div class="content-section mb-4">
+                            <h3>Temas</h3>
+                            <div class="content-text">{{ book.temas|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.personagens %}
+                        <div class="content-section mb-4">
+                            <h3>Personagens Principais</h3>
+                            <div class="content-text">{{ book.personagens|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.enredo %}
+                        <div class="content-section mb-4">
+                            <h3>Enredo</h3>
+                            <div class="content-text">{{ book.enredo|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.publico_alvo %}
+                        <div class="content-section mb-4">
+                            <h3>Público-alvo</h3>
+                            <div class="content-text">{{ book.publico_alvo }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Extras -->
+                    <div class="tab-pane fade" id="extra">
+                        {% if book.premios %}
+                        <div class="extra-section mb-4">
+                            <h3>Prêmios</h3>
+                            <div class="extra-text">{{ book.premios|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.adaptacoes %}
+                        <div class="extra-section mb-4">
+                            <h3>Adaptações</h3>
+                            <div class="extra-text">{{ book.adaptacoes|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.colecao %}
+                        <div class="extra-section mb-4">
+                            <h3>Coleção</h3>
+                            <div class="extra-text">{{ book.colecao }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.classificacao %}
+                        <div class="extra-section mb-4">
+                            <h3>Classificação Indicativa</h3>
+                            <div class="extra-text">{{ book.classificacao }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.prefacio %}
+                        <div class="extra-section mb-4">
+                            <h3>Prefácio/Introdução</h3>
+                            <div class="extra-text">{{ book.prefacio|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.posfacio %}
+                        <div class="extra-section mb-4">
+                            <h3>Posfácio</h3>
+                            <div class="extra-text">{{ book.posfacio|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.notas %}
+                        <div class="extra-section mb-4">
+                            <h3>Notas de Rodapé</h3>
+                            <div class="extra-text">{{ book.notas|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.bibliografia %}
+                        <div class="extra-section mb-4">
+                            <h3>Bibliografia</h3>
+                            <div class="extra-text">{{ book.bibliografia|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.indice %}
+                        <div class="extra-section mb-4">
+                            <h3>Índice</h3>
+                            <div class="extra-text">{{ book.indice|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.glossario %}
+                        <div class="extra-section mb-4">
+                            <h3>Glossário</h3>
+                            <div class="extra-text">{{ book.glossario|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.apendices %}
+                        <div class="extra-section mb-4">
+                            <h3>Apêndices</h3>
+                            <div class="extra-text">{{ book.apendices|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.citacoes %}
+                        <div class="extra-section mb-4">
+                            <h3>Citações Marcantes</h3>
+                            <div class="extra-text">{{ book.citacoes|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.curiosidades %}
+                        <div class="extra-section mb-4">
+                            <h3>Curiosidades</h3>
+                            <div class="extra-text">{{ book.curiosidades|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.website %}
+                        <div class="extra-section mb-4">
+                            <h3>Website</h3>
+                            <div class="extra-text">
+                                <a href="{{ book.website }}" target="_blank" rel="noopener noreferrer">
+                                    {{ book.website }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.redes_sociais %}
+                        <div class="extra-section mb-4">
+                            <h3>Redes Sociais</h3>
+                            <div class="extra-text">
+                                {% for rede, link in book.redes_sociais.items %}
+                                <div class="mb-2">
+                                    <strong>{{ rede|title }}:</strong>
+                                    <a href="{{ link }}" target="_blank" rel="noopener noreferrer">
+                                        {{ link }}
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal de Edição -->
+<div class="modal fade" id="editBookModal" tabindex="-1" data-book-id="{{ book.id }}" data-shelf-type="{{ shelf }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Livro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editBookForm">
+                    {% csrf_token %}
+                    <div class="row">
+                        <!-- Abas de navegação -->
+                        <div class="col-12 mb-3">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basicInfo" type="button">
+                                        <i class="bi bi-info-circle"></i> Informações Básicas
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#publishInfo" type="button">
+                                        <i class="bi bi-book"></i> Publicação
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#contentInfo" type="button">
+                                        <i class="bi bi-file-text"></i> Conteúdo
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#extraInfo" type="button">
+                                        <i class="bi bi-plus-circle"></i> Extras
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#priceInfo" type="button">
+                                        <i class="bi bi-currency-dollar"></i> Preços
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Conteúdo das abas -->
+                        <div class="col-12">
+                            <div class="tab-content">
+                                <!-- Informações Básicas -->
+                                <div class="tab-pane fade show active" id="basicInfo">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Título</label>
+                                            <input type="text" class="form-control" name="titulo" value="{{ book.titulo }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Subtítulo</label>
+                                            <input type="text" class="form-control" name="subtitulo" value="{{ book.subtitulo }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Autor</label>
+                                            <input type="text" class="form-control" name="autor" value="{{ book.autor }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Tradutor</label>
+                                            <input type="text" class="form-control" name="tradutor" value="{{ book.tradutor }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Ilustrador</label>
+                                            <input type="text" class="form-control" name="ilustrador" value="{{ book.ilustrador }}">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Capa do Livro</label>
+                                            <input type="file" class="form-control" name="capa" accept="image/*">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informações de Publicação -->
+                                <div class="tab-pane fade" id="publishInfo">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Editora</label>
+                                            <input type="text" class="form-control" name="editora" value="{{ book.editora }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">ISBN</label>
+                                            <input type="text" class="form-control" name="isbn" value="{{ book.isbn }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Edição</label>
+                                            <input type="text" class="form-control" name="edicao" value="{{ book.edicao }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Data de Publicação</label>
+                                            <input type="date" class="form-control" name="data_publicacao" value="{{ book.data_publicacao|date:'Y-m-d' }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Número de Páginas</label>
+                                            <input type="number" class="form-control" name="numero_paginas" value="{{ book.numero_paginas }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Idioma</label>
+                                            <input type="text" class="form-control" name="idioma" value="{{ book.idioma }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Formato</label>
+                                            <input type="text" class="form-control" name="formato" value="{{ book.formato }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Dimensões</label>
+                                            <input type="text" class="form-control" name="dimensoes" value="{{ book.dimensoes }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Peso</label>
+                                            <input type="text" class="form-control" name="peso" value="{{ book.peso }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informações de Conteúdo -->
+                                <div class="tab-pane fade" id="contentInfo">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Categoria</label>
+                                            <input type="text" class="form-control" name="categoria" value="{{ book.categoria }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Gênero Literário</label>
+                                            <input type="text" class="form-control" name="genero" value="{{ book.genero }}">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Descrição</label>
+                                            <textarea class="form-control" name="descricao" rows="3">{{ book.descricao }}</textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Temas</label>
+                                            <textarea class="form-control" name="temas" rows="2">{{ book.temas }}</textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Personagens Principais</label>
+                                            <textarea class="form-control" name="personagens" rows="2">{{ book.personagens }}</textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Enredo</label>
+                                            <textarea class="form-control" name="enredo" rows="3">{{ book.enredo }}</textarea>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Público-alvo</label>
+                                            <input type="text" class="form-control" name="publico_alvo" value="{{ book.publico_alvo }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informações Extras -->
+                                <div class="tab-pane fade" id="extraInfo">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label">Prêmios</label>
+                                            <textarea class="form-control" name="premios" rows="2">{{ book.premios }}</textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Adaptações</label>
+                                            <textarea class="form-control" name="adaptacoes" rows="2">{{ book.adaptacoes }}</textarea>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Coleção</label>
+                                            <input type="text" class="form-control" name="colecao" value="{{ book.colecao }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Classificação Indicativa</label>
+                                            <input type="text" class="form-control" name="classificacao" value="{{ book.classificacao }}">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Citações</label>
+                                            <textarea class="form-control" name="citacoes" rows="2">{{ book.citacoes }}</textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Curiosidades</label>
+                                            <textarea class="form-control" name="curiosidades" rows="2">{{ book.curiosidades }}</textarea>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label">Website</label>
+                                            <input type="url" class="form-control" name="website" value="{{ book.website }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informações de Preço -->
+                                <div class="tab-pane fade" id="priceInfo">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Moeda</label>
+                                            <select class="form-select" name="preco_moeda">
+                                                <option value="BRL" {% if book.preco.moeda == 'BRL' %}selected{% endif %}>Real (BRL)</option>
+                                                <option value="USD" {% if book.preco.moeda == 'USD' %}selected{% endif %}>Dólar (USD)</option>
+                                                <option value="EUR" {% if book.preco.moeda == 'EUR' %}selected{% endif %}>Euro (EUR)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Preço Normal</label>
+                                            <input type="number" step="0.01" class="form-control" name="preco_valor" value="{{ book.preco.valor }}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Preço Promocional</label>
+                                            <input type="number" step="0.01" class="form-control" name="preco_promocional" value="{{ book.preco.valor_promocional }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveBookEdit()">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Mover Livro -->
+<div class="modal fade" id="moveBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mover para Outra Prateleira</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="moveBookForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Selecione a Nova Prateleira</label>
+                        <select class="form-select" name="new_shelf">
+                            <option value="favorito" {% if shelf == 'favorito' %}selected{% endif %}>Favoritos</option>
+                            <option value="lendo" {% if shelf == 'lendo' %}selected{% endif %}>Lendo</option>
+                            <option value="vou_ler" {% if shelf == 'vou_ler' %}selected{% endif %}>Quero Ler</option>
+                            <option value="lido" {% if shelf == 'lido' %}selected{% endif %}>Lido</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="moveBook()">Mover</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="{% static 'js/book-details.js' %}"></script>
+{% endblock %}

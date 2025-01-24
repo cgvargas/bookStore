@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 192">
+  <!-- Background do livro -->
+  <rect width="128" height="192" fill="#f5f5f5"/>
+
+  <!-- Borda do livro -->
+  <rect x="4" y="4" width="120" height="184" fill="#fff" stroke="#ddd" stroke-width="2"/>
+
+  <!-- Ícone do livro -->
+  <path d="M34 66h60M34 86h60M34 106h40" stroke="#ccc" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Texto "Sem capa" -->
+  <text x="64" y="146" font-family="Arial, sans-serif" font-size="14" fill="#999" text-anchor="middle">CGBookStore</text>
+</svg>

@@ -15,6 +15,7 @@ class User(AbstractUser):
     email_verified = models.BooleanField('Email Verificado', default=False)
     email_verification_token = models.CharField('Token de Verificação', max_length=100, null=True, blank=True)
 
+
     class Meta:
         verbose_name = 'Usuário'
         verbose_name_plural = 'Usuários'

@@ -113,12 +113,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.User'
 
 # Configurações de E-mail
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = env('EMAIL_HOST', default='localhost')
-EMAIL_PORT = env('EMAIL_PORT', default=25)
-EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=False)
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@cgbookstore.com')
+SERVER_EMAIL = env('SERVER_EMAIL', default='server@cgbookstore.com')
 
 # Configurações de Cache
 CACHES = {
@@ -136,3 +138,6 @@ LOGOUT_REDIRECT_URL = 'index'
 SESSION_COOKIE_AGE = 604800  # 1 semana em segundos
 SESSION_COOKIE_SECURE = True  # Cookies apenas via HTTPS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Sessão persiste após fechar navegador
+
+# API Key do Google Books
+GOOGLE_BOOKS_API_KEY = os.getenv('GOOGLE_BOOKS_API_KEY', 'AIzaSyBF5W5NktgXZRfTnZXe3pVxqB_TCkXGzx0')

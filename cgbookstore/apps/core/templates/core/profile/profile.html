@@ -1,0 +1,400 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block title %}Perfil - {{ user.get_full_name|default:user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 profile-container">
+    <div class="row g-4">
+        <!-- Sidebar usuário -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="profile-image mb-3">
+                        {% if user.foto %}
+                            <img src="{{ user.foto.url }}" alt="Foto de perfil" class="rounded-circle img-fluid" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                            <div class="avatar-placeholder">
+                                <i class="bi bi-person-circle" style="font-size: 6rem;"></i>
+                            </div>
+                        {% endif %}
+                        <form id="avatarForm" class="mt-2">
+                            {% csrf_token %}
+                            <input type="file" id="avatarInput" name="profile_photo" style="display: none;" accept="image/jpeg,image/png,image/gif">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('avatarInput').click()">
+                                <i class="bi bi-camera"></i> Alterar foto
+                            </button>
+                        </form>
+                    </div>
+
+                    <h4 class="card-title">{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-muted">@{{ user.username }}</p>
+                    <p class="text-muted"><small>Membro desde {{ user.date_joined|date:"F Y" }}</small></p>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <i class="bi bi-book"></i>
+                            <span class="stat-value">{{ total_livros }}</span>
+                            <span class="stat-label">livros</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="{% url 'profile_update' %}" class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> Editar Perfil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="col-md-9">
+            <!-- Favoritos -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-heart-fill text-danger"></i> Favoritos
+                    </h5>
+                    <span class="badge bg-primary">{{ favoritos|length }} livro{{ favoritos|length|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if favoritos %}
+                        <div class="book-container swiper-container">
+                            <div class="swiper-wrapper">
+                                {% for livro in favoritos %}
+                                <div class="swiper-slide">
+                                    <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
+                                        <img src="{{ livro.book.get_capa_url }}"
+                                             data-src="{{ livro.book.get_capa_url }}"
+                                             alt="Capa do livro {{ livro.book.titulo }}"
+                                             class="img-thumbnail book-cover"
+                                             loading="lazy">
+                                        <h6 class="book-title">{{ livro.book.titulo }}</h6>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-heart text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">Você ainda não tem livros favoritos.</p>
+                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="openNewBookModal('favorito')">
+                                <i class="bi bi-plus-circle"></i> Adicionar Livro
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Lendo -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-book-half text-primary"></i> Lendo Atualmente
+                    </h5>
+                    <span class="badge bg-primary">{{ lendo|length }} livro{{ lendo|length|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if lendo %}
+                        <div class="book-container swiper-container">
+                            <div class="swiper-wrapper">
+                                {% for livro in lendo %}
+                                <div class="swiper-slide">
+                                    <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
+                                        <img src="{{ livro.book.get_capa_url }}"
+                                             data-src="{{ livro.book.get_capa_url }}"
+                                             alt="Capa do livro {{ livro.book.titulo }}"
+                                             class="img-thumbnail book-cover"
+                                             loading="lazy">
+                                        <h6 class="book-title">{{ livro.book.titulo }}</h6>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">Você não está lendo nenhum livro no momento.</p>
+                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="openNewBookModal('lendo')">
+                                <i class="bi bi-plus-circle"></i> Adicionar Livro
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Vou Ler -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bookmark-plus text-success"></i> Lista de Desejos
+                    </h5>
+                    <span class="badge bg-primary">{{ vou_ler|length }} livro{{ vou_ler|length|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if vou_ler %}
+                        <div class="book-container swiper-container">
+                            <div class="swiper-wrapper">
+                                {% for livro in vou_ler %}
+                                <div class="swiper-slide">
+                                    <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
+                                        <img src="{{ livro.book.get_capa_url }}"
+                                             data-src="{{ livro.book.get_capa_url }}"
+                                             alt="Capa do livro {{ livro.book.titulo }}"
+                                             class="img-thumbnail book-cover"
+                                             loading="lazy">
+                                        <h6 class="book-title">{{ livro.book.titulo }}</h6>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-bookmark text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">Sua lista de desejos está vazia.</p>
+                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="openNewBookModal('vou_ler')">
+                                <i class="bi bi-plus-circle"></i> Adicionar Livro
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Lidos -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-check-circle-fill text-success"></i> Livros Lidos
+                    </h5>
+                    <span class="badge bg-primary">{{ lidos|length }} livro{{ lidos|length|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if lidos %}
+                        <div class="book-container swiper-container">
+                            <div class="swiper-wrapper">
+                                {% for livro in lidos %}
+                                <div class="swiper-slide">
+                                    <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
+                                        <img src="{{ livro.book.get_capa_url }}"
+                                             data-src="{{ livro.book.get_capa_url }}"
+                                             alt="Capa do livro {{ livro.book.titulo }}"
+                                             class="img-thumbnail book-cover"
+                                             loading="lazy">
+                                        <h6 class="book-title">{{ livro.book.titulo }}</h6>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-pagination"></div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-check-circle text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2">Você ainda não marcou nenhum livro como lido.</p>
+                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="openNewBookModal('lido')">
+                                <i class="bi bi-plus-circle"></i> Adicionar Livro
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gerenciamento do Livro -->
+    <div class="modal fade" id="bookManagerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Gerenciar Livro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" id="editBookBtn">
+                            <i class="bi bi-pencil"></i> Atualizar Informações
+                        </button>
+                        <button class="btn btn-info" id="moveBookBtn">
+                            <i class="bi bi-arrows-move"></i> Transferir para Outra Prateleira
+                        </button>
+                        <button class="btn btn-danger" id="deleteBookBtn">
+                            <i class="bi bi-trash"></i> Excluir Livro
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Gerenciamento da Prateleira -->
+<div class="modal fade" id="shelfManagerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gerenciar Prateleira</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success" onclick="openNewBookModal()">
+                        <i class="bi bi-plus-circle"></i> Adicionar Novo Livro
+                    </button>
+                    <button class="btn btn-warning" onclick="openBulkMoveModal()">
+                        <i class="bi bi-arrows-move"></i> Transferência em Lote
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edição do Livro -->
+<div class="modal fade" id="editBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Livro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editBookForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="editBookId">
+                    <div class="mb-3">
+                        <label for="editTitle" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="editTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAuthor" class="form-label">Autor</label>
+                        <input type="text" class="form-control" id="editAuthor" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="editDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPublisher" class="form-label">Editora</label>
+                        <input type="text" class="form-control" id="editPublisher">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCategory" class="form-label">Categoria</label>
+                        <input type="text" class="form-control" id="editCategory">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCover" class="form-label">Nova Capa</label>
+                        <input type="file" class="form-control" id="editCover" accept="image/*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveBookEdit()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Transferência de Livro -->
+<div class="modal fade" id="moveBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transferir Livro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="moveBookForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="moveBookId">
+                    <div class="mb-3">
+                        <label for="newShelfType" class="form-label">Nova Prateleira</label>
+                        <select class="form-select" id="newShelfType" required>
+                            <option value="favorito">Favoritos</option>
+                            <option value="lendo">Lendo</option>
+                            <option value="vou_ler">Vou Ler</option>
+                            <option value="lido">Lidos</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveBookMove()">Transferir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Novo Livro -->
+<div class="modal fade" id="newBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar Novo Livro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newBookForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="newBookShelfType">
+                    <div class="mb-3">
+                        <label for="newTitle" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="newTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newAuthor" class="form-label">Autor</label>
+                        <input type="text" class="form-control" id="newAuthor" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newDescription" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="newDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPublisher" class="form-label">Editora</label>
+                        <input type="text" class="form-control" id="newPublisher">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newCategory" class="form-label">Categoria</label>
+                        <input type="text" class="form-control" id="newCategory">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newCover" class="form-label">Capa</label>
+                        <input type="file" class="form-control" id="newCover" accept="image/*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveNewBook()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}
