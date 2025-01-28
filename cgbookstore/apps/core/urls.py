@@ -1,10 +1,12 @@
 # cgbookstore/apps/core/urls.py
 
 from django.urls import path
-from django.contrib.auth import views as auth_views
-
-from .views.profile import ProfileView
-from .views import ProfileUpdateView
+from .views import ProfileUpdateView, book
+from .views.profile import (
+    ProfileView,
+    ProfileCardStyleView,
+    ProfilePhotoUpdateView
+)
 from .views.general import (
     IndexView,
     RegisterView,
@@ -30,11 +32,11 @@ from .views.book import (
     get_book_details,
     update_book,
     move_book,
-    add_book_manual,
     BookDetailView,
 )
 
 # urlpatterns permanece o mesmo...
+
 
 urlpatterns = [
     # Páginas principais
@@ -60,6 +62,8 @@ urlpatterns = [
     # Perfil do usuário
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile/edit/', ProfileUpdateView.as_view(), name='profile_update'),
+    path('profile/card-style/', ProfileCardStyleView.as_view(), name='card_style'),
+    path('profile/update-photo/', ProfilePhotoUpdateView.as_view(), name='profile_photo_update'),
 
     # Busca de livros (URLs existentes)
     path('books/search/', search_books, name='search_books'),
@@ -71,7 +75,7 @@ urlpatterns = [
     path('books/<int:book_id>/details/', get_book_details, name='book_details'),
     path('books/<int:book_id>/update/', update_book, name='update_book'),
     path('books/move-book/', move_book, name='move_book'),
-    path('books/add-manual/', add_book_manual, name='add_book_manual'),
+    path('books/add-book-manual/', book.add_book_manual, name='add_book_manual'),
     path('books/<int:pk>/', BookDetailView.as_view(), name='book_detail'),
 
 ]

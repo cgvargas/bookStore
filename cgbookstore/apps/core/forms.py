@@ -153,3 +153,16 @@ class UserProfileForm(forms.ModelForm):
             user.save()
             profile.save()
         return profile
+
+
+class ContatoForm(forms.Form):
+    nome = forms.CharField(max_length=100)
+    email = forms.EmailField()
+    assunto = forms.CharField(max_length=200)
+    mensagem = forms.CharField(widget=forms.Textarea)
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not email:
+            raise forms.ValidationError('Email é obrigatório.')
+        return email

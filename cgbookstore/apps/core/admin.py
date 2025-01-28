@@ -20,20 +20,28 @@ class DatabaseAdminSite(admin.AdminSite):
     site_title = 'CG BookStore Admin Portal'
     index_title = 'Administração CG BookStore'
 
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('generate-schema/', self.admin_view(self.generate_schema_view), name='generate-schema'),
-            path('generate-structure/', self.admin_view(self.generate_structure_view), name='generate-structure'),
-        ]
-        return custom_urls + urls
 
     def generate_schema_view(self, request):
         try:
-            management.call_command('generate_tables')
+            # Define o caminho base correto
+            base_dir = os.path.dirname(settings.BASE_DIR)
+            output_dir = os.path.join(base_dir, 'database_schemas')
+
+            # Garante que o diretório existe
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            # Gera o schema do banco
+            current_date = datetime.now().strftime('%Y%m%d_%H%M%S')
+            management.call_command('generate_tables', output_dir=output_dir)
+
             messages.success(request, 'Schema do banco de dados gerado com sucesso!')
+            logger.info(f'Schema gerado com sucesso em: {output_dir}')
+
         except Exception as e:
+            logger.error(f'Erro ao gerar schema: {str(e)}')
             messages.error(request, f'Erro ao gerar schema: {str(e)}')
+
         return HttpResponse('<script>window.history.back()</script>')
 
     def generate_structure_view(self, request):
@@ -75,6 +83,105 @@ class DatabaseAdminSite(admin.AdminSite):
                 f'Erro ao gerar estrutura do projeto: {str(e)}'
             )
         return HttpResponse('<script>window.history.back()</script>')
+
+    def _clear_folder_content(self, folder_path, folder_name):
+        folder_status = {'files_removed': 0, 'errors': []}
+
+        if not os.path.exists(folder_path):
+            logger.warning(f'Pasta {folder_name} não encontrada em: {folder_path}')
+            return folder_status
+
+        def remove_recursive(path):
+            try:
+                # Primeiro remove todos os arquivos
+                for root, dirs, files in os.walk(path, topdown=False):
+                    # Remove arquivos
+                    for file in files:
+                        try:
+                            file_path = os.path.join(root, file)
+                            os.chmod(file_path, 0o777)  # Altera permissão
+                            os.unlink(file_path)
+                            folder_status['files_removed'] += 1
+                            logger.info(f'Arquivo removido: {file_path}')
+                        except Exception as e:
+                            error_msg = f'Erro ao remover arquivo {file}: {str(e)}'
+                            folder_status['errors'].append(error_msg)
+                            logger.error(error_msg)
+
+                    # Remove diretórios vazios
+                    for dir_name in dirs:
+                        try:
+                            dir_path = os.path.join(root, dir_name)
+                            os.chmod(dir_path, 0o777)  # Altera permissão
+                            os.rmdir(dir_path)
+                            logger.info(f'Pasta removida: {dir_path}')
+                        except Exception as e:
+                            error_msg = f'Erro ao remover pasta {dir_name}: {str(e)}'
+                            folder_status['errors'].append(error_msg)
+                            logger.error(error_msg)
+
+            except Exception as e:
+                error_msg = f'Erro ao processar {path}: {str(e)}'
+                folder_status['errors'].append(error_msg)
+                logger.error(error_msg)
+
+        remove_recursive(folder_path)
+        return folder_status
+
+    def clear_schema_folder_view(self, request):
+        base_dir = os.path.dirname(settings.BASE_DIR)
+        schema_dir = os.path.join(base_dir, 'database_schemas')
+        status = self._clear_folder_content(schema_dir, 'database_schemas')
+
+        if status['files_removed'] > 0:
+            messages.success(request, f"Schema: {status['files_removed']} arquivo(s) removido(s)")
+        if status['errors']:
+            for error in status['errors']:
+                messages.error(request, error)
+
+        return HttpResponse('<script>window.history.back()</script>')
+
+    def clear_structure_folder_view(self, request):
+        base_dir = os.path.dirname(settings.BASE_DIR)
+        structure_dir = os.path.join(base_dir, 'project_structure')
+        status = self._clear_folder_content(structure_dir, 'project_structure')
+
+        if status['files_removed'] > 0:
+            messages.success(request, f"Estrutura: {status['files_removed']} arquivo(s) removido(s)")
+        if status['errors']:
+            for error in status['errors']:
+                messages.error(request, error)
+
+        return HttpResponse('<script>window.history.back()</script>')
+
+    def clear_folders_view(self, request):
+        base_dir = os.path.dirname(settings.BASE_DIR)
+        schema_dir = os.path.join(base_dir, 'database_schemas')
+        structure_dir = os.path.join(base_dir, 'project_structure')
+
+        schema_status = self._clear_folder_content(schema_dir, 'database_schemas')
+        structure_status = self._clear_folder_content(structure_dir, 'project_structure')
+
+        for name, status in [('Schema', schema_status), ('Estrutura', structure_status)]:
+            if status['files_removed'] > 0:
+                messages.success(request, f"{name}: {status['files_removed']} arquivo(s) removido(s)")
+            if status['errors']:
+                for error in status['errors']:
+                    messages.error(request, error)
+
+        return HttpResponse('<script>window.history.back()</script>')
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('generate-schema/', self.admin_view(self.generate_schema_view), name='generate-schema'),
+            path('generate-structure/', self.admin_view(self.generate_structure_view), name='generate-structure'),
+            path('clear-folders/all/', self.admin_view(self.clear_folders_view), name='clear-folders'),
+            path('clear-folders/schema/', self.admin_view(self.clear_schema_folder_view), name='clear-schema-folder'),
+            path('clear-folders/structure/', self.admin_view(self.clear_structure_folder_view),
+                 name='clear-structure-folder'),
+        ]
+        return custom_urls + urls
 
 admin_site = DatabaseAdminSite(name='admin')
 

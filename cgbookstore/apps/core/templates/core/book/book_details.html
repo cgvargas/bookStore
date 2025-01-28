@@ -26,7 +26,12 @@
         <div class="col-md-4 mb-4">
             <div class="card">
                 <div class="book-cover-container">
-                    <img src="{{ book.get_capa_url }}" alt="Capa do livro {{ book.titulo }}" class="book-cover img-fluid">
+                    <!-- Adiciona o preview clicável -->
+                    <img src="{{ book.get_preview_url }}"
+                         alt="Capa do livro {{ book.titulo }}"
+                         class="book-cover img-fluid"
+                         data-full-image="{{ book.get_capa_url }}"
+                         onclick="showFullImage(this)">
                 </div>
                 {% if shelf %}
                 <div class="card-body">
@@ -573,6 +578,41 @@
         </div>
     </div>
 </div>
+<!-- Modal para visualização da imagem completa -->
+<div id="imageModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-body">
+                <img src="" id="modalImage" alt="Capa em tamanho completo">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para manipulação do modal de imagem -->
+<script>
+function showFullImage(previewImg) {
+    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    const modalImg = document.getElementById('modalImage');
+
+    // Usar a imagem original em alta qualidade
+    modalImg.src = previewImg.dataset.fullImage || previewImg.src;
+
+    // Garantir que a imagem carregue antes de mostrar o modal
+    modalImg.onload = function() {
+        // Remover qualquer restrição de tamanho que possa ter sido aplicada
+        this.style.maxWidth = 'none';
+        this.style.maxHeight = '80vh';
+        modal.show();
+    };
+}
+</script>
+
+<script>
+console.log('Book ID no template:', '{{ book.id }}');
+console.log('Shelf:', '{{ shelf }}');
+</script>
 {% endblock %}
 
 {% block extra_js %}

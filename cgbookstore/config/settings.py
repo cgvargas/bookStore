@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
 
     # Apps terceiros
     'stdimage',
@@ -126,8 +127,24 @@ SERVER_EMAIL = env('SERVER_EMAIL', default='server@cgbookstore.com')
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'google_books': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'google-books-cache',
+        'TIMEOUT': 60 * 60 * 24,  # 24 horas
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,  # Máximo de entradas no cache
+            'CULL_FREQUENCY': 3,  # Frequência de limpeza quando MAX_ENTRIES é atingido
+        }
     }
 }
+
+# Configurações da API Google Books
+GOOGLE_BOOKS_CACHE_TIMEOUT = 60 * 60 * 24  # 24 horas em segundos
+GOOGLE_BOOKS_CACHE_KEY_PREFIX = 'google_books:'
+
+# API Key do Google Books
+GOOGLE_BOOKS_API_KEY = os.getenv('GOOGLE_BOOKS_API_KEY', 'AIzaSyBF5W5NktgXZRfTnZXe3pVxqB_TCkXGzx0')
 
 # Configurações de Autenticação
 LOGIN_REDIRECT_URL = 'index'
@@ -139,5 +156,3 @@ SESSION_COOKIE_AGE = 604800  # 1 semana em segundos
 SESSION_COOKIE_SECURE = True  # Cookies apenas via HTTPS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Sessão persiste após fechar navegador
 
-# API Key do Google Books
-GOOGLE_BOOKS_API_KEY = os.getenv('GOOGLE_BOOKS_API_KEY', 'AIzaSyBF5W5NktgXZRfTnZXe3pVxqB_TCkXGzx0')

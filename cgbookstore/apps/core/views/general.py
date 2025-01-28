@@ -2,8 +2,14 @@
 import logging
 from django.shortcuts import redirect
 from django.contrib import messages
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, FormView
 from django.urls import reverse_lazy
+
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from ..forms import ContatoForm
+
+from cgbookstore.config import settings
 from ..forms import UserRegistrationForm
 
 logger = logging.getLogger(__name__)
@@ -70,8 +76,67 @@ class RegisterView(CreateView):
 class SobreView(TemplateView):
     template_name = 'core/sobre.html'
 
-class ContatoView(TemplateView):
+
+class ContatoView(FormView):
     template_name = 'core/contato.html'
+    form_class = ContatoForm
+    success_url = reverse_lazy('contato')
+
+    def enviar_email_admin(self, dados):
+        """Envia email para administração"""
+        logger.info(f'Enviando email admin - Assunto: {dados["assunto"]}')
+        try:
+            mensagem = render_to_string('core/email/contato_email.html', dados)
+            send_mail(
+                f'Contato do Site: {dados["assunto"]}',
+                mensagem,
+                settings.EMAIL_HOST_USER,
+                ['cg.bookstore.online@gmail.com'],
+                fail_silently=False
+            )
+            logger.info('Email admin enviado com sucesso')
+            return True
+        except Exception as e:
+            logger.error(f'Erro ao enviar email admin: {str(e)}')
+            return False
+
+    def enviar_email_confirmacao(self, dados):
+        """Envia email de confirmação para usuário"""
+        logger.info(f'Enviando confirmação para: {dados["email"]}')
+        try:
+            mensagem = render_to_string('core/email/contato_confirmacao.html', dados)
+            send_mail(
+                'Confirmação de Contato - CGBookStore',
+                mensagem,
+                settings.EMAIL_HOST_USER,
+                [dados['email']],
+                fail_silently=False
+            )
+            logger.info('Email de confirmação enviado com sucesso')
+            return True
+        except Exception as e:
+            logger.error(f'Erro ao enviar confirmação: {str(e)}')
+            return False
+
+    def form_valid(self, form):
+        dados = form.cleaned_data
+        logger.info(f'Processando contato de: {dados["email"]}')
+
+        # Tenta enviar ambos os emails
+        admin_enviado = self.enviar_email_admin(dados)
+        confirma_enviado = self.enviar_email_confirmacao(dados)
+
+        if admin_enviado and confirma_enviado:
+            messages.success(self.request, 'Mensagem enviada com sucesso! Em breve retornaremos seu contato.')
+            logger.info('Processo de contato concluído com sucesso')
+        else:
+            if not admin_enviado:
+                logger.error('Falha ao enviar para administração')
+            if not confirma_enviado:
+                logger.error('Falha ao enviar confirmação')
+            messages.error(self.request, 'Erro ao enviar mensagem. Por favor, tente novamente.')
+
+        return super().form_valid(form)
 
 class PoliticaPrivacidadeView(TemplateView):
     template_name = 'core/politica_privacidade.html'

@@ -13,7 +13,7 @@
     <div class="row g-4">
         <!-- Sidebar usuário -->
         <div class="col-md-3">
-            <div class="card">
+            <div class="card customizable-card">
                 <div class="card-body text-center">
                     <div class="profile-image mb-3">
                         {% if user.foto %}
@@ -63,7 +63,7 @@
                     </h5>
                     <span class="badge bg-primary">{{ favoritos|length }} livro{{ favoritos|length|pluralize }}</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if favoritos %}
                         <div class="book-container swiper-container">
                             <div class="swiper-wrapper">
@@ -71,24 +71,21 @@
                                 <div class="swiper-slide">
                                     <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
                                         <img src="{{ livro.book.get_capa_url }}"
-                                             data-src="{{ livro.book.get_capa_url }}"
                                              alt="Capa do livro {{ livro.book.titulo }}"
-                                             class="img-thumbnail book-cover"
+                                             class="book-cover"
                                              loading="lazy">
-                                        <h6 class="book-title">{{ livro.book.titulo }}</h6>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                             <div class="swiper-button-next"></div>
                             <div class="swiper-button-prev"></div>
-                            <div class="swiper-pagination"></div>
                         </div>
                     {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-heart text-muted" style="font-size: 2rem;"></i>
-                            <p class="text-muted mt-2">Você ainda não tem livros favoritos.</p>
-                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="openNewBookModal('favorito')">
+                        <div class="empty-shelf">
+                            <i class="bi bi-heart text-muted"></i>
+                            <p>Você ainda não tem livros favoritos.</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="openNewBookModal('favorito')">
                                 <i class="bi bi-plus-circle"></i> Adicionar Livro
                             </button>
                         </div>
@@ -100,11 +97,11 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="bi bi-book-half text-primary"></i> Lendo Atualmente
+                        <i class="bi bi-book-half text-primary"></i> Lendo
                     </h5>
                     <span class="badge bg-primary">{{ lendo|length }} livro{{ lendo|length|pluralize }}</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if lendo %}
                         <div class="book-container swiper-container">
                             <div class="swiper-wrapper">
@@ -112,24 +109,21 @@
                                 <div class="swiper-slide">
                                     <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
                                         <img src="{{ livro.book.get_capa_url }}"
-                                             data-src="{{ livro.book.get_capa_url }}"
                                              alt="Capa do livro {{ livro.book.titulo }}"
-                                             class="img-thumbnail book-cover"
+                                             class="book-cover"
                                              loading="lazy">
-                                        <h6 class="book-title">{{ livro.book.titulo }}</h6>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                             <div class="swiper-button-next"></div>
                             <div class="swiper-button-prev"></div>
-                            <div class="swiper-pagination"></div>
                         </div>
                     {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-book text-muted" style="font-size: 2rem;"></i>
-                            <p class="text-muted mt-2">Você não está lendo nenhum livro no momento.</p>
-                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="openNewBookModal('lendo')">
+                        <div class="empty-shelf">
+                            <i class="bi bi-heart text-muted"></i>
+                            <p>Você ainda não tem livros na prateleira.</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="openNewBookModal('lendo')">
                                 <i class="bi bi-plus-circle"></i> Adicionar Livro
                             </button>
                         </div>
@@ -141,11 +135,11 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="bi bi-bookmark-plus text-success"></i> Lista de Desejos
+                        <i class="bi bi-bookmark text-success position-relative"></i> Vou ler
                     </h5>
                     <span class="badge bg-primary">{{ vou_ler|length }} livro{{ vou_ler|length|pluralize }}</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if vou_ler %}
                         <div class="book-container swiper-container">
                             <div class="swiper-wrapper">
@@ -153,24 +147,21 @@
                                 <div class="swiper-slide">
                                     <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
                                         <img src="{{ livro.book.get_capa_url }}"
-                                             data-src="{{ livro.book.get_capa_url }}"
                                              alt="Capa do livro {{ livro.book.titulo }}"
-                                             class="img-thumbnail book-cover"
+                                             class="book-cover"
                                              loading="lazy">
-                                        <h6 class="book-title">{{ livro.book.titulo }}</h6>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                             <div class="swiper-button-next"></div>
                             <div class="swiper-button-prev"></div>
-                            <div class="swiper-pagination"></div>
                         </div>
                     {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-bookmark text-muted" style="font-size: 2rem;"></i>
-                            <p class="text-muted mt-2">Sua lista de desejos está vazia.</p>
-                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="openNewBookModal('vou_ler')">
+                        <div class="empty-shelf">
+                            <i class="bi bi-heart text-muted"></i>
+                            <p>Você ainda não tem livros na prateleira.</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="openNewBookModal('vou_ler')">
                                 <i class="bi bi-plus-circle"></i> Adicionar Livro
                             </button>
                         </div>
@@ -182,11 +173,11 @@
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="bi bi-check-circle-fill text-success"></i> Livros Lidos
+                        <i class="bi bi-check-circle-fill text-primary"></i> Lidos
                     </h5>
                     <span class="badge bg-primary">{{ lidos|length }} livro{{ lidos|length|pluralize }}</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if lidos %}
                         <div class="book-container swiper-container">
                             <div class="swiper-wrapper">
@@ -194,24 +185,21 @@
                                 <div class="swiper-slide">
                                     <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
                                         <img src="{{ livro.book.get_capa_url }}"
-                                             data-src="{{ livro.book.get_capa_url }}"
                                              alt="Capa do livro {{ livro.book.titulo }}"
-                                             class="img-thumbnail book-cover"
+                                             class="book-cover"
                                              loading="lazy">
-                                        <h6 class="book-title">{{ livro.book.titulo }}</h6>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                             <div class="swiper-button-next"></div>
                             <div class="swiper-button-prev"></div>
-                            <div class="swiper-pagination"></div>
                         </div>
                     {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-check-circle text-muted" style="font-size: 2rem;"></i>
-                            <p class="text-muted mt-2">Você ainda não marcou nenhum livro como lido.</p>
-                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="openNewBookModal('lido')">
+                        <div class="empty-shelf">
+                            <i class="bi bi-heart text-muted"></i>
+                            <p>Você ainda não tem livros na prateleira.</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="openNewBookModal('lido')">
                                 <i class="bi bi-plus-circle"></i> Adicionar Livro
                             </button>
                         </div>
@@ -391,10 +379,73 @@
         </div>
     </div>
 </div>
+<!-- Modal de Customização do Card -->
+<div class="modal fade" id="customizeCardModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Personalizar Card do Perfil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cardCustomizationForm">
+                    <div class="mb-3">
+                        <label class="form-label">Cor de Fundo</label>
+                        <input type="color" class="form-control form-control-color" id="style_background_color">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cor do Texto</label>
+                        <input type="color" class="form-control form-control-color" id="style_text_color">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cor da Borda</label>
+                        <input type="color" class="form-control form-control-color" id="style_border_color">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Estilo da Imagem</label>
+                        <select class="form-select" id="style_image_style">
+                            <option value="circle">Circular</option>
+                            <option value="square">Quadrado</option>
+                            <option value="hexagon">Hexágono</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Efeito Hover</label>
+                        <select class="form-select" id="style_hover_effect">
+                            <option value="translate">Elevação</option>
+                            <option value="scale">Escala</option>
+                            <option value="glow">Brilho</option>
+                            <option value="none">Nenhum</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Estilo dos Ícones</label>
+                        <select class="form-select" id="style_icon_style">
+                            <option value="default">Padrão</option>
+                            <option value="filled">Preenchido</option>
+                            <option value="outline">Contorno</option>
+                            <option value="minimal">Minimalista</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveCardCustomization()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
 <script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/profile-customization.js' %}"></script>
 {% endblock %}

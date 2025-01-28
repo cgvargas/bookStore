@@ -52,6 +52,37 @@
                     <td></td>
                     <td></td>
                 </tr>
+                {# Seção de Limpeza de Pastas #}
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin:clear-folders' %}"
+                           onclick="return confirm('Deseja limpar o conteúdo de TODAS as pastas do sistema?')">
+                            🗑️ Limpar Todas as Pastas
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin:clear-schema-folder' %}"
+                           onclick="return confirm('Deseja limpar apenas a pasta de schemas?')">
+                            🗑️ Limpar Pasta de Schemas
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin:clear-structure-folder' %}"
+                           onclick="return confirm('Deseja limpar apenas a pasta de estrutura do projeto?')">
+                            🗑️ Limpar Pasta de Estrutura
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
             </table>
         </div>
     {% else %}
