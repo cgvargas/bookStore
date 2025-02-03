@@ -1,0 +1,426 @@
+/* cgbookstore/static/css/book-details.css */
+
+.book-cover-container {
+    padding: 1rem;
+    text-align: center;
+}
+
+.book-cover.img-fluid {  /* Aumentando especificidade */
+    max-height: 500px !important; /* Forçando com !important */
+    width: auto;
+    object-fit: contain;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.book-cover:hover {
+    transform: scale(1.02);
+}
+
+.book-title {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.book-subtitle {
+    color: #7f8c8d;
+    font-weight: 400;
+    font-size: 1.2rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.info-item {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.info-item:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.info-item strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.content-section, .extra-section {
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.content-section:hover, .extra-section:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.content-section h3, .extra-section h3 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.content-text, .extra-text {
+    color: #505050;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0d6efd;
+    border: none;
+    border-bottom: 2px solid #0d6efd;
+    background-color: transparent;
+}
+
+.nav-tabs .nav-link i {
+    margin-right: 0.5rem;
+}
+
+.shelf-badge {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.shelf-badge .badge {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .book-title {
+        font-size: 1.8rem;
+    }
+
+    .book-subtitle {
+        font-size: 1rem;
+    }
+
+    .content-section, .extra-section {
+        padding: 1rem;
+    }
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-pane {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .info-item {
+        background-color: #2c3e50;
+        color: #fff;
+    }
+
+    .info-item strong {
+        color: #fff;
+    }
+
+    .content-section, .extra-section {
+        background-color: #2c3e50;
+        color: #fff;
+    }
+
+    .content-section h3, .extra-section h3 {
+        color: #fff;
+        border-bottom-color: #4a5568;
+    }
+
+    .content-text, .extra-text {
+        color: #e2e8f0;
+    }
+
+    .nav-tabs {
+        border-bottom-color: #4a5568;
+    }
+
+    .nav-tabs .nav-link {
+        color: #a0aec0;
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: #fff;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #63b3ed;
+        border-bottom-color: #63b3ed;
+    }
+}
+
+/* Loading states */
+.book-cover.loading {
+    background: linear-gradient(90deg, #f0f0f0 0%, #f8f8f8 50%, #f0f0f0 100%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Acessibilidade */
+.nav-tabs .nav-link:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
+}
+
+.content-section a, .extra-section a {
+    color: #0d6efd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.content-section a:hover, .extra-section a:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+/* Scroll suave */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Print styles */
+@media print {
+    .nav-tabs {
+        display: none;
+    }
+
+    .tab-pane {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    .book-cover {
+        max-height: 300px;
+    }
+
+    .content-section, .extra-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none;
+    }
+}
+
+/* Modal Preview Styles */
+#imageModal {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+#imageModal .modal-dialog {
+    max-width: none;
+    width: 85%; /* Reduzido para 85% */
+    height: 85vh; /* Reduzido para 85vh */
+    margin: 2rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#imageModal .modal-content {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    width: auto;
+    height: auto;
+}
+
+#imageModal .modal-body {
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#modalImage {
+    height: 60vh; /* Reduzido para 60vh */
+    width: auto;
+    object-fit: contain;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Botão de fechar */
+#imageModal .btn-close {
+    position: absolute;
+    top: -2rem;
+    right: -2rem;
+    width: 2rem;
+    height: 2rem;
+    background: none;
+    border: none;
+    opacity: 1;
+    z-index: 1060;
+    cursor: pointer;
+}
+
+#imageModal .btn-close:before {
+    content: "×";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+#imageModal .btn-close:hover {
+    opacity: 0.8;
+    transform: translate(0, 0) scale(1.1);
+    transition: all 0.2s ease;
+}
+
+/* Área de Preço e Ações */
+.pricing-action-area {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card {
+    height: auto; /* Remove altura fixa */
+    min-height: 400px; /* Define altura mínima */
+}
+
+.book-price {
+    margin: 1rem 0;
+    padding: 0.5rem;
+    width: 100%;
+}
+
+.book-price .price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    width: 100%;
+    word-break: break-word; /* Previne overflow do texto */
+}
+
+.book-price .original-price {
+    font-size: 1rem;
+    text-decoration: line-through;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+    display: inline-block;
+    width: 100%;
+}
+
+.book-price .promotional-price {
+    font-size: 1.75rem;
+    color: #ff6b00;
+    font-weight: bold;
+    display: inline-block;
+    width: 100%;
+}
+
+.book-price .regular-price {
+    font-size: 1.75rem;
+    color: #212529;
+    font-weight: bold;
+    display: inline-block;
+    width: 100%;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+
+    .book-price .price {
+        font-size: 1.5rem;
+    }
+}

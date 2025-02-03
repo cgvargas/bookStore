@@ -2,8 +2,11 @@
 Módulo responsável pelas views relacionadas a livros.
 Inclui busca, gerenciamento de prateleiras e detalhes dos livros.
 """
+import decimal
 import json
 import logging
+from decimal import Decimal
+
 import requests
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -175,6 +178,7 @@ def add_to_shelf(request):
     Adiciona um livro à prateleira do usuário
     Processa dados do livro e imagem da capa
     """
+    global pub_date_str
     try:
         data = json.loads(request.body)
         book_data = data.get('book_data', {})
@@ -188,71 +192,50 @@ def add_to_shelf(request):
         logger.info(f"Dados do livro: {json.dumps(book_data, indent=2)}")
 
         mixin = BookManagementMixin()
-        volume_info = book_data.get('volumeInfo', {})
-        sale_info = book_data.get('saleInfo', {})
 
-        # Processamento de preço
-        price_info = {}
-        try:
-            list_price = sale_info.get('listPrice', {}) or {}
-            price_info = {
-                'moeda': list_price.get('currencyCode', 'BRL'),
-                'valor': str(list_price.get('amount', '')),
-                'valor_promocional': ''
-            }
-        except Exception as price_error:
-            logger.warning(f"Erro ao processar preço: {str(price_error)}")
+        # Inicializa book_defaults fora do bloco try
+        book_defaults = {
+            'titulo': book_data.get('titulo', 'Título não disponível'),
+            'subtitulo': book_data.get('subtitulo', ''),
+            'autor': book_data.get('autores', ['Autor desconhecido'])[0],
+            'editora': book_data.get('editora', ''),
+            'isbn': book_data.get('isbn', ''),
+            'data_publicacao': None,
+            'descricao': book_data.get('descricao', 'Descrição não disponível'),
+            'categoria': book_data.get('categorias', []),
+            'preco': Decimal('0'),
+            'preco_promocional': Decimal('0')
+        }
 
         # Processamento de data
-        published_date = None
         try:
-            pub_date_str = volume_info.get('publishedDate', '')
+            pub_date_str = book_data.get('data_publicacao', '')
             if pub_date_str:
-                published_date = datetime.strptime(pub_date_str.split('-')[0], '%Y').date()
+                book_defaults['data_publicacao'] = datetime.strptime(pub_date_str.split('-')[0], '%Y').date()
         except (ValueError, TypeError) as date_error:
             logger.warning(f"Data de publicação inválida: {pub_date_str}. Erro: {str(date_error)}")
 
-        # Processamento de ISBN
-        isbn = ''
-        identifiers = volume_info.get('industryIdentifiers', [])
-        for identifier in identifiers:
-            if identifier.get('type') in ['ISBN_13', 'ISBN_10']:
-                isbn = identifier.get('identifier', '')
-                break
+        # Processamento de preço
+        try:
+            book_defaults['preco'] = Decimal(str(book_data.get('valor', 0)))
+            book_defaults['preco_promocional'] = Decimal(str(book_data.get('valor_promocional', 0)))
+        except (TypeError, ValueError, decimal.InvalidOperation) as e:
+            logger.error(f"Erro ao converter valores de preço para decimal: {e}")
+            return JsonResponse({'success': False, 'error': 'Erro ao processar o preço do livro'}, status=400)
 
         # Processamento de capa
-        thumbnail_url = volume_info.get('imageLinks', {}).get('thumbnail', '')
         capa = None
+        thumbnail_url = book_data.get('capa_url')
         if thumbnail_url:
             try:
-                # Modifica a URL para obter versão em alta qualidade
-                hq_url = thumbnail_url.replace('zoom=1', 'zoom=0').replace('&edge=curl', '')
-                response = requests.get(hq_url, timeout=10)
-
-                # Se falhar com a URL em alta qualidade, tenta a URL original
-                if response.status_code != 200:
-                    response = requests.get(thumbnail_url, timeout=10)
-
+                response = requests.get(thumbnail_url, timeout=10)
                 if response.status_code == 200:
                     filename = f"book_{timezone.now().timestamp()}.jpg"
                     saved_paths = mixin.save_cover_image(response.content, filename)
                     if saved_paths and isinstance(saved_paths, tuple):
-                        capa = saved_paths[0]  # Pega apenas o caminho da capa
+                        capa = saved_paths[0]
             except Exception as e:
                 logger.error(f"Erro ao baixar imagem: {str(e)}")
-
-        # Dados do livro
-        book_defaults = {
-            'titulo': volume_info.get('title', 'Título não disponível'),
-            'subtitulo': volume_info.get('subtitle', ''),
-            'autor': ', '.join(volume_info.get('authors', ['Autor desconhecido'])),
-            'editora': volume_info.get('publisher', ''),
-            'isbn': isbn,
-            'data_publicacao': published_date,
-            'descricao': volume_info.get('description', 'Descrição não disponível'),
-            'categoria': ', '.join(volume_info.get('categories', [])),
-            'preco': price_info,
-        }
 
         if capa:
             book_defaults['capa'] = capa
@@ -267,25 +250,17 @@ def add_to_shelf(request):
             book.capa = capa
             book.save()
 
-        logger.info(f'Tentando adicionar livro {book.titulo} à prateleira {shelf}')
-
-        # Validar tipo de prateleira e corrigir plural para singular
+        # Validar tipo de prateleira
         valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
-
-        # Mapeamento de plural para singular
         shelf_mapping = {
             'favoritos': 'favorito',
             'lidos': 'lido',
-            'lendo': 'lendo',  # Já está correto
-            'vou_ler': 'vou_ler'  # Já está correto
+            'lendo': 'lendo',
+            'vou_ler': 'vou_ler'
         }
-
-        # Corrigir o tipo da prateleira se necessário
         shelf = shelf_mapping.get(shelf, shelf)
 
         if str(shelf) not in valid_shelf_types:
-            logger.error(f"Tipo de prateleira inválido: {shelf}")
-            logger.info(f"Tipos válidos: {valid_shelf_types}")
             return JsonResponse({
                 'success': False,
                 'error': f'Tipo de prateleira inválido: {shelf}'
@@ -295,13 +270,8 @@ def add_to_shelf(request):
         shelf_obj, created = UserBookShelf.objects.update_or_create(
             user=request.user,
             book=book,
-            defaults={
-                'shelf_type': str(shelf),
-                'added_at': timezone.now()
-            }
+            defaults={'shelf_type': str(shelf), 'added_at': timezone.now()}
         )
-
-        logger.info(f'Livro {"criado" if created else "atualizado"} na prateleira com ID: {shelf_obj.id}')
 
         return JsonResponse({
             'success': True,

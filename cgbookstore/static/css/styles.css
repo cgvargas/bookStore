@@ -14,9 +14,9 @@
     --white: #ffffff;
 
     /* Cores de Texto */
-    --text-dark: #333;
-    --text-muted: #6c757d;
-    --text-light: #e2e8f0;
+    --text-dark: #1a1a1a;          /* Mais escuro que o anterior */
+    --text-muted: #4a5568;         /* Mais escuro que o anterior */
+    --text-light: #f7fafc;
 
     /* Cores de Destaque */
     --orange: #ff6600;
@@ -156,6 +156,7 @@
 
     /* Navegação */
     .navbar-nav {
+    margin-left: auto; /* Empurra os links para a direita */
         margin-right: var(--spacing-lg);
     }
 }
@@ -265,6 +266,253 @@
     padding: var(--spacing-md) 0;
 }
 
+/* Home Page Carousels
+   ========================================================================== */
+.banner-carousel {
+    width: 100%;
+    margin-bottom: var(--spacing-xl);
+    overflow: hidden;
+}
+
+.bannerSwiper {
+    width: 100%;
+    height: 400px;
+}
+
+.banner-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-lg);
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: var(--white);
+}
+
+.banner-text h2 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.banner-text h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.banner-text p {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Book Shelf Components
+   ========================================================================== */
+.book-shelf {
+    padding: var(--spacing-xl) 0;
+}
+
+.book-shelf .section-title {
+    margin-bottom: var(--spacing-lg);
+    color: #1a1a1a;  /* Cinza escuro para melhor contraste */
+    font-size: 1.8rem;
+    position: relative;
+    padding-left: var(--spacing-md);
+    border-left: 4px solid var(--primary-color);
+    font-weight: 600;  /* Adicionado para melhor legibilidade */
+}
+
+.bookSwiper {
+    padding: var(--spacing-md) var(--spacing-sm);
+    margin: 0 -10px;
+}
+
+.book-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform var(--transition-default);
+    height: 100%;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+}
+
+.book-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.book-cover {
+    position: relative;
+    height: 280px; /* Altura fixa menor */
+    overflow: hidden;
+}
+
+.book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    transition: transform var(--transition-default);
+}
+
+.book-card:hover .book-cover img {
+    transform: scale(1.05);
+}
+
+.book-info {
+    padding: var(--spacing-md);
+}
+
+.book-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-dark);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.book-author {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Swiper Navigation Custom Styles
+   ========================================================================== */
+.swiper-button-next,
+.swiper-button-prev {
+    width: 40px;
+    height: 40px;
+    background-color: var(--white);
+    border-radius: var(--radius-circle);
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transition: all var(--transition-default);
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+}
+
+.swiper:hover .swiper-button-next,
+.swiper:hover .swiper-button-prev {
+    opacity: 1;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background-color: var(--primary-color);
+}
+
+.swiper-button-next:hover:after,
+.swiper-button-prev:hover:after {
+    color: var(--white);
+}
+
+.swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background-color: var(--white);
+    opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+    opacity: 1;
+    background-color: var(--primary-color);
+}
+
+/* Responsive Adjustments for Home Carousels
+   ========================================================================== */
+@media (max-width: 768px) {
+    .bannerSwiper {
+        height: 300px;
+    }
+
+    .banner-text h2 {
+        font-size: 1.5rem;
+    }
+
+    .banner-text h3 {
+        font-size: 1.2rem;
+    }
+
+    .banner-text p {
+        font-size: 1rem;
+    }
+
+    .book-shelf .section-title {
+        font-size: 1.5rem;
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .bannerSwiper {
+        height: 250px;
+    }
+
+    .banner-text {
+        padding: var(--spacing-md);
+    }
+
+    .banner-text h2 {
+        font-size: 1.2rem;
+    }
+
+    .banner-text h3 {
+        font-size: 1rem;
+    }
+
+    .book-title {
+        font-size: 0.9rem;
+    }
+
+    .book-author {
+        font-size: 0.8rem;
+    }
+}
+
+/* Dark Mode Adjustments
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+    .book-card {
+        background: var(--dark-bg);
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+        background-color: var(--dark-bg);
+    }
+
+    .swiper-button-next:after,
+    .swiper-button-prev:after {
+        color: var(--white);
+    }
+}
+
 /* Card Base
    ========================================================================== */
 .card {
@@ -320,14 +568,100 @@
 }
 
 .book-title {
-    color: var(--text-dark);
+    color: #1a1a1a; /* Alterado para um cinza mais escuro */
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin-bottom: var(--spacing-xs);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.book-author {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;              /* Adicionado weight para melhor legibilidade */
+    margin: 0;
+}
+
+/* Book Price Components */
+.book-price {
+    margin-top: var(--spacing-sm);
+    font-weight: 600;
+}
+
+.book-price.has-discount {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.original-price {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    font-size: 0.9rem;
+    font-weight: 500;              /* Adicionado weight */
+}
+
+.promotional-price {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 700;              /* Aumentado weight para preços promocionais */
+}
+
+.regular-price {
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 4px 8px;
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Book Cover Enhancement */
+.book-cover {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: linear-gradient(45deg, #f3f4f6, #ffffff);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-sm);
+}
+
+.book-cover img {
+    transition: transform var(--transition-default);
+    will-change: transform;
+    border-radius: var(--radius-sm);
+}
+
+.book-card:hover .book-cover img {
+    transform: scale(1.08) translateY(-2%);
+}
+
+/* Book Card Enhancement */
+.book-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-default);
+    height: 100%;
+}
+
+.book-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-5px);
 }
 
 /* Profile Components
@@ -368,13 +702,13 @@
 }
 
 .navbar-brand .logo {
-    height: 45px;
+    height: 50px;
     width: auto;
 }
 
 .store-name {
     font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
+    font-size: 2.6rem;
     background: linear-gradient(45deg, var(--orange) 30%, var(--yellow) 90%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -384,8 +718,8 @@
 }
 
 .navbar-nav {
+    margin-left: auto; /* Empurra os links para a direita */
     gap: var(--spacing-md);
-    margin-left: auto;
 }
 
 .nav-item {
@@ -428,6 +762,19 @@
 .nav-link:hover::after,
 .nav-link.active::after {
     width: 100%;
+}
+
+/* Linha decorativa
+   ========================================================================== */
+.line {
+    width: 100%;
+    height: 4px; /* Ajuste conforme necessário */
+    background-color: var(--orange); /* Laranja da paleta de cores */
+    margin-top: var(--spacing-md) 0;
+}
+
+.line:hover {
+    background-color: var(--primary-color);
 }
 
 /* Form Components

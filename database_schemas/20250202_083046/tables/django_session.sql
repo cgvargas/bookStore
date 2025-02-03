@@ -1,0 +1,4 @@
+-- Tabela: django_session
+-- Gerado em: 02/02/2025 08:30:47
+
+CREATE TABLE "django_session" ("session_key" varchar(40) NOT NULL PRIMARY KEY, "session_data" text NOT NULL, "expire_date" datetime NOT NULL);

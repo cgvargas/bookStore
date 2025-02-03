@@ -1,43 +1,42 @@
 # cgbookstore/apps/core/admin.py
 
 import os
+import json
 import logging
 from datetime import datetime
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.urls import path
 from django.core import management
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.conf import settings
 from .models import User, Profile, Book, UserBookShelf
+from .models.banner import Banner
 
 logger = logging.getLogger(__name__)
+
 
 class DatabaseAdminSite(admin.AdminSite):
     site_header = 'CG BookStore Admin'
     site_title = 'CG BookStore Admin Portal'
     index_title = 'Administração CG BookStore'
 
-
     def generate_schema_view(self, request):
         try:
-            # Define o caminho base correto
             base_dir = os.path.dirname(settings.BASE_DIR)
             output_dir = os.path.join(base_dir, 'database_schemas')
 
-            # Garante que o diretório existe
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            # Gera o schema do banco
             current_date = datetime.now().strftime('%Y%m%d_%H%M%S')
             management.call_command('generate_tables', output_dir=output_dir)
 
             messages.success(request, 'Schema do banco de dados gerado com sucesso!')
             logger.info(f'Schema gerado com sucesso em: {output_dir}')
-
         except Exception as e:
             logger.error(f'Erro ao gerar schema: {str(e)}')
             messages.error(request, f'Erro ao gerar schema: {str(e)}')
@@ -46,15 +45,12 @@ class DatabaseAdminSite(admin.AdminSite):
 
     def generate_structure_view(self, request):
         try:
-            # Define o caminho base correto
             base_dir = os.path.dirname(settings.BASE_DIR)
             output_dir = os.path.join(base_dir, 'project_structure')
 
-            # Garante que o diretório existe
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            # Gera a estrutura
             current_date = datetime.now().strftime('%Y%m%d_%H%M%S')
             csv_filename = f'project_structure_{current_date}.csv'
             csv_path = os.path.join(output_dir, csv_filename)
@@ -72,10 +68,8 @@ class DatabaseAdminSite(admin.AdminSite):
                     f'Arquivo gerado mas não encontrado no caminho esperado: {csv_path}'
                 )
 
-            # Log adicional para debug
             logger.info(f'Tentando gerar estrutura em: {output_dir}')
             logger.info(f'Arquivo CSV esperado em: {csv_path}')
-
         except Exception as e:
             logger.error(f'Erro ao gerar estrutura: {str(e)}')
             messages.error(
@@ -83,6 +77,27 @@ class DatabaseAdminSite(admin.AdminSite):
                 f'Erro ao gerar estrutura do projeto: {str(e)}'
             )
         return HttpResponse('<script>window.history.back()</script>')
+
+    def export_data_json(self, request):
+        """
+        Exporta todos os dados do banco de dados em formato JSON.
+        """
+        data = {}
+        try:
+            for model, model_admin in self._registry.items():
+                model_name = model.__name__
+                data[model_name] = list(model.objects.all().values())
+
+            response = HttpResponse(content_type='application/json')
+            response['Content-Disposition'] = 'attachment; filename="database_dump.json"'
+            response.write(json.dumps(data, indent=4, ensure_ascii=False))
+
+            messages.success(request, "Dados exportados com sucesso para JSON!")
+            return response
+        except Exception as e:
+            logger.error(f"Erro ao exportar dados: {str(e)}")
+            messages.error(request, f"Erro ao exportar dados: {str(e)}")
+            return HttpResponse('<script>window.history.back()</script>')
 
     def _clear_folder_content(self, folder_path, folder_name):
         folder_status = {'files_removed': 0, 'errors': []}
@@ -93,37 +108,28 @@ class DatabaseAdminSite(admin.AdminSite):
 
         def remove_recursive(path):
             try:
-                # Primeiro remove todos os arquivos
                 for root, dirs, files in os.walk(path, topdown=False):
-                    # Remove arquivos
                     for file in files:
                         try:
                             file_path = os.path.join(root, file)
-                            os.chmod(file_path, 0o777)  # Altera permissão
+                            os.chmod(file_path, 0o777)
                             os.unlink(file_path)
                             folder_status['files_removed'] += 1
                             logger.info(f'Arquivo removido: {file_path}')
                         except Exception as e:
-                            error_msg = f'Erro ao remover arquivo {file}: {str(e)}'
-                            folder_status['errors'].append(error_msg)
-                            logger.error(error_msg)
+                            folder_status['errors'].append(f'Erro ao remover arquivo {file}: {e}')
+                            logger.error(f'Erro ao remover arquivo {file}: {e}')
 
-                    # Remove diretórios vazios
                     for dir_name in dirs:
                         try:
-                            dir_path = os.path.join(root, dir_name)
-                            os.chmod(dir_path, 0o777)  # Altera permissão
-                            os.rmdir(dir_path)
-                            logger.info(f'Pasta removida: {dir_path}')
+                            os.rmdir(os.path.join(root, dir_name))
                         except Exception as e:
-                            error_msg = f'Erro ao remover pasta {dir_name}: {str(e)}'
-                            folder_status['errors'].append(error_msg)
-                            logger.error(error_msg)
+                            folder_status['errors'].append(f'Erro ao remover pasta {dir_name}: {e}')
+                            logger.error(f'Erro ao remover pasta {dir_name}: {e}')
 
             except Exception as e:
-                error_msg = f'Erro ao processar {path}: {str(e)}'
-                folder_status['errors'].append(error_msg)
-                logger.error(error_msg)
+                folder_status['errors'].append(f'Erro ao processar {path}: {e}')
+                logger.error(f'Erro ao processar {path}: {e}')
 
         remove_recursive(folder_path)
         return folder_status
@@ -171,17 +177,52 @@ class DatabaseAdminSite(admin.AdminSite):
 
         return HttpResponse('<script>window.history.back()</script>')
 
+    def view_database(self, request):
+        """
+        Visualiza os dados de todas as tabelas do banco, ou dados filtrados por tabela específica.
+        """
+        try:
+            # Lista todas as tabelas registradas no admin.
+            tables = {model._meta.model_name: model for model in self._registry}
+
+            # Caso um filtro por tabela seja solicitado.
+            table_name = request.GET.get('table')
+            if table_name:
+                model = tables.get(table_name)
+                if model:
+                    objects = model.objects.all().values()
+                    context = {
+                        'table_name': table_name,
+                        'data': objects,  # Dados retornados como lista
+                        'columns': [field.name for field in model._meta.fields]
+                    }
+                    return render(request, 'admin/database_table_view.html', context)
+
+                messages.error(request, f'Tabela "{table_name}" não encontrada.')
+                return HttpResponse('<script>window.history.back()</script>')
+
+            # Renderizar a tela inicial com as tabelas registradas.
+            context = {'tables': tables.keys()}
+            return render(request, 'admin/database_overview.html', context)
+
+        except Exception as e:
+            logger.error(f'Erro ao visualizar banco de dados: {str(e)}')
+            messages.error(request, f'Erro ao visualizar banco de dados: {str(e)}')
+            return HttpResponse('<script>window.history.back()</script>')
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
+            path('view-database/', self.admin_view(self.view_database), name='view-database'),  # Nova rota
             path('generate-schema/', self.admin_view(self.generate_schema_view), name='generate-schema'),
             path('generate-structure/', self.admin_view(self.generate_structure_view), name='generate-structure'),
+            path('export-data/json/', self.admin_view(self.export_data_json), name='export-data-json'),
             path('clear-folders/all/', self.admin_view(self.clear_folders_view), name='clear-folders'),
             path('clear-folders/schema/', self.admin_view(self.clear_schema_folder_view), name='clear-schema-folder'),
-            path('clear-folders/structure/', self.admin_view(self.clear_structure_folder_view),
-                 name='clear-structure-folder'),
+            path('clear-folders/structure/', self.admin_view(self.clear_structure_folder_view), name='clear-structure-folder'),
         ]
         return custom_urls + urls
+
 
 admin_site = DatabaseAdminSite(name='admin')
 
@@ -212,20 +253,71 @@ class ProfileAdmin(admin.ModelAdmin):
     list_filter = ('updated_at',)
     raw_id_fields = ('user',)
 
+
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'ativo', 'ordem', 'data_inicio', 'data_fim')
+    list_filter = ('ativo',)
+    search_fields = ('titulo', 'subtitulo', 'descricao')
+    ordering = ('ordem', '-data_inicio')
+    fieldsets = (
+        ('Informações Básicas', {
+            'fields': ('titulo', 'subtitulo', 'descricao', 'link')
+        }),
+        ('Imagens', {
+            'fields': ('imagem', 'imagem_mobile'),
+            'description': 'Upload das imagens do banner. Recomendado: 1920x600px para desktop e 768x500px para mobile'
+        }),
+        ('Configurações de Exibição', {
+            'fields': ('ativo', 'ordem', 'data_inicio', 'data_fim')
+        }),
+    )
+
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'autor', 'editora', 'categoria', 'data_publicacao')  # Removido 'classificacao'
-    list_filter = ('categoria',)  # Removido 'classificacao'
+    list_display = ('titulo', 'autor', 'editora', 'e_lancamento', 'e_destaque', 'tipo_shelf_especial')
+    list_filter = ('e_lancamento', 'e_destaque', 'adaptado_filme', 'e_manga', 'tipo_shelf_especial')
     search_fields = ('titulo', 'autor', 'editora')
     ordering = ('titulo',)
 
     fieldsets = (
-        ('Informações Básicas', {
-            'fields': ('titulo', 'autor', 'descricao', 'capa')
+        ('Mídia', {
+            'fields': ('capa', 'capa_preview'),
+            'description': 'Upload de imagens do livro. Tamanho recomendado: 400x600px'
         }),
-        ('Detalhes do Livro', {
-            'fields': ('editora', 'data_publicacao', 'categoria')  # Removido 'classificacao'
+        ('Informações Básicas', {
+            'fields': ('titulo', 'subtitulo', 'autor', 'tradutor', 'ilustrador', 'editora', 'isbn', 'edicao',
+                       'data_publicacao', 'numero_paginas', 'idioma', 'formato', 'dimensoes', 'peso', 'preco',
+                       'preco_promocional')
+        }),
+        ('Categorização e Conteúdo', {
+            'fields': ('categoria', 'genero', 'descricao', 'temas', 'personagens', 'enredo', 'publico_alvo')
+        }),
+        ('Metadados e Conteúdo Adicional', {
+            'fields': ('premios', 'adaptacoes', 'colecao', 'classificacao', 'localizacao'),
+            'classes': ('collapse',)
+        }),
+        ('Recursos Web e Marketing', {
+            'fields': ('website', 'redes_sociais', 'citacoes', 'curiosidades'),
+            'classes': ('collapse',)
+        }),
+        ('Conteúdo Textual', {
+            'fields': ('prefacio', 'posfacio', 'notas', 'bibliografia', 'indice', 'glossario', 'apendices'),
+            'classes': ('collapse',)
+        }),
+        ('Configurações da Home', {
+            'fields': (
+                'e_lancamento', 'quantidade_vendida', 'quantidade_acessos',
+                'e_destaque', 'adaptado_filme', 'e_manga', 'tipo_shelf_especial',
+                'ordem_exibicao'
+            )
         }),
     )
+
+    readonly_fields = ('created_at', 'updated_at')
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # editing an existing object
+            return self.readonly_fields + ('created_at',)
+        return self.readonly_fields
 
 class UserBookShelfAdmin(admin.ModelAdmin):
     list_display = ('user', 'book', 'shelf_type', 'added_at', 'updated_at')  # Substituído 'personal_rating' por 'updated_at'
@@ -248,3 +340,4 @@ admin_site.register(Profile, ProfileAdmin)
 admin_site.register(Book, BookAdmin)
 admin_site.register(UserBookShelf, UserBookShelfAdmin)
 admin_site.register(Group)  # Registrando o modelo Group do Django
+admin_site.register(Banner, BannerAdmin)

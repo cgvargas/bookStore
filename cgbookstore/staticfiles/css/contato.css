@@ -1,0 +1,49 @@
+/* Estilos para o formulário */
+.contato-form {
+    background-color: #f8f9fa; /* Cor de fundo clara */
+    border-radius: 10px; /* Bordas arredondadas */
+    padding: 30px; /* Espaçamento interno */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+.form-label {
+    font-weight: bold; /* Labels em negrito */
+}
+.form-control {
+    border-color: #ced4da; /* Cor da borda mais suave */
+}
+
+#mensagem {
+  height: 200px; /* Altura fixa em pixels */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Cor primária do Bootstrap */
+    border-color: #007bff; /* Cor da borda */
+}
+.btn-primary:hover {
+    background-color: #0069d9; /* Cor mais escura ao passar o mouse */
+    border-color: #0062cc; /* Cor da borda ao passar o mouse */
+}
+
+/* Estilos para a seção de informações de contato */
+.contact-info {
+    background-color: #f8f9fa; /* Cor de fundo clara */
+    border-radius: 10px; /* Bordas arredondadas */
+    padding: 30px; /* Espaçamento interno */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+.contact-info i {
+    color: #007bff; /* Cor do ícone */
+}
+
+/* Estilos para as redes sociais */
+.social-section {
+    text-align: center; /* Centralizar ícones */
+}
+.social-section a {
+    color: #333; /* Cor do ícone */
+    transition: color 0.3s ease; /* Transição suave na cor */
+}
+.social-section a:hover {
+    color: #007bff; /* Cor do ícone ao passar o mouse */
+}

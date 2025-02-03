@@ -1,63 +1,125 @@
-// Funções que precisam ser acessíveis globalmente
-window.confirmDeleteBook = confirmDeleteBook;
-window.openBookManager = openBookManager;
-window.openShelfManager = openShelfManager;
-window.openEditBookModal = openEditBookModal;
-window.openMoveBookModal = openMoveBookModal;
-window.saveBookEdit = saveBookEdit;
-window.saveBookMove = saveBookMove;
-window.openNewBookModal = openNewBookModal;
-window.saveNewBook = saveNewBook;
+// Estado da aplicação
+const STATE = {
+    isProcessing: false,
+    booksBeingProcessed: new Set(),
+    modalsInitialized: false,
+    currentBookId: null,
+    currentShelfType: null,
+    swiperInstances: []
+};
 
-// Inicialização dos modais
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar todos os modais
-    const modals = {
-        bookManager: new bootstrap.Modal(document.getElementById('bookManagerModal')),
-        shelfManager: new bootstrap.Modal(document.getElementById('shelfManagerModal')),
-        editBook: new bootstrap.Modal(document.getElementById('editBookModal')),
-        moveBook: new bootstrap.Modal(document.getElementById('moveBookModal')),
-        newBook: new bootstrap.Modal(document.getElementById('newBookModal'))
-    };
+// Gerenciador de modais
+const ModalManager = {
+    modals: {},
 
-    // Expor modais globalmente
-    window.bookModals = modals;
+    init() {
+        const modalElements = {
+            bookManager: document.getElementById('bookManagerModal'),
+            shelfManager: document.getElementById('shelfManagerModal'),
+            editBook: document.getElementById('editBookModal'),
+            moveBook: document.getElementById('moveBookModal'),
+            newBook: document.getElementById('newBookModal')
+        };
 
-    // Adicionar listeners para limpar estado ao fechar modais
-    Object.values(modals).forEach(modal => {
-        modal._element.addEventListener('hidden.bs.modal', clearModalBackdrop);
-    });
-});
+        Object.entries(modalElements).forEach(([key, element]) => {
+            if (element) {
+                this.modals[key] = new bootstrap.Modal(element);
+                this.setupModalEvents(element);
+            }
+        });
 
-// Variáveis globais para controle
-let currentBookId = null;
-let currentShelfType = null;
+        STATE.modalsInitialized = true;
+    },
 
-// Função para limpar backdrop e estado do modal
-function clearModalBackdrop() {
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) {
-        backdrop.remove();
+    setupModalEvents(modalElement) {
+        if (!modalElement) return;
+
+        modalElement.addEventListener('hidden.bs.modal', () => {
+            this.clearModalBackdrop();
+            modalElement.removeAttribute('aria-hidden');
+        });
+
+        modalElement.addEventListener('show.bs.modal', () => {
+            this.clearModalBackdrop();
+        });
+    },
+
+    show(modalName) {
+        if (this.modals[modalName]) {
+            this.modals[modalName].show();
+        } else {
+            console.error(`Modal ${modalName} não encontrado`);
+        }
+    },
+
+    hide(modalName) {
+        if (this.modals[modalName]) {
+            this.modals[modalName].hide();
+        }
+    },
+
+    clearModalBackdrop() {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
     }
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
-}
+};
 
-// Função para mostrar alertas
-function showAlert(message, type = 'success') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
-    alertDiv.style.zIndex = '1050';
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    document.body.appendChild(alertDiv);
-    setTimeout(() => alertDiv.remove(), 5000);
-}
+// Gerenciador de Livros
+const BookManager = {
+    isProcessing(bookId) {
+        return STATE.booksBeingProcessed.has(bookId);
+    },
 
-// Função para obter o token CSRF
+    markAsProcessing(bookId) {
+        STATE.booksBeingProcessed.add(bookId);
+        setTimeout(() => STATE.booksBeingProcessed.delete(bookId), 1000);
+    },
+
+    async removeBook(bookId, shelfType) {
+        if (this.isProcessing(bookId)) return;
+        this.markAsProcessing(bookId);
+
+        try {
+            const response = await fetch('/books/remove-from-shelf/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ book_id: bookId, shelf_type: shelfType })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showAlert('Livro removido com sucesso!');
+                ModalManager.hide('bookManager');
+                setTimeout(() => window.location.reload(), 500);
+            } else {
+                throw new Error(data.error || 'Erro ao remover livro');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            showAlert(error.message || 'Erro ao remover livro', 'danger');
+        }
+    }
+};
+
+// Gerenciador de Carrossel
+const CarouselManager = {
+    async init() {
+        try {
+            const { default: SwiperConfig } = await import('/static/js/swiper-config.js');
+            STATE.swiperInstances = SwiperConfig.initAll();
+        } catch (error) {
+            console.error('Erro ao inicializar carrosséis:', error);
+        }
+    }
+};
+
+// Funções Utilitárias
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -73,195 +135,157 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Funções de gerenciamento
+function showAlert(message, type = 'success') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+    alertDiv.style.zIndex = '1050';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    setTimeout(() => alertDiv.remove(), 5000);
+}
+
+// Funções de Navegação
 function openBookManager(bookId, shelfType) {
-    currentBookId = bookId;
-    currentShelfType = shelfType;
-    window.bookModals.bookManager.show();
+    if (BookManager.isProcessing(bookId)) return;
+    STATE.currentBookId = bookId;
+    STATE.currentShelfType = shelfType;
+    window.location.href = `/books/${bookId}/`;
 }
 
 function openShelfManager(shelfType) {
-    currentShelfType = shelfType;
+    if (!STATE.modalsInitialized) {
+        console.error('Modais não inicializados');
+        return;
+    }
+    STATE.currentShelfType = shelfType;
+    ModalManager.show('shelfManager');
+}
+
+function openNewBookModal(shelfType) {
+    if (!STATE.modalsInitialized) {
+        console.error('Modais não inicializados');
+        return;
+    }
+
+    // Atualiza o tipo de prateleira no estado
+    STATE.currentShelfType = shelfType;
+
+    // Atualiza o campo hidden do formulário
     document.getElementById('newBookShelfType').value = shelfType;
-    window.bookModals.shelfManager.show();
+
+    // Exibe o modal
+    ModalManager.show('newBook');
 }
 
-// Função para confirmar exclusão
-function confirmDeleteBook() {
-    console.log('Confirmando exclusão do livro:', currentBookId);
-    if (confirm('Tem certeza que deseja remover este livro da sua prateleira?')) {
-        removeBook(currentBookId, currentShelfType);
-    }
-}
+// Adicionar a função que será chamada ao clicar em "Adicionar" no modal
+async function saveNewBook() {
+    const form = document.getElementById('newBookForm');
+    const bookData = {
+        titulo: document.getElementById('newTitle').value,
+        autor: document.getElementById('newAuthor').value,
+        descricao: document.getElementById('newDescription').value,
+        editora: document.getElementById('newPublisher').value,
+        categoria: document.getElementById('newCategory').value,
+        shelf_type: document.getElementById('newBookShelfType').value
+    };
 
-// Função para remover livro
-function removeBook(bookId, shelfType) {
-    console.log('Removendo livro:', bookId, 'da prateleira:', shelfType);
-    fetch('/books/remove-from-shelf/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            book_id: bookId,
-            shelf_type: shelfType
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Livro removido com sucesso!');
-            window.bookModals.bookManager.hide();
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showAlert(data.error || 'Erro ao remover livro', 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        showAlert('Erro ao remover livro', 'danger');
-    });
-}
+    try {
+        const formData = new FormData();
 
-// Funções de edição
-function openEditBookModal() {
-    window.bookModals.bookManager.hide();
-    fetch(`/books/${currentBookId}/details/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('editBookId').value = currentBookId;
-                document.getElementById('editTitle').value = data.titulo;
-                document.getElementById('editAuthor').value = data.autor;
-                document.getElementById('editDescription').value = data.descricao;
-                document.getElementById('editPublisher').value = data.editora;
-                document.getElementById('editCategory').value = data.categoria;
-                window.bookModals.editBook.show();
-            } else {
-                showAlert(data.error || 'Erro ao carregar dados do livro', 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao carregar dados do livro:', error);
-            showAlert('Erro ao carregar dados do livro', 'danger');
+        // Adicionar dados do livro
+        Object.keys(bookData).forEach(key => {
+            formData.append(key, bookData[key]);
         });
-}
 
-// Função para salvar edição
-function saveBookEdit() {
-    const formData = new FormData();
-    formData.append('titulo', document.getElementById('editTitle').value);
-    formData.append('autor', document.getElementById('editAuthor').value);
-    formData.append('descricao', document.getElementById('editDescription').value);
-    formData.append('editora', document.getElementById('editPublisher').value);
-    formData.append('categoria', document.getElementById('editCategory').value);
-
-    const coverFile = document.getElementById('editCover').files[0];
-    if (coverFile) {
-        formData.append('capa', coverFile);
-    }
-
-    fetch(`/books/${currentBookId}/update/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Livro atualizado com sucesso!');
-            window.bookModals.editBook.hide();
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showAlert(data.error || 'Erro ao atualizar livro', 'danger');
+        // Adicionar arquivo de capa se existir
+        const coverFile = document.getElementById('newCover').files[0];
+        if (coverFile) {
+            formData.append('capa', coverFile);
         }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        showAlert('Erro ao atualizar livro', 'danger');
-    });
-}
 
-// Funções de transferência
-function openMoveBookModal() {
-    window.bookModals.bookManager.hide();
-    document.getElementById('moveBookId').value = currentBookId;
-    document.getElementById('newShelfType').value = currentShelfType;
-    window.bookModals.moveBook.show();
-}
+        const response = await fetch('/books/add-book-manual/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+        });
 
-function saveBookMove() {
-    fetch('/books/move-book/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            book_id: currentBookId,
-            new_shelf: document.getElementById('newShelfType').value
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Livro movido com sucesso!');
-            window.bookModals.moveBook.hide();
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showAlert(data.error || 'Erro ao mover livro', 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        showAlert('Erro ao mover livro', 'danger');
-    });
-}
+        const data = await response.json();
 
-// Funções de novo livro
-function openNewBookModal() {
-    window.bookModals.shelfManager.hide();
-    document.getElementById('newBookShelfType').value = currentShelfType;
-    document.getElementById('newBookForm').reset();
-    window.bookModals.newBook.show();
-}
-
-function saveNewBook() {
-    const formData = new FormData();
-    formData.append('titulo', document.getElementById('newTitle').value);
-    formData.append('autor', document.getElementById('newAuthor').value);
-    formData.append('descricao', document.getElementById('newDescription').value);
-    formData.append('editora', document.getElementById('newPublisher').value);
-    formData.append('categoria', document.getElementById('newCategory').value);
-    formData.append('shelf_type', document.getElementById('newBookShelfType').value);
-
-    const coverFile = document.getElementById('newCover').files[0];
-    if (coverFile) {
-        formData.append('capa', coverFile);
-    }
-
-    fetch('/books/add-manual/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
         if (data.success) {
             showAlert('Livro adicionado com sucesso!');
-            window.bookModals.newBook.hide();
-            setTimeout(() => window.location.reload(), 1000);
+            ModalManager.hide('newBook');
+            setTimeout(() => window.location.reload(), 500);
         } else {
-            showAlert(data.error || 'Erro ao adicionar livro', 'danger');
+            throw new Error(data.error || 'Erro ao adicionar livro');
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Erro:', error);
-        showAlert('Erro ao adicionar livro', 'danger');
-    });
+        showAlert(error.message || 'Erro ao adicionar livro', 'danger');
+    }
 }
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    ModalManager.init();
+    CarouselManager.init();
+
+    // Configurar eventos dos botões
+    document.getElementById('editBookBtn')?.addEventListener('click', () => {
+        ModalManager.hide('bookManager');
+        window.location.href = `/books/${STATE.currentBookId}/`;
+    });
+
+    document.getElementById('moveBookBtn')?.addEventListener('click', () => {
+        ModalManager.hide('bookManager');
+        ModalManager.show('moveBook');
+    });
+
+    document.getElementById('deleteBookBtn')?.addEventListener('click', () => {
+        if (confirm('Tem certeza que deseja remover este livro da sua prateleira?')) {
+            BookManager.removeBook(STATE.currentBookId, STATE.currentShelfType);
+        }
+    });
+});
+
+// Adicionando handler para upload de foto
+document.getElementById('avatarInput')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('profile_photo', file);
+
+    try {
+        const response = await fetch('/profile/update-photo/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            window.location.reload();
+        } else {
+            showAlert(data.error || 'Erro ao atualizar foto', 'danger');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showAlert('Erro ao atualizar foto', 'danger');
+    }
+});
+
+// Tratamento de Erros Global
+window.addEventListener('error', function(event) {
+    if (event.error?.toString().includes('Modal')) {
+        console.error('Erro no gerenciamento de modais:', event.error);
+        ModalManager.clearModalBackdrop();
+    }
+});

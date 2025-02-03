@@ -37,6 +37,25 @@ bookstore/
 │   │   │   │   ├── book.py
 │   │   │   │   ├── profile.py
 │   │   │   │   ├── user.py
+│   │   │   ├── recommendations/        # Novo módulo de recomendações
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── engine.py          # Motor principal de recomendações
+│   │   │   │   ├── providers/         # Provedores de recomendações
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── history.py     # Baseado em histórico
+│   │   │   │   │   ├── category.py    # Baseado em categorias
+│   │   │   │   │   └── similarity.py  # Baseado em similaridade
+│   │   │   │   ├── services/         # Serviços de suporte
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── calculator.py  # Cálculos de score
+│   │   │   │   ├── utils/            # Utilitários
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── processors.py  # Processadores de dados
+│   │   │   │   └── tests/            # Testes unitários
+│   │   │   │       ├── __init__.py
+│   │   │   │       ├── test_engine.py
+│   │   │   │       ├── test_providers.py
+│   │   │   │       └── test_processors.py
 │   │   │   ├── serializers/
 │   │   │   │   ├── init.py
 │   │   │   │   ├── user_serializer.py
@@ -139,3 +158,28 @@ bookstore/
 │       └── capas
 ├── project_structure/
 └── .venv/
+
+Notas sobre a Estrutura
+
+1) Módulo de Recomendações:
+
+Completamente isolado
+Independente dos outros módulos
+Facilmente extensível
+Bem testado
+
+
+2) Organização:
+
+Separação clara de responsabilidades
+Fácil manutenção
+Código limpo e documentado
+Testes abrangentes
+
+
+3)Integração:
+
+Sistema de plugins
+Baixo acoplamento
+Alta coesão
+Facilmente adaptável

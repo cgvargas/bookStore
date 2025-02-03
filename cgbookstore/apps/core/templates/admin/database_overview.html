@@ -1,0 +1,10 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Visualizar Tabelas do Banco de Dados</h1>
+<p>Selecione a tabela para visualizar os registros:</p>
+<ul>
+    {% for table in tables %}
+    <li><a href="?table={{ table }}">{{ table }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

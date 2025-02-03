@@ -3,40 +3,149 @@
 
 {% block title %}Página Inicial{% endblock %}
 
-{% block content %}
-<div class="container">
-    <!-- Livros em Destaque -->
-    <h1 class="section-title main">Livros em Destaque</h1>
-    <div class="row">
-        {% for livro in livros_destaque %}
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ livro.titulo }}</h5>
-                    <p class="card-text">{{ livro.autor }}</p>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <p class="text-muted">Nenhum livro em destaque.</p>
-        {% endfor %}
-    </div>
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+{% endblock %}
 
-    <!-- Livros Mais Vendidos -->
-    <h1 class="section-title sub">Livros Mais Vendidos</h1>
-    <div class="row">
-        {% for livro in livros_mais_vendidos %}
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ livro.titulo }}</h5>
-                    <p class="card-text">{{ livro.autor }}</p>
+{% block content %}
+<!-- Banner Carousel -->
+{% if banners %}
+<div class="banner-carousel">
+    <div class="swiper bannerSwiper">
+        <div class="swiper-wrapper">
+            {% for banner in banners %}
+            <div class="swiper-slide">
+                <div class="banner-content">
+                    <picture>
+                        <source media="(max-width: 768px)" srcset="{{ banner.get_mobile_url }}" loading="lazy">
+                        <img src="{{ banner.get_imagem_url }}" alt="{{ banner.titulo }}" class="banner-image" loading="lazy" decoding="async">
+                    </picture>
+                    {% if banner.titulo or banner.subtitulo or banner.descricao %}
+                    <div class="banner-text">
+                        <h2>{{ banner.titulo }}</h2>
+                        {% if banner.subtitulo %}<h3>{{ banner.subtitulo }}</h3>{% endif %}
+                        {% if banner.descricao %}<p>{{ banner.descricao }}</p>{% endif %}
+                        {% if banner.link %}
+                        <a href="{{ banner.link }}" class="btn btn-primary">Saiba mais</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <p class="text-muted">Nenhum livro disponível.</p>
-        {% endfor %}
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
     </div>
 </div>
+{% endif %}
+
+<!-- Book Shelves -->
+{% for shelf in shelves %}
+{% if shelf.livros %}
+<section class="book-shelf" id="{{ shelf.id }}">
+    <div class="container">
+        <h2 class="section-title animate-fade-in">
+            {{ shelf.titulo }}
+            {% if shelf.id == 'recomendados' and not user.is_authenticated %}
+            <small class="text-muted">(Faça login para ver recomendações personalizadas)</small>
+            {% endif %}
+        </h2>
+        <div class="swiper bookSwiper">
+            <div class="swiper-wrapper">
+                {% for livro in shelf.livros %}
+                <div class="swiper-slide">
+                    <div class="book-card animate-scale-in gpu-accelerated">
+                        <a href="{% url 'book_detail' livro.pk %}" class="book-link">
+                            <div class="book-cover hover-lift">
+                                <img src="{{ livro.get_capa_url }}" alt="{{ livro.titulo }}" loading="lazy">
+                                {% if livro.preco_promocional %}
+                                <div class="discount-badge">
+                                    {% widthratio livro.preco_promocional livro.preco 100 as desconto %}
+                                    <span>-{{ desconto }}%</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="book-info">
+                                <h3 class="book-title">{{ livro.titulo }}</h3>
+                                <p class="book-author">{{ livro.autor }}</p>
+                                {% if livro.preco %}
+                                    <div class="book-price {% if livro.preco_promocional %}has-discount{% endif %}">
+                                        {% if livro.preco_promocional %}
+                                            <span class="original-price">R$ {{ livro.preco|floatformat:2 }}</span>
+                                            <span class="promotional-price">R$ {{ livro.preco_promocional|floatformat:2 }}</span>
+                                        {% else %}
+                                            <span class="regular-price">R$ {{ livro.preco|floatformat:2 }}</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Banner Swiper
+    new Swiper('.bannerSwiper', {
+        loop: true,
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        effect: 'fade',
+        fadeEffect: {
+            crossFade: true
+        }
+    });
+
+    // Books Swiper
+    const bookSwipers = document.querySelectorAll('.bookSwiper');
+    bookSwipers.forEach(function(element) {
+        new Swiper(element, {
+            slidesPerView: 2,
+            spaceBetween: 20,
+            navigation: {
+                nextEl: element.querySelector('.swiper-button-next'),
+                prevEl: element.querySelector('.swiper-button-prev'),
+            },
+            breakpoints: {
+                640: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                },
+                768: {
+                    slidesPerView: 4,
+                    spaceBetween: 30,
+                },
+                1024: {
+                    slidesPerView: 5,
+                    spaceBetween: 30,
+                },
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

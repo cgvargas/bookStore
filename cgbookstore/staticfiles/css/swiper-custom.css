@@ -1,0 +1,192 @@
+/* ==========================================================================
+   Swiper - Sistema Unificado
+   ========================================================================== */
+
+/* Container Principal
+   ========================================================================== */
+.swiper-container {
+    width: 100%;
+    height: 100%;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    margin: var(--spacing-md) 0;
+    overflow: hidden;
+    position: relative;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Slides
+   ========================================================================== */
+.swiper-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--transition-default);
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.swiper-slide-active {
+    transform: scale(1.02);
+    transition: transform var(--transition-default);
+}
+
+/* Navegação
+   ========================================================================== */
+.swiper-button-next,
+.swiper-button-prev {
+    width: 40px;
+    height: 40px;
+    background-color: var(--white);
+    border-radius: var(--radius-circle);
+    box-shadow: var(--shadow-md);
+    color: var(--primary-color);
+    transition: all var(--transition-default);
+
+    &::after {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    &:hover {
+        background-color: var(--primary-color);
+        color: var(--white);
+        transform: scale(1.1);
+    }
+
+    &.swiper-button-disabled {
+        opacity: 0;
+        cursor: default;
+        pointer-events: none;
+    }
+}
+
+/* Paginação
+   ========================================================================== */
+.swiper-pagination {
+    position: relative;
+    margin-top: var(--spacing-md);
+}
+
+.swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background-color: var(--text-muted);
+    opacity: 0.5;
+    transition: all var(--transition-default);
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    &-active {
+        background-color: var(--primary-color);
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* Loading States
+   ========================================================================== */
+.swiper-lazy-preloader {
+    width: 42px;
+    height: 42px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -21px;
+    margin-top: -21px;
+    border: 4px solid var(--primary-color);
+    border-top-color: transparent;
+    border-radius: var(--radius-circle);
+    animation: swiper-preloader-spin 1s infinite linear;
+}
+
+@keyframes swiper-preloader-spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Efeitos de Transição
+   ========================================================================== */
+.swiper-fade-effect {
+    .swiper-slide {
+        transition: opacity var(--transition-default);
+        opacity: 0;
+
+        &-active {
+            opacity: 1;
+        }
+    }
+}
+
+/* Acessibilidade
+   ========================================================================== */
+.swiper-button-next:focus,
+.swiper-button-prev:focus,
+.swiper-pagination-bullet:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Suporte a Touch
+   ========================================================================== */
+.swiper-container {
+    touch-action: pan-y;
+}
+
+/* Responsividade
+   ========================================================================== */
+@media (max-width: var(--breakpoint-sm)) {
+    .swiper-button-next,
+    .swiper-button-prev {
+        width: 32px;
+        height: 32px;
+
+        &::after {
+            font-size: 14px;
+        }
+    }
+
+    .swiper-container {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+}
+
+/* Modo Escuro
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+    .swiper-button-next,
+    .swiper-button-prev {
+        background-color: var(--dark-bg);
+        color: var(--text-light);
+
+        &:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+    }
+
+    .swiper-pagination-bullet {
+        background-color: var(--text-light);
+    }
+}
+
+/* Preferências de Redução de Movimento
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    .swiper-container *,
+    .swiper-slide,
+    .swiper-button-next,
+    .swiper-button-prev,
+    .swiper-pagination-bullet {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .swiper-slide-active {
+        transform: none;
+    }
+}

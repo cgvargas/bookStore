@@ -3,6 +3,10 @@
 
 {% block title %}Contato{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/contato.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container mt-3">
     <div class="row">
@@ -32,7 +36,7 @@
                 </div>
                 <div class="form-group mb-2">
                     <label for="mensagem" class="form-label">Mensagem</label>
-                    <textarea class="form-control" id="mensagem" name="mensagem" rows="4" required></textarea>
+                    <textarea class="form-control" id="mensagem" name="mensagem" rows="8" required></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Enviar</button>

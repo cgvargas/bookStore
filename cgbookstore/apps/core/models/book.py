@@ -11,7 +11,7 @@ User = get_user_model()
 
 class Book(models.Model):
     """
-    Modelo para gerenciar informações detalhadas de livros no sistema.
+    Modelo para gerir informações detalhadas de livros no sistema.
     Inclui dados bibliográficos, conteúdo e informações adicionais.
     """
     # Campos bibliográficos básicos
@@ -29,6 +29,8 @@ class Book(models.Model):
     formato = models.CharField(_('Formato'), max_length=50, blank=True)
     dimensoes = models.CharField(_('Dimensões'), max_length=50, blank=True)
     peso = models.CharField(_('Peso'), max_length=20, blank=True)
+    preco = models.DecimalField(_('Preço'), max_digits=10, decimal_places=2, null=True, blank=True)
+    preco_promocional = models.DecimalField(_('Preço Promocional'), max_digits=10, decimal_places=2, null=True, blank=True)
 
     # Campos de categorização e conteúdo
     categoria = models.CharField(_('Categoria'), max_length=100, blank=True)
@@ -62,13 +64,38 @@ class Book(models.Model):
     # Campos web e marketing
     website = models.URLField(_('Website'), max_length=200, blank=True)
     redes_sociais = models.JSONField(_('Redes Sociais'), default=dict, blank=True)
-    preco = models.JSONField(_('Preços'), default=dict, blank=True)
     citacoes = models.TextField(_('Citações'), blank=True)
     curiosidades = models.TextField(_('Curiosidades'), blank=True)
 
     # Campos de auditoria
     created_at = models.DateTimeField(_('Criado em'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Atualizado em'), auto_now=True)
+
+    # Campos para categorização na home
+    e_lancamento = models.BooleanField(_('É lançamento'), default=False)
+    quantidade_vendida = models.IntegerField(_('Quantidade vendida'), default=0)
+    quantidade_acessos = models.IntegerField(_('Quantidade de acessos'), default=0)
+    e_destaque = models.BooleanField(_('Em destaque'), default=False)
+    adaptado_filme = models.BooleanField(_('Adaptado para filme/série'), default=False)
+    e_manga = models.BooleanField(_('É manga'), default=False)
+    ordem_exibicao = models.IntegerField(_('Ordem de exibição'), default=0)
+
+    # Campo para identificar tipo de prateleira especial
+    SHELF_SPECIAL_CHOICES = [
+        ('lancamentos', _('Lançamentos')),
+        ('mais_vendidos', _('Mais Vendidos')),
+        ('mais_acessados', _('Mais Acessados')),
+        ('destaques', _('Destaques')),
+        ('filmes', _('Adaptados para Filme/Série')),
+        ('mangas', _('Mangás')),
+    ]
+
+    tipo_shelf_especial = models.CharField(
+        _('Tipo de prateleira especial'),
+        max_length=50,
+        choices=SHELF_SPECIAL_CHOICES,
+        blank=True
+    )
 
     def get_capa_url(self):
         """Retorna a URL da capa ou imagem padrão se não existir"""
@@ -81,6 +108,32 @@ class Book(models.Model):
         if self.capa_preview and Path(settings.MEDIA_ROOT).joinpath(self.capa_preview.name).exists():
             return self.capa_preview.url
         return self.get_capa_url()
+
+    def get_formatted_price(self):
+        """Retorna o preço formatado do livro"""
+        try:
+            if self.preco is None:
+                return None
+
+            from decimal import Decimal
+            preco_decimal = Decimal(str(self.preco)) if self.preco else Decimal('0')
+            valor_formatado = f'R$ {preco_decimal:.2f}'.replace('.', ',')
+            valor_promocional_formatado = None
+
+            if self.preco_promocional is not None:
+                preco_promocional_decimal = Decimal(str(self.preco_promocional))
+                valor_promocional_formatado = f'R$ {preco_promocional_decimal:.2f}'.replace('.', ',')
+
+            return {
+                'moeda': 'BRL',
+                'valor_formatado': valor_formatado,
+                'valor_promocional_formatado': valor_promocional_formatado
+            }
+        except (TypeError, ValueError, Exception):
+            return None
+
+    def __str__(self):
+        return f"{self.titulo} - {self.autor}"
 
     class Meta:
         verbose_name = _('Livro')
