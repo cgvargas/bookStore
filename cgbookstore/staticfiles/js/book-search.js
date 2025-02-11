@@ -23,6 +23,37 @@ document.addEventListener('DOMContentLoaded', function() {
         isProcessing: false
     };
 
+    // Função para rastrear interações
+    async function trackInteraction(bookId, interactionType, source, position = null) {
+        try {
+            const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            const response = await fetch('/api/recommendations/analytics/track/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': token
+                },
+                body: JSON.stringify({
+                    book_id: bookId,
+                    interaction_type: interactionType,
+                    source: source,
+                    position: position,
+                    metadata: {
+                        page: window.location.pathname,
+                        timestamp: new Date().toISOString()
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                console.warn('Falha ao rastrear interação:', await response.text());
+            }
+        } catch (error) {
+            console.warn('Erro ao rastrear interação:', error);
+        }
+    }
+
     // Função para mostrar alertas
     function showAlert(message, type) {
         const alertDiv = document.createElement('div');
@@ -78,38 +109,64 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para exibir os livros
     function displayBooks(books) {
-        elements.searchResults.innerHTML = '';
-        const template = document.getElementById('book-template');
+    elements.searchResults.innerHTML = '';
+    const template = document.getElementById('book-template');
 
-        books.forEach((book, index) => {
-            const clone = template.content.cloneNode(true);
+    books.forEach((book, index) => {
+        const clone = template.content.cloneNode(true);
 
-            const img = clone.querySelector('.book-cover');
-            img.loading = 'lazy';
-            img.decoding = 'async';
-            img.src = book.thumbnail || '/static/images/no-cover.svg';
-            img.alt = `Capa do livro ${book.title}`;
+        const img = clone.querySelector('.book-cover');
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.src = book.thumbnail || '/static/images/no-cover.svg';
+        img.alt = `Capa do livro ${book.title}`;
 
-            // Adiciona fallback para imagens que falham ao carregar
-            img.onerror = () => {
-                img.src = '/static/images/no-cover.svg';
-            };
+        // Rastrear visualização do livro
+        setTimeout(() => {
+            if (isElementInViewport(img)) {
+                trackInteraction(book.id, 'view', 'general', index + 1);
+            }
+        }, 1000);
 
-            clone.querySelector('.book-title').textContent = book.title;
-            clone.querySelector('.book-author').textContent = book.authors.join(', ');
-
-            const publishedYear = book.published_date.split('-')[0];
-            clone.querySelector('.book-date').textContent = `Publicado em ${publishedYear}`;
-            clone.querySelector('.book-description').textContent = book.description;
-
-            const addButton = clone.querySelector('.add-to-shelf');
-            addButton.setAttribute('data-book-index', index);
-
-            elements.searchResults.appendChild(clone);
+        // Adiciona observer para rastrear visualização
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    trackInteraction(book.id, 'view', 'general', index + 1);
+                    observer.unobserve(entry.target);
+                }
+            });
         });
 
-        setupShelfButtons();
-    }
+        img.onerror = () => {
+            img.src = '/static/images/no-cover.svg';
+        };
+
+        // Elementos existentes
+        const titleElement = clone.querySelector('.book-title');
+        titleElement.textContent = book.title;
+        titleElement.addEventListener('click', () => {
+            trackInteraction(book.id, 'click', 'general', index + 1);
+        });
+
+        clone.querySelector('.book-author').textContent = book.authors.join(', ');
+
+        const publishedYear = book.published_date.split('-')[0];
+        clone.querySelector('.book-date').textContent = `Publicado em ${publishedYear}`;
+        clone.querySelector('.book-description').textContent = book.description;
+
+        const addButton = clone.querySelector('.add-to-shelf');
+        addButton.setAttribute('data-book-index', index);
+        addButton.setAttribute('data-book-id', book.id);
+
+        elements.searchResults.appendChild(clone);
+
+        // Observa a imagem para rastrear visualização
+        observer.observe(img);
+    });
+
+    setupShelfButtons();
+}
 
     // Configurar botões de adicionar à prateleira
     function setupShelfButtons() {
@@ -134,7 +191,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const book = state.currentBooks[bookIndex];
         const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        // Preparar dados no formato do modelo Django
         const bookData = {
             titulo: book.title || '',
             subtitulo: book.subtitle || '',
@@ -145,19 +201,15 @@ document.addEventListener('DOMContentLoaded', function() {
             isbn: book.isbn || '',
             categorias: book.categories || [],
             editora: book.publisher || '',
-            valor: book.valor || 0, // Usar o valor numérico do livro ou 0 como padrão
-            valor_promocional: book.valor_promocional || 0, // Usar o valor numérico do livro ou 0 como padrão
+            valor: parseFloat(book.valor) || 0,
+            valor_promocional: parseFloat(book.valor_promocional) || 0,
             moeda: 'BRL'
         };
-
-        console.log('Dados preparados para envio:', JSON.stringify(bookData, null, 2));
 
         const payload = {
             book_data: bookData,
             shelf: shelf
         };
-
-        console.log('Payload completo:', JSON.stringify(payload, null, 2));
 
         const response = await fetch('/books/add-to-shelf/', {
             method: 'POST',
@@ -168,18 +220,12 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify(payload)
         });
 
-        const textResponse = await response.text();
-        console.log('Resposta do servidor (texto):', textResponse);
-
-        let data;
-        try {
-            data = JSON.parse(textResponse);
-        } catch (e) {
-            console.error('Erro ao parsear resposta:', e);
-            throw new Error('Resposta inválida do servidor');
-        }
+        const data = await response.json();
 
         if (response.ok && data.success) {
+            // Rastrear adição à prateleira
+            await trackInteraction(book.id, 'add_shelf', 'general', bookIndex + 1);
+
             const modalInstance = bootstrap.Modal.getInstance(elements.shelfModal);
             if (modalInstance) {
                 modalInstance.hide();
@@ -280,4 +326,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inicialização
     setupEventListeners();
+
+    // Função auxiliar para verificar se elemento está visível
+    function isElementInViewport(el) {
+        const rect = el.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
 });

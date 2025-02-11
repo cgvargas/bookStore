@@ -1,0 +1,269 @@
+{% load static %}
+{% load dashboard_filters %}
+
+{# Container principal de métricas com estilo próprio #}
+<div class="metrics-page">
+    {# Título principal da seção de métricas #}
+    <div class="metrics-header">
+        <h1><i class="fas fa-chart-bar me-2"></i>Métricas Detalhadas</h1>
+    </div>
+
+    {# Grade de métricas principais #}
+    <div class="metrics-grid">
+        {% for metric in metrics %}
+        <div class="metric-card" data-bs-toggle="tooltip" title="{{ metric.description|default:'' }}">
+            <div class="metric-card-header">
+                <h3><i class="fas fa-{{ metric.icon|default:'chart-line' }} me-2"></i>{{ metric.title }}</h3>
+            </div>
+            <div class="metric-card-body">
+                <p class="metric-value" data-animate-number="{{ metric.value }}">{{ metric.value }}</p>
+                {% if metric.change %}
+                <div class="trend-indicator {% if metric.change > 0 %}trend-up{% else %}trend-down{% endif %}">
+                    <i class="fas fa-{% if metric.change > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                    {{ metric.change }}% em relação ao período anterior
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# Seção de taxas de conversão #}
+    <div class="metrics-section">
+        <h2><i class="fas fa-exchange-alt me-2"></i>Taxas de Conversão</h2>
+        <div class="metrics-grid">
+            {% for metric in conversion_metrics %}
+            <div class="metric-card">
+                <div class="metric-card-header">
+                    <h3><i class="fas fa-{{ metric.icon|default:'percentage' }} me-2"></i>{{ metric.title }}</h3>
+                </div>
+                <div class="metric-card-body">
+                    <p class="metric-value">{{ metric.value }}</p>
+                    <p class="metric-description">
+                        {{ metric.conversions }} conversões de {{ metric.total }} interações
+                    </p>
+                    {% if metric.change %}
+                    <div class="trend-indicator {% if metric.change > 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <i class="fas fa-{% if metric.change > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                        {{ metric.change }}% em relação ao período anterior
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# Padrões de Comportamento #}
+    <h3 class="mt-4"><i class="fas fa-clock me-2"></i>Padrões de Atividade</h3>
+    <div class="row g-3">
+        {# Distribuição de Atividade por Período #}
+        <div class="col-md-8">
+            <div class="card activity-heatmap">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Distribuição de Atividade por Período</h5>
+                    <div class="row">
+                        {% for period, hours in hourly_patterns_grouped.items %}
+                        <div class="col-3">
+                            <div class="period-column">
+                                <h6 class="period-title text-center mb-3">{{ period }}</h6>
+                                {% for hour in hours %}
+                                <div class="heatmap-cell activity-{{ hour.intensity }}"
+                                     data-bs-toggle="tooltip"
+                                     title="{{ hour.hour }}:00 - {{ hour.count }} interações">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="hour">{{ hour.hour }}:00</span>
+                                        <span class="count badge bg-secondary">{{ hour.count }}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Padrões por Dia da Semana #}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-calendar me-2"></i>Dias de Maior Atividade</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Dia</th>
+                                    <th>Interações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pattern in weekly_patterns %}
+                                <tr>
+                                    <td>{{ pattern.weekday|get_weekday_name }}</td>
+                                    <td>{{ pattern.count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Livros Populares #}
+    <h3 class="mt-4"><i class="fas fa-star me-2"></i>Livros Mais Populares</h3>
+    <div class="card table-responsive">
+        <div class="card-body">
+            <table class="table table-hover table-datatable">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-book me-2"></i>Título</th>
+                        <th><i class="fas fa-eye me-2"></i>Views</th>
+                        <th><i class="fas fa-mouse-pointer me-2"></i>Cliques</th>
+                        <th><i class="fas fa-cart-plus me-2"></i>Adições</th>
+                        <th><i class="fas fa-shopping-cart me-2"></i>Compras</th>
+                        <th><i class="fas fa-star me-2"></i>Score</th>
+                        <th><i class="fas fa-chart-line me-2"></i>Tendência</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in popular_books %}
+                    <tr>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.views }}</td>
+                        <td>{{ book.clicks }}</td>
+                        <td>{{ book.adds }}</td>
+                        <td>{{ book.purchases }}</td>
+                        <td>{{ book.score }}</td>
+                        <td>
+                            <div class="trend-indicator {% if book.trend > 0 %}trend-up{% else %}trend-down{% endif %}">
+                                <i class="fas fa-{% if book.trend > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                                {{ book.trend|floatformat:1 }}%
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# Métricas por Categoria #}
+    <h3 class="mt-4"><i class="fas fa-folder me-2"></i>Métricas por Categoria</h3>
+    <div class="card table-responsive">
+        <div class="card-body">
+            <table class="table table-hover table-datatable">
+                <thead>
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Total</th>
+                        <th>Views</th>
+                        <th>Cliques</th>
+                        <th>Adições</th>
+                        <th>Compras</th>
+                        <th>Taxa Conversão</th>
+                        <th>Tendência</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for metric in category_metrics %}
+                    <tr>
+                        <td>{{ metric.book__categoria }}</td>
+                        <td>{{ metric.total_interactions }}</td>
+                        <td>{{ metric.views }}</td>
+                        <td>{{ metric.clicks }}</td>
+                        <td>{{ metric.adds }}</td>
+                        <td>{{ metric.purchases }}</td>
+                        <td>{{ metric.conversion_rate }}%</td>
+                        <td>
+                            <div class="trend-indicator {% if metric.trend > 0 %}trend-up{% else %}trend-down{% endif %}">
+                                <i class="fas fa-{% if metric.trend > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                                {{ metric.trend }}%
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# KPIs de Engajamento #}
+    <div class="row mt-4">
+        {# Métricas de Sessão #}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-users-cog me-2"></i>Métricas de Sessão</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-hourglass-half me-2"></i>
+                            Duração Média: <strong>{{ session_metrics.average_session_length|floatformat:1 }}</strong> interações
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-users me-2"></i>
+                            Total de Sessões: <strong>{{ session_metrics.total_sessions }}</strong>
+                        </li>
+                        <li>
+                            <i class="fas fa-redo me-2"></i>
+                            Usuários Recorrentes: <strong>{{ session_metrics.users_with_multiple_sessions }}</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# Segmentação de Usuários #}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-user-tag me-2"></i>Segmentação de Usuários</h5>
+                    <div class="user-segments">
+                        <div class="segment-item">
+                            <div class="segment-label">Usuários Leves (≤5)</div>
+                            <div class="progress">
+                                <div class="progress-bar bg-info" role="progressbar"
+                                     style="width: {{ user_segments.light_users_percentage }}%">
+                                    {{ user_segments.light_users }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="segment-item mt-3">
+                            <div class="segment-label">Usuários Médios (6-15)</div>
+                            <div class="progress">
+                                <div class="progress-bar bg-primary" role="progressbar"
+                                     style="width: {{ user_segments.medium_users_percentage }}%">
+                                    {{ user_segments.medium_users }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="segment-item mt-3">
+                            <div class="segment-label">Usuários Intensos (>15)</div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar"
+                                     style="width: {{ user_segments.heavy_users_percentage }}%">
+                                    {{ user_segments.heavy_users }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extrajs %}
+{# Scripts externos e personalizados #}
+<!-- DataTables e outros scripts -->
+<script src="https://cdn.jsdelivr.net/npm/datatables.net@1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.10.24/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    // Dados de atividade
+    window.activityData = {{ hourly_patterns_json|safe }};
+</script>
+<script src="{% static 'js/admin/metrics.js' %}"></script>
+{% endblock %}

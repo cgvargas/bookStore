@@ -1,4 +1,16 @@
 # views/general.py
+"""
+Módulo de views gerais para o projeto CGBookStore.
+
+Contém views para:
+- Página inicial
+- Registro de usuário
+- Página sobre
+- Contato
+- Política de privacidade
+- Termos de uso
+"""
+
 import logging
 from django.shortcuts import redirect
 from django.contrib import messages
@@ -14,59 +26,110 @@ from ..forms import UserRegistrationForm
 from django.utils import timezone
 from ..models.banner import Banner
 from ..models.book import Book
+from ..models.home_content import HomeSection, VideoSection
 from ..recommendations.engine import RecommendationEngine
+from ..models.home_content import DefaultShelfType
 
+# Configuração de logger para rastreamento de eventos
 logger = logging.getLogger(__name__)
 
 
 class IndexView(TemplateView):
+    """
+    View para página inicial da CGBookStore.
+
+    Características:
+    - Carrega seções dinâmicas definidas pelo admin
+    - Suporta diferentes tipos de seções (prateleiras, vídeos, anúncios)
+    - Mantém recomendações personalizadas para usuários logados
+    - Tratamento de erros com logs detalhados
+    """
     template_name = 'core/home.html'
+
+    # views/general.py
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
             logger.info('Iniciando carregamento da página inicial')
+            current_datetime = timezone.now()
 
             # Busca banners ativos
-            current_datetime = timezone.now()
             banners = Banner.objects.filter(
                 ativo=True,
                 data_inicio__lte=current_datetime,
                 data_fim__gte=current_datetime
             ).order_by('ordem')
 
-            # Busca livros para cada seção
-            lancamentos = Book.objects.filter(e_lancamento=True).order_by('ordem_exibicao')[:12]
-            mais_vendidos = Book.objects.filter(quantidade_vendida__gt=0).order_by('-quantidade_vendida')[:12]
-            mais_acessados = Book.objects.filter(quantidade_acessos__gt=0).order_by('-quantidade_acessos')[:12]
-            destaques = Book.objects.filter(e_destaque=True).order_by('ordem_exibicao')[:12]
-            adaptados_filme = Book.objects.filter(adaptado_filme=True).order_by('ordem_exibicao')[:12]
-            mangas = Book.objects.filter(e_manga=True).order_by('ordem_exibicao')[:12]
+            # Inicializa lista de seções
+            processed_sections = []
 
-            # Adicionar recomendações personalizadas se usuário estiver logado
-            recommended_books = []
+            # Adiciona recomendações personalizadas se usuário estiver logado
             if self.request.user.is_authenticated:
                 try:
                     engine = RecommendationEngine()
                     recommended_books = engine.get_recommendations(self.request.user)[:12]
-                    logger.info(f'Recomendações geradas para usuário {self.request.user.username}')
+                    if recommended_books:
+                        processed_sections.append({
+                            'titulo': 'Recomendados para Você',
+                            'tipo': 'shelf',
+                            'id': 'recomendados',
+                            'livros': recommended_books
+                        })
+                        logger.info(f'Recomendações geradas para usuário {self.request.user.username}')
                 except Exception as e:
                     logger.error(f'Erro ao gerar recomendações: {str(e)}')
 
-            # Organiza as prateleiras em uma estrutura
-            shelves = [
-                {'id': 'recomendados', 'titulo': 'Recomendados para Você', 'livros': recommended_books},
-                {'id': 'lancamentos', 'titulo': 'Lançamentos', 'livros': lancamentos},
-                {'id': 'mais-vendidos', 'titulo': 'Mais Vendidos', 'livros': mais_vendidos},
-                {'id': 'mais-acessados', 'titulo': 'Mais Acessados Online', 'livros': mais_acessados},
-                {'id': 'destaques', 'titulo': 'Livros em Destaque', 'livros': destaques},
-                {'id': 'adaptados', 'titulo': 'Adaptados para Filme/Série', 'livros': adaptados_filme},
-                {'id': 'mangas', 'titulo': 'Mangás', 'livros': mangas},
-            ]
+            default_shelf_types = DefaultShelfType.objects.filter(ativo=True).order_by('ordem')
+
+            for shelf_type in default_shelf_types:
+                livros = shelf_type.get_livros()[:12]  # Limita a 12 livros
+
+                if livros.exists():
+                    processed_sections.append({
+                        'id': shelf_type.identificador,
+                        'titulo': shelf_type.nome,
+                        'tipo': 'shelf',
+                        'livros': livros
+                    })
+                    logger.info(f'Prateleira padrão adicionada: {shelf_type.nome}')
+
+            # Busca seções customizadas do admin
+            admin_sections = HomeSection.objects.filter(ativo=True).select_related('video_section').order_by('ordem')
+
+            for section in admin_sections:
+                try:
+                    section_data = {
+                        'titulo': section.titulo,
+                        'tipo': section.tipo,
+                        'css_class': section.css_class,
+                        'id': f'section-{section.id}'
+                    }
+
+                    # Processa seção baseado no tipo
+                    if section.tipo == 'video':
+                        try:
+                            if hasattr(section, 'video_section'):
+                                video = section.video_section
+                                if video and video.ativo:
+                                    section_data['video_section'] = video
+                                    processed_sections.append(section_data)
+                                    logger.info(f'Vídeo encontrado e adicionado: {video.url}')
+                                else:
+                                    logger.warning(f'Vídeo inativo ou não encontrado para seção {section.titulo}')
+                        except VideoSection.DoesNotExist:
+                            logger.warning(f'Nenhum vídeo associado à seção {section.titulo}')
+                    else:
+                        # Para outros tipos de seção
+                        processed_sections.append(section_data)
+
+                except Exception as e:
+                    logger.error(f'Erro ao processar seção {section.titulo}: {str(e)}')
+                    continue
 
             context.update({
                 'banners': banners,
-                'shelves': shelves
+                'shelves': processed_sections
             })
 
             logger.info('Página inicial carregada com sucesso')
@@ -81,17 +144,60 @@ class IndexView(TemplateView):
             })
             return context
 
+    def _get_shelf_books(self, shelf_type, max_books):
+        """Retorna livros baseado no tipo de prateleira."""
+        filters = {
+            'latest': Book.objects.all().order_by('-created_at'),
+            'bestsellers': Book.objects.filter(quantidade_vendida__gt=0).order_by('-quantidade_vendida'),
+            'most_viewed': Book.objects.filter(quantidade_acessos__gt=0).order_by('-quantidade_acessos'),
+            'featured': Book.objects.filter(e_destaque=True).order_by('ordem_exibicao'),
+            'movies': Book.objects.filter(adaptado_filme=True).order_by('ordem_exibicao'),
+            'manga': Book.objects.filter(e_manga=True).order_by('ordem_exibicao'),
+        }
+
+        queryset = filters.get(shelf_type, Book.objects.none())
+        return queryset[:max_books]
+
 
 class RegisterView(CreateView):
+    """
+    View para registro de novos usuários.
+
+    Características:
+    - Utiliza formulário personalizado de registro
+    - Desativa usuário até verificação de email
+    - Envia email de verificação
+    - Tratamento de erros de registro
+    """
     form_class = UserRegistrationForm
     template_name = 'core/register.html'
     success_url = reverse_lazy('index')
 
     def get(self, request, *args, **kwargs):
+        """
+        Log de acesso à página de registro.
+
+        Args:
+            request: Requisição HTTP
+        """
         logger.info('Acessando página de registro')
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
+        """
+        Processa registro de novo usuário.
+
+        Etapas:
+        1. Salva usuário como inativo
+        2. Envia email de verificação
+        3. Adiciona mensagens de status
+
+        Args:
+            form: Formulário de registro validado
+
+        Returns:
+            HttpResponseRedirect: Redireciona para página inicial
+        """
         try:
             logger.info('Iniciando registro de novo usuário')
             user = form.save(commit=False)
@@ -118,17 +224,39 @@ class RegisterView(CreateView):
             messages.error(self.request, 'Erro ao realizar registro.')
             return self.form_invalid(form)
 
+
 class SobreView(TemplateView):
+    """
+    View para página institucional 'Sobre'.
+
+    Renderiza template estático com informações sobre a empresa.
+    """
     template_name = 'core/sobre.html'
 
 
 class ContatoView(FormView):
+    """
+    View para formulário de contato.
+
+    Características:
+    - Processa formulário de contato
+    - Envia emails para administração e usuário
+    - Tratamento de erros de envio de email
+    """
     template_name = 'core/contato.html'
     form_class = ContatoForm
     success_url = reverse_lazy('contato')
 
     def enviar_email_admin(self, dados):
-        """Envia email para administração"""
+        """
+        Envia email para administração com detalhes do contato.
+
+        Args:
+            dados (dict): Dados do formulário de contato
+
+        Returns:
+            bool: Indica sucesso no envio de email
+        """
         logger.info(f'Enviando email admin - Assunto: {dados["assunto"]}')
         try:
             mensagem = render_to_string('core/email/contato_email.html', dados)
@@ -146,7 +274,15 @@ class ContatoView(FormView):
             return False
 
     def enviar_email_confirmacao(self, dados):
-        """Envia email de confirmação para usuário"""
+        """
+        Envia email de confirmação para o usuário.
+
+        Args:
+            dados (dict): Dados do formulário de contato
+
+        Returns:
+            bool: Indica sucesso no envio de email
+        """
         logger.info(f'Enviando confirmação para: {dados["email"]}')
         try:
             mensagem = render_to_string('core/email/contato_confirmacao.html', dados)
@@ -164,6 +300,20 @@ class ContatoView(FormView):
             return False
 
     def form_valid(self, form):
+        """
+        Processa formulário de contato válido.
+
+        Etapas:
+        1. Envia email para administração
+        2. Envia email de confirmação para usuário
+        3. Adiciona mensagens de status
+
+        Args:
+            form: Formulário de contato validado
+
+        Returns:
+            HttpResponse: Resposta após processamento do formulário
+        """
         dados = form.cleaned_data
         logger.info(f'Processando contato de: {dados["email"]}')
 
@@ -183,8 +333,20 @@ class ContatoView(FormView):
 
         return super().form_valid(form)
 
+
 class PoliticaPrivacidadeView(TemplateView):
+    """
+    View para página de Política de Privacidade.
+
+    Renderiza template estático com política de privacidade.
+    """
     template_name = 'core/politica_privacidade.html'
 
+
 class TermosUsoView(TemplateView):
+    """
+    View para página de Termos de Uso.
+
+    Renderiza template estático com termos de uso.
+    """
     template_name = 'core/termos_uso.html'

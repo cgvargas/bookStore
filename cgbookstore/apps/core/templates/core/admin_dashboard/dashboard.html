@@ -1,0 +1,112 @@
+{% extends "admin/base_site.html" %}
+
+{% load static %}
+
+{% block extrastyle %}
+{# Configuração de estilos externos para o dashboard #}
+<!-- Bootstrap 5 CSS - Framework responsivo para estilização -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Chart.js - Biblioteca para renderização de gráficos -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+
+<!-- Font Awesome - Conjunto de ícones para interface -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- CSS personalizado para estilização específica do dashboard -->
+<link rel="stylesheet" href="{% static 'css/admin/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+{# Container principal do dashboard com métricas e gráficos #}
+<div class="dashboard-container">
+    {# Título do dashboard com ícone #}
+    <h1><i class="fas fa-chart-line me-2"></i>Dashboard de Analytics</h1>
+
+    {# Grade de métricas principais #}
+    <div class="metrics-grid">
+        {# Métrica: Total de Interações #}
+        <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total de interações dos usuários">
+            <h3><i class="fas fa-sync me-2"></i>Total de Interações</h3>
+            <p class="h2" data-animate-number="{{ total_interactions }}">{{ total_interactions }}</p>
+            <div class="trend-indicator {% if total_interactions_trend > 0 %}trend-up{% else %}trend-down{% endif %}">
+                <i class="fas fa-{% if total_interactions_trend > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                {{ total_interactions_trend|default:0 }}%
+            </div>
+        </div>
+
+        {# Métrica: Usuários Únicos #}
+        <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Número de usuários únicos">
+            <h3><i class="fas fa-users me-2"></i>Usuários Únicos</h3>
+            <p class="h2" data-animate-number="{{ unique_users }}">{{ unique_users }}</p>
+            <div class="trend-indicator {% if users_trend > 0 %}trend-up{% else %}trend-down{% endif %}">
+                <i class="fas fa-{% if users_trend > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                {{ users_trend|default:0 }}%
+            </div>
+        </div>
+
+        {# Métrica: Taxa de Conversão #}
+        <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Taxa de conversão geral">
+            <h3><i class="fas fa-chart-pie me-2"></i>Taxa de Conversão</h3>
+            <p class="h2" data-animate-number="{{ conversion_rate }}" data-decimals="1">{{ conversion_rate|floatformat:1 }}%</p>
+            <div class="trend-indicator {% if conversion_trend > 0 %}trend-up{% else %}trend-down{% endif %}">
+                <i class="fas fa-{% if conversion_trend > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                {{ conversion_trend|default:0 }}%
+            </div>
+        </div>
+
+        {# Métrica: Livros Únicos #}
+        <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Número de livros únicos">
+            <h3><i class="fas fa-book me-2"></i>Livros Únicos</h3>
+            <p class="h2" data-animate-number="{{ unique_books }}">{{ unique_books }}</p>
+            <div class="trend-indicator {% if books_trend > 0 %}trend-up{% else %}trend-down{% endif %}">
+                <i class="fas fa-{% if books_trend > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                {{ books_trend|default:0 }}%
+            </div>
+        </div>
+
+        {# Métrica: Média de Interações #}
+        <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Média de interações por usuário">
+            <h3><i class="fas fa-calculator me-2"></i>Média de Interações/Usuário</h3>
+            <p class="h2" data-animate-number="{{ avg_interactions_per_user }}" data-decimals="1">{{ avg_interactions_per_user|floatformat:1 }}</p>
+        </div>
+
+        {# Métrica: Taxa de Retorno #}
+        <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Taxa de retorno dos usuários">
+            <h3><i class="fas fa-undo me-2"></i>Taxa de Retorno</h3>
+            <p class="h2" data-animate-number="{{ return_rate }}" data-decimals="1">{{ return_rate|floatformat:1 }}%</p>
+        </div>
+    </div>
+
+    {# Container do gráfico de interações diárias #}
+    <div class="chart-container">
+        <h3><i class="fas fa-chart-area me-2"></i>Interações Diárias</h3>
+        <canvas id="dailyInteractionsChart"></canvas>
+    </div>
+
+    {# Seção de métricas detalhadas #}
+    <div id="metrics-details" class="metrics-section mt-4">
+        {% include "core/admin_dashboard/metrics.html" with metrics=metrics conversion_metrics=conversion_metrics popular_books=popular_books category_metrics=category_metrics hourly_patterns=hourly_patterns weekly_patterns=weekly_patterns session_metrics=session_metrics user_segments=user_segments avg_time_between=avg_time_between %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+{# Scripts externos e personalizados para funcionalidades do dashboard #}
+<!-- Bootstrap 5 JS Bundle - Componentes interativos -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Chart.js - Biblioteca para renderização de gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+{# Dados para o gráfico de interações diárias #}
+<script>
+    window.chartData = {
+        labels: {{ daily_interactions.labels|safe }},
+        values: {{ daily_interactions.values|safe }}
+    };
+</script>
+
+{# Script personalizado para manipulação do dashboard #}
+<script src="{% static 'js/admin/dashboard.js' %}"></script>
+{% endblock %}

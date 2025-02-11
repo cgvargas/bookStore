@@ -1,0 +1,195 @@
+/**
+ * Dashboard Dark Theme Stylesheet
+ *
+ * Este arquivo contém estilos customizados para um dashboard com tema escuro.
+ * Utiliza uma paleta de cores escura com efeitos de blur e gradientes.
+ *
+ * @version 1.0.0
+ * @author Cláudio Glória Vargas
+ * @description Estilos responsivos para dashboard com tema escuro
+ */
+
+/* ==========================================================================
+   Configurações Globais
+   ========================================================================== */
+body {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+/* ==========================================================================
+   Container Principal
+   ========================================================================== */
+.dashboard-container {
+    padding: 2rem;
+    background-color: #1a1a1a;
+}
+
+/* Títulos do Container */
+.dashboard-container h1 {
+    color: #ffffff;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.dashboard-container h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(to right, #0d6efd, #0dcaf0);
+}
+
+/* ==========================================================================
+   Grid de Métricas
+   ========================================================================== */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Cards de Métricas */
+.metric-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Efeitos de Hover nos Cards */
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Barra de Destaque no Topo do Card */
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, #0d6efd, #0dcaf0);
+}
+
+/* Títulos dos Cards */
+.metric-card h3 {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Valores das Métricas */
+.metric-card p.h2 {
+    color: #ffffff;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   Contêiner de Gráficos
+   ========================================================================== */
+.chart-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    margin-top: 2rem;
+    height: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   Indicadores de Tendência
+   ========================================================================== */
+.trend-indicator {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Indicador de Tendência Positiva */
+.trend-up {
+    background-color: rgba(25, 135, 84, 0.2);
+    color: #2ecc71;
+}
+
+/* Indicador de Tendência Negativa */
+.trend-down {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+/* ==========================================================================
+   Animações
+   ========================================================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   Sobrescrições do Bootstrap
+   ========================================================================== */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* ==========================================================================
+   Responsividade
+   Ajustes para telas menores
+   ========================================================================== */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metric-card {
+        padding: 1rem;
+    }
+
+    .metric-card p.h2 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Fim do arquivo de estilo */

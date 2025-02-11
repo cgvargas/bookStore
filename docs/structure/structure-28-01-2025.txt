@@ -37,25 +37,33 @@ bookstore/
 │   │   │   │   ├── book.py
 │   │   │   │   ├── profile.py
 │   │   │   │   ├── user.py
-│   │   │   ├── recommendations/        # Novo módulo de recomendações
+│   │   │   ├── recommendations/
 │   │   │   │   ├── __init__.py
-│   │   │   │   ├── engine.py          # Motor principal de recomendações
-│   │   │   │   ├── providers/         # Provedores de recomendações
+│   │   │   │   ├── api/                     # Nova estrutura API
 │   │   │   │   │   ├── __init__.py
-│   │   │   │   │   ├── history.py     # Baseado em histórico
-│   │   │   │   │   ├── category.py    # Baseado em categorias
-│   │   │   │   │   └── similarity.py  # Baseado em similaridade
-│   │   │   │   ├── services/         # Serviços de suporte
+│   │   │   │   │   ├── endpoints.py         # Endpoints da API
+│   │   │   │   │   ├── serializers.py       # Serializers
+│   │   │   │   │   └── urls.py             # URLs da API
+│   │   │   │   ├── engine.py
+│   │   │   │   ├── providers/
 │   │   │   │   │   ├── __init__.py
-│   │   │   │   │   └── calculator.py  # Cálculos de score
-│   │   │   │   ├── utils/            # Utilitários
+│   │   │   │   │   ├── history.py
+│   │   │   │   │   ├── category.py
+│   │   │   │   │   └── similarity.py
+│   │   │   │   ├── services/
 │   │   │   │   │   ├── __init__.py
-│   │   │   │   │   └── processors.py  # Processadores de dados
-│   │   │   │   └── tests/            # Testes unitários
+│   │   │   │   │   └── calculator.py
+│   │   │   │   ├── utils/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── processors.py
+│   │   │   │   │   └── cache_manager.py    # Novo gerenciador de cache
+│   │   │   │   └── tests/
 │   │   │   │       ├── __init__.py
 │   │   │   │       ├── test_engine.py
 │   │   │   │       ├── test_providers.py
-│   │   │   │       └── test_processors.py
+│   │   │   │       ├── test_processors.py
+│   │   │   │       ├── test_api.py         # Novos testes da API
+│   │   │   │       └── test_cache.py       # Novos testes de cache
 │   │   │   ├── serializers/
 │   │   │   │   ├── init.py
 │   │   │   │   ├── user_serializer.py

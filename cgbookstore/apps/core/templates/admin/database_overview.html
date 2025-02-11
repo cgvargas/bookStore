@@ -1,10 +1,181 @@
 {% extends "admin/base_site.html" %}
+
+{# Carrega tags personalizadas para processamento de dicionários #}
+{% load custom_tags %}
+
+{% block title %}Registros da Tabela {{ table_name }}{% endblock %}
+
 {% block content %}
-<h1>Visualizar Tabelas do Banco de Dados</h1>
-<p>Selecione a tabela para visualizar os registros:</p>
-<ul>
-    {% for table in tables %}
-    <li><a href="?table={{ table }}">{{ table }}</a></li>
-    {% endfor %}
-</ul>
+{# Contêiner principal da visualização de tabela #}
+<div class="database-table-view">
+    {# Título da tabela #}
+    <h1 class="table-title">
+        Registros da Tabela "{{ table_name }}"
+    </h1>
+
+    {# Link de navegação #}
+    <div class="navigation-link">
+        <a
+            href="{% url 'admin:view-database' %}"
+            class="back-link"
+            title="Retornar à lista de tabelas"
+        >
+            ← Voltar para a lista de tabelas
+        </a>
+    </div>
+
+    {# Contêiner da tabela responsiva #}
+    <div class="table-responsive">
+        <table class="data-table">
+            {# Cabeçalho da tabela #}
+            <thead>
+                <tr>
+                    {% for column in columns %}
+                    <th
+                        scope="col"
+                        title="Coluna: {{ column }}"
+                    >
+                        {{ column }}
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            {# Corpo da tabela #}
+            <tbody>
+                {# Itera sobre cada linha de dados #}
+                {% for row in data %}
+                <tr>
+                    {% for column in columns %}
+                    <td data-label="{{ column }}">
+                        {# Usa filtro personalizado para acessar valor #}
+                        {{ row|get_item:column }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                {# Mensagem para tabela vazia #}
+                <tr>
+                    <td
+                        colspan="{{ columns|length }}"
+                        class="no-data"
+                    >
+                        Nenhum dado disponível nesta tabela.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# Informações adicionais #}
+    <div class="table-info">
+        <p>
+            Total de registros: {{ data|length }}
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{# Estilos inline para melhorar apresentação #}
+{% block extrahead %}
+<style>
+    .database-table-view {
+        max-width: 100%;
+        margin: 20px;
+        padding: 15px;
+        background-color: #f4f4f4;
+        border-radius: 5px;
+    }
+
+    .table-title {
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .navigation-link {
+        margin-bottom: 15px;
+    }
+
+    .back-link {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .back-link:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .data-table th,
+    .data-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .data-table thead {
+        background-color: #f8f9fa;
+    }
+
+    .data-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .data-table tr:hover {
+        background-color: #e9ecef;
+    }
+
+    .no-data {
+        text-align: center;
+        color: #6c757d;
+        padding: 15px;
+    }
+
+    .table-info {
+        margin-top: 15px;
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+
+    {# Responsividade para telas menores #}
+    @media screen and (max-width: 600px) {
+        .data-table thead {
+            display: none;
+        }
+
+        .data-table tr {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .data-table td {
+            display: block;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table td::before {
+            content: attr(data-label);
+            float: left;
+            font-weight: bold;
+        }
+    }
+</style>
 {% endblock %}

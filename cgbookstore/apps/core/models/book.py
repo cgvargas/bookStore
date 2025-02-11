@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from cgbookstore.apps.core.utils.image_processor import process_book_cover
 from cgbookstore.config import settings
+from ..recommendations.utils.cache_manager import RecommendationCache
 
 User = get_user_model()
 
@@ -208,3 +209,16 @@ class UserBookShelf(models.Model):
             user=user,
             shelf_type=shelf_type
         ).select_related('book')[:limit]
+
+    def save(self, *args, **kwargs):
+        """Sobrescreve o método save para invalidar cache"""
+        super().save(*args, **kwargs)
+        # Invalida cache de recomendações do usuário
+        RecommendationCache.invalidate_user_cache(self.user)
+
+    def delete(self, *args, **kwargs):
+        """Sobrescreve o método delete para invalidar cache"""
+        user = self.user  # Guarda referência ao usuário
+        super().delete(*args, **kwargs)
+        # Invalida cache de recomendações do usuário
+        RecommendationCache.invalidate_user_cache(user)

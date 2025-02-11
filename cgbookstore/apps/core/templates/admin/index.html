@@ -4,104 +4,229 @@
 
 {% block content %}
 <div id="content-main">
+    {# Listagem de aplicações e modelos #}
     {% if app_list %}
-    {% for app in app_list %}
-    <div class="app-{{ app.app_label }} module{% if app.app_url in request.path %} current{% endif %}">
-        <table>
-            <caption>
-                <a href="{{ app.app_url }}" class="section" title="Modelos em {{ app.name }}">{{ app.name }}</a>
-            </caption>
-            {% for model in app.models %}
-            <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current{% endif %}">
-                <th scope="row"><a href="{% firstof model.admin_url model.add_url '#' %}">{{ model.name }}</a></th>
-                <td><a href="{% firstof model.add_url '#' %}" class="addlink">Adicionar</a></td>
-                {% if model.admin_url %}
-                <td><a href="{{ model.admin_url }}" class="changelink">Alterar</a></td>
-                {% else %}
-                <td></td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    {% endfor %}
+        {% for app in app_list %}
+        <div
+            class="app-{{ app.app_label }} module{% if app.app_url in request.path %} current{% endif %}"
+            aria-label="Modelos do aplicativo {{ app.name }}"
+        >
+            <table>
+                <caption>
+                    <a
+                        href="{{ app.app_url }}"
+                        class="section"
+                        title="Modelos em {{ app.name }}"
+                    >
+                        {{ app.name }}
+                    </a>
+                </caption>
+                {% for model in app.models %}
+                <tr
+                    class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current{% endif %}"
+                    aria-label="Modelo: {{ model.name }}"
+                >
+                    <th scope="row">
+                        <a href="{% firstof model.admin_url model.add_url '#' %}">
+                            {{ model.name }}
+                        </a>
+                    </th>
+                    <td>
+                        <a
+                            href="{% firstof model.add_url '#' %}"
+                            class="addlink"
+                            aria-label="Adicionar novo {{ model.name }}"
+                        >
+                            Adicionar
+                        </a>
+                    </td>
+                    {% if model.admin_url %}
+                    <td>
+                        <a
+                            href="{{ model.admin_url }}"
+                            class="changelink"
+                            aria-label="Alterar {{ model.name }}"
+                        >
+                            Alterar
+                        </a>
+                    </td>
+                    {% else %}
+                    <td></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endfor %}
 
     {# Seção de Ferramentas do Sistema #}
-    <div class="module">
+    <div
+        class="module system-tools"
+        aria-labelledby="system-tools-caption"
+    >
         <table>
-            <caption>
+            <caption id="system-tools-caption">
                 <span class="section">Ferramentas do Sistema</span>
             </caption>
-            <tr>
-                <th scope="row">
-                    <a href="{% url 'admin:generate-schema' %}"
-                       onclick="return confirm('Deseja gerar o schema do banco de dados?')">
-                        📊 Gerar Schema do Banco
-                    </a>
-                </th>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th scope="row">
-                    <a href="{% url 'admin:generate-structure' %}"
-                       onclick="return confirm('Deseja gerar a estrutura do projeto?')">
-                        📁 Gerar Estrutura do Projeto
-                    </a>
-                </th>
-                <td></td>
-                <td></td>
-            </tr>
-            {# Novo botão: Visualizar Banco de Dados #}
-            <tr>
-                <th scope="row">
-                    <a href="{% url 'admin:view-database' %}"
-                       onclick="return confirm('Deseja visualizar o banco de dados?')">
-                        📄 Visualizar Banco de Dados
-                    </a>
-                </th>
-                <td></td>
-                <td></td>
-            </tr>
-            {# Seção de Limpeza de Pastas #}
-            <tr>
-                <th scope="row">
-                    <a href="{% url 'admin:clear-folders' %}"
-                       onclick="return confirm('Deseja limpar o conteúdo de TODAS as pastas do sistema?')">
-                        🗑️ Limpar Todas as Pastas
-                    </a>
-                </th>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th scope="row">
-                    <a href="{% url 'admin:clear-schema-folder' %}"
-                       onclick="return confirm('Deseja limpar apenas a pasta de schemas?')">
-                        🗑️ Limpar Pasta de Schemas
-                    </a>
-                </th>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <th scope="row">
-                    <a href="{% url 'admin:clear-structure-folder' %}"
-                       onclick="return confirm('Deseja limpar apenas a pasta de estrutura do projeto?')">
-                        🗑️ Limpar Pasta de Estrutura
-                    </a>
-                </th>
-                <td></td>
-                <td></td>
-            </tr>
+
+            {# Grupo: Geração de Documentação #}
+            <tbody aria-label="Ferramentas de Geração">
+                <tr>
+                    <th scope="row">
+                        <a
+                            href="{% url 'admin:generate-schema' %}"
+                            onclick="return confirm('Deseja gerar o schema do banco de dados?')"
+                            aria-label="Gerar Schema do Banco de Dados"
+                        >
+                            📊 Gerar Schema do Banco
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a
+                            href="{% url 'admin:generate-structure' %}"
+                            onclick="return confirm('Deseja gerar a estrutura do projeto?')"
+                            aria-label="Gerar Estrutura do Projeto"
+                        >
+                            📁 Gerar Estrutura do Projeto
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+
+            {# Grupo: Visualização e Análise #}
+            <tbody aria-label="Ferramentas de Visualização">
+                <tr>
+                    <th scope="row">
+                        <a
+                            href="{% url 'admin:view-database' %}"
+                            onclick="return confirm('Deseja visualizar o banco de dados?')"
+                            aria-label="Visualizar Banco de Dados"
+                        >
+                            📄 Visualizar Banco de Dados
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a
+                            href="{% url 'analytics:admin_dashboard:dashboard' %}"
+                            aria-label="Dashboard de Analytics"
+                        >
+                            📊 Dashboard de Analytics
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+
+            {# Grupo: Limpeza de Pastas #}
+            <tbody aria-label="Ferramentas de Limpeza">
+                <tr>
+                    <th scope="row">
+                        <a
+                            href="{% url 'admin:clear-folders' %}"
+                            onclick="return confirm('Deseja limpar o conteúdo de TODAS as pastas do sistema?')"
+                            aria-label="Limpar Todas as Pastas do Sistema"
+                        >
+                            🗑️ Limpar Todas as Pastas
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a
+                            href="{% url 'admin:clear-schema-folder' %}"
+                            onclick="return confirm('Deseja limpar apenas a pasta de schemas?')"
+                            aria-label="Limpar Pasta de Schemas"
+                        >
+                            🗑️ Limpar Pasta de Schemas
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a
+                            href="{% url 'admin:clear-structure-folder' %}"
+                            onclick="return confirm('Deseja limpar apenas a pasta de estrutura do projeto?')"
+                            aria-label="Limpar Pasta de Estrutura do Projeto"
+                        >
+                            🗑️ Limpar Pasta de Estrutura
+                        </a>
+                    </th>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
         </table>
     </div>
     {% else %}
-    <p>Você não tem permissão para visualizar ou editar nada.</p>
+    <p class="no-permission" aria-label="Sem permissões">
+        Você não tem permissão para visualizar ou editar nada.
+    </p>
     {% endif %}
 </div>
 {% endblock %}
 
+{# Mantém o bloco de sidebar original #}
 {% block sidebar %}
 {{ block.super }}
 {% endblock %}
+
+{# Estilos inline para melhorar a apresentação #}
+{% block extrahead %}
+<style>
+    .system-tools {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        margin-top: 20px;
+    }
+
+    .system-tools caption {
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .system-tools tbody {
+        background-color: white;
+    }
+
+    .system-tools tr:hover {
+        background-color: #f1f3f5;
+    }
+
+    .system-tools a {
+        text-decoration: none;
+        color: #333;
+        transition: color 0.2s;
+    }
+
+    .system-tools a:hover {
+        color: #007bff;
+    }
+
+    .no-permission {
+        color: #6c757d;
+        text-align: center;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}S

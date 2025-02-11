@@ -1,4 +1,0 @@
--- Índices da tabela: django_session
--- Gerado em: 02/02/2025 08:57:18
-
-CREATE INDEX "django_session_expire_date_a5c62663" ON "django_session" ("expire_date");

@@ -245,8 +245,7 @@ const BookDetailsApp = {
                         'X-CSRFToken': BookDetailsApp.utils.getCookie('csrftoken')
                     },
                     body: JSON.stringify({
-                        new_shelf: newShelf,
-                        current_shelf: BookDetailsApp.state.currentShelf
+                        new_shelf: newShelf
                     })
                 });
 

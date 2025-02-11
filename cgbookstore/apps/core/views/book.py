@@ -1,6 +1,12 @@
 """
 Módulo responsável pelas views relacionadas a livros.
 Inclui busca, gerenciamento de prateleiras e detalhes dos livros.
+
+Principais funcionalidades:
+- Pesquisa de livros via Google Books API
+- Gerenciamento de prateleiras de usuário
+- Processamento de capas de livros
+- Adição e remoção de livros
 """
 import decimal
 import json
@@ -23,7 +29,7 @@ from django.core.files.base import ContentFile
 from ..models import UserBookShelf, Book
 from ..services.google_books_client import GoogleBooksClient
 
-# Configuração do logger
+# Configuração do logger para rastreamento de eventos de livros
 logger = logging.getLogger(__name__)
 
 # Instância global do cliente Google Books
@@ -43,12 +49,22 @@ __all__ = [
 
 
 class BookManagementMixin:
-    """Mixin com métodos comuns para gerenciamento de livros"""
+    """
+    Mixin com métodos utilitários para gerenciamento de livros.
+
+    Fornece funcionalidades para processamento e manipulação de imagens de capas,
+    com validações de tipo, tamanho e otimização.
+    """
 
     @staticmethod
     def process_book_cover(cover_file):
         """
-        Processa, valida e gera preview do arquivo de capa do livro
+        Processa e valida o arquivo de capa do livro.
+
+        Características:
+        - Validação de tipo de arquivo (JPEG, PNG, GIF)
+        - Limite de tamanho de arquivo (5MB)
+        - Geração de preview otimizado
 
         Args:
             cover_file: Arquivo de imagem enviado
@@ -91,7 +107,12 @@ class BookManagementMixin:
     @staticmethod
     def save_cover_image(image_data, filename):
         """
-        Salva imagem da capa e seu preview no storage
+        Salva imagem da capa e seu preview no armazenamento.
+
+        Funcionalidades:
+        - Converte imagem para RGB
+        - Redimensiona mantendo proporções
+        - Salva imagem original e preview
 
         Args:
             image_data: Dados binários da imagem
@@ -140,7 +161,11 @@ class BookManagementMixin:
 
 
 class BookSearchView(TemplateView):
-    """View para página de busca de livros"""
+    """
+    View para página de busca de livros.
+
+    Renderiza o template de busca de livros.
+    """
     template_name = 'core/book/search.html'
 
 
@@ -148,7 +173,15 @@ class BookSearchView(TemplateView):
 @require_http_methods(["GET"])
 def search_books(request):
     """
-    Endpoint para busca de livros usando Google Books API
+    Endpoint para busca de livros usando Google Books API.
+
+    Características:
+    - Suporta busca por diferentes tipos
+    - Paginação de resultados
+    - Retorna resultados em formato JSON
+
+    Returns:
+        JsonResponse com resultados da busca
     """
     query = request.GET.get('q', '')
     search_type = request.GET.get('type', 'all')
@@ -175,8 +208,17 @@ def search_books(request):
 @require_http_methods(["POST"])
 def add_to_shelf(request):
     """
-    Adiciona um livro à prateleira do usuário
-    Processa dados do livro e imagem da capa
+    Adiciona um livro à prateleira do usuário.
+
+    Fluxo de processamento:
+    1. Valida dados do livro
+    2. Processa informações do livro
+    3. Salva imagem de capa (se disponível)
+    4. Cria/atualiza registro do livro
+    5. Adiciona à prateleira do usuário
+
+    Returns:
+        JsonResponse indicando sucesso ou falha
     """
     global pub_date_str
     try:
@@ -187,13 +229,13 @@ def add_to_shelf(request):
         if not book_data or not shelf:
             return JsonResponse({'success': False, 'error': 'Dados incompletos'}, status=400)
 
-        # Log detalhado
+        # Log detalhado dos dados recebidos
         logger.info(f"Dados recebidos - Shelf: {shelf}")
         logger.info(f"Dados do livro: {json.dumps(book_data, indent=2)}")
 
         mixin = BookManagementMixin()
 
-        # Inicializa book_defaults fora do bloco try
+        # Preparação de defaults para o livro
         book_defaults = {
             'titulo': book_data.get('titulo', 'Título não disponível'),
             'subtitulo': book_data.get('subtitulo', ''),
@@ -207,7 +249,7 @@ def add_to_shelf(request):
             'preco_promocional': Decimal('0')
         }
 
-        # Processamento de data
+        # Processamento de data de publicação
         try:
             pub_date_str = book_data.get('data_publicacao', '')
             if pub_date_str:
@@ -215,7 +257,7 @@ def add_to_shelf(request):
         except (ValueError, TypeError) as date_error:
             logger.warning(f"Data de publicação inválida: {pub_date_str}. Erro: {str(date_error)}")
 
-        # Processamento de preço
+        # Processamento de preço com tratamento de erro
         try:
             book_defaults['preco'] = Decimal(str(book_data.get('valor', 0)))
             book_defaults['preco_promocional'] = Decimal(str(book_data.get('valor_promocional', 0)))
@@ -250,7 +292,7 @@ def add_to_shelf(request):
             book.capa = capa
             book.save()
 
-        # Validar tipo de prateleira
+        # Validação e mapeamento do tipo de prateleira
         valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
         shelf_mapping = {
             'favoritos': 'favorito',
@@ -289,41 +331,101 @@ def add_to_shelf(request):
 
 @login_required
 @require_http_methods(["POST"])
-def remove_from_shelf(request):
-    """Remove um livro da prateleira do usuário"""
+def remove_from_shelf(request, book_id):
+    """
+    Remove um livro específico da prateleira do usuário.
+
+    Características:
+    - Valida existência do livro
+    - Verifica tipo de prateleira
+    - Remove item da prateleira
+
+    Args:
+        request: Requisição HTTP
+        book_id: ID do livro a ser removido
+
+    Returns:
+        JsonResponse indicando sucesso ou falha
+    """
     try:
+        # Primeiro, verifique se o livro existe
+        book = Book.objects.get(id=book_id)
+
+        # Carregue os dados do corpo da requisição
         data = json.loads(request.body)
-        book_id = data.get('book_id')
         shelf_type = data.get('shelf_type')
 
-        if not book_id or not shelf_type:
-            return JsonResponse({'success': False, 'error': 'Dados incompletos'}, status=400)
+        if not shelf_type:
+            return JsonResponse({
+                'success': False,
+                'error': 'Tipo de prateleira não especificado'
+            }, status=400)
 
+        # Validar tipo de prateleira
+        valid_shelves = dict(UserBookShelf.SHELF_CHOICES).keys()
+        if shelf_type not in valid_shelves:
+            return JsonResponse({
+                'success': False,
+                'error': f'Prateleira inválida: {shelf_type}'
+            }, status=400)
+
+        # Busque o item da prateleira do usuário
         shelf_item = UserBookShelf.objects.filter(
             user=request.user,
-            book_id=book_id,
+            book=book,
             shelf_type=shelf_type
         ).first()
 
-        if shelf_item:
-            logger.info(f"Removendo livro {shelf_item.book.titulo} da prateleira {shelf_type}")
-            shelf_item.delete()
-            return JsonResponse({'success': True, 'message': 'Livro removido com sucesso!'})
+        if not shelf_item:
+            return JsonResponse({
+                'success': False,
+                'error': f'Livro não encontrado na prateleira {shelf_type}'
+            }, status=404)
+
+        # Log antes da remoção
+        logger.info(f"Usuário {request.user.username} removendo livro '{book.titulo}' da prateleira {shelf_type}")
+
+        # Remove o item da prateleira
+        shelf_item.delete()
 
         return JsonResponse({
+            'success': True,
+            'message': f'Livro removido da prateleira {shelf_type} com sucesso!'
+        })
+
+    except Book.DoesNotExist:
+        return JsonResponse({
             'success': False,
-            'error': 'Livro não encontrado na prateleira'
+            'error': 'Livro não encontrado'
         }, status=404)
-
     except Exception as e:
-        logger.error(f"Erro ao remover livro: {str(e)}")
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        logger.error(f"Erro ao remover livro da prateleira: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
 
+
+# Continuação do arquivo book.py
 
 @login_required
 @require_http_methods(["GET"])
 def get_book_details(request, book_id):
-    """Obtém detalhes de um livro específico"""
+    """
+    Obtém detalhes de um livro específico.
+
+    Características:
+    - Busca livro por ID
+    - Retorna informações básicas do livro
+    - Tratamento de livro não encontrado
+
+    Args:
+        request: Requisição HTTP
+        book_id: ID do livro a ser detalhado
+
+    Returns:
+        JsonResponse com detalhes do livro ou erro
+    """
     try:
         book = Book.objects.get(id=book_id)
         return JsonResponse({
@@ -343,13 +445,25 @@ def get_book_details(request, book_id):
         }, status=404)
 
 
-"""
-Trecho corrigido da função update_book
-"""
 @login_required
 @require_http_methods(["POST"])
 def update_book(request, book_id):
-    """Atualiza informações de um livro"""
+    """
+    Atualiza informações de um livro existente.
+
+    Características:
+    - Atualização de múltiplos campos
+    - Processamento de capa de livro
+    - Remoção de capa antiga
+    - Log de atualizações
+
+    Args:
+        request: Requisição HTTP com dados de atualização
+        book_id: ID do livro a ser atualizado
+
+    Returns:
+        JsonResponse indicando sucesso ou falha na atualização
+    """
     try:
         logger.info(f'Recebendo atualização para livro {book_id}')
         book = Book.objects.get(id=book_id)
@@ -370,7 +484,7 @@ def update_book(request, book_id):
             if value is not None:
                 setattr(book, field, value)
 
-        # Processar data
+        # Processar data de publicação
         data_pub = request.POST.get('data_publicacao')
         if data_pub:
             try:
@@ -382,9 +496,9 @@ def update_book(request, book_id):
         preco_str = request.POST.get('preco')
         if preco_str:
             try:
-                book.preco = json.loads(preco_str)
-            except json.JSONDecodeError:
-                logger.error("Erro ao decodificar dados do preço")
+                book.preco = Decimal(preco_str)
+            except (decimal.InvalidOperation, ValueError):
+                logger.error("Erro ao converter valor do preço")
 
         # Processar capa
         if 'capa' in request.FILES:
@@ -415,6 +529,12 @@ def update_book(request, book_id):
             'message': 'Livro atualizado com sucesso!'
         })
 
+    except Book.DoesNotExist:
+        logger.error(f'Livro não encontrado: {book_id}')
+        return JsonResponse({
+            'success': False,
+            'error': 'Livro não encontrado'
+        }, status=404)
     except Exception as e:
         logger.error(f'Erro ao atualizar livro: {str(e)}', exc_info=True)
         return JsonResponse({
@@ -422,52 +542,105 @@ def update_book(request, book_id):
             'error': str(e)
         }, status=400)
 
+
 @login_required
 @require_http_methods(["POST"])
-def move_book(request):
-    """Move um livro para outra prateleira"""
+def move_book(request, book_id):
+    """
+    Move um livro para outra prateleira.
+
+    Características:
+    - Valida existência do livro
+    - Verifica tipo de prateleira
+    - Registra movimento entre prateleiras
+
+    Args:
+        request: Requisição HTTP
+        book_id: ID do livro a ser movido
+
+    Returns:
+        JsonResponse indicando sucesso ou falha no movimento
+    """
     try:
+        # Primeiro, verifique se o livro existe
+        book = Book.objects.get(id=book_id)
+
+        # Carregue os dados do corpo da requisição
         data = json.loads(request.body)
-        book_id = data.get('book_id')
         new_shelf = data.get('new_shelf')
 
-        if not book_id or not new_shelf:
+        if not new_shelf:
             return JsonResponse({
                 'success': False,
-                'error': 'Dados incompletos'
+                'error': 'Nova prateleira não especificada'
             }, status=400)
 
-        shelf = UserBookShelf.objects.get(
+        # Validar tipo de prateleira
+        valid_shelves = dict(UserBookShelf.SHELF_CHOICES).keys()
+        if new_shelf not in valid_shelves:
+            return JsonResponse({
+                'success': False,
+                'error': f'Prateleira inválida: {new_shelf}'
+            }, status=400)
+
+        # Busque o item da prateleira atual do usuário
+        shelf_item = UserBookShelf.objects.filter(
             user=request.user,
-            book_id=book_id
-        )
+            book=book
+        ).first()
 
-        old_shelf = shelf.shelf_type
-        shelf.shelf_type = new_shelf
-        shelf.save()
+        if not shelf_item:
+            return JsonResponse({
+                'success': False,
+                'error': 'Livro não encontrado em nenhuma prateleira'
+            }, status=404)
 
-        logger.info(f"Livro movido de {old_shelf} para {new_shelf} - ID: {book_id}")
+        # Registre o movimento antigo para logs
+        old_shelf = shelf_item.shelf_type
+
+        # Atualize o tipo de prateleira
+        shelf_item.shelf_type = new_shelf
+        shelf_item.save()
+
+        # Log do movimento
+        logger.info(
+            f"Usuário {request.user.username} moveu o livro '{book.titulo}' da prateleira {old_shelf} para {new_shelf}")
 
         return JsonResponse({
             'success': True,
-            'message': 'Livro movido com sucesso!'
+            'message': f'Livro movido para {new_shelf} com sucesso!'
         })
-    except UserBookShelf.DoesNotExist:
+
+    except Book.DoesNotExist:
         return JsonResponse({
             'success': False,
-            'error': 'Livro não encontrado na prateleira'
+            'error': 'Livro não encontrado'
         }, status=404)
     except Exception as e:
-        logger.error(f"Erro ao mover livro: {str(e)}")
+        logger.error(f"Erro ao mover livro: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': str(e)
         }, status=400)
 
+
 @login_required
 @require_http_methods(["POST"])
 def add_book_manual(request):
-    """Adiciona um livro manualmente"""
+    """
+    Adiciona um livro manualmente pelo usuário.
+
+    Características:
+    - Criação de livro com informações básicas
+    - Processamento opcional de capa
+    - Adição à prateleira do usuário
+
+    Args:
+        request: Requisição HTTP com dados do livro
+
+    Returns:
+        JsonResponse indicando sucesso ou falha na adição
+    """
     try:
         mixin = BookManagementMixin()
 
@@ -510,13 +683,27 @@ def add_book_manual(request):
             'error': str(e)
         }, status=400)
 
+
 class BookDetailView(LoginRequiredMixin, DetailView):
-    """View para detalhes do livro"""
+    """
+    View para detalhes do livro.
+
+    Características:
+    - Requer login para acesso
+    - Fornece contexto detalhado do livro
+    - Inclui informações da prateleira do usuário
+    """
     model = Book
     template_name = 'core/book/book_details.html'
     context_object_name = 'book'
 
     def get_context_data(self, **kwargs):
+        """
+        Adiciona informações da prateleira ao contexto.
+
+        Returns:
+            dict: Contexto estendido com informações da prateleira
+        """
         context = super().get_context_data(**kwargs)
         book = self.get_object()
         user = self.request.user

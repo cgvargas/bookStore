@@ -22,6 +22,8 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     # Apps locais
     'cgbookstore.apps.core.apps.CoreConfig',
+    'cgbookstore.apps.core.recommendations.analytics.admin_dashboard',
+    'cgbookstore.apps.core.recommendations.analytics.apps.AnalyticsConfig',
 
     # Django apps
     'django.contrib.admin',

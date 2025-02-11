@@ -1,0 +1,196 @@
+
+CG.BookStore.Online/
+├── .venv/
+├── cgbookstore/
+│   ├── apps/
+│   │   ├── core/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── create_default_shelves.py (novo)
+│   │   │   │   │   ├── create_profiles.py
+│   │   │   │   │   ├── generate_project_structure.py
+│   │   │   │   │   └── generate_tables.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── migrations/
+│   │   │   ├── models/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── banner.py
+│   │   │   │   ├── home_content.py (atualizado)
+│   │   │   │   ├── book.py
+│   │   │   │   ├── profile.py
+│   │   │   │   └── user.py
+│   │   │   ├── recommendations/
+│   │   │   │   ├── analytics/
+│   │   │   │   │   ├── admin_dashboard/
+│   │   │   │   │   │   ├── templatetags/
+│   │   │   │   │   │   │   └── __init__.py
+│   │   │   │   │   │   │   └── dashboard_filters.py
+│   │   │   │   │   │   └── __init__.py
+│   │   │   │   │   │   ├── urls.py
+│   │   │   │   │   │   ├── utils.py
+│   │   │   │   │   │   └── views.py
+│   │   │   │   │   ├── management/
+│   │   │   │   │   │   ├── commands/
+│   │   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   │   ├── clean_test_data.py
+│   │   │   │   │   │   │   └── generate_test_data.py
+│   │   │   │   │   │   └── __init__.py
+│   │   │   │   │   ├── migrations/
+│   │   │   │   │   ├── tests/
+│   │   │   │   │   │   └── __init__.py
+│   │   │   │   │   │   └── generate_test_data.py
+│   │   │   │   │   ├── utils/
+│   │   │   │   │   └── __init__.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── apps.py
+│   │   │   │   ├── endpoints.py
+│   │   │   │   ├── models.py
+│   │   │   │   ├── serializers.py
+│   │   │   │   ├── tracker.py
+│   │   │   │   └── urls.py
+│   │   │   ├── api/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── endpoints.py
+│   │   │   │   ├── README.md
+│   │   │   │   ├── serializers.py
+│   │   │   │   └── urls.py
+│   │   │   ├── providers/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── category.py
+│   │   │   │   ├── history.py
+│   │   │   │   └── similarity.py
+│   │   │   ├── services/
+│   │   │   │   └── __init__.py
+│   │   │   │   └── calculator.py
+│   │   │   ├── tests/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── test_api.py
+│   │   │   │   ├── test_cache.py
+│   │   │   │   ├── test_engine.py
+│   │   │   │   ├── test_processors.py
+│   │   │   │   └── test_providers.py
+│   │   │   ├── utils/
+│   │   │   │   └── __init__.py
+│   │   │   │   └── cache_manager.py
+│   │   │   │   └── processors.py
+│   │   │   ├── __init__.py
+│   │   │   ├── engine.py
+│   │   │   ├── urls.py
+│   │   │   ├── serializers/
+│   │   │   │   └── __init__.py
+│   │   │   │   └── user_serializer.py
+│   │   │   ├── services/
+│   │   │   │   └── __init__.py
+│   │   │   │   └── google_books_client.py
+│   │   │   ├── templates/
+│   │   │   │   ├── admin/
+│   │   │   │   │   ├── database_overview.html
+│   │   │   │   │   ├── database_table_view.html
+│   │   │   │   │   └── index.html
+│   │   │   │   ├── core/
+│   │   │   │   │   ├── admin_dashboard/
+│   │   │   │   │   │   ├── dashboard.html
+│   │   │   │   │   │   └── metrics.html
+│   │   │   │   │   ├── book/
+│   │   │   │   │   │   ├── book_details.html
+│   │   │   │   │   │   └── search.html
+│   │   │   │   │   ├── email/
+│   │   │   │   │   │   ├── contato_confirmacao.html
+│   │   │   │   │   │   ├── contato_email.html
+│   │   │   │   │   │   └── email_verification.html
+│   │   │   │   │   ├── includes/
+│   │   │   │   │   │   └── book_card.html
+│   │   │   │   │   ├── password/
+│   │   │   │   │   │   ├── password_reset_complete.html
+│   │   │   │   │   │   ├── password_reset_confirm.html
+│   │   │   │   │   │   ├── password_reset_done.html
+│   │   │   │   │   │   ├── password_reset_email.html
+│   │   │   │   │   │   └── password_reset_form.html
+│   │   │   │   │   ├── profile/
+│   │   │   │   │   │   ├── profile.html
+│   │   │   │   │   │   └── profile_form.html
+│   │   │   │   │   ├── base.html
+│   │   │   │   │   ├── contato.html
+│   │   │   │   │   ├── home.html
+│   │   │   │   │   ├── login.html
+│   │   │   │   │   ├── politica_privacidade.html
+│   │   │   │   │   ├── register.html
+│   │   │   │   │   ├── sobre.html
+│   │   │   │   │   └── termos_uso.html
+│   │   │   ├── templatetags/
+│   │   │   │   └── __init__.py
+│   │   │   │   └── custom_tags.py
+│   │   │   ├── utils/
+│   │   │   │   └── __init__.py
+│   │   │   │   └── google_books_cache.py
+│   │   │   │   └── image_processor.py
+│   │   │   ├── views/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── auth.py
+│   │   │   │   ├── book.py
+│   │   │   │   ├── general.py (atualizado)
+│   │   │   │   └── profile.py
+│   │   │   ├── __init__.py
+│   │   │   ├── admin.py
+│   │   │   ├── apps.py
+│   │   │   ├── forms.py
+│   │   │   ├── signals.py
+│   │   │   ├── tests.py
+│   │   │   └── urls.py
+│   │   └── __init__.py
+│   ├── config/
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── media/
+│   │   ├── banners/
+│   │   ├── livros/
+│   │   └── users/
+│   │   └── __init__.py
+│   static/
+│   ├── css/
+│   │   ├── admin/
+│   │   │   ├── dashboard.css
+│   │   │   └── metrics.css
+│   │   │   ├── book-details.css
+│   │   │   ├── book-search.css
+│   │   │   ├── contato.css
+│   │   │   ├── profile.css
+│   │   │   ├── styles.css (atualizado)
+│   │   │   └── swiper-custom.css
+│   │   └── images/
+│   │   │   ├── favicon.svg
+│   │   │   ├── logo.png
+│   │   │   └── no-cover.svg
+│   │   └── js/
+│   │       ├── admin/
+│   │       │   ├── dashboard.js
+│   │       │   └── metrics.js
+│   │       ├── book-details.js
+│   │       ├── book-search.js
+│   │       ├── csrf-setup.js
+│   │       ├── profile.js
+│   │       ├── profile-customization.js
+│   │       └── swiper-config.js
+│   └── staticfiles/
+│   └── __init__.py
+├── __init__.py
+├── db.sqlite3
+├── database_schemas/
+├── docs/
+├── media/
+├── project_structure/
+├── .env
+├── .gitignore
+├── listar_tabelas.py
+├── manage.py
+└── requirements.txt
+
+Status das Implementações:
+- [x] Sistema de prateleiras dinâmicas
+- [x] Módulo de vídeos
+- [x] Manual do administrador
+- [x] Documentação atualizada

@@ -357,14 +357,17 @@
 
 .book-cover {
     position: relative;
-    height: 280px; /* Altura fixa menor */
+    width: 180px;         /* Largura fixa */
+    height: 280px;        /* Altura fixa */
     overflow: hidden;
+    margin: 0 auto;       /* Centraliza horizontalmente */
 }
 
 .book-cover img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;    /* Mudado para cover */
+    object-position: center; /* Centraliza a imagem */
     background-color: #f8f9fa;
     transition: transform var(--transition-default);
 }
