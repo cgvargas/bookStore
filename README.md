@@ -78,6 +78,10 @@ A monetização do aplicativo será realizada por meio de diversas estratégias,
 - 📂 **Estrutura do Projeto:** Detalhes disponíveis no arquivo [`structure-07-02-2025.txt`](./structure-07-02-2025.txt).
 - 📊 **Documentação do Dashboard:** Informações sobre o sistema de analytics estão disponíveis no arquivo [`chat_padronizado_03_02_2025.md`](./chat_padronizado_03_02_2025.md).
 
+## Licença
+
+Este projeto é licenciado sob os termos da **Licença MIT**. Veja o arquivo [`LICENSE`](./LICENSE) para mais detalhes.
+
 ## Contato
 
 - **Desenvolvedor:** CG BookStore Team  
