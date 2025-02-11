@@ -80,7 +80,12 @@ A monetização do aplicativo será realizada por meio de diversas estratégias,
 
 ## Licença
 
-Este projeto é licenciado sob os termos da **Licença MIT**. Veja o arquivo [`LICENSE`](./LICENSE) para mais detalhes.
+Este projeto está licenciado sob a **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**. Isso significa que você pode compartilhar e modificar o código, desde que:
+
+- **Dê crédito ao autor original.**
+- **Não utilize para fins comerciais.**
+
+Para mais detalhes, consulte o arquivo [`LICENSE`](./LICENSE) ou leia sobre a licença [neste link](https://creativecommons.org/licenses/by-nc/4.0/).
 
 ## Contato
 
