@@ -14,10 +14,14 @@ data de nascimento e senha.
 import re
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import MinLengthValidator
 from datetime import date
 from .models import Profile
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
+from django.core.mail import send_mail
+from django.template import loader
+from django.utils.html import strip_tags
+from django.conf import settings
 
 User = get_user_model()
 
@@ -303,3 +307,89 @@ class ContatoForm(forms.Form):
         if not email:
             raise forms.ValidationError('Email é obrigatório.')
         return email
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    """
+    Formulário customizado para reset de senha.
+    """
+    email = forms.EmailField(
+        label='Email',
+        max_length=254,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite seu email'
+        })
+    )
+
+    def clean_email(self):
+        """Valida se o email existe no sistema"""
+        email = self.cleaned_data['email'].lower().strip()
+
+        # Verifica se existe usuário com este email
+        if not User.objects.filter(email=email).exists():
+            print(f"❌ Email não cadastrado: {email}")
+            raise forms.ValidationError("Este email não está cadastrado no sistema.")
+
+        user = User.objects.get(email=email)
+
+        # Verifica se o usuário está ativo
+        if not user.is_active:
+            print(f"❌ Usuário inativo: {email}")
+            raise forms.ValidationError(
+                "Esta conta está inativa. Entre em contato com o suporte."
+            )
+
+        return email
+
+    def send_mail(
+            self,
+            subject_template_name,
+            email_template_name,
+            context,
+            from_email,
+            to_email,
+            html_email_template_name=None,
+    ):
+        """Método personalizado para envio de email"""
+        print("\n=== Enviando e-mail de reset de senha ===")
+        print(f"Para: {to_email}")
+        print(f"De: {settings.DEFAULT_FROM_EMAIL}")
+        print(f"Backend: {settings.EMAIL_BACKEND}")
+        print(f"Host: {settings.EMAIL_HOST}")
+
+        try:
+            # Renderiza o assunto
+            subject = loader.render_to_string(subject_template_name, context)
+            subject = "".join(subject.splitlines())
+
+            # Renderiza o corpo do e-mail
+            body = loader.render_to_string(email_template_name, context)
+
+            # Envia o e-mail usando as configurações do settings.py
+            result = send_mail(
+                subject=subject,
+                message=strip_tags(body),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[to_email],
+                fail_silently=False,
+                html_message=body,
+            )
+
+            if result:
+                print("✅ E-mail enviado com sucesso!")
+                return True
+
+            print("❌ Falha no envio do email")
+            return False
+
+        except Exception as e:
+            print(f"\n❌ Erro ao enviar e-mail: {str(e)}")
+            print(f"Configurações atuais:")
+            print(f"EMAIL_BACKEND: {settings.EMAIL_BACKEND}")
+            print(f"EMAIL_HOST: {settings.EMAIL_HOST}")
+            print(f"EMAIL_PORT: {settings.EMAIL_PORT}")
+            print(f"EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}")
+            print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
+            print(f"DEFAULT_FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
+            raise

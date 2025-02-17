@@ -1,23 +1,163 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Termos de Uso{% endblock %}
+{% block title %}Termos de Uso - CG BookStore{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="text-center mb-4">Termos de Uso</h1>
-    <div class="card">
-        <div class="card-body">
-            <h2>1. Aceitação dos Termos</h2>
-            <p>Ao acessar e utilizar o site CG BookStore, você concorda em cumprir estes Termos de Uso.</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Cabeçalho -->
+            <div class="text-center mb-5">
+                <i class="bi bi-file-text text-primary" style="font-size: 3rem;"></i>
+                <h1 class="fw-bold mt-3">Termos de Uso</h1>
+                <p class="text-muted">Última atualização: {% now "d/m/Y" %}</p>
+            </div>
 
-            <h2>2. Uso do Site</h2>
-            <p>Você concorda em utilizar o site apenas para fins legais e de acordo com estes Termos de Uso.</p>
+            <!-- Conteúdo Principal -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-lg-5">
+                    <!-- Introdução -->
+                    <div class="alert alert-light border-start border-primary border-4 mb-4" role="alert">
+                        <p class="mb-0">Bem-vindo à CG BookStore. Ao acessar e utilizar nossa plataforma, você concorda com estes termos de uso. Por favor, leia atentamente.</p>
+                    </div>
 
-            <h2>3. Propriedade Intelectual</h2>
-            <p>Todo o conteúdo do site é de propriedade da CG BookStore ou de seus fornecedores de conteúdo.</p>
+                    <!-- Seções dos Termos -->
+                    <div class="terms-sections">
+                        <!-- 1. Aceitação dos Termos -->
+                        <section class="mb-5">
+                            <h2 class="h4 fw-bold text-primary mb-4">
+                                <i class="bi bi-check-circle-fill me-2"></i>1. Aceitação dos Termos
+                            </h2>
+                            <div class="ms-4">
+                                <p>1.1. Ao acessar ou usar a CG BookStore, você confirma que leu, entendeu e concorda em cumprir estes Termos de Uso, nossa Política de Privacidade e quaisquer outros termos aplicáveis.</p>
+                                <p>1.2. Caso você não concorde com qualquer parte destes termos, solicitamos que não utilize nossos serviços.</p>
+                                <p>1.3. Reservamos o direito de modificar estes termos a qualquer momento, sendo sua responsabilidade verificá-los periodicamente.</p>
+                            </div>
+                        </section>
 
-            <h2>4. Limitação de Responsabilidade</h2>
-            <p>A CG BookStore não será responsável por quaisquer danos resultantes do uso do site.</p>
+                        <!-- 2. Uso do Site -->
+                        <section class="mb-5">
+                            <h2 class="h4 fw-bold text-primary mb-4">
+                                <i class="bi bi-shield-check me-2"></i>2. Uso do Site
+                            </h2>
+                            <div class="ms-4">
+                                <p>2.1. Você concorda em:</p>
+                                <ul class="list-group list-group-flush mb-3">
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Utilizar o site apenas para fins legais e autorizados
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Não violar direitos de propriedade intelectual
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Não realizar atividades que possam danificar, sobrecarregar ou prejudicar o site
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Manter a segurança de sua conta e credenciais
+                                    </li>
+                                </ul>
+                                <p>2.2. A CG BookStore reserva-se o direito de suspender ou encerrar contas que violem estes termos.</p>
+                            </div>
+                        </section>
+
+                        <!-- 3. Conta de Usuário -->
+                        <section class="mb-5">
+                            <h2 class="h4 fw-bold text-primary mb-4">
+                                <i class="bi bi-person-badge me-2"></i>3. Conta de Usuário
+                            </h2>
+                            <div class="ms-4">
+                                <p>3.1. Para utilizar determinados recursos do site, você precisará criar uma conta.</p>
+                                <p>3.2. Ao criar uma conta, você concorda em:</p>
+                                <ul class="list-group list-group-flush mb-3">
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Fornecer informações precisas e atualizadas
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Manter a confidencialidade de sua senha
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Ser responsável por todas as atividades em sua conta
+                                    </li>
+                                </ul>
+                            </div>
+                        </section>
+
+                        <!-- 4. Propriedade Intelectual -->
+                        <section class="mb-5">
+                            <h2 class="h4 fw-bold text-primary mb-4">
+                                <i class="bi bi-file-earmark-lock me-2"></i>4. Propriedade Intelectual
+                            </h2>
+                            <div class="ms-4">
+                                <p>4.1. Todo o conteúdo disponível no site, incluindo mas não limitado a textos, gráficos, logotipos, imagens, áudios, vídeos, software e interface do usuário, é de propriedade da CG BookStore ou de seus fornecedores de conteúdo.</p>
+                                <p>4.2. É expressamente proibido copiar, modificar, distribuir, transmitir, exibir, vender, licenciar ou explorar qualquer conteúdo do site para qualquer finalidade sem o prévio consentimento por escrito da CG BookStore.</p>
+                            </div>
+                        </section>
+
+                        <!-- 5. Limitação de Responsabilidade -->
+                        <section class="mb-5">
+                            <h2 class="h4 fw-bold text-primary mb-4">
+                                <i class="bi bi-shield-exclamation me-2"></i>5. Limitação de Responsabilidade
+                            </h2>
+                            <div class="ms-4">
+                                <p>5.1. A CG BookStore não será responsável por:</p>
+                                <ul class="list-group list-group-flush mb-3">
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Danos diretos, indiretos, incidentais ou consequentes
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Perda de dados, lucros ou receitas
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Interrupções ou falhas no serviço
+                                    </li>
+                                </ul>
+                            </div>
+                        </section>
+
+                        <!-- 6. Modificações do Serviço -->
+                        <section class="mb-5">
+                            <h2 class="h4 fw-bold text-primary mb-4">
+                                <i class="bi bi-gear me-2"></i>6. Modificações do Serviço
+                            </h2>
+                            <div class="ms-4">
+                                <p>6.1. A CG BookStore reserva-se o direito de, a qualquer momento:</p>
+                                <ul class="list-group list-group-flush mb-3">
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Modificar ou descontinuar o serviço
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Alterar preços e recursos
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-arrow-right-short me-2"></i>Estabelecer novos limites ou restrições
+                                    </li>
+                                </ul>
+                            </div>
+                        </section>
+
+                        <!-- 7. Disposições Gerais -->
+                        <section class="mb-5">
+                            <h2 class="h4 fw-bold text-primary mb-4">
+                                <i class="bi bi-collection me-2"></i>7. Disposições Gerais
+                            </h2>
+                            <div class="ms-4">
+                                <p>7.1. Estes termos constituem o acordo integral entre você e a CG BookStore.</p>
+                                <p>7.2. A falha em exercer qualquer direito não constituirá renúncia a tal direito.</p>
+                                <p>7.3. Se qualquer disposição destes termos for considerada inválida, as demais disposições permanecerão em vigor.</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Contato -->
+                    <div class="mt-5 pt-4 border-top">
+                        <h2 class="h4 fw-bold text-primary mb-4">
+                            <i class="bi bi-envelope me-2"></i>Contato
+                        </h2>
+                        <p>Para questões relacionadas a estes termos de uso, entre em contato conosco através do email: <a href="mailto:suporte@cgbookstore.com" class="text-decoration-none">suporte@cgbookstore.com</a></p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

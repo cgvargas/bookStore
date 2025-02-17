@@ -74,22 +74,23 @@
     <section class="video-section {% if section.css_class %}{{ section.css_class }}{% endif %}" id="{{ section.id }}">
         <div class="container">
             <h2 class="section-title">{{ section.titulo }}</h2>
-            {% if section.video_section and section.video_section.videos.exists %}
-            <div class="swiper-container videoSwiper">
+            {% if section.videos %}
+            <div class="videoSwiper">
                 <div class="swiper-wrapper">
-                    {% for video_item in section.video_section.videos.all %}
+                    {% for video_item in section.videos %}
                     <div class="swiper-slide">
-                        <div class="video-card animate-scale-in">
-                            <div class="video-cover hover-lift">
+                        <div class="video-card">
+                            <div class="video-cover">
                                 {% if 'youtube.com' in video_item.url or 'youtu.be' in video_item.url %}
                                     {% with video_id=video_item.url|get_youtube_id %}
-                                    <a href="#" class="video-link" data-video-id="{{ video_id }}">
-                                        <img
-                                            src="{{ video_id|get_youtube_thumbnail }}"
-                                            alt="{{ video_item.titulo }}"
-                                            class="video-thumbnail"
-                                            loading="lazy"
-                                        >
+                                    <a href="https://www.youtube.com/watch?v={{ video_id }}"
+                                       class="video-link"
+                                       data-video-id="{{ video_id }}"
+                                       target="_blank">
+                                        <img src="{{ video_id|get_youtube_thumbnail }}"
+                                             alt="{{ video_item.titulo }}"
+                                             class="video-thumbnail"
+                                             loading="lazy">
                                         <div class="play-overlay">
                                             <span class="play-icon">▶</span>
                                         </div>

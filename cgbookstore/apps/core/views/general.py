@@ -109,16 +109,25 @@ class IndexView(TemplateView):
                     # Processa seção baseado no tipo
                     if section.tipo == 'video':
                         try:
-                            if hasattr(section, 'video_section'):
-                                video = section.video_section
-                                if video and video.ativo:
-                                    section_data['video_section'] = video
+                            video_section = section.video_section
+                            if video_section and video_section.ativo:
+                                videos = video_section.videos.filter(
+                                    videosectionitem__ativo=True,
+                                    ativo=True
+                                ).order_by('videosectionitem__ordem')
+
+                                if videos.exists():
+                                    section_data['video_section'] = video_section
+                                    section_data['videos'] = videos
                                     processed_sections.append(section_data)
-                                    logger.info(f'Vídeo encontrado e adicionado: {video.url}')
+                                    logger.info(
+                                        f'Seção de vídeos adicionada: {section.titulo} com {videos.count()} vídeos')
                                 else:
-                                    logger.warning(f'Vídeo inativo ou não encontrado para seção {section.titulo}')
+                                    logger.warning(f'Nenhum vídeo ativo encontrado para seção {section.titulo}')
+                            else:
+                                logger.warning(f'Seção de vídeo inativa: {section.titulo}')
                         except VideoSection.DoesNotExist:
-                            logger.warning(f'Nenhum vídeo associado à seção {section.titulo}')
+                            logger.warning(f'Nenhuma seção de vídeo associada à seção {section.titulo}')
                     else:
                         # Para outros tipos de seção
                         processed_sections.append(section_data)

@@ -3,12 +3,20 @@ import os
 from pathlib import Path
 import environ
 
-# Configuração do environ
-env = environ.Env()
-environ.Env.read_env()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Configuração do environ
+env = environ.Env()
+
+# Define explicitamente o ambiente
+DJANGO_ENV = os.getenv('DJANGO_ENV', 'development')
+print(f"\nDJANGO_ENV: {DJANGO_ENV}")
+
+# Define qual arquivo .env usar baseado no ambiente
+ENV_FILE = '.env.dev' if DJANGO_ENV == 'development' else '.env.prod'
+environ.Env.read_env(os.path.join(BASE_DIR, ENV_FILE))
+print(f"Arquivo .env: {ENV_FILE}")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-r%4)z4dffs_qqw8y$8g!om4h_0h$md^_y70+1q=w$xh=foy!uj')
@@ -17,6 +25,29 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-r%4)z4dffs_qqw8y$8g!om4h
 DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = ['*']
+
+# Configurações SMTP para SendGrid
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'apikey'  # Isso é fixo para o SendGrid
+EMAIL_HOST_PASSWORD = 'SG.GrZm2LEaSUmLbEwdnQ6eBg._UAWXniDaQWYinXCMS6ILdRlD9oiZgXeI8dUm9NmgXU'
+DEFAULT_FROM_EMAIL = 'cg.bookstore.online@outlook.com'
+SERVER_EMAIL = 'cg.bookstore.online@outlook.com'
+
+# Para debug de email
+if DEBUG:
+    EMAIL_SUBJECT_PREFIX = '[DEV] '
+
+print("\n=== Configurações SMTP ===")
+print(f"Backend: {EMAIL_BACKEND}")
+print(f"Host: {EMAIL_HOST}")
+print(f"Porta: {EMAIL_PORT}")
+print(f"TLS: {EMAIL_USE_TLS}")
+print(f"Usuario: {EMAIL_HOST_USER}")
+print(f"From: {DEFAULT_FROM_EMAIL}")
+print("=== Fim das Configurações ===\n")
 
 # Application definition
 INSTALLED_APPS = [
@@ -115,16 +146,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.User'
 
-# Configurações de E-mail
-EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = env('EMAIL_HOST', default='localhost')
-EMAIL_PORT = env.int('EMAIL_PORT', default=587)
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@cgbookstore.com')
-SERVER_EMAIL = env('SERVER_EMAIL', default='server@cgbookstore.com')
-
 # Configurações de Cache
 CACHES = {
     'default': {
@@ -148,13 +169,36 @@ GOOGLE_BOOKS_CACHE_KEY_PREFIX = 'google_books:'
 # API Key do Google Books
 GOOGLE_BOOKS_API_KEY = os.getenv('GOOGLE_BOOKS_API_KEY', 'AIzaSyBF5W5NktgXZRfTnZXe3pVxqB_TCkXGzx0')
 
+
 # Configurações de Autenticação
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'index'
+
 
 # Configurações de Sessão
 SESSION_COOKIE_AGE = 604800  # 1 semana em segundos
 SESSION_COOKIE_SECURE = True  # Cookies apenas via HTTPS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Sessão persiste após fechar navegador
 
+
+# Logging simplificado
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'django.core.mail': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}

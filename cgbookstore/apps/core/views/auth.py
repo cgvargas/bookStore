@@ -7,6 +7,8 @@ Inclui tratamento de logs, mensagens e validações personalizadas.
 """
 
 import logging
+import smtplib
+
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
@@ -26,6 +28,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.views.generic import View
 from django.shortcuts import render, redirect
+
+from ..forms import CustomPasswordResetForm
 from ..models import User
 
 # Configuração de logging para rastreamento de eventos de autenticação
@@ -108,31 +112,86 @@ class CustomLogoutView(LogoutView):
 
 
 class CustomPasswordResetView(PasswordResetView):
-    """
-    View customizada para solicitação de reset de senha.
-    Adiciona logs e mensagens personalizadas.
-    """
     template_name = 'core/password/password_reset_form.html'
     email_template_name = 'core/password/password_reset_email.html'
     subject_template_name = 'core/password/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
+    form_class = CustomPasswordResetForm
 
-    def form_valid(self, form):
-        """
-        Registra solicitação de reset de senha com mensagem de sucesso.
-        """
-        logger.info(f'Solicitação de reset de senha para o email: {form.cleaned_data["email"]}')
-        messages.success(self.request,
-                         'Se o email existir em nossa base, você receberá as instruções para redefinir sua senha.')
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        print("\n=== Método POST de reset de senha chamado ===")
+        print("POST data:", request.POST)
+        return super().post(request, *args, **kwargs)
 
     def form_invalid(self, form):
-        """
-        Registra erros na solicitação de reset de senha.
-        """
-        logger.warning(f'Formulário de reset de senha inválido. Erros: {form.errors}')
-        messages.error(self.request, 'Erro ao processar a solicitação. Por favor, verifique os dados informados.')
+        print("\n=== Formulário Inválido ===")
+        print("Erros:", form.errors)
+        print("Dados:", form.cleaned_data)
+        messages.error(self.request, "Por favor, verifique o email informado.")
         return super().form_invalid(form)
+
+    def form_valid(self, form):
+        print("\n=== Processando reset de senha ===")
+        email = form.cleaned_data.get('email', '')
+        print(f"Email informado: {email}")
+
+        if not email:
+            print("❌ Email não informado")
+            return self.form_invalid(form)
+
+        try:
+            user = User.objects.get(email=email.lower().strip())
+            print(f"✅ Usuário encontrado: {user.username}")
+
+            context = {
+                'user': user,
+                'protocol': 'https' if self.request.is_secure() else 'http',
+                'domain': self.request.get_host(),
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            }
+
+            subject = render_to_string(self.subject_template_name, context).strip()
+            text_content = render_to_string(self.email_template_name, context)
+
+            print("\n=== Enviando email ===")
+            print(f"De: {settings.DEFAULT_FROM_EMAIL}")
+            print(f"Para: {email}")
+            print(f"Assunto: {subject}")
+
+            send_mail(
+                subject=subject,
+                message=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False
+            )
+
+            print("✅ Email enviado com sucesso!")
+            messages.success(
+                self.request,
+                "Email de recuperação enviado! Por favor, verifique sua caixa de entrada."
+            )
+            return super().form_valid(form)
+
+        except User.DoesNotExist:
+            print(f"❌ Usuário não encontrado para o email: {email}")
+            messages.info(
+                self.request,
+                "Se existir uma conta com este email, você receberá as instruções por email."
+            )
+            return super().form_valid(form)
+
+        except Exception as e:
+            print(f"\n❌ Erro: {str(e)}")
+            print("\nDetalhes:")
+            import traceback
+            print(traceback.format_exc())
+            messages.error(
+                self.request,
+                "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente."
+            )
+            return self.form_invalid(form)
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):

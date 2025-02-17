@@ -21,6 +21,11 @@
             <div class="form-group mb-3">
                 <label for="password">Senha</label>
                 <input type="password" name="password" id="password" class="form-control" required>
+                <div class="d-flex justify-content-end mt-1">
+                    <a href="{% url 'password_reset' %}" class="text-decoration-none small">
+                        <i class="bi bi-key me-1"></i>Esqueceu sua senha?
+                    </a>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary w-100">Entrar</button>

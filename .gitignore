@@ -26,6 +26,8 @@ media/
 static/
 
 # Virtual Environment
+.env.dev
+.env.prod
 .env
 .venv
 venv/
