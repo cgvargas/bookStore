@@ -22,6 +22,7 @@ from django.core.mail import send_mail
 from django.template import loader
 from django.utils.html import strip_tags
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
 
 User = get_user_model()
 
@@ -393,3 +394,22 @@ class CustomPasswordResetForm(PasswordResetForm):
             print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
             print(f"DEFAULT_FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
             raise
+
+    class CustomPasswordResetForm(PasswordResetForm):
+        def clean_new_password2(self):
+            password1 = self.cleaned_data.get('new_password1')
+            password2 = self.cleaned_data.get('new_password2')
+            user = self.user
+
+            if password1 and password2:
+                if password1 != password2:
+                    raise forms.ValidationError('As senhas não conferem.')
+
+                # Verifica se a senha está no histórico
+                for old_password in user.password_history:
+                    if check_password(password1, old_password):
+                        raise forms.ValidationError(
+                            'Esta senha já foi utilizada recentemente. Por favor, escolha uma senha diferente.'
+                        )
+
+                return password2

@@ -28,6 +28,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.views.generic import View
 from django.shortcuts import render, redirect
+from django.contrib.auth.hashers import check_password
 
 from ..forms import CustomPasswordResetForm
 from ..models import User
@@ -35,6 +36,7 @@ from ..models import User
 # Configuração de logging para rastreamento de eventos de autenticação
 logger = logging.getLogger(__name__)
 
+PASSWORD_REUSE_ERROR = "Esta senha já foi utilizada recentemente. Por segurança, você não pode reutilizar suas últimas 3 senhas."
 
 class CustomLoginView(LoginView):
     """
@@ -204,22 +206,54 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     """
     View para confirmação e alteração de nova senha.
+    Inclui validação de histórico das últimas 3 senhas.
     """
     template_name = 'core/password/password_reset_confirm.html'
     success_url = reverse_lazy('password_reset_complete')
 
+    def post(self, request, *args, **kwargs):
+        """Processa a requisição POST para alteração de senha"""
+        return super().post(request, *args, **kwargs)
+
     def form_valid(self, form):
         """
-        Registra alteração de senha bem-sucedida.
+        Registra alteração de senha bem-sucedida e salva no histórico.
+        Verifica se a nova senha não está entre as últimas 3 utilizadas.
         """
-        logger.info('Senha alterada com sucesso')
-        messages.success(self.request, 'Sua senha foi alterada com sucesso!')
-        return super().form_valid(form)
+        try:
+            user = form.user
+            password = form.cleaned_data.get('new_password1')
+
+            # Verifica se a senha está no histórico
+            if user.password_history:
+                for old_password in user.password_history:
+                    if check_password(password, old_password):
+                        messages.error(self.request, PASSWORD_REUSE_ERROR)
+                        logger.warning(f'Tentativa de reutilização de senha antiga para o usuário: {user.username}')
+                        return self.form_invalid(form)
+
+            # Se chegou aqui, a senha é válida
+            user.save_password_to_history(password)
+
+            logger.info(f'Senha alterada com sucesso para o usuário: {user.username}')
+            messages.success(self.request, 'Sua senha foi alterada com sucesso!')
+            return super().form_valid(form)
+
+        except Exception as e:
+            logger.error(f'Erro ao processar alteração de senha: {str(e)}')
+            messages.error(self.request,
+                           'Ocorreu um erro ao alterar sua senha. Por favor, tente novamente.')
+            return self.form_invalid(form)
 
     def form_invalid(self, form):
         """
         Registra erros na alteração de senha.
         """
+        if not form.errors:
+            # Se não houver erros específicos do formulário, mas chegou aqui
+            # provavelmente é devido à validação de histórico
+            return super().form_invalid(form)
+
         logger.warning(f'Erro na alteração de senha. Erros: {form.errors}')
         messages.error(self.request, 'Erro ao alterar a senha. Por favor, verifique os requisitos.')
         return super().form_invalid(form)

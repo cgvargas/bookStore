@@ -2,6 +2,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from stdimage.models import StdImageField
+from django.contrib.auth.hashers import make_password
 
 class User(AbstractUser):
     cpf = models.CharField('CPF', max_length=11, unique=True)
@@ -14,7 +15,20 @@ class User(AbstractUser):
     modified = models.DateTimeField('Data de Modificação', auto_now=True)
     email_verified = models.BooleanField('Email Verificado', default=False)
     email_verification_token = models.CharField('Token de Verificação', max_length=100, null=True, blank=True)
+    password_history = models.JSONField('Histórico de Senhas', default=list, blank=True)
 
+    def save_password_to_history(self, password):
+        """Salva a senha no histórico, mantendo apenas as 3 últimas"""
+        hashed_password = make_password(password)
+        history = self.password_history if self.password_history else []
+        history.append(hashed_password)
+
+        # Mantém apenas as 3 últimas senhas
+        if len(history) > 3:
+            history = history[-3:]
+
+        self.password_history = history
+        self.save(update_fields=['password_history'])
 
     class Meta:
         verbose_name = 'Usuário'
