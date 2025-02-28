@@ -1,0 +1,142 @@
+/* personalized_shelf.css */
+/* Estilos específicos para a prateleira personalizada */
+
+/* Estilo geral de cards */
+.card {
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  height: 100%;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+
+/* Ajustes para as imagens de capa */
+.card-img-top {
+  height: 300px;
+  object-fit: cover;
+}
+
+/* Estilos para os cabeçalhos de seção */
+.section-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+  color: #333;
+  font-weight: 700;
+}
+
+/* Badges para origem dos livros */
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.external-badge {
+  background-color: #28a745;
+}
+
+.local-badge {
+  background-color: #007bff;
+}
+
+.genre-badge {
+  background-color: #f8f9fa;
+  color: #343a40;
+  border: 1px solid #dee2e6;
+}
+
+/* Estilo para livros externos */
+.external-book-card {
+  border-left: 3px solid #28a745;
+}
+
+/* Ajustes para os modais */
+.modal-content {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* Estilos para as opções de prateleira */
+.shelf-option {
+  transition: all 0.2s ease;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.shelf-option:hover {
+  background-color: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.shelf-option i {
+  width: 28px;
+  text-align: center;
+}
+
+/* Empty state (quando não há recomendações) */
+.empty-state-icon {
+  opacity: 0.5;
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Hover effect for book cards */
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: translateY(-5px);
+}
+
+/* Melhoria para exibição de dados no modal */
+#externalBookDescription {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Ajustes de responsividade */
+@media (max-width: 767.98px) {
+  .card-img-top {
+    height: 240px;
+  }
+
+  .section-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
+/* Estilo personalizado para notificações */
+.notification-toast {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.375rem;
+  background-color: #3b82f6;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-toast.success {
+  background-color: #10b981;
+}
+
+.notification-toast.error {
+  background-color: #ef4444;
+}
+
+.notification-toast.active {
+  opacity: 1;
+}

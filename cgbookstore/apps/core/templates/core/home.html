@@ -42,9 +42,16 @@
 </div>
 {% endif %}
 
+<!-- Novo componente de recomendações personalizadas -->
+{% if user.is_authenticated and has_mixed_recommendations %}
+<div class="mt-5">
+    {% include 'core/components/recommendation_widget.html' %}
+</div>
+{% endif %}
+
 <!-- Seções da Home -->
 {% for section in shelves %}
-    {% if section.tipo == 'shelf' and section.livros %}
+    {% if section.tipo == 'shelf' and section.livros and section.id != 'recomendados' %}
     <!-- Prateleira de Livros -->
     <section class="book-shelf" :id="`section-${sectionIndex}`">
         <div class="container">

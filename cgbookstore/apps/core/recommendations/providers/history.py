@@ -1,90 +1,141 @@
-from django.db.models import Count, Q
+from typing import List, Dict
+from django.db.models import QuerySet, Count, Q, F, Value, FloatField
+from django.db.models.functions import Cast
+from django.utils import timezone
 from ...models import Book, User, UserBookShelf
+from django.contrib.auth import get_user_model
+from ..providers.exclusion import ExclusionProvider
+
+User = get_user_model()
 
 
 class HistoryBasedProvider:
-    """Provider de recomendações baseadas no histórico do usuário"""
+    """Provider de recomendações baseadas em histórico de leitura"""
 
-    def get_recommendations(self, user: User, limit: int = 20):
+    SHELF_WEIGHTS = {
+        'favorito': 3.0,
+        'lido': 1.5,
+        'lendo': 1.0,
+        'vou_ler': 0.5,
+        'abandonei': 0.5
+    }
+
+    def get_recommendations(self, user: User, limit: int = 20) -> QuerySet:
         """
-        Gera recomendações baseadas no histórico de leitura
-        Args:
-            user: Usuário alvo
-            limit: Limite de recomendações
-        Returns:
-            QuerySet com livros recomendados
+        Gera recomendações baseadas no histórico de leitura do usuário
         """
-        # Obtém livros já lidos pelo usuário
-        read_books = UserBookShelf.objects.filter(
-            user=user,
-            shelf_type='lido'
-        ).values_list('book', flat=True)
+        excluded_books = ExclusionProvider.get_excluded_books(user)
+        reading_history = self._get_reading_history(user)
 
-        # Se não houver histórico, retorna livros aleatórios
-        if not read_books:
-            return Book.objects.all().order_by('?')[:limit]
+        if not reading_history:
+            return Book.objects.none()
 
-        # Obtém autores mais lidos
-        favorite_authors = Book.objects.filter(
-            id__in=read_books
-        ).values('autor').annotate(
-            count=Count('autor')
-        ).order_by('-count').values_list('autor', flat=True)
+        patterns = self._analyze_reading_patterns(reading_history)
+        query = self._build_recommendation_query(patterns)
 
-        # Obtém gêneros mais lidos
-        favorite_genres = Book.objects.filter(
-            id__in=read_books
-        ).values('genero').annotate(
-            count=Count('genero')
-        ).order_by('-count').values_list('genero', flat=True)
+        if not query:
+            return Book.objects.none()
 
-        # Recomenda livros similares excluindo os já lidos
-        recommendations = Book.objects.filter(
-            Q(autor__in=favorite_authors[:3]) |
-            Q(genero__in=favorite_genres[:3])
-        ).exclude(
-            id__in=read_books
-        ).distinct().order_by('?')[:limit]
-
+        recommendations = self._apply_recommendation_filters(query, excluded_books, limit)
         return recommendations
 
-    def get_reading_patterns(self, user: User) -> dict:
-        """
-        Analisa padrões de leitura do usuário
-        Args:
-            user: Usuário alvo
-        Returns:
-            Dicionário com estatísticas de leitura
-        """
-        read_books = UserBookShelf.objects.filter(
+    def _get_reading_history(self, user: User) -> List[UserBookShelf]:
+        """Obtém histórico de leitura com pesos por tipo de prateleira"""
+        history = list(UserBookShelf.objects.filter(
             user=user,
-            shelf_type='lido'
-        ).select_related('book')
+            shelf_type__in=self.SHELF_WEIGHTS.keys()
+        ).select_related('book').order_by('-added_at'))
 
+        # Adiciona pesos manualmente após a query
+        for item in history:
+            item.weight = self.SHELF_WEIGHTS.get(item.shelf_type, 1.0)
+
+        return history
+
+    def _analyze_reading_patterns(self, reading_history: List[UserBookShelf]) -> Dict:
+        """Analisa padrões com pesos por relevância e tempo"""
+        now = timezone.now()
         patterns = {
-            'total_books': 0,
-            'favorite_authors': {},
-            'favorite_genres': {},
-            'reading_frequency': {}
+            'authors': {},
+            'genres': {},
+            'categories': {},
+            'themes': set()
         }
 
-        for shelf in read_books:
-            patterns['total_books'] += 1
+        for shelf in reading_history:
+            time_diff = (now - shelf.added_at).days
+            time_weight = 1.0 / (1 + time_diff / 30)
+            total_weight = time_weight * self.SHELF_WEIGHTS.get(shelf.shelf_type, 1.0)
 
-            # Contagem de autores
-            author = shelf.book.autor
-            patterns['favorite_authors'][author] = \
-                patterns['favorite_authors'].get(author, 0) + 1
+            book = shelf.book
 
-            # Contagem de gêneros
-            genre = shelf.book.genero
-            if genre:
-                patterns['favorite_genres'][genre] = \
-                    patterns['favorite_genres'].get(genre, 0) + 1
+            if book.autor:
+                patterns['authors'][book.autor] = patterns['authors'].get(
+                    book.autor, 0) + total_weight
 
-            # Análise temporal
-            month = shelf.added_at.strftime('%Y-%m')
-            patterns['reading_frequency'][month] = \
-                patterns['reading_frequency'].get(month, 0) + 1
+            if book.genero:
+                patterns['genres'][book.genero] = patterns['genres'].get(
+                    book.genero, 0) + total_weight
 
+            if book.categoria:
+                patterns['categories'][book.categoria] = patterns['categories'].get(
+                    book.categoria, 0) + total_weight
+
+            if book.temas:
+                themes = set(t.strip() for t in book.temas.split(','))
+                patterns['themes'].update(themes)
+
+        return self._normalize_patterns(patterns)
+
+    def _normalize_patterns(self, patterns: Dict) -> Dict:
+        """Normaliza os pesos para valores entre 0 e 1"""
+        for key in ['authors', 'genres', 'categories']:
+            if patterns[key]:
+                max_weight = max(patterns[key].values())
+                if max_weight > 0:
+                    patterns[key] = {
+                        k: v / max_weight for k, v in patterns[key].items()
+                    }
         return patterns
+
+    def _build_recommendation_query(self, patterns: Dict) -> Q:
+        """Constrói query baseada nos padrões analisados"""
+        query = Q()
+        weight_threshold = 0.5
+
+        # Autores relevantes
+        authors = [k for k, v in patterns['authors'].items() if v > weight_threshold]
+        if authors:
+            query |= Q(autor__in=authors)
+
+        # Gêneros relevantes
+        genres = [k for k, v in patterns['genres'].items() if v > weight_threshold]
+        if genres:
+            query |= Q(genero__in=genres)
+
+        # Categorias relevantes
+        categories = [k for k, v in patterns['categories'].items() if v > weight_threshold]
+        if categories:
+            query |= Q(categoria__in=categories)
+
+        # Temas
+        if patterns['themes']:
+            theme_query = Q()
+            for theme in patterns['themes']:
+                theme_query |= Q(temas__icontains=theme)
+            query |= theme_query
+
+        return query
+
+    def _apply_recommendation_filters(
+            self, query: Q, excluded_books: set, limit: int
+    ) -> QuerySet:
+        """Aplica filtros finais e retorna recomendações"""
+        return Book.objects.filter(query).exclude(
+            id__in=excluded_books
+        ).distinct().order_by('?')[:limit]
+
+    def get_reading_patterns(self, user: User) -> Dict:
+        """Retorna padrões de leitura para análise externa"""
+        reading_history = self._get_reading_history(user)
+        return self._analyze_reading_patterns(reading_history)

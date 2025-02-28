@@ -1,0 +1,200 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Recomendações Personalizadas{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/recommendations.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold mb-3">Suas Recomendações</h1>
+    <p class="lead text-muted">
+      Descubra novos livros selecionados especialmente para você
+    </p>
+  </div>
+
+  <!-- Error Alert if present -->
+  {% if error %}
+  <div class="alert alert-warning" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+  </div>
+  {% endif %}
+
+  <!-- Recommendations Grid -->
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+    {% for book in local_recommendations %}
+    <!-- Local Book Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0 hover-scale book-card">
+        <a href="{% url 'book_detail' book.id %}" class="text-decoration-none text-dark view-book-btn" data-book-id="{{ book.id }}" data-book-type="local">
+          <div class="position-relative">
+            {% if book.capa %}
+            <img src="{{ book.capa.url }}" class="card-img-top" alt="{{ book.titulo }}" onerror="this.src='{% static 'images/no-cover.svg' %}'; this.onerror=null;">
+            {% elif book.capa_url %}
+            <img src="{{ book.capa_url }}" class="card-img-top" alt="{{ book.titulo }}" onerror="this.src='{% static 'images/no-cover.svg' %}'; this.onerror=null;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+              <i class="bi bi-book fs-1 text-muted"></i>
+            </div>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h5 class="card-title mb-1 book-title">{{ book.titulo|default:"Título desconhecido" }}</h5>
+            <p class="text-muted small mb-2 book-author">{{ book.autor|default:"Autor desconhecido" }}</p>
+            {% if book.genero %}
+            <span class="badge rounded-pill bg-light text-dark border book-genre">{{ book.genero }}</span>
+            {% endif %}
+          </div>
+        </a>
+        <div class="card-footer bg-transparent border-0">
+          <a href="{% url 'book_detail' book.id %}" class="btn btn-primary w-100 btn-sm">
+            <i class="bi bi-info-circle me-2"></i>Ver Detalhes
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% for book in external_recommendations %}
+    <!-- External Book Card -->
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0 hover-scale book-card">
+        <a href="#" class="text-decoration-none text-dark view-book-btn external-book" data-book-external-id="{{ book.id }}" data-book-type="external">
+          <div class="position-relative">
+            {% if book.volumeInfo.imageLinks.thumbnail %}
+            <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" class="card-img-top" alt="{{ book.volumeInfo.title|default:'Título desconhecido' }}"
+                 onerror="this.src='{% static 'images/no-cover.svg' %}'; this.onerror=null;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+              <i class="bi bi-book fs-1 text-muted"></i>
+            </div>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h5 class="card-title mb-1 book-title">{{ book.volumeInfo.title|default:"Título desconhecido" }}</h5>
+            <p class="text-muted small mb-2 book-author">
+              {% if book.volumeInfo.authors %}
+                {% if book.volumeInfo.authors.0 %}
+                  {{ book.volumeInfo.authors.0 }}
+                {% else %}
+                  Autor desconhecido
+                {% endif %}
+              {% else %}
+                Autor desconhecido
+              {% endif %}
+            </p>
+            {% if book.volumeInfo.categories %}
+              {% if book.volumeInfo.categories.0 %}
+                <span class="badge rounded-pill bg-light text-dark border book-genre">{{ book.volumeInfo.categories.0 }}</span>
+              {% endif %}
+            {% endif %}
+          </div>
+        </a>
+        <div class="card-footer bg-transparent border-0">
+          <button class="btn btn-primary w-100 btn-sm external-details-btn"
+                  data-book-external-id="{{ book.id }}"
+                  data-book-type="external"
+                  data-book-title="{{ book.volumeInfo.title|default:'Título desconhecido' }}"
+                  data-book-author="{% if book.volumeInfo.authors %}{% if book.volumeInfo.authors.0 %}{{ book.volumeInfo.authors.0 }}{% else %}Autor desconhecido{% endif %}{% else %}Autor desconhecido{% endif %}"
+                  data-book-cover="{% if book.volumeInfo.imageLinks.thumbnail %}{{ book.volumeInfo.imageLinks.thumbnail }}{% endif %}">
+            <i class="bi bi-info-circle me-2"></i>Ver Detalhes
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Empty State -->
+  {% if not local_recommendations and not external_recommendations %}
+  <div class="text-center py-5 my-5">
+    <div class="empty-state-icon mb-4">
+      <i class="bi bi-binoculars fs-1 text-muted"></i>
+    </div>
+    <h2 class="h4 mb-3">Vamos encontrar seus próximos livros!</h2>
+    <p class="text-muted mb-4">Adicione alguns livros às suas prateleiras para personalizarmos suas recomendações.</p>
+    <a href="{% url 'book_search' %}" class="btn btn-primary px-4">
+      <i class="bi bi-search me-2"></i>Explorar Catálogo
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
+     style="background-color: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center;">
+  <div class="bg-white p-4 rounded shadow text-center">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+    <div class="mt-2">Processando sua solicitação...</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Elementos do DOM
+  const loadingOverlay = document.getElementById('loadingOverlay');
+
+  // Botões de detalhes para livros externos
+  const externalDetailsBtns = document.querySelectorAll('.external-details-btn');
+  externalDetailsBtns.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      const externalId = this.dataset.bookExternalId;
+      if (externalId) {
+        showLoading();
+        // Redirecionar para um endpoint que importará temporariamente o livro e mostrará os detalhes
+        window.location.href = `/books/external/${externalId}/details/`;
+      }
+    });
+  });
+
+  // Links para livros externos (ainda existe mas agora só para clicar na imagem)
+  const externalBookLinks = document.querySelectorAll('.external-book');
+  externalBookLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const externalId = this.dataset.bookExternalId;
+      if (externalId) {
+        showLoading();
+        // Redirecionar para um endpoint que importará temporariamente o livro e mostrará os detalhes
+        window.location.href = `/books/external/${externalId}/details/`;
+      }
+    });
+  });
+
+  // Funções auxiliares
+  function showLoading() {
+    loadingOverlay.classList.remove('d-none');
+  }
+
+  function hideLoading() {
+    loadingOverlay.classList.add('d-none');
+  }
+
+  // Função para obter o cookie CSRF
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+});
+</script>
+{% endblock %}

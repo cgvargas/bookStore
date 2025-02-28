@@ -7,7 +7,6 @@ Inclui tratamento de logs, mensagens e validações personalizadas.
 """
 
 import logging
-import smtplib
 
 from django.contrib.auth.views import (
     LoginView,

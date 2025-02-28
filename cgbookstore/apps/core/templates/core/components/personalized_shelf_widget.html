@@ -1,0 +1,73 @@
+{% load static %}
+
+<!-- Prateleira de Recomendações Personalizada -->
+<section class="book-shelf recommendation-shelf">
+    <div class="container">
+        <h2 class="section-title animate-fade-in">
+            Recomendações Para Você
+        </h2>
+        <div class="swiper bookSwiper">
+            <div class="swiper-wrapper">
+                <!-- Livros locais -->
+                {% for livro in local_recommendations %}
+                <div class="swiper-slide">
+                    <div class="book-card">
+                        <a href="{% url 'book_detail' livro.id %}" class="book-card-link">
+                            <div class="book-cover-container">
+                                {% if livro.capa %}
+                                    <img src="{{ livro.get_preview_url }}" alt="{{ livro.titulo }}" class="book-cover" loading="lazy">
+                                {% elif livro.capa_url %}
+                                    <img src="{{ livro.capa_url }}" alt="{{ livro.titulo }}" class="book-cover" loading="lazy" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                                {% else %}
+                                    <div class="no-cover">
+                                        <i class="bi bi-book"></i>
+                                    </div>
+                                {% endif %}
+                                <span class="badge bg-primary position-absolute top-0 end-0 m-2">Nosso Catálogo</span>
+                            </div>
+                        </a>
+                        <div class="book-details text-center mt-2">
+                            <h3 class="book-title">{{ livro.titulo }}</h3>
+                            <p class="book-author">{{ livro.autor }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Livros externos (Google Books) -->
+                {% if external_recommendations %}
+                    {% for book in external_recommendations %}
+                    <div class="swiper-slide">
+                        <div class="book-card">
+                            <a href="/books/external/{{ book.id }}/details/" class="book-card-link">
+                                <div class="book-cover-container">
+                                    {% if book.volumeInfo.imageLinks.thumbnail %}
+                                        <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" alt="{{ book.volumeInfo.title }}" class="book-cover" loading="lazy" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                                    {% else %}
+                                        <div class="no-cover">
+                                            <i class="bi bi-book"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="badge bg-success position-absolute top-0 end-0 m-2">Google Books</span>
+                                </div>
+                            </a>
+                            <div class="book-details text-center mt-2">
+                                <h3 class="book-title">{{ book.volumeInfo.title }}</h3>
+                                <p class="book-author">
+                                    {% if book.volumeInfo.authors.0 %}
+                                        {{ book.volumeInfo.authors.0 }}
+                                    {% else %}
+                                        Autor desconhecido
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </div>
+</section>

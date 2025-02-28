@@ -10,6 +10,7 @@
 
         <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
             
             <!-- Username -->
             <div class="form-group mb-3">

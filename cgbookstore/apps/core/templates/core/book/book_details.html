@@ -13,8 +13,10 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'index' %}">Página Inicial</a></li>
-            {% if shelf_display %}
+            {% if shelf %}
             <li class="breadcrumb-item"><a href="{% url 'profile' %}#{{ shelf }}">{{ shelf_display }}</a></li>
+            {% elif is_from_recommendation %}
+            <li class="breadcrumb-item"><a href="{% url 'recommendations' %}">Recomendações</a></li>
             {% endif %}
             <li class="breadcrumb-item active" aria-current="page">{{ book.titulo }}</li>
         </ol>
@@ -51,20 +53,42 @@
                         {% endif %}
                     </div>
                 </div>
+
                 {% if shelf %}
+                <!-- Livro já está em uma prateleira do usuário -->
                 <div class="card-body">
                     <div class="shelf-badge mb-3">
-                        <span class="badge bg-primary">{{ shelf_display }}</span>
+                        <span class="badge bg-success">{{ shelf_display }}</span>
                     </div>
                     <div class="d-grid gap-2">
-                        <button class="btn btn-primary" onclick="openEditModal()">
-                            <i class="bi bi-pencil"></i> Editar Informações
-                        </button>
-                        <button class="btn btn-info" onclick="openMoveModal()">
+                        {% if can_move %}
+                        <button class="btn btn-outline-primary" onclick="window.openMoveModal && window.openMoveModal()">
                             <i class="bi bi-arrows-move"></i> Mover para Outra Prateleira
                         </button>
-                        <button class="btn btn-danger" onclick="confirmRemove()">
+                        {% endif %}
+
+                        {% if can_edit %}
+                        <button class="btn btn-outline-secondary" onclick="window.openEditModal && window.openEditModal()">
+                            <i class="bi bi-pencil"></i> Editar Livro
+                        </button>
+                        {% endif %}
+
+                        {% if can_remove %}
+                        <button class="btn btn-outline-danger" onclick="window.confirmRemove && window.confirmRemove()">
                             <i class="bi bi-trash"></i> Remover da Prateleira
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <!-- Livro não está em nenhuma prateleira do usuário -->
+                <div class="card-body">
+                    <div class="shelf-badge mb-3">
+                        <span class="badge bg-secondary">Não está em uma prateleira</span>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="window.openShelfModal && window.openShelfModal()">
+                            <i class="bi bi-bookmark-plus"></i> Adicionar à Prateleira
                         </button>
                     </div>
                 </div>
@@ -73,7 +97,7 @@
         </div>
 
         <div class="col-md-8">
-            <div class="book-details">
+            <div class="book-details" data-book-id="{{ book.id }}">
                 <ul class="nav nav-tabs" id="bookTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic" type="button">
@@ -599,6 +623,38 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             <div class="modal-body">
                 <img src="" id="modalImage" alt="Capa em tamanho completo">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar à prateleira -->
+<div class="modal fade" id="addToShelfModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar à Prateleira</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addToShelfForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Selecione a Prateleira</label>
+                        <select class="form-select" name="shelf_type">
+                            <option value="favorito">Favoritos</option>
+                            <option value="lendo">Lendo</option>
+                            <option value="vou_ler">Quero Ler</option>
+                            <option value="lido">Lido</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="window.addToShelf && window.addToShelf()">
+                   <i class="bi bi-bookmark-plus"></i> Adicionar à Prateleira
+                </button>
             </div>
         </div>
     </div>

@@ -23,7 +23,7 @@ from .views.general import (
     SobreView,
     ContatoView,
     PoliticaPrivacidadeView,
-    TermosUsoView
+    TermosUsoView,
 )
 from .views.auth import (
     CustomLoginView,
@@ -43,7 +43,12 @@ from .views.book import (
     update_book,
     move_book,
     BookDetailView,
+    external_book_details_view,
 )
+
+from .views.general import get_external_book_details
+from .views.recommendation_views import import_external_book
+from .views import book
 
 # Padrões de URL para o aplicativo core
 urlpatterns = [
@@ -87,17 +92,26 @@ urlpatterns = [
     path('books/add-to-shelf/', add_to_shelf, name='add_to_shelf'),
     path('books/remove-from-shelf/', remove_from_shelf, name='remove_from_shelf'),
 
+    # Novas rotas para importação de livros externos
+    path('books/import-external/', import_external_book, name='import_external_book'),
+    path('books/add-external-to-shelf/', book.add_external_to_shelf, name='add_external_to_shelf'),
+
+    # Nova rota para detalhes de livros externos
+    path('books/external/<str:external_id>/details/', external_book_details_view, name='external_book_details'),
+
     # Detalhes e Operações de Livros
-    path('books/<int:book_id>/details/', get_book_details, name='book_details'),
+    path('books/<int:book_id>/details/', get_book_details, name='book_details_api'),
+    # Renomeado para clarificar que é uma API
     path('books/<int:book_id>/update/', update_book, name='update_book'),
     path('books/<int:book_id>/move-to-shelf/', move_book, name='move_book'),
     path('books/<int:book_id>/remove-from-shelf/', remove_from_shelf, name='remove_from_shelf'),
     path('books/add-book-manual/', book.add_book_manual, name='add_book_manual'),
 
-    # Detalhes de Livro Específico
+    # Detalhes de Livro Específico - Esta é a rota que deve ser usada para visualização de detalhes
     path('books/<int:pk>/', BookDetailView.as_view(), name='book_detail'),
 
     # Rotas de API
     # Inclusão de rotas de recomendações e outras APIs
     path('api/recommendations/', include('cgbookstore.apps.core.recommendations.urls')),
+    path('api/recommendations/book/<str:external_id>/', get_external_book_details, name='external_book_details'),
 ]

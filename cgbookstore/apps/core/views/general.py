@@ -16,6 +16,9 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.views.generic import CreateView, TemplateView, FormView
 from django.urls import reverse_lazy
+from django.http import JsonResponse
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -29,6 +32,8 @@ from ..models.book import Book
 from ..models.home_content import HomeSection, VideoSection
 from ..recommendations.engine import RecommendationEngine
 from ..models.home_content import DefaultShelfType
+from ..recommendations.providers.external_api import ExternalApiProvider
+from ..services.google_books_client import GoogleBooksClient
 
 # Configuração de logger para rastreamento de eventos
 logger = logging.getLogger(__name__)
@@ -67,19 +72,43 @@ class IndexView(TemplateView):
             # Adiciona recomendações personalizadas se usuário estiver logado
             if self.request.user.is_authenticated:
                 try:
+                    # Obter recomendações mistas (locais + externas)
                     engine = RecommendationEngine()
-                    recommended_books = engine.get_recommendations(self.request.user)[:12]
-                    if recommended_books:
+                    mixed_recommendations = engine.get_mixed_recommendations(self.request.user, limit=12)
+
+                    # Adiciona recomendações ao contexto
+                    context['external_recommendations'] = mixed_recommendations['external']
+                    context['local_recommendations'] = mixed_recommendations['local']
+                    context['has_mixed_recommendations'] = mixed_recommendations['has_external'] or bool(mixed_recommendations['local'])
+
+                    logger.info(f'Recomendações mistas geradas para usuário {self.request.user.username}')
+
+                    # Adiciona recomendações locais às seções tradicionais
+                    if mixed_recommendations['local']:
                         processed_sections.append({
                             'titulo': 'Recomendados para Você',
                             'tipo': 'shelf',
                             'id': 'recomendados',
-                            'livros': recommended_books
+                            'livros': mixed_recommendations['local']
                         })
-                        logger.info(f'Recomendações geradas para usuário {self.request.user.username}')
-                except Exception as e:
-                    logger.error(f'Erro ao gerar recomendações: {str(e)}')
 
+                except Exception as e:
+                    logger.error(f'Erro ao gerar recomendações mistas: {str(e)}')
+                    # Fallback para recomendações tradicionais
+                    try:
+                        recommended_books = engine.get_recommendations(self.request.user)[:12]
+                        if recommended_books:
+                            processed_sections.append({
+                                'titulo': 'Recomendados para Você',
+                                'tipo': 'shelf',
+                                'id': 'recomendados',
+                                'livros': recommended_books
+                            })
+                            logger.info(f'Recomendações tradicionais geradas para usuário {self.request.user.username}')
+                    except Exception as e2:
+                        logger.error(f'Erro ao gerar recomendações tradicionais: {str(e2)}')
+
+            # Busca tipos de prateleiras padrão
             default_shelf_types = DefaultShelfType.objects.filter(ativo=True).order_by('ordem')
 
             for shelf_type in default_shelf_types:
@@ -120,8 +149,7 @@ class IndexView(TemplateView):
                                     section_data['video_section'] = video_section
                                     section_data['videos'] = videos
                                     processed_sections.append(section_data)
-                                    logger.info(
-                                        f'Seção de vídeos adicionada: {section.titulo} com {videos.count()} vídeos')
+                                    logger.info(f'Seção de vídeos adicionada: {section.titulo} com {videos.count()} vídeos')
                                 else:
                                     logger.warning(f'Nenhum vídeo ativo encontrado para seção {section.titulo}')
                             else:
@@ -359,3 +387,39 @@ class TermosUsoView(TemplateView):
     Renderiza template estático com termos de uso.
     """
     template_name = 'core/termos_uso.html'
+
+
+def get_external_book_details(request, external_id):
+    """
+    View para buscar detalhes de um livro externo específico
+    """
+    try:
+        # Trata IDs negativos (que são IDs temporários internos)
+        if external_id.startswith('-'):
+            # Tenta buscar nas recomendações armazenadas em cache
+            from ..recommendations.engine import RecommendationEngine
+            engine = RecommendationEngine()
+
+            # Obtém recomendações para o usuário atual
+            recommendations = engine.get_mixed_recommendations(request.user)
+
+            # Procura o livro com o ID específico
+            for book in recommendations.get('external', []):
+                if book.get('id') == external_id:
+                    return JsonResponse(book)
+
+            return JsonResponse({'error': 'Livro temporário não encontrado'}, status=404)
+
+        # Para outros IDs, usa a API do Google Books
+        client = GoogleBooksClient()
+        book_data = client.get_book_by_id(external_id)
+
+        if not book_data:
+            return JsonResponse({'error': 'Livro não encontrado'}, status=404)
+
+        # Retorna os dados do livro como JSON
+        return JsonResponse(book_data, encoder=DjangoJSONEncoder)
+
+    except Exception as e:
+        logger.error(f"Erro ao buscar detalhes do livro externo: {str(e)}")
+        return JsonResponse({'error': 'Erro ao buscar detalhes do livro'}, status=500)

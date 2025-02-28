@@ -1,27 +1,45 @@
 ﻿Nome do Arquivo;Diretório;Tipo;Tamanho (bytes);Data Criação;Última Modificação;Caminho Completo
-.env;;Outro;443;2025-01-14 15:21:20;2025-01-27 17:45:12;.env
-.gitignore;;Outro;643;2025-01-15 08:04:05;2025-01-15 16:21:41;.gitignore
+.coverage;;Outro;53248;2025-02-24 07:51:31;2025-02-22 09:48:51;.coverage
+.env.dev;;Outro;638;2025-02-13 17:14:04;2025-02-15 07:58:42;.env.dev
+.env.prod;;Outro;811;2025-02-13 17:14:38;2025-02-15 07:53:39;.env.prod
+.gitignore;;Outro;664;2025-01-15 08:04:05;2025-02-14 09:33:39;.gitignore
+LICENSE;;Outro;2219;2025-02-17 09:23:25;2025-02-17 09:23:25;LICENSE
+README.md;;Markdown;5480;2025-02-17 09:23:25;2025-02-17 09:23:25;README.md
+check_sendgrid_config.py;;Python;1449;2025-02-15 08:19:05;2025-02-15 08:19:18;check_sendgrid_config.py
+core_book.csv;;Outro;89800;2025-02-24 07:51:11;2025-02-21 08:42:35;core_book.csv
+core_userbookshelf.csv;;Outro;2760;2025-02-24 07:51:11;2025-02-21 08:37:58;core_userbookshelf.csv
 listar_tabelas.py;;Python;6377;2025-02-02 06:56:49;2025-02-02 07:57:52;listar_tabelas.py
 manage.py;;Python;599;2025-01-14 10:50:25;2025-01-15 08:22:25;manage.py
+pytest.ini;;Outro;130;2025-02-24 07:51:26;2025-02-23 09:16:46;pytest.ini
 requirements.txt;;Texto;545;2025-01-14 15:20:30;2025-02-02 08:09:24;requirements.txt
+sendgrid_email_test.py;;Python;3391;2025-02-13 17:58:13;2025-02-14 09:45:34;sendgrid_email_test.py
+test_env.py;;Python;2863;2025-02-13 17:37:24;2025-02-13 17:46:23;test_env.py
+test_sendgrid.py;;Python;1886;2025-02-14 15:44:24;2025-02-15 08:18:31;test_sendgrid.py
 .gitignore;.idea;Outro;50;2025-01-14 10:47:18;2025-01-14 10:47:18;.idea\.gitignore
-bookstore.iml;.idea;Outro;408;2025-01-14 10:47:18;2025-02-10 09:37:21;.idea\bookstore.iml
-misc.xml;.idea;Outro;308;2025-01-14 11:06:20;2025-02-10 09:37:21;.idea\misc.xml
+bookstore.iml;.idea;Outro;408;2025-01-14 10:47:18;2025-02-24 07:59:42;.idea\bookstore.iml
+misc.xml;.idea;Outro;308;2025-01-14 11:06:20;2025-02-24 07:59:42;.idea\misc.xml
 modules.xml;.idea;Outro;277;2025-01-14 10:47:18;2025-01-14 10:47:18;.idea\modules.xml
 vcs.xml;.idea;Outro;185;2025-01-15 08:22:50;2025-01-15 08:22:50;.idea\vcs.xml
-workspace.xml;.idea;Outro;8981;2025-01-14 10:53:46;2025-02-12 08:12:42;.idea\workspace.xml
+workspace.xml;.idea;Outro;18786;2025-01-14 10:53:46;2025-02-24 15:13:47;.idea\workspace.xml
 Project_Default.xml;.idea\inspectionProfiles;Outro;3438;2025-01-14 10:47:17;2025-01-14 10:47:17;.idea\inspectionProfiles\Project_Default.xml
 profiles_settings.xml;.idea\inspectionProfiles;Outro;174;2025-01-14 10:47:18;2025-01-14 10:47:18;.idea\inspectionProfiles\profiles_settings.xml
+.gitignore;.pytest_cache;Outro;39;2025-02-24 07:51:31;2025-02-22 09:13:15;.pytest_cache\.gitignore
+CACHEDIR.TAG;.pytest_cache;Outro;191;2025-02-24 07:51:31;2025-02-22 09:13:15;.pytest_cache\CACHEDIR.TAG
+README.md;.pytest_cache;Markdown;310;2025-02-24 07:51:31;2025-02-22 09:13:15;.pytest_cache\README.md
+lastfailed;.pytest_cache\v\cache;Outro;1548;2025-02-24 07:51:31;2025-02-23 11:12:39;.pytest_cache\v\cache\lastfailed
+nodeids;.pytest_cache\v\cache;Outro;8102;2025-02-24 07:51:33;2025-02-23 11:21:59;.pytest_cache\v\cache\nodeids
+stepwise;.pytest_cache\v\cache;Outro;2;2025-02-24 07:51:33;2025-02-23 11:21:59;.pytest_cache\v\cache\stepwise
 __init__.py;cgbookstore;Python;0;2025-01-14 11:05:01;2025-01-14 11:05:01;cgbookstore\__init__.py
-db.sqlite3;cgbookstore;Outro;1732608;2025-01-16 16:47:49;2025-02-12 08:27:29;cgbookstore\db.sqlite3
+db.sqlite3;cgbookstore;Outro;1732608;2025-01-16 16:47:49;2025-02-24 15:13:52;cgbookstore\db.sqlite3
+debug.log;cgbookstore;Outro;0;2025-02-13 16:38:56;2025-02-13 16:38:56;cgbookstore\debug.log
 __init__.py;cgbookstore\apps;Python;0;2025-01-14 11:04:53;2025-01-14 11:04:53;cgbookstore\apps\__init__.py
 __init__.py;cgbookstore\apps\core;Python;0;2025-01-14 10:52:45;2025-01-14 10:52:45;cgbookstore\apps\core\__init__.py
 admin.py;cgbookstore\apps\core;Python;25408;2025-01-14 10:52:45;2025-02-11 11:21:18;cgbookstore\apps\core\admin.py
 apps.py;cgbookstore\apps\core;Python;1127;2025-01-14 10:52:45;2025-02-05 16:04:49;cgbookstore\apps\core\apps.py
-forms.py;cgbookstore\apps\core;Python;9748;2025-01-15 13:23:37;2025-02-05 16:06:07;cgbookstore\apps\core\forms.py
+forms.py;cgbookstore\apps\core;Python;13849;2025-01-15 13:23:37;2025-02-17 08:32:25;cgbookstore\apps\core\forms.py
 signals.py;cgbookstore\apps\core;Python;1766;2025-01-16 10:31:34;2025-02-05 16:07:18;cgbookstore\apps\core\signals.py
 tests.py;cgbookstore\apps\core;Python;63;2025-01-14 10:52:45;2025-01-14 10:52:45;cgbookstore\apps\core\tests.py
-urls.py;cgbookstore\apps\core;Python;4064;2025-01-14 11:20:06;2025-02-05 16:09:38;cgbookstore\apps\core\urls.py
+urls.py;cgbookstore\apps\core;Python;4238;2025-01-14 11:20:06;2025-02-24 11:01:08;cgbookstore\apps\core\urls.py
 __init__.py;cgbookstore\apps\core\management;Python;0;2025-01-15 21:53:04;2025-01-15 21:53:04;cgbookstore\apps\core\management\__init__.py
 __init__.py;cgbookstore\apps\core\management\commands;Python;0;2025-01-15 21:53:19;2025-01-15 21:53:19;cgbookstore\apps\core\management\commands\__init__.py
 create_default_shelves.py;cgbookstore\apps\core\management\commands;Python;1813;2025-02-11 09:45:51;2025-02-11 09:47:55;cgbookstore\apps\core\management\commands\create_default_shelves.py
@@ -30,13 +48,13 @@ generate_project_structure.py;cgbookstore\apps\core\management\commands;Python;6
 generate_tables.py;cgbookstore\apps\core\management\commands;Python;5984;2025-01-17 07:41:15;2025-01-17 07:41:47;cgbookstore\apps\core\management\commands\generate_tables.py
 __init__.py;cgbookstore\apps\core\models;Python;373;2025-01-14 11:10:08;2025-02-03 14:11:17;cgbookstore\apps\core\models\__init__.py
 banner.py;cgbookstore\apps\core\models;Python;1978;2025-01-28 12:46:21;2025-01-28 12:47:37;cgbookstore\apps\core\models\banner.py
-book.py;cgbookstore\apps\core\models;Python;9958;2025-01-16 09:25:34;2025-02-03 09:35:29;cgbookstore\apps\core\models\book.py
+book.py;cgbookstore\apps\core\models;Python;10357;2025-01-16 09:25:34;2025-02-24 09:01:04;cgbookstore\apps\core\models\book.py
 home_content.py;cgbookstore\apps\core\models;Python;8281;2025-02-10 10:05:52;2025-02-11 11:20:58;cgbookstore\apps\core\models\home_content.py
 profile.py;cgbookstore\apps\core\models;Python;1548;2025-01-15 21:24:55;2025-01-28 09:37:58;cgbookstore\apps\core\models\profile.py
-user.py;cgbookstore\apps\core\models;Python;1272;2025-01-14 10:52:45;2025-01-16 16:40:05;cgbookstore\apps\core\models\user.py
+user.py;cgbookstore\apps\core\models;Python;1922;2025-01-14 10:52:45;2025-02-17 08:28:26;cgbookstore\apps\core\models\user.py
 __init__.py;cgbookstore\apps\core\recommendations;Python;0;2025-02-01 11:37:57;2025-02-01 11:37:57;cgbookstore\apps\core\recommendations\__init__.py
-engine.py;cgbookstore\apps\core\recommendations;Python;3133;2025-02-01 11:37:58;2025-02-01 14:35:35;cgbookstore\apps\core\recommendations\engine.py
-urls.py;cgbookstore\apps\core\recommendations;Python;302;2025-02-04 17:50:55;2025-02-04 17:51:21;cgbookstore\apps\core\recommendations\urls.py
+engine.py;cgbookstore\apps\core\recommendations;Python;10870;2025-02-01 11:37:58;2025-02-24 10:31:36;cgbookstore\apps\core\recommendations\engine.py
+urls.py;cgbookstore\apps\core\recommendations;Python;1056;2025-02-04 17:50:55;2025-02-20 08:41:50;cgbookstore\apps\core\recommendations\urls.py
 __init__.py;cgbookstore\apps\core\recommendations\analytics;Python;0;2025-02-03 10:03:27;2025-02-03 10:03:27;cgbookstore\apps\core\recommendations\analytics\__init__.py
 apps.py;cgbookstore\apps\core\recommendations\analytics;Python;268;2025-02-04 08:00:23;2025-02-04 08:04:47;cgbookstore\apps\core\recommendations\analytics\apps.py
 endpoints.py;cgbookstore\apps\core\recommendations\analytics;Python;2546;2025-02-03 10:08:15;2025-02-03 10:08:54;cgbookstore\apps\core\recommendations\analytics\endpoints.py
@@ -60,76 +78,101 @@ __init__.py;cgbookstore\apps\core\recommendations\analytics\utils;Python;0;2025-
 processors.py;cgbookstore\apps\core\recommendations\analytics\utils;Python;1130;2025-02-03 14:38:45;2025-02-04 18:28:03;cgbookstore\apps\core\recommendations\analytics\utils\processors.py
 README.md;cgbookstore\apps\core\recommendations\api;Markdown;2963;2025-02-03 09:43:44;2025-02-03 09:45:44;cgbookstore\apps\core\recommendations\api\README.md
 __init__.py;cgbookstore\apps\core\recommendations\api;Python;0;2025-02-03 09:12:00;2025-02-03 09:12:00;cgbookstore\apps\core\recommendations\api\__init__.py
-endpoints.py;cgbookstore\apps\core\recommendations\api;Python;2357;2025-02-03 09:12:00;2025-02-03 09:32:38;cgbookstore\apps\core\recommendations\api\endpoints.py
+endpoints.py;cgbookstore\apps\core\recommendations\api;Python;2357;2025-02-03 09:12:00;2025-02-23 09:35:17;cgbookstore\apps\core\recommendations\api\endpoints.py
+performance.py;cgbookstore\apps\core\recommendations\api;Python;1120;2025-02-17 17:33:55;2025-02-18 06:54:35;cgbookstore\apps\core\recommendations\api\performance.py
 serializers.py;cgbookstore\apps\core\recommendations\api;Python;906;2025-02-03 09:12:00;2025-02-03 09:20:22;cgbookstore\apps\core\recommendations\api\serializers.py
-urls.py;cgbookstore\apps\core\recommendations\api;Python;304;2025-02-03 09:12:00;2025-02-03 14:19:33;cgbookstore\apps\core\recommendations\api\urls.py
+urls.py;cgbookstore\apps\core\recommendations\api;Python;370;2025-02-03 09:12:00;2025-02-23 09:43:47;cgbookstore\apps\core\recommendations\api\urls.py
+__init__.py;cgbookstore\apps\core\recommendations\management;Python;41;2025-02-17 17:45:03;2025-02-17 17:53:39;cgbookstore\apps\core\recommendations\management\__init__.py
+__init__.py;cgbookstore\apps\core\recommendations\management\commands;Python;60;2025-02-17 17:45:15;2025-02-17 17:53:55;cgbookstore\apps\core\recommendations\management\commands\__init__.py
+benchmark_recommendations.py;cgbookstore\apps\core\recommendations\management\commands;Python;4030;2025-02-17 17:45:50;2025-02-21 07:47:45;cgbookstore\apps\core\recommendations\management\commands\benchmark_recommendations.py
 __init__.py;cgbookstore\apps\core\recommendations\providers;Python;0;2025-02-01 11:37:58;2025-02-01 11:37:58;cgbookstore\apps\core\recommendations\providers\__init__.py
-category.py;cgbookstore\apps\core\recommendations\providers;Python;3175;2025-02-01 11:37:58;2025-02-01 14:25:02;cgbookstore\apps\core\recommendations\providers\category.py
-history.py;cgbookstore\apps\core\recommendations\providers;Python;3007;2025-02-01 11:37:58;2025-02-01 14:31:17;cgbookstore\apps\core\recommendations\providers\history.py
-similarity.py;cgbookstore\apps\core\recommendations\providers;Python;3009;2025-02-01 11:37:59;2025-02-01 14:25:14;cgbookstore\apps\core\recommendations\providers\similarity.py
+category.py;cgbookstore\apps\core\recommendations\providers;Python;18599;2025-02-01 11:37:58;2025-02-22 07:43:14;cgbookstore\apps\core\recommendations\providers\category.py
+exclusion.py;cgbookstore\apps\core\recommendations\providers;Python;6660;2025-02-17 10:07:11;2025-02-22 07:55:18;cgbookstore\apps\core\recommendations\providers\exclusion.py
+external_api.py;cgbookstore\apps\core\recommendations\providers;Python;9727;2025-02-19 10:09:29;2025-02-24 11:10:02;cgbookstore\apps\core\recommendations\providers\external_api.py
+history.py;cgbookstore\apps\core\recommendations\providers;Python;5167;2025-02-01 11:37:58;2025-02-22 08:43:16;cgbookstore\apps\core\recommendations\providers\history.py
+mapping.py;cgbookstore\apps\core\recommendations\providers;Python;4103;2025-02-24 07:51:16;2025-02-21 09:20:40;cgbookstore\apps\core\recommendations\providers\mapping.py
+similarity.py;cgbookstore\apps\core\recommendations\providers;Python;12727;2025-02-01 11:37:59;2025-02-22 09:57:27;cgbookstore\apps\core\recommendations\providers\similarity.py
+temporal.py;cgbookstore\apps\core\recommendations\providers;Python;7440;2025-02-18 14:59:46;2025-02-22 08:33:02;cgbookstore\apps\core\recommendations\providers\temporal.py
 __init__.py;cgbookstore\apps\core\recommendations\services;Python;0;2025-02-01 11:37:58;2025-02-01 11:37:58;cgbookstore\apps\core\recommendations\services\__init__.py
 calculator.py;cgbookstore\apps\core\recommendations\services;Python;1970;2025-02-01 11:37:59;2025-02-01 14:14:34;cgbookstore\apps\core\recommendations\services\calculator.py
-__init__.py;cgbookstore\apps\core\recommendations\tests;Python;0;2025-02-01 11:37:58;2025-02-01 11:37:58;cgbookstore\apps\core\recommendations\tests\__init__.py
-test_api.py;cgbookstore\apps\core\recommendations\tests;Python;2096;2025-02-03 09:25:22;2025-02-03 09:28:19;cgbookstore\apps\core\recommendations\tests\test_api.py
-test_cache.py;cgbookstore\apps\core\recommendations\tests;Python;3203;2025-02-03 09:36:20;2025-02-03 09:36:29;cgbookstore\apps\core\recommendations\tests\test_cache.py
-test_engine.py;cgbookstore\apps\core\recommendations\tests;Python;3006;2025-02-01 11:37:59;2025-02-01 14:28:20;cgbookstore\apps\core\recommendations\tests\test_engine.py
+__init__.py;cgbookstore\apps\core\recommendations\tests;Python;34;2025-02-01 11:37:58;2025-02-17 18:28:48;cgbookstore\apps\core\recommendations\tests\__init__.py
+conftest.py;cgbookstore\apps\core\recommendations\tests;Python;450;2025-02-24 07:51:31;2025-02-22 09:11:07;cgbookstore\apps\core\recommendations\tests\conftest.py
+test_api.py;cgbookstore\apps\core\recommendations\tests;Python;2136;2025-02-03 09:25:22;2025-02-23 09:42:48;cgbookstore\apps\core\recommendations\tests\test_api.py
+test_cache.py;cgbookstore\apps\core\recommendations\tests;Python;2490;2025-02-03 09:36:20;2025-02-23 10:31:40;cgbookstore\apps\core\recommendations\tests\test_cache.py
+test_category.py;cgbookstore\apps\core\recommendations\tests;Python;5437;2025-02-24 07:51:16;2025-02-22 07:28:06;cgbookstore\apps\core\recommendations\tests\test_category.py
+test_engine.py;cgbookstore\apps\core\recommendations\tests;Python;3650;2025-02-01 11:37:59;2025-02-23 10:51:11;cgbookstore\apps\core\recommendations\tests\test_engine.py
+test_exclusions.py;cgbookstore\apps\core\recommendations\tests;Python;6437;2025-02-17 10:13:04;2025-02-19 08:35:44;cgbookstore\apps\core\recommendations\tests\test_exclusions.py
+test_history_temporal.py;cgbookstore\apps\core\recommendations\tests;Python;4550;2025-02-24 07:51:16;2025-02-22 08:40:25;cgbookstore\apps\core\recommendations\tests\test_history_temporal.py
+test_load.py;cgbookstore\apps\core\recommendations\tests;Python;2507;2025-02-17 17:43:44;2025-02-17 18:02:42;cgbookstore\apps\core\recommendations\tests\test_load.py
+test_logging.py;cgbookstore\apps\core\recommendations\tests;Python;223;2025-02-24 07:51:31;2025-02-22 09:15:25;cgbookstore\apps\core\recommendations\tests\test_logging.py
 test_processors.py;cgbookstore\apps\core\recommendations\tests;Python;4424;2025-02-01 11:37:59;2025-02-01 14:28:32;cgbookstore\apps\core\recommendations\tests\test_processors.py
-test_providers.py;cgbookstore\apps\core\recommendations\tests;Python;4488;2025-02-01 11:37:59;2025-02-01 14:28:48;cgbookstore\apps\core\recommendations\tests\test_providers.py
+test_providers.py;cgbookstore\apps\core\recommendations\tests;Python;4488;2025-02-01 11:37:59;2025-02-22 08:35:37;cgbookstore\apps\core\recommendations\tests\test_providers.py
+test_recommendation_cache.py;cgbookstore\apps\core\recommendations\tests;Python;6469;2025-02-17 18:16:18;2025-02-23 11:15:01;cgbookstore\apps\core\recommendations\tests\test_recommendation_cache.py
+test_recommendation_system.py;cgbookstore\apps\core\recommendations\tests;Python;7125;2025-02-18 08:16:32;2025-02-18 08:56:19;cgbookstore\apps\core\recommendations\tests\test_recommendation_system.py
+test_search_tracking.py;cgbookstore\apps\core\recommendations\tests;Python;2416;2025-02-17 10:13:32;2025-02-17 10:13:48;cgbookstore\apps\core\recommendations\tests\test_search_tracking.py
+test_similarity_provider.py;cgbookstore\apps\core\recommendations\tests;Python;16952;2025-02-24 07:51:31;2025-02-22 09:56:53;cgbookstore\apps\core\recommendations\tests\test_similarity_provider.py
 __init__.py;cgbookstore\apps\core\recommendations\utils;Python;0;2025-02-01 11:37:58;2025-02-01 11:37:58;cgbookstore\apps\core\recommendations\utils\__init__.py
-cache_manager.py;cgbookstore\apps\core\recommendations\utils;Python;1893;2025-02-03 09:30:41;2025-02-03 09:30:59;cgbookstore\apps\core\recommendations\utils\cache_manager.py
-processors.py;cgbookstore\apps\core\recommendations\utils;Python;3934;2025-02-01 11:37:59;2025-02-01 14:36:49;cgbookstore\apps\core\recommendations\utils\processors.py
+cache_manager.py;cgbookstore\apps\core\recommendations\utils;Python;3271;2025-02-03 09:30:41;2025-02-22 08:15:16;cgbookstore\apps\core\recommendations\utils\cache_manager.py
+google_books_cache.py;cgbookstore\apps\core\recommendations\utils;Python;4079;2025-02-20 08:26:14;2025-02-20 08:26:22;cgbookstore\apps\core\recommendations\utils\google_books_cache.py
+processors.py;cgbookstore\apps\core\recommendations\utils;Python;3941;2025-02-01 11:37:59;2025-02-21 08:57:55;cgbookstore\apps\core\recommendations\utils\processors.py
+search_tracker.py;cgbookstore\apps\core\recommendations\utils;Python;3468;2025-02-17 10:08:22;2025-02-17 10:08:34;cgbookstore\apps\core\recommendations\utils\search_tracker.py
 __init__.py;cgbookstore\apps\core\serializers;Python;0;2025-01-14 11:13:27;2025-01-14 11:13:27;cgbookstore\apps\core\serializers\__init__.py
 user_serializer.py;cgbookstore\apps\core\serializers;Python;25;2025-01-14 11:13:39;2025-01-14 11:13:55;cgbookstore\apps\core\serializers\user_serializer.py
 __init__.py;cgbookstore\apps\core\services;Python;0;2025-01-25 14:53:00;2025-01-25 14:53:00;cgbookstore\apps\core\services\__init__.py
-google_books_client.py;cgbookstore\apps\core\services;Python;5226;2025-01-25 14:53:19;2025-01-27 15:45:28;cgbookstore\apps\core\services\google_books_client.py
+google_books_client.py;cgbookstore\apps\core\services;Python;5363;2025-01-25 14:53:19;2025-02-20 10:31:21;cgbookstore\apps\core\services\google_books_client.py
 __init__.py;cgbookstore\apps\core\templates;Python;0;2025-02-10 10:55:49;2025-02-10 10:55:49;cgbookstore\apps\core\templates\__init__.py
 database_overview.html;cgbookstore\apps\core\templates\admin;Template HTML;4496;2025-02-02 08:35:34;2025-02-05 16:19:00;cgbookstore\apps\core\templates\admin\database_overview.html
 database_table_view.html;cgbookstore\apps\core\templates\admin;Template HTML;654;2025-02-02 08:36:43;2025-02-02 08:49:16;cgbookstore\apps\core\templates\admin\database_table_view.html
 index.html;cgbookstore\apps\core\templates\admin;Template HTML;8064;2025-01-17 08:16:57;2025-02-05 16:22:59;cgbookstore\apps\core\templates\admin\index.html
 __init__.py;cgbookstore\apps\core\templates\core;Python;0;2025-02-10 10:55:49;2025-02-10 10:55:49;cgbookstore\apps\core\templates\core\__init__.py
-base.html;cgbookstore\apps\core\templates\core;Template HTML;13300;2025-01-14 11:15:28;2025-02-11 15:36:54;cgbookstore\apps\core\templates\core\base.html
+base.html;cgbookstore\apps\core\templates\core;Template HTML;19214;2025-01-14 11:15:28;2025-02-20 10:25:30;cgbookstore\apps\core\templates\core\base.html
 contato.html;cgbookstore\apps\core\templates\core;Template HTML;4530;2025-01-14 17:05:49;2025-02-01 09:49:23;cgbookstore\apps\core\templates\core\contato.html
-home.html;cgbookstore\apps\core\templates\core;Template HTML;8398;2025-01-14 11:16:44;2025-02-11 15:51:29;cgbookstore\apps\core\templates\core\home.html
-login.html;cgbookstore\apps\core\templates\core;Template HTML;1368;2025-01-14 17:08:57;2025-01-14 17:21:08;cgbookstore\apps\core\templates\core\login.html
-politica_privacidade.html;cgbookstore\apps\core\templates\core;Template HTML;1166;2025-01-14 16:24:04;2025-01-14 17:21:08;cgbookstore\apps\core\templates\core\politica_privacidade.html
+home.html;cgbookstore\apps\core\templates\core;Template HTML;8689;2025-01-14 11:16:44;2025-02-20 10:15:24;cgbookstore\apps\core\templates\core\home.html
+login.html;cgbookstore\apps\core\templates\core;Template HTML;1737;2025-01-14 17:08:57;2025-02-19 11:36:27;cgbookstore\apps\core\templates\core\login.html
+politica_privacidade.html;cgbookstore\apps\core\templates\core;Template HTML;11381;2025-01-14 16:24:04;2025-02-15 11:08:41;cgbookstore\apps\core\templates\core\politica_privacidade.html
 register.html;cgbookstore\apps\core\templates\core;Template HTML;6579;2025-01-14 16:24:45;2025-01-15 14:32:55;cgbookstore\apps\core\templates\core\register.html
 sobre.html;cgbookstore\apps\core\templates\core;Template HTML;1101;2025-01-14 16:05:41;2025-01-14 17:21:08;cgbookstore\apps\core\templates\core\sobre.html
-termos_uso.html;cgbookstore\apps\core\templates\core;Template HTML;939;2025-01-14 16:24:59;2025-01-14 17:21:08;cgbookstore\apps\core\templates\core\termos_uso.html
+termos_uso.html;cgbookstore\apps\core\templates\core;Template HTML;10526;2025-01-14 16:24:59;2025-02-15 11:02:42;cgbookstore\apps\core\templates\core\termos_uso.html
 dashboard.html;cgbookstore\apps\core\templates\core\admin_dashboard;Template HTML;6035;2025-02-03 14:55:17;2025-02-06 10:59:48;cgbookstore\apps\core\templates\core\admin_dashboard\dashboard.html
 metrics.html;cgbookstore\apps\core\templates\core\admin_dashboard;Template HTML;12848;2025-02-03 14:56:10;2025-02-06 10:59:48;cgbookstore\apps\core\templates\core\admin_dashboard\metrics.html
 book_details.html;cgbookstore\apps\core\templates\core\book;Template HTML;35027;2025-01-23 09:48:29;2025-02-02 11:08:02;cgbookstore\apps\core\templates\core\book\book_details.html
 search.html;cgbookstore\apps\core\templates\core\book;Template HTML;6324;2025-01-17 10:34:56;2025-01-25 11:26:05;cgbookstore\apps\core\templates\core\book\search.html
+recommendation_widget.html;cgbookstore\apps\core\templates\core\components;Template HTML;3186;2025-02-20 10:13:44;2025-02-24 09:44:33;cgbookstore\apps\core\templates\core\components\recommendation_widget.html
 contato_confirmacao.html;cgbookstore\apps\core\templates\core\email;Template HTML;308;2025-01-27 16:44:06;2025-01-27 16:44:18;cgbookstore\apps\core\templates\core\email\contato_confirmacao.html
 contato_email.html;cgbookstore\apps\core\templates\core\email;Template HTML;241;2025-01-27 16:43:21;2025-01-27 16:43:41;cgbookstore\apps\core\templates\core\email\contato_email.html
 email_verification.html;cgbookstore\apps\core\templates\core\email;Template HTML;463;2025-01-15 15:36:57;2025-01-15 15:42:56;cgbookstore\apps\core\templates\core\email\email_verification.html
 book_card.html;cgbookstore\apps\core\templates\core\includes;Template HTML;1459;2025-02-10 10:34:07;2025-02-10 15:06:34;cgbookstore\apps\core\templates\core\includes\book_card.html
-password_reset_complete.html;cgbookstore\apps\core\templates\core\password;Template HTML;729;2025-01-15 14:09:54;2025-01-15 14:10:21;cgbookstore\apps\core\templates\core\password\password_reset_complete.html
-password_reset_confirm.html;cgbookstore\apps\core\templates\core\password;Template HTML;1907;2025-01-15 14:09:15;2025-01-15 14:09:35;cgbookstore\apps\core\templates\core\password\password_reset_confirm.html
-password_reset_done.html;cgbookstore\apps\core\templates\core\password;Template HTML;846;2025-01-15 14:08:35;2025-01-15 14:08:59;cgbookstore\apps\core\templates\core\password\password_reset_done.html
-password_reset_email.html;cgbookstore\apps\core\templates\core\password;Template HTML;580;2025-01-15 14:10:52;2025-01-15 14:11:23;cgbookstore\apps\core\templates\core\password\password_reset_email.html
-password_reset_form.html;cgbookstore\apps\core\templates\core\password;Template HTML;1096;2025-01-15 14:07:57;2025-01-15 14:08:11;cgbookstore\apps\core\templates\core\password\password_reset_form.html
+password_reset_complete.html;cgbookstore\apps\core\templates\core\password;Template HTML;979;2025-01-15 14:09:54;2025-02-15 09:23:05;cgbookstore\apps\core\templates\core\password\password_reset_complete.html
+password_reset_confirm.html;cgbookstore\apps\core\templates\core\password;Template HTML;4466;2025-01-15 14:09:15;2025-02-17 09:00:10;cgbookstore\apps\core\templates\core\password\password_reset_confirm.html
+password_reset_done.html;cgbookstore\apps\core\templates\core\password;Template HTML;1768;2025-01-15 14:08:35;2025-02-15 09:22:01;cgbookstore\apps\core\templates\core\password\password_reset_done.html
+password_reset_email.html;cgbookstore\apps\core\templates\core\password;Template HTML;383;2025-01-15 14:10:52;2025-02-14 16:38:24;cgbookstore\apps\core\templates\core\password\password_reset_email.html
+password_reset_form.html;cgbookstore\apps\core\templates\core\password;Template HTML;3072;2025-01-15 14:07:57;2025-02-15 09:21:38;cgbookstore\apps\core\templates\core\password\password_reset_form.html
+password_reset_subject.txt;cgbookstore\apps\core\templates\core\password;Texto;36;2025-02-13 16:36:35;2025-02-13 16:36:41;cgbookstore\apps\core\templates\core\password\password_reset_subject.txt
 profile.html;cgbookstore\apps\core\templates\core\profile;Template HTML;23122;2025-01-15 22:06:47;2025-01-28 10:53:45;cgbookstore\apps\core\templates\core\profile\profile.html
 profile_form.html;cgbookstore\apps\core\templates\core\profile;Template HTML;2682;2025-01-15 21:42:31;2025-01-28 09:42:08;cgbookstore\apps\core\templates\core\profile\profile_form.html
+mixed_recommendations.html;cgbookstore\apps\core\templates\core\recommendations;Template HTML;26483;2025-02-19 11:20:06;2025-02-20 10:33:55;cgbookstore\apps\core\templates\core\recommendations\mixed_recommendations.html
+personalized_shelf.html;cgbookstore\apps\core\templates\core\recommendations;Template HTML;11378;2025-02-19 11:19:20;2025-02-20 10:33:55;cgbookstore\apps\core\templates\core\recommendations\personalized_shelf.html
 __init__.py;cgbookstore\apps\core\templatetags;Python;0;2025-02-02 08:47:54;2025-02-02 08:47:54;cgbookstore\apps\core\templatetags\__init__.py
 custom_tags.py;cgbookstore\apps\core\templatetags;Python;2626;2025-02-02 08:48:25;2025-02-11 11:05:09;cgbookstore\apps\core\templatetags\custom_tags.py
 __init__.py;cgbookstore\apps\core\utils;Python;0;2025-01-25 14:46:41;2025-01-25 14:46:41;cgbookstore\apps\core\utils\__init__.py
 google_books_cache.py;cgbookstore\apps\core\utils;Python;4132;2025-01-25 14:46:53;2025-02-05 16:10:49;cgbookstore\apps\core\utils\google_books_cache.py
 image_processor.py;cgbookstore\apps\core\utils;Python;3703;2025-01-27 11:40:19;2025-02-05 16:13:16;cgbookstore\apps\core\utils\image_processor.py
 __init__.py;cgbookstore\apps\core\views;Python;1920;2025-01-14 11:11:32;2025-02-05 16:00:53;cgbookstore\apps\core\views\__init__.py
-auth.py;cgbookstore\apps\core\views;Python;10285;2025-01-15 13:49:51;2025-02-05 15:50:54;cgbookstore\apps\core\views\auth.py
+auth.py;cgbookstore\apps\core\views;Python;14116;2025-01-15 13:49:51;2025-02-19 11:31:57;cgbookstore\apps\core\views\auth.py
 book.py;cgbookstore\apps\core\views;Python;24110;2025-01-17 10:33:01;2025-02-05 15:53:38;cgbookstore\apps\core\views\book.py
-general.py;cgbookstore\apps\core\views;Python;13612;2025-01-14 11:11:54;2025-02-11 15:49:07;cgbookstore\apps\core\views\general.py
+general.py;cgbookstore\apps\core\views;Python;16736;2025-01-14 11:11:54;2025-02-24 11:05:24;cgbookstore\apps\core\views\general.py
 profile.py;cgbookstore\apps\core\views;Python;7913;2025-01-15 21:33:42;2025-02-05 15:59:50;cgbookstore\apps\core\views\profile.py
+recommendation_views.py;cgbookstore\apps\core\views;Python;13312;2025-02-19 10:32:12;2025-02-24 10:47:26;cgbookstore\apps\core\views\recommendation_views.py
 __init__.py;cgbookstore\config;Python;0;2025-01-14 10:50:25;2025-01-14 10:50:25;cgbookstore\config\__init__.py
 asgi.py;cgbookstore\config;Python;405;2025-01-14 10:50:25;2025-01-14 11:06:19;cgbookstore\config\asgi.py
-settings.py;cgbookstore\config;Python;5040;2025-01-14 10:50:25;2025-02-06 10:59:48;cgbookstore\config\settings.py
-urls.py;cgbookstore\config;Python;1519;2025-01-14 10:50:25;2025-02-03 14:20:08;cgbookstore\config\urls.py
+settings.py;cgbookstore\config;Python;6327;2025-01-14 10:50:25;2025-02-19 11:36:47;cgbookstore\config\settings.py
+urls.py;cgbookstore\config;Python;1519;2025-01-14 10:50:25;2025-02-23 09:34:59;cgbookstore\config\urls.py
 wsgi.py;cgbookstore\config;Python;405;2025-01-14 10:50:25;2025-01-14 11:06:19;cgbookstore\config\wsgi.py
 book-details.css;cgbookstore\static\css;CSS;8211;2025-01-23 09:51:44;2025-02-02 10:28:53;cgbookstore\static\css\book-details.css
 book-search.css;cgbookstore\static\css;CSS;1236;2025-01-17 10:35:57;2025-01-28 17:19:06;cgbookstore\static\css\book-search.css
 contato.css;cgbookstore\static\css;CSS;1470;2025-02-01 09:45:33;2025-02-01 09:51:30;cgbookstore\static\css\contato.css
 profile.css;cgbookstore\static\css;CSS;9079;2025-01-16 09:23:10;2025-01-28 17:19:57;cgbookstore\static\css\profile.css
-styles.css;cgbookstore\static\css;CSS;31343;2025-01-14 16:01:51;2025-02-11 16:13:47;cgbookstore\static\css\styles.css
+styles.css;cgbookstore\static\css;CSS;38251;2025-01-14 16:01:51;2025-02-20 10:19:51;cgbookstore\static\css\styles.css
 swiper-custom.css;cgbookstore\static\css;CSS;4875;2025-01-26 11:05:23;2025-01-27 10:12:07;cgbookstore\static\css\swiper-custom.css
 dashboard.css;cgbookstore\static\css\admin;CSS;5139;2025-02-05 10:23:50;2025-02-05 11:46:20;cgbookstore\static\css\admin\dashboard.css
 metrics.css;cgbookstore\static\css\admin;CSS;5024;2025-02-05 10:24:06;2025-02-05 17:04:43;cgbookstore\static\css\admin\metrics.css
@@ -141,8 +184,9 @@ book-search.js;cgbookstore\static\js;JavaScript;12853;2025-01-17 10:38:15;2025-0
 csrf-setup.js;cgbookstore\static\js;JavaScript;1071;2025-01-15 14:22:27;2025-01-15 14:22:43;cgbookstore\static\js\csrf-setup.js
 profile-customization.js;cgbookstore\static\js;JavaScript;9323;2025-01-28 09:16:30;2025-01-28 10:05:09;cgbookstore\static\js\profile-customization.js
 profile.js;cgbookstore\static\js;JavaScript;9401;2025-01-19 09:24:23;2025-01-28 10:21:21;cgbookstore\static\js\profile.js
+recommendations.js;cgbookstore\static\js;JavaScript;8922;2025-02-20 10:20:38;2025-02-24 10:52:40;cgbookstore\static\js\recommendations.js
 swiper-config.js;cgbookstore\static\js;JavaScript;2028;2025-01-26 11:04:48;2025-01-26 11:05:01;cgbookstore\static\js\swiper-config.js
-video-section.js;cgbookstore\static\js;JavaScript;2850;2025-02-11 11:08:49;2025-02-11 15:57:12;cgbookstore\static\js\video-section.js
+video-section.js;cgbookstore\static\js;JavaScript;4489;2025-02-11 11:08:49;2025-02-12 17:23:26;cgbookstore\static\js\video-section.js
 dashboard.js;cgbookstore\static\js\admin;JavaScript;5774;2025-02-05 10:34:46;2025-02-05 11:43:45;cgbookstore\static\js\admin\dashboard.js
 metrics.js;cgbookstore\static\js\admin;JavaScript;6677;2025-02-05 10:35:00;2025-02-06 10:59:48;cgbookstore\static\js\admin\metrics.js
 LEIAME.md;docs\leiames;Markdown;2871;2025-02-05 16:25:16;2025-02-07 08:05:46;docs\leiames\LEIAME.md
@@ -153,12 +197,16 @@ chat_padronizado_03_02_2025.md;docs\observacoes;Markdown;8438;2025-02-01 14:40:0
 upgrades_diarios_03_02_25.md;docs\observacoes;Markdown;5532;2025-02-03 15:14:17;2025-02-10 15:24:53;docs\observacoes\upgrades_diarios_03_02_25.md
 upgrades_diarios_10_02_25.md;docs\observacoes;Markdown;1161;2025-02-10 10:38:20;2025-02-10 15:19:04;docs\observacoes\upgrades_diarios_10_02_25.md
 upgrades_diarios_11_02_25.md;docs\observacoes;Markdown;949;2025-02-11 14:34:49;2025-02-11 14:35:32;docs\observacoes\upgrades_diarios_11_02_25.md
+upgrades_diarios_12_02_25.md;docs\observacoes;Markdown;1302;2025-02-12 17:29:29;2025-02-12 17:29:53;docs\observacoes\upgrades_diarios_12_02_25.md
 projeto-0702-2025.md;docs\projeto_base;Markdown;4876;2025-02-07 09:13:13;2025-02-10 09:13:47;docs\projeto_base\projeto-0702-2025.md
+sistema_de_recomendações.md;docs\projeto_base;Markdown;17038;2025-02-19 10:20:09;2025-02-20 09:49:24;docs\projeto_base\sistema_de_recomendações.md
 status_01_02_2025.md;docs\status;Markdown;2874;2025-02-01 11:44:07;2025-02-01 11:45:05;docs\status\status_01_02_2025.md
 status_14_01_2025.md;docs\status;Markdown;3439;2025-01-14 17:23:28;2025-01-14 17:24:35;docs\status\status_14_01_2025.md
 status_15_01_2025.md;docs\status;Markdown;1185;2025-01-15 13:54:14;2025-01-15 22:36:10;docs\status\status_15_01_2025.md
 status_17_01_2025.md;docs\status;Markdown;3092;2025-01-17 16:20:36;2025-01-18 08:03:37;docs\status\status_17_01_2025.md
+status_17_02_2025.md;docs\status;Markdown;3626;2025-02-12 17:59:32;2025-02-17 18:48:40;docs\status\status_17_02_2025.md
 status_19_01_2025.md;docs\status;Markdown;2990;2025-01-19 08:53:22;2025-01-22 08:43:08;docs\status\status_19_01_2025.md
+status_20_02_2025.md;docs\status;Markdown;4500;2025-02-20 09:48:29;2025-02-20 09:48:43;docs\status\status_20_02_2025.md
 status_22_01_2025.md;docs\status;Markdown;2983;2025-01-22 17:44:04;2025-01-22 17:44:51;docs\status\status_22_01_2025.md
 status_23_01_2025.md;docs\status;Markdown;2519;2025-01-23 10:31:52;2025-01-23 16:36:50;docs\status\status_23_01_2025.md
 status_25_01_2025.md;docs\status;Markdown;2342;2025-01-25 11:31:46;2025-01-25 15:33:36;docs\status\status_25_01_2025.md
@@ -168,10 +216,18 @@ status_28_01_2025.md;docs\status;Markdown;4958;2025-01-28 10:56:21;2025-01-28 18
 estrutura_14_01_2025.md;docs\structure;Markdown;1773;2025-01-14 17:29:03;2025-01-15 22:36:22;docs\structure\estrutura_14_01_2025.md
 estrutura_remodelada-25-01-25.jsx;docs\structure;Outro;5002;2025-01-24 10:59:18;2025-01-25 15:34:29;docs\structure\estrutura_remodelada-25-01-25.jsx
 project-structure-17-01-2025.md;docs\structure;Markdown;3575;2025-01-17 10:07:57;2025-01-17 16:34:24;docs\structure\project-structure-17-01-2025.md
-structure-07-02-2025.txt;docs\structure;Texto;8874;2025-02-07 09:04:20;2025-02-11 14:47:14;docs\structure\structure-07-02-2025.txt
+structure-07-02-2025.txt;docs\structure;Texto;9514;2025-02-07 09:04:20;2025-02-17 19:32:47;docs\structure\structure-07-02-2025.txt
 structure-22-01-2025.md;docs\structure;Markdown;2932;2025-01-22 09:09:16;2025-01-22 09:10:10;docs\structure\structure-22-01-2025.md
 structure-23-01-2025.md;docs\structure;Markdown;2547;2025-01-23 10:34:00;2025-01-23 10:38:14;docs\structure\structure-23-01-2025.md
 structure-28-01-2025.txt;docs\structure;Texto;8257;2025-01-27 09:50:13;2025-02-03 09:52:27;docs\structure\structure-28-01-2025.txt
 ultimo_chat_03_02_25.md;docs\ultimos_chats;Markdown;1155;2025-02-03 15:17:59;2025-02-07 09:09:24;docs\ultimos_chats\ultimo_chat_03_02_25.md
 ultimo_chat_10_02_25.md;docs\ultimos_chats;Markdown;751;2025-02-10 15:21:50;2025-02-10 15:22:00;docs\ultimos_chats\ultimo_chat_10_02_25.md
 ultimo_chat_11_02_25.md;docs\ultimos_chats;Markdown;632;2025-02-11 14:35:53;2025-02-11 14:37:52;docs\ultimos_chats\ultimo_chat_11_02_25.md
+ultimo_chat_12_02_25.md;docs\ultimos_chats;Markdown;1445;2025-02-12 17:30:07;2025-02-12 17:30:53;docs\ultimos_chats\ultimo_chat_12_02_25.md
+ultimo_chat_18_02_25.md;docs\ultimos_chats;Markdown;3547;2025-02-18 09:01:30;2025-02-18 14:45:18;docs\ultimos_chats\ultimo_chat_18_02_25.md
+ultimo_chat_19_02_25.md;docs\ultimos_chats;Markdown;6020;2025-02-19 08:25:53;2025-02-19 08:59:12;docs\ultimos_chats\ultimo_chat_19_02_25.md
+ultimo_chat_20_02_25.md;docs\ultimos_chats;Markdown;8715;2025-02-20 09:33:27;2025-02-20 09:37:06;docs\ultimos_chats\ultimo_chat_20_02_25.md
+ultimo_chat_21_02_25.md;docs\ultimos_chats;Markdown;4740;2025-02-24 07:51:16;2025-02-21 09:35:59;docs\ultimos_chats\ultimo_chat_21_02_25.md
+ultimo_chat_22_02_25.md;docs\ultimos_chats;Markdown;4910;2025-02-24 07:51:16;2025-02-22 08:46:39;docs\ultimos_chats\ultimo_chat_22_02_25.md
+ultimo_chat_22_02_25_v2.md;docs\ultimos_chats;Markdown;2155;2025-02-24 07:51:33;2025-02-22 09:29:21;docs\ultimos_chats\ultimo_chat_22_02_25_v2.md
+ultimo_chat_24_02_25.md;docs\ultimos_chats;Markdown;4957;2025-02-24 11:13:43;2025-02-24 15:09:40;docs\ultimos_chats\ultimo_chat_24_02_25.md

@@ -1,0 +1,308 @@
+# Estrutura do Projeto
+
+Data de geração: 24/02/2025 15:14:29
+
+Arquivo CSV: `project_structure_20250224_151429.csv`
+
+## Informações Gerais
+
+- **Total de arquivos:** 232
+- **Tipos de arquivo encontrados:**
+  - **CSS:** 8
+  - **JavaScript:** 10
+  - **Markdown:** 41
+  - **Outro:** 27
+  - **Python:** 112
+  - **Template HTML:** 29
+  - **Texto:** 5
+
+============================================================
+.
+├── .coverage
+├── .env.dev
+├── .env.prod
+├── .gitignore
+├── LICENSE
+├── README.md
+├── check_sendgrid_config.py
+├── core_book.csv
+├── core_userbookshelf.csv
+├── listar_tabelas.py
+├── manage.py
+├── pytest.ini
+├── requirements.txt
+├── sendgrid_email_test.py
+├── test_env.py
+├── test_sendgrid.py
+├── .idea
+│   ├── .gitignore
+│   ├── bookstore.iml
+│   ├── misc.xml
+│   ├── modules.xml
+│   ├── vcs.xml
+│   ├── workspace.xml
+│   └── inspectionProfiles
+│       ├── Project_Default.xml
+│       └── profiles_settings.xml
+├── .pytest_cache
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   ├── README.md
+│   └── v
+│       └── cache
+│           ├── lastfailed
+│           ├── nodeids
+│           └── stepwise
+├── cgbookstore
+│   ├── __init__.py
+│   ├── db.sqlite3
+│   ├── debug.log
+│   └── apps
+│       ├── __init__.py
+│       └── core
+│           ├── __init__.py
+│           ├── admin.py
+│           ├── apps.py
+│           ├── forms.py
+│           ├── signals.py
+│           ├── tests.py
+│           ├── urls.py
+│           ├── management
+│           │   ├── __init__.py
+│           │   └── commands
+│           │       ├── __init__.py
+│           │       ├── create_default_shelves.py
+│           │       ├── create_profiles.py
+│           │       ├── generate_project_structure.py
+│           │       └── generate_tables.py
+│           ├── models
+│           │   ├── __init__.py
+│           │   ├── banner.py
+│           │   ├── book.py
+│           │   ├── home_content.py
+│           │   ├── profile.py
+│           │   └── user.py
+│           ├── recommendations
+│           │   ├── __init__.py
+│           │   ├── engine.py
+│           │   ├── urls.py
+│           │   ├── analytics
+│           │   │   ├── __init__.py
+│           │   │   ├── apps.py
+│           │   │   ├── endpoints.py
+│           │   │   ├── models.py
+│           │   │   ├── serializers.py
+│           │   │   ├── tracker.py
+│           │   │   ├── urls.py
+│           │   │   ├── admin_dashboard
+│           │   │   │   ├── __init__.py
+│           │   │   │   ├── urls.py
+│           │   │   │   ├── utils.py
+│           │   │   │   └── views.py
+│           │   │   ├── management
+│           │   │   │   ├── __init__.py
+│           │   │   │   └── commands
+│           │   │   │       ├── __init__.py
+│           │   │   │       ├── clean_test_data.py
+│           │   │   │       └── generate_test_data.py
+│           │   │   ├── tests
+│           │   │   │   ├── __init__.py
+│           │   │   │   └── generate_test_data.py
+│           │   │   └── utils
+│           │   │       ├── __init__.py
+│           │   │       └── processors.py
+│           │   ├── api
+│           │   │   ├── README.md
+│           │   │   ├── __init__.py
+│           │   │   ├── endpoints.py
+│           │   │   ├── performance.py
+│           │   │   ├── serializers.py
+│           │   │   └── urls.py
+│           │   ├── management
+│           │   │   ├── __init__.py
+│           │   │   └── commands
+│           │   │       ├── __init__.py
+│           │   │       └── benchmark_recommendations.py
+│           │   ├── providers
+│           │   │   ├── __init__.py
+│           │   │   ├── category.py
+│           │   │   ├── exclusion.py
+│           │   │   ├── external_api.py
+│           │   │   ├── history.py
+│           │   │   ├── mapping.py
+│           │   │   ├── similarity.py
+│           │   │   └── temporal.py
+│           │   ├── services
+│           │   │   ├── __init__.py
+│           │   │   └── calculator.py
+│           │   ├── tests
+│           │   │   ├── __init__.py
+│           │   │   ├── conftest.py
+│           │   │   ├── test_api.py
+│           │   │   ├── test_cache.py
+│           │   │   ├── test_category.py
+│           │   │   ├── test_engine.py
+│           │   │   ├── test_exclusions.py
+│           │   │   ├── test_history_temporal.py
+│           │   │   ├── test_load.py
+│           │   │   ├── test_logging.py
+│           │   │   ├── test_processors.py
+│           │   │   ├── test_providers.py
+│           │   │   ├── test_recommendation_cache.py
+│           │   │   ├── test_recommendation_system.py
+│           │   │   ├── test_search_tracking.py
+│           │   │   └── test_similarity_provider.py
+│           │   └── utils
+│           │       ├── __init__.py
+│           │       ├── cache_manager.py
+│           │       ├── google_books_cache.py
+│           │       ├── processors.py
+│           │       └── search_tracker.py
+│           ├── serializers
+│           │   ├── __init__.py
+│           │   └── user_serializer.py
+│           ├── services
+│           │   ├── __init__.py
+│           │   └── google_books_client.py
+│           ├── templates
+│           │   ├── __init__.py
+│           │   ├── admin
+│           │   │   ├── database_overview.html
+│           │   │   ├── database_table_view.html
+│           │   │   └── index.html
+│           │   ├── core
+│           │   │   ├── __init__.py
+│           │   │   ├── base.html
+│           │   │   ├── contato.html
+│           │   │   ├── home.html
+│           │   │   ├── login.html
+│           │   │   ├── politica_privacidade.html
+│           │   │   ├── register.html
+│           │   │   ├── sobre.html
+│           │   │   ├── termos_uso.html
+│           │   │   ├── admin_dashboard
+│           │   │   │   ├── dashboard.html
+│           │   │   │   └── metrics.html
+│           │   │   ├── book
+│           │   │   │   ├── book_details.html
+│           │   │   │   └── search.html
+│           │   │   ├── components
+│           │   │   │   └── recommendation_widget.html
+│           │   │   ├── email
+│           │   │   │   ├── contato_confirmacao.html
+│           │   │   │   ├── contato_email.html
+│           │   │   │   └── email_verification.html
+│           │   │   ├── includes
+│           │   │   │   └── book_card.html
+│           │   │   ├── password
+│           │   │   │   ├── password_reset_complete.html
+│           │   │   │   ├── password_reset_confirm.html
+│           │   │   │   ├── password_reset_done.html
+│           │   │   │   ├── password_reset_email.html
+│           │   │   │   ├── password_reset_form.html
+│           │   │   │   └── password_reset_subject.txt
+│           │   │   ├── profile
+│           │   │   │   ├── profile.html
+│           │   │   │   └── profile_form.html
+│           │   │   └── recommendations
+│           │   │       ├── mixed_recommendations.html
+│           │   │       └── personalized_shelf.html
+│           ├── templatetags
+│           │   ├── __init__.py
+│           │   └── custom_tags.py
+│           ├── utils
+│           │   ├── __init__.py
+│           │   ├── google_books_cache.py
+│           │   └── image_processor.py
+│           └── views
+│               ├── __init__.py
+│               ├── auth.py
+│               ├── book.py
+│               ├── general.py
+│               ├── profile.py
+│               └── recommendation_views.py
+├── config
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── static
+│   ├── css
+│   │   ├── book-details.css
+│   │   ├── book-search.css
+│   │   ├── contato.css
+│   │   ├── profile.css
+│   │   ├── styles.css
+│   │   ├── swiper-custom.css
+│   │   └── admin
+│   │       ├── dashboard.css
+│   │       └── metrics.css
+│   ├── images
+│   │   ├── favicon.svg
+│   │   ├── logo.png
+│   │   └── no-cover.svg
+│   └── js
+│       ├── book-details.js
+│       ├── book-search.js
+│       ├── csrf-setup.js
+│       ├── profile-customization.js
+│       ├── profile.js
+│       ├── recommendations.js
+│       ├── swiper-config.js
+│       ├── video-section.js
+│       └── admin
+│           ├── dashboard.js
+│           └── metrics.js
+└── docs
+    ├── leiames
+    │   └── LEIAME.md
+    ├── observacoes
+    │   ├── chat_padrao_conciso.md
+    │   ├── chat_padronizado.txt
+    │   ├── chat_padronizado_01_02_2025.md
+    │   ├── chat_padronizado_03_02_2025.md
+    │   ├── upgrades_diarios_03_02_25.md
+    │   ├── upgrades_diarios_10_02_25.md
+    │   ├── upgrades_diarios_11_02_25.md
+    │   └── upgrades_diarios_12_02_25.md
+    ├── projeto_base
+    │   ├── projeto-0702-2025.md
+    │   └── sistema_de_recomendações.md
+    ├── status
+    │   ├── status_01_02_2025.md
+    │   ├── status_14_01_2025.md
+    │   ├── status_15_01_2025.md
+    │   ├── status_17_01_2025.md
+    │   ├── status_17_02_2025.md
+    │   ├── status_19_01_2025.md
+    │   ├── status_20_02_2025.md
+    │   ├── status_22_01_2025.md
+    │   ├── status_23_01_2025.md
+    │   ├── status_25_01_2025.md
+    │   ├── status_26_01_2025.md
+    │   ├── status_27_01_2025.md
+    │   └── status_28_01_2025.md
+    ├── structure
+    │   └── structure-24-02-2025.txt
+    └── ultimos_chats
+        ├── ultimo_chat_03_02_25.md
+        ├── ultimo_chat_10_02_25.md
+        ├── ultimo_chat_11_02_25.md
+        ├── ultimo_chat_12_02_25.md
+        ├── ultimo_chat_18_02_25.md
+        ├── ultimo_chat_19_02_25.md
+        ├── ultimo_chat_20_02_25.md
+        ├── ultimo_chat_21_02_25.md
+        ├── ultimo_chat_22_02_25.md
+        ├── ultimo_chat_22_02_25_v2.md
+        └── ultimo_chat_24_02_25.md
+
+=========================================================================
+Explicação:
+Raiz do Projeto: Todos os arquivos e diretórios principais estão listados no topo.
+
+Subdiretórios: Cada subdiretório é aninhado dentro do diretório pai, com uma indentação
+para indicar a hierarquia.
+
+Arquivos: Os arquivos são listados dentro de seus respectivos diretórios.

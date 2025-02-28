@@ -17,12 +17,36 @@ class RecommendationCache:
     DEFAULT_TIMEOUT = 60 * 60 * 24
 
     @classmethod
+    def sanitize_cache_key(cls, key: str) -> str:
+        """
+        Sanitiza uma chave de cache para uso com memcached
+        Remove ou substitui caracteres problemáticos
+
+        Args:
+            key: Chave original do cache
+
+        Returns:
+            Chave sanitizada segura para uso com memcached
+        """
+        # Remove espaços e caracteres especiais
+        sanitized = key.replace(' ', '_')
+        sanitized = ''.join(c for c in sanitized if c.isalnum() or c in ['_', '-'])
+
+        # Garante comprimento máximo
+        if len(sanitized) > 250:
+            sanitized = sanitized[:250]
+
+        return sanitized
+
+    @classmethod
     def _get_general_key(cls, user_id: int) -> str:
-        return cls.GENERAL_KEY.format(user_id=user_id)
+        key = cls.GENERAL_KEY.format(user_id=user_id)
+        return cls.sanitize_cache_key(key)
 
     @classmethod
     def _get_shelf_key(cls, user_id: int) -> str:
-        return cls.SHELF_KEY.format(user_id=user_id)
+        key = cls.SHELF_KEY.format(user_id=user_id)
+        return cls.sanitize_cache_key(key)
 
     @classmethod
     def get_recommendations(cls, user: User) -> Optional[List]:
@@ -57,3 +81,20 @@ class RecommendationCache:
         """Invalida todo o cache de um usuário"""
         cache.delete(cls._get_general_key(user.id))
         cache.delete(cls._get_shelf_key(user.id))
+
+    @classmethod
+    def get_recommendation_key(cls, user_id: int, shelf_hash: int, shelf_count: int, timestamp: int) -> str:
+        """
+        Gera uma chave de cache sanitizada para recomendações
+
+        Args:
+            user_id: ID do usuário
+            shelf_hash: Hash da prateleira
+            shelf_count: Quantidade de livros na prateleira
+            timestamp: Timestamp atual
+
+        Returns:
+            Chave de cache sanitizada
+        """
+        base_key = f"recommendations_v8_{user_id}_{shelf_hash}_{shelf_count}_{timestamp}"
+        return cls.sanitize_cache_key(base_key)

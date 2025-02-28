@@ -1,10 +1,11 @@
-from django.urls import path, include
+# cgbookstore/apps/core/recommendations/api/urls.py
+
+from django.urls import path
 from . import endpoints
 
-app_name = 'recommendations'
+app_name = 'recommendations'  # Alterado para corresponder ao namespace
 
 urlpatterns = [
-    # Endpoints de recomendações
     path('', endpoints.get_recommendations, name='recommendations'),
-    path('shelf/', endpoints.get_personalized_shelf, name='personalized_shelf'),
+    path('personalized-shelf/', endpoints.get_personalized_shelf, name='personalized-shelf'),
 ]

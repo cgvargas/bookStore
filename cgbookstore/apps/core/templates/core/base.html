@@ -166,6 +166,93 @@
         </div>
     </footer>
 
+<!-- Modais para livros externos e seleção de prateleira -->
+<!-- Modal para detalhes de livros externos -->
+<div id="externalBookModal" class="modal-container">
+  <div class="modal-content max-w-lg">
+    <div class="relative">
+      <button id="closeExternalModal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-shrink-0 w-full md:w-1/3">
+          <img id="externalBookCover" src="" alt="Capa do livro" class="w-full object-cover rounded shadow-md" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+          <div class="mt-2 text-center">
+            <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Google Books</span>
+          </div>
+        </div>
+
+        <div class="flex-grow">
+          <h3 id="externalBookTitle" class="text-xl font-bold mb-2">Carregando...</h3>
+          <p id="externalBookAuthor" class="text-gray-700 mb-2">Autor: <span>Carregando...</span></p>
+          <p id="externalBookCategories" class="text-gray-700 mb-2">Categoria: <span>-</span></p>
+          <p id="externalBookPublisher" class="text-gray-700 mb-1">Editora: <span>-</span></p>
+          <p id="externalBookYear" class="text-gray-700 mb-1">Ano: <span>-</span></p>
+          <p id="externalBookPages" class="text-gray-700 mb-4">Páginas: <span>-</span></p>
+
+          <div id="externalBookDescription" class="text-gray-600 mb-4 max-h-32 overflow-y-auto text-sm">
+            Carregando descrição...
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-col space-y-2">
+        <div class="flex justify-end gap-2">
+          <button id="addExternalBookToShelf" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+            Adicionar à minha prateleira
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para selecionar prateleira -->
+<div id="shelfSelectionModal" class="modal-container">
+  <div class="modal-content max-w-md">
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-4">Selecionar prateleira</h3>
+      <p class="text-gray-600 mb-4">Em qual prateleira você deseja adicionar este livro?</p>
+
+      <div class="space-y-3 mb-6">
+        <button data-shelf="lendo" class="shelf-option w-full py-2 px-4 border border-gray-300 rounded text-left hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <span class="font-medium">Lendo agora</span>
+          <span class="block text-sm text-gray-500">Livros que estou lendo atualmente</span>
+        </button>
+
+        <button data-shelf="vou_ler" class="shelf-option w-full py-2 px-4 border border-gray-300 rounded text-left hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <span class="font-medium">Vou ler</span>
+          <span class="block text-sm text-gray-500">Livros que pretendo ler no futuro</span>
+        </button>
+
+        <button data-shelf="lido" class="shelf-option w-full py-2 px-4 border border-gray-300 rounded text-left hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <span class="font-medium">Já li</span>
+          <span class="block text-sm text-gray-500">Livros que já terminei de ler</span>
+        </button>
+
+        <button data-shelf="favorito" class="shelf-option w-full py-2 px-4 border border-gray-300 rounded text-left hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <span class="font-medium">Favoritos</span>
+          <span class="block text-sm text-gray-500">Meus livros favoritos</span>
+        </button>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button id="cancelShelfSelection" class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50">
+          Cancelar
+        </button>
+        <button id="confirmShelfSelection" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% block extra_js %}
 <!-- Scripts principais -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

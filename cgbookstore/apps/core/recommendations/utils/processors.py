@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import List, Dict
+from typing import List, Dict, Set
 from django.db.models import QuerySet
 from ...models import Book
 

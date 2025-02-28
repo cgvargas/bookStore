@@ -11,7 +11,7 @@ env = environ.Env()
 
 # Define explicitamente o ambiente
 DJANGO_ENV = os.getenv('DJANGO_ENV', 'development')
-print(f"\nDJANGO_ENV: {DJANGO_ENV}")
+print(f"\nAmbiente de: {DJANGO_ENV}")
 
 # Define qual arquivo .env usar baseado no ambiente
 ENV_FILE = '.env.dev' if DJANGO_ENV == 'development' else '.env.prod'
@@ -39,15 +39,6 @@ SERVER_EMAIL = 'cg.bookstore.online@outlook.com'
 # Para debug de email
 if DEBUG:
     EMAIL_SUBJECT_PREFIX = '[DEV] '
-
-print("\n=== Configurações SMTP ===")
-print(f"Backend: {EMAIL_BACKEND}")
-print(f"Host: {EMAIL_HOST}")
-print(f"Porta: {EMAIL_PORT}")
-print(f"TLS: {EMAIL_USE_TLS}")
-print(f"Usuario: {EMAIL_HOST_USER}")
-print(f"From: {DEFAULT_FROM_EMAIL}")
-print("=== Fim das Configurações ===\n")
 
 # Application definition
 INSTALLED_APPS = [
@@ -150,14 +141,42 @@ AUTH_USER_MODEL = 'core.User'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    },
+    'books_search': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'books-search-cache',
+        'TIMEOUT': 60 * 60 * 2,  # 2 horas
+        'OPTIONS': {
+            'MAX_ENTRIES': 500,
+            'CULL_FREQUENCY': 3,
+        }
+    },
+    'books_recommendations': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'books-recommendations-cache',
+        'TIMEOUT': 60 * 60 * 24,  # 24 horas
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+            'CULL_FREQUENCY': 3,
+        }
     },
     'google_books': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'google-books-cache',
         'TIMEOUT': 60 * 60 * 24,  # 24 horas
         'OPTIONS': {
-            'MAX_ENTRIES': 1000,  # Máximo de entradas no cache
-            'CULL_FREQUENCY': 3,  # Frequência de limpeza quando MAX_ENTRIES é atingido
+            'MAX_ENTRIES': 1000,
+            'CULL_FREQUENCY': 3,
+        }
+    },
+    'recommendations': {  # Cache específico para recomendações (mantido para compatibilidade)
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'recommendations-cache',
+        'TIMEOUT': 60 * 60,  # 1 hora
+        'OPTIONS': {
+            'MAX_ENTRIES': 500,
+            'CULL_FREQUENCY': 3,
         }
     }
 }
@@ -165,6 +184,11 @@ CACHES = {
 # Configurações da API Google Books
 GOOGLE_BOOKS_CACHE_TIMEOUT = 60 * 60 * 24  # 24 horas em segundos
 GOOGLE_BOOKS_CACHE_KEY_PREFIX = 'google_books:'
+
+# Novas configurações para o serviço centralizado
+GOOGLE_BOOKS_SEARCH_CACHE_TIMEOUT = 60 * 60 * 2  # 2 horas
+GOOGLE_BOOKS_RECOMMENDATIONS_CACHE_TIMEOUT = 60 * 60 * 24  # 24 horas
+
 
 # API Key do Google Books
 GOOGLE_BOOKS_API_KEY = os.getenv('GOOGLE_BOOKS_API_KEY', 'AIzaSyBF5W5NktgXZRfTnZXe3pVxqB_TCkXGzx0')
@@ -180,7 +204,7 @@ LOGOUT_REDIRECT_URL = 'index'
 SESSION_COOKIE_AGE = 604800  # 1 semana em segundos
 SESSION_COOKIE_SECURE = True  # Cookies apenas via HTTPS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Sessão persiste após fechar navegador
-
+CSRF_COOKIE_SECURE = False    # Set to True for HTTPS
 
 # Logging simplificado
 LOGGING = {

@@ -1,17 +1,17 @@
 # Estrutura do Projeto
 
-Data de geração: 12/02/2025 08:31:27
+Data de geração: 24/02/2025 15:14:29
 
-Arquivo CSV: project_structure_20250212_083127.csv
+Arquivo CSV: project_structure_20250224_151429.csv
 
 ## Informações
 
-- Total de arquivos: 176
+- Total de arquivos: 232
 - Tipos de arquivo encontrados:
   - CSS: 8
-  - JavaScript: 9
-  - Markdown: 27
-  - Outro: 15
-  - Python: 87
-  - Template HTML: 26
-  - Texto: 4
+  - JavaScript: 10
+  - Markdown: 41
+  - Outro: 27
+  - Python: 112
+  - Template HTML: 29
+  - Texto: 5

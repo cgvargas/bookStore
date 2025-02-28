@@ -1,0 +1,47 @@
+/* recommendations.css */
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+.hover-scale:hover {
+  transform: translateY(-5px);
+}
+
+.empty-state-icon {
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.card {
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.modal-content {
+  border-radius: 1rem;
+}
+
+.shelf-option {
+  transition: all 0.2s ease;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.shelf-option:hover {
+  background-color: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.shelf-option i {
+  width: 28px;
+  text-align: center;
+}

@@ -1,3 +1,7 @@
+"""
+Modelo para gerir informações detalhadas de livros no sistema.
+Inclui suporte para livros locais e externos/temporários da API do Google Books.
+"""
 from pathlib import Path
 from django.db import models
 from django.contrib.auth import get_user_model
@@ -11,10 +15,8 @@ User = get_user_model()
 
 
 class Book(models.Model):
-    """
-    Modelo para gerir informações detalhadas de livros no sistema.
-    Inclui dados bibliográficos, conteúdo e informações adicionais.
-    """
+    """Modelo de livro com suporte a dados locais e externos"""
+
     # Campos bibliográficos básicos
     titulo = models.CharField(_('Título'), max_length=200)
     subtitulo = models.CharField(_('Subtítulo'), max_length=200, blank=True)
@@ -31,7 +33,8 @@ class Book(models.Model):
     dimensoes = models.CharField(_('Dimensões'), max_length=50, blank=True)
     peso = models.CharField(_('Peso'), max_length=20, blank=True)
     preco = models.DecimalField(_('Preço'), max_digits=10, decimal_places=2, null=True, blank=True)
-    preco_promocional = models.DecimalField(_('Preço Promocional'), max_digits=10, decimal_places=2, null=True, blank=True)
+    preco_promocional = models.DecimalField(_('Preço Promocional'), max_digits=10, decimal_places=2, null=True,
+                                            blank=True)
 
     # Campos de categorização e conteúdo
     categoria = models.CharField(_('Categoria'), max_length=100, blank=True)
@@ -52,15 +55,13 @@ class Book(models.Model):
     # Campos de mídia e recursos
     capa = models.ImageField(_('Capa'), upload_to='livros/capas/', null=True, blank=True)
     capa_preview = models.ImageField(_('Preview da Capa'), upload_to='livros/capas/previews/', null=True, blank=True)
+    capa_url = models.URLField(_('URL da Capa'), max_length=500, blank=True)
 
-    # Campos de conteúdo textual
-    prefacio = models.TextField(_('Prefácio/Introdução'), blank=True)
-    posfacio = models.TextField(_('Posfácio'), blank=True)
-    notas = models.TextField(_('Notas de Rodapé'), blank=True)
-    bibliografia = models.TextField(_('Bibliografia'), blank=True)
-    indice = models.TextField(_('Índice'), blank=True)
-    glossario = models.TextField(_('Glossário'), blank=True)
-    apendices = models.TextField(_('Apêndices'), blank=True)
+    # Campos para integração com API externa
+    external_id = models.CharField(_('ID Externo'), max_length=100, blank=True, null=True)
+    is_temporary = models.BooleanField(_('É Temporário'), default=False)
+    external_data = models.JSONField(_('Dados Externos'), null=True, blank=True)
+    origem = models.CharField(_('Origem'), max_length=50, default='local')
 
     # Campos web e marketing
     website = models.URLField(_('Website'), max_length=200, blank=True)
@@ -81,7 +82,6 @@ class Book(models.Model):
     e_manga = models.BooleanField(_('É manga'), default=False)
     ordem_exibicao = models.IntegerField(_('Ordem de exibição'), default=0)
 
-    # Campo para identificar tipo de prateleira especial
     SHELF_SPECIAL_CHOICES = [
         ('lancamentos', _('Lançamentos')),
         ('mais_vendidos', _('Mais Vendidos')),
@@ -99,14 +99,18 @@ class Book(models.Model):
     )
 
     def get_capa_url(self):
-        """Retorna a URL da capa ou imagem padrão se não existir"""
-        if self.capa and Path(settings.MEDIA_ROOT).joinpath(self.capa.name).exists():
+        """Retorna a URL da capa, considerando fontes externas e locais"""
+        if self.is_temporary and self.capa_url:
+            return self.capa_url
+        elif self.capa and Path(settings.MEDIA_ROOT).joinpath(self.capa.name).exists():
             return self.capa.url
         return f"{settings.STATIC_URL}images/no-cover.svg"
 
     def get_preview_url(self):
-        """Retorna a URL do preview da capa ou URL da capa como fallback"""
-        if self.capa_preview and Path(settings.MEDIA_ROOT).joinpath(self.capa_preview.name).exists():
+        """Retorna a URL do preview da capa ou fallback apropriado"""
+        if self.is_temporary:
+            return self.get_capa_url()
+        elif self.capa_preview and Path(settings.MEDIA_ROOT).joinpath(self.capa_preview.name).exists():
             return self.capa_preview.url
         return self.get_capa_url()
 
@@ -133,6 +137,16 @@ class Book(models.Model):
         except (TypeError, ValueError, Exception):
             return None
 
+    def is_external(self):
+        """Verifica se o livro é de origem externa"""
+        return bool(self.external_id) or self.is_temporary
+
+    def get_origem_display(self):
+        """Retorna a origem do livro formatada para exibição"""
+        if self.is_external():
+            return 'Google Books'
+        return 'Local'
+
     def __str__(self):
         return f"{self.titulo} - {self.autor}"
 
@@ -141,13 +155,8 @@ class Book(models.Model):
         verbose_name_plural = _('Livros')
         ordering = ['titulo']
 
-    def __str__(self):
-        return f"{self.titulo} - {self.autor}"
-
     def save(self, *args, **kwargs):
-        """
-        Sobrescreve o método save para processar imagens antes de salvar.
-        """
+        """Processa imagens e gerencia cache ao salvar"""
         if self.pk is None:  # Novo objeto
             if self.capa:
                 process_book_cover(self, self.capa.name)

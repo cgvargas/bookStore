@@ -52,6 +52,17 @@ class RecommendationEngineTests(TestCase):
             shelf_type='lido'
         )
 
+        # Cria mais alguns livros de teste
+        for i in range(10):
+            Book.objects.create(
+                titulo=f'Extra Book {i}',
+                autor=f'Extra Author {i}',
+                genero='Mixed',
+                categoria='General',
+                data_publicacao=date(2023, 1, 1),
+                temas='general, mixed'
+            )
+
         self.engine = RecommendationEngine()
 
     def test_get_recommendations(self):
@@ -87,3 +98,8 @@ class RecommendationEngineTests(TestCase):
 
         recommendations = self.engine.get_recommendations(new_user)
         self.assertTrue(len(recommendations) > 0)  # Deve retornar algo mesmo sem histórico
+        self.assertLessEqual(len(recommendations), self.engine.DEFAULT_LIMIT)  # Não deve exceder o limite padrão
+
+        # Verifica se as recomendações são instâncias de Book
+        for book in recommendations:
+            self.assertIsInstance(book, Book)

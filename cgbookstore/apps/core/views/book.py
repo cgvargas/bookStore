@@ -16,24 +16,28 @@ from decimal import Decimal
 import requests
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, DetailView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from django.core.files.storage import default_storage
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
 
-from ..models import UserBookShelf, Book
-from ..services.google_books_client import GoogleBooksClient
+from cgbookstore.apps.core.models import UserBookShelf, Book
+from ..services.google_books_service import GoogleBooksClient
 
 # Configuração do logger para rastreamento de eventos de livros
 logger = logging.getLogger(__name__)
 
-# Instância global do cliente Google Books
-google_books_client = GoogleBooksClient()
+# Instância global do cliente Google Books com contexto de busca
+google_books_client = GoogleBooksClient(
+    cache_namespace="books_search",
+    context="search"
+)
 
 __all__ = [
     'BookSearchView',
@@ -44,7 +48,7 @@ __all__ = [
     'get_book_details',
     'update_book',
     'move_book',
-    'add_book_manual'
+    'add_book_manual',
 ]
 
 
@@ -209,6 +213,7 @@ def search_books(request):
 def add_to_shelf(request):
     """
     Adiciona um livro à prateleira do usuário.
+    Aceita tanto dados em JSON quanto form-urlencoded.
 
     Fluxo de processamento:
     1. Valida dados do livro
@@ -222,109 +227,209 @@ def add_to_shelf(request):
     """
     global pub_date_str
     try:
-        data = json.loads(request.body)
-        book_data = data.get('book_data', {})
-        shelf = data.get('shelf')
+        # Verifica o tipo de conteúdo para determinar como processar os dados
+        if request.content_type == 'application/x-www-form-urlencoded':
+            # Processamento para dados form-urlencoded
+            book_id = request.POST.get('book_id')
+            shelf = request.POST.get('shelf')
 
-        if not book_data or not shelf:
-            return JsonResponse({'success': False, 'error': 'Dados incompletos'}, status=400)
+            if not book_id or not shelf:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Dados incompletos (book_id ou shelf ausentes)'
+                }, status=400)
 
-        # Log detalhado dos dados recebidos
-        logger.info(f"Dados recebidos - Shelf: {shelf}")
-        logger.info(f"Dados do livro: {json.dumps(book_data, indent=2)}")
-
-        mixin = BookManagementMixin()
-
-        # Preparação de defaults para o livro
-        book_defaults = {
-            'titulo': book_data.get('titulo', 'Título não disponível'),
-            'subtitulo': book_data.get('subtitulo', ''),
-            'autor': book_data.get('autores', ['Autor desconhecido'])[0],
-            'editora': book_data.get('editora', ''),
-            'isbn': book_data.get('isbn', ''),
-            'data_publicacao': None,
-            'descricao': book_data.get('descricao', 'Descrição não disponível'),
-            'categoria': book_data.get('categorias', []),
-            'preco': Decimal('0'),
-            'preco_promocional': Decimal('0')
-        }
-
-        # Processamento de data de publicação
-        try:
-            pub_date_str = book_data.get('data_publicacao', '')
-            if pub_date_str:
-                book_defaults['data_publicacao'] = datetime.strptime(pub_date_str.split('-')[0], '%Y').date()
-        except (ValueError, TypeError) as date_error:
-            logger.warning(f"Data de publicação inválida: {pub_date_str}. Erro: {str(date_error)}")
-
-        # Processamento de preço com tratamento de erro
-        try:
-            book_defaults['preco'] = Decimal(str(book_data.get('valor', 0)))
-            book_defaults['preco_promocional'] = Decimal(str(book_data.get('valor_promocional', 0)))
-        except (TypeError, ValueError, decimal.InvalidOperation) as e:
-            logger.error(f"Erro ao converter valores de preço para decimal: {e}")
-            return JsonResponse({'success': False, 'error': 'Erro ao processar o preço do livro'}, status=400)
-
-        # Processamento de capa
-        capa = None
-        thumbnail_url = book_data.get('capa_url')
-        if thumbnail_url:
             try:
-                response = requests.get(thumbnail_url, timeout=10)
-                if response.status_code == 200:
-                    filename = f"book_{timezone.now().timestamp()}.jpg"
-                    saved_paths = mixin.save_cover_image(response.content, filename)
-                    if saved_paths and isinstance(saved_paths, tuple):
-                        capa = saved_paths[0]
-            except Exception as e:
-                logger.error(f"Erro ao baixar imagem: {str(e)}")
+                # Obter o livro pelo ID
+                book = Book.objects.get(id=book_id)
 
-        if capa:
-            book_defaults['capa'] = capa
+                # Validação e mapeamento do tipo de prateleira
+                valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
+                shelf_mapping = {
+                    'favoritos': 'favorito',
+                    'lidos': 'lido',
+                    'lendo': 'lendo',
+                    'vou_ler': 'vou_ler'
+                }
+                shelf = shelf_mapping.get(shelf, shelf)
 
-        # Criar ou atualizar livro
-        book, created = Book.objects.get_or_create(
-            titulo=book_defaults['titulo'],
-            defaults=book_defaults
-        )
+                if str(shelf) not in valid_shelf_types:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': f'Tipo de prateleira inválido: {shelf}'
+                    }, status=400)
 
-        if not created and capa:
-            book.capa = capa
-            book.save()
+                # Adicionar ou atualizar na prateleira
+                shelf_obj, created = UserBookShelf.objects.update_or_create(
+                    user=request.user,
+                    book=book,
+                    defaults={'shelf_type': str(shelf), 'added_at': timezone.now()}
+                )
 
-        # Validação e mapeamento do tipo de prateleira
-        valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
-        shelf_mapping = {
-            'favoritos': 'favorito',
-            'lidos': 'lido',
-            'lendo': 'lendo',
-            'vou_ler': 'vou_ler'
-        }
-        shelf = shelf_mapping.get(shelf, shelf)
+                return JsonResponse({
+                    'status': 'success',
+                    'message': f'Livro adicionado com sucesso à sua prateleira de {shelf_obj.get_shelf_type_display()}!'
+                })
 
-        if str(shelf) not in valid_shelf_types:
-            return JsonResponse({
-                'success': False,
-                'error': f'Tipo de prateleira inválido: {shelf}'
-            }, status=400)
+            except Book.DoesNotExist:
+                logger.error(f"Livro ID {book_id} não encontrado")
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Livro não encontrado'
+                }, status=404)
 
-        # Atualizar prateleira
-        shelf_obj, created = UserBookShelf.objects.update_or_create(
-            user=request.user,
-            book=book,
-            defaults={'shelf_type': str(shelf), 'added_at': timezone.now()}
-        )
+        else:
+            # Processamento para JSON
+            try:
+                data = json.loads(request.body)
 
-        return JsonResponse({
-            'success': True,
-            'message': f'Livro adicionado com sucesso à sua prateleira de {shelf_obj.get_shelf_type_display()}!'
-        })
+                # Para compatibilidade com o addToShelf no book-details.js
+                book_id = data.get('book_id')
+                shelf_type = data.get('shelf_type')
+
+                if book_id and shelf_type:
+                    # Processamento simples para formato do frontend atual
+                    try:
+                        # Obter o livro pelo ID
+                        book = Book.objects.get(id=book_id)
+
+                        # Validação do tipo de prateleira
+                        valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
+                        if str(shelf_type) not in valid_shelf_types:
+                            return JsonResponse({
+                                'status': 'error',
+                                'message': f'Tipo de prateleira inválido: {shelf_type}'
+                            }, status=400)
+
+                        # Adicionar ou atualizar na prateleira
+                        shelf_obj, created = UserBookShelf.objects.update_or_create(
+                            user=request.user,
+                            book=book,
+                            defaults={'shelf_type': str(shelf_type), 'added_at': timezone.now()}
+                        )
+
+                        return JsonResponse({
+                            'success': True,
+                            'message': f'Livro adicionado com sucesso à prateleira {shelf_obj.get_shelf_type_display()}!'
+                        })
+
+                    except Book.DoesNotExist:
+                        logger.error(f"Livro ID {book_id} não encontrado")
+                        return JsonResponse({
+                            'success': False,
+                            'error': 'Livro não encontrado'
+                        }, status=404)
+
+                # Processamento para o formato completo com book_data
+                book_data = data.get('book_data', {})
+                shelf = data.get('shelf')
+
+                if not book_data or not shelf:
+                    return JsonResponse({'success': False, 'error': 'Dados incompletos'}, status=400)
+
+                # Log detalhado dos dados recebidos
+                logger.info(f"Dados recebidos - Shelf: {shelf}")
+                logger.info(f"Dados do livro: {json.dumps(book_data, indent=2)}")
+
+                mixin = BookManagementMixin()
+
+                # Preparação de defaults para o livro
+                book_defaults = {
+                    'titulo': book_data.get('titulo', 'Título não disponível'),
+                    'subtitulo': book_data.get('subtitulo', ''),
+                    'autor': book_data.get('autores', ['Autor desconhecido'])[0],
+                    'editora': book_data.get('editora', ''),
+                    'isbn': book_data.get('isbn', ''),
+                    'data_publicacao': None,
+                    'descricao': book_data.get('descricao', 'Descrição não disponível'),
+                    'categoria': book_data.get('categorias', []),
+                    'preco': Decimal('0'),
+                    'preco_promocional': Decimal('0')
+                }
+
+                # Processamento de data de publicação
+                try:
+                    pub_date_str = book_data.get('data_publicacao', '')
+                    if pub_date_str:
+                        book_defaults['data_publicacao'] = datetime.strptime(pub_date_str.split('-')[0], '%Y').date()
+                except (ValueError, TypeError) as date_error:
+                    logger.warning(f"Data de publicação inválida: {pub_date_str}. Erro: {str(date_error)}")
+
+                # Processamento de preço com tratamento de erro
+                try:
+                    book_defaults['preco'] = Decimal(str(book_data.get('valor', 0)))
+                    book_defaults['preco_promocional'] = Decimal(str(book_data.get('valor_promocional', 0)))
+                except (TypeError, ValueError, decimal.InvalidOperation) as e:
+                    logger.error(f"Erro ao converter valores de preço para decimal: {e}")
+                    return JsonResponse({'success': False, 'error': 'Erro ao processar o preço do livro'}, status=400)
+
+                # Processamento de capa
+                capa = None
+                thumbnail_url = book_data.get('capa_url')
+                if thumbnail_url:
+                    try:
+                        response = requests.get(thumbnail_url, timeout=10)
+                        if response.status_code == 200:
+                            filename = f"book_{timezone.now().timestamp()}.jpg"
+                            saved_paths = mixin.save_cover_image(response.content, filename)
+                            if saved_paths and isinstance(saved_paths, tuple):
+                                capa = saved_paths[0]
+                    except Exception as e:
+                        logger.error(f"Erro ao baixar imagem: {str(e)}")
+
+                if capa:
+                    book_defaults['capa'] = capa
+
+                # Criar ou atualizar livro
+                book, created = Book.objects.get_or_create(
+                    titulo=book_defaults['titulo'],
+                    defaults=book_defaults
+                )
+
+                if not created and capa:
+                    book.capa = capa
+                    book.save()
+
+                # Validação e mapeamento do tipo de prateleira
+                valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
+                shelf_mapping = {
+                    'favoritos': 'favorito',
+                    'lidos': 'lido',
+                    'lendo': 'lendo',
+                    'vou_ler': 'vou_ler'
+                }
+                shelf = shelf_mapping.get(shelf, shelf)
+
+                if str(shelf) not in valid_shelf_types:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Tipo de prateleira inválido: {shelf}'
+                    }, status=400)
+
+                # Atualizar prateleira
+                shelf_obj, created = UserBookShelf.objects.update_or_create(
+                    user=request.user,
+                    book=book,
+                    defaults={'shelf_type': str(shelf), 'added_at': timezone.now()}
+                )
+
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Livro adicionado com sucesso à sua prateleira de {shelf_obj.get_shelf_type_display()}!'
+                })
+
+            except json.JSONDecodeError as e:
+                logger.error(f"Erro ao decodificar JSON: {str(e)}", exc_info=True)
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Formato de dados inválido. Esperado JSON válido.'
+                }, status=400)
 
     except Exception as e:
         logger.error(f"Erro ao adicionar livro: {str(e)}", exc_info=True)
         return JsonResponse({
-            'success': False,
-            'error': 'Erro ao processar livro',
+            'status': 'error',
+            'message': 'Erro ao processar livro',
             'details': str(e)
         }, status=500)
 
@@ -333,11 +438,12 @@ def add_to_shelf(request):
 @require_http_methods(["POST"])
 def remove_from_shelf(request, book_id):
     """
-    Remove um livro específico da prateleira do usuário.
+    Remove um livro específico da prateleira do usuário com verificações de segurança aprimoradas.
 
     Características:
     - Valida existência do livro
     - Verifica tipo de prateleira
+    - Verifica propriedade da prateleira
     - Remove item da prateleira
 
     Args:
@@ -348,14 +454,38 @@ def remove_from_shelf(request, book_id):
         JsonResponse indicando sucesso ou falha
     """
     try:
-        # Primeiro, verifique se o livro existe
-        book = Book.objects.get(id=book_id)
+        # Verificação do usuário
+        if not request.user.is_authenticated:
+            logger.warning(f"Tentativa de acesso não autenticado para remover livro {book_id}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuário não autenticado'
+            }, status=401)
 
-        # Carregue os dados do corpo da requisição
-        data = json.loads(request.body)
+        # Verifica se o livro existe
+        try:
+            book = Book.objects.get(id=book_id)
+        except Book.DoesNotExist:
+            logger.warning(f"Tentativa de remover livro inexistente ID: {book_id} por usuário {request.user.username}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Livro não encontrado'
+            }, status=404)
+
+        # Carrega os dados do corpo da requisição com validação
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            logger.error(f"Formato JSON inválido na requisição de remoção de livro {book_id}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Formato de dados inválido'
+            }, status=400)
+
+        # Validação do shelf_type
         shelf_type = data.get('shelf_type')
-
         if not shelf_type:
+            logger.warning(f"Tipo de prateleira não especificado na requisição para livro {book_id}")
             return JsonResponse({
                 'success': False,
                 'error': 'Tipo de prateleira não especificado'
@@ -364,6 +494,7 @@ def remove_from_shelf(request, book_id):
         # Validar tipo de prateleira
         valid_shelves = dict(UserBookShelf.SHELF_CHOICES).keys()
         if shelf_type not in valid_shelves:
+            logger.warning(f"Tipo de prateleira inválido: {shelf_type} para livro {book_id}")
             return JsonResponse({
                 'success': False,
                 'error': f'Prateleira inválida: {shelf_type}'
@@ -377,36 +508,45 @@ def remove_from_shelf(request, book_id):
         ).first()
 
         if not shelf_item:
+            logger.warning(
+                f"Livro {book_id} não encontrado na prateleira {shelf_type} do usuário {request.user.username}")
             return JsonResponse({
                 'success': False,
                 'error': f'Livro não encontrado na prateleira {shelf_type}'
             }, status=404)
 
+        # Verificação adicional de propriedade (garantir que pertence ao usuário solicitante)
+        if shelf_item.user.id != request.user.id:
+            logger.error(
+                f"Usuário {request.user.username} tentando remover livro {book_id} que pertence a outro usuário")
+            return JsonResponse({
+                'success': False,
+                'error': 'Você não tem permissão para remover este livro'
+            }, status=403)
+
         # Log antes da remoção
-        logger.info(f"Usuário {request.user.username} removendo livro '{book.titulo}' da prateleira {shelf_type}")
+        logger.info(
+            f"Usuário {request.user.username} removendo livro '{book.titulo}' (ID: {book_id}) da prateleira {shelf_type}")
 
         # Remove o item da prateleira
         shelf_item.delete()
+
+        # Log após remoção bem-sucedida
+        logger.info(
+            f"Livro '{book.titulo}' (ID: {book_id}) removido com sucesso da prateleira {shelf_type} do usuário {request.user.username}")
 
         return JsonResponse({
             'success': True,
             'message': f'Livro removido da prateleira {shelf_type} com sucesso!'
         })
 
-    except Book.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'error': 'Livro não encontrado'
-        }, status=404)
     except Exception as e:
-        logger.error(f"Erro ao remover livro da prateleira: {str(e)}", exc_info=True)
+        logger.error(f"Erro não tratado ao remover livro {book_id} da prateleira: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': str(e)
-        }, status=400)
+            'error': 'Erro interno do servidor ao processar sua solicitação'
+        }, status=500)
 
-
-# Continuação do arquivo book.py
 
 @login_required
 @require_http_methods(["GET"])
@@ -547,11 +687,12 @@ def update_book(request, book_id):
 @require_http_methods(["POST"])
 def move_book(request, book_id):
     """
-    Move um livro para outra prateleira.
+    Move um livro para outra prateleira com verificações de segurança aprimoradas.
 
     Características:
     - Valida existência do livro
     - Verifica tipo de prateleira
+    - Verifica propriedade da prateleira
     - Registra movimento entre prateleiras
 
     Args:
@@ -562,14 +703,46 @@ def move_book(request, book_id):
         JsonResponse indicando sucesso ou falha no movimento
     """
     try:
-        # Primeiro, verifique se o livro existe
-        book = Book.objects.get(id=book_id)
+        # Verificação do usuário
+        if not request.user.is_authenticated:
+            logger.warning(f"Tentativa de acesso não autenticado para mover livro {book_id}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuário não autenticado'
+            }, status=401)
 
-        # Carregue os dados do corpo da requisição
-        data = json.loads(request.body)
+        # Verifica se o livro existe
+        try:
+            book = Book.objects.get(id=book_id)
+        except Book.DoesNotExist:
+            logger.warning(f"Tentativa de mover livro inexistente ID: {book_id} por usuário {request.user.username}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Livro não encontrado'
+            }, status=404)
+
+        # Verifica se o livro pertence a alguma prateleira do usuário
+        if not UserBookShelf.objects.filter(user=request.user, book=book).exists():
+            logger.warning(f"Tentativa de mover livro {book_id} que não pertence ao usuário {request.user.username}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Este livro não está em nenhuma de suas prateleiras'
+            }, status=403)
+
+        # Carrega os dados do corpo da requisição com validação
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            logger.error(f"Formato JSON inválido na requisição de movimento de livro {book_id}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Formato de dados inválido'
+            }, status=400)
+
+        # Validação da nova prateleira
         new_shelf = data.get('new_shelf')
-
         if not new_shelf:
+            logger.warning(f"Nova prateleira não especificada para livro {book_id}")
             return JsonResponse({
                 'success': False,
                 'error': 'Nova prateleira não especificada'
@@ -578,6 +751,7 @@ def move_book(request, book_id):
         # Validar tipo de prateleira
         valid_shelves = dict(UserBookShelf.SHELF_CHOICES).keys()
         if new_shelf not in valid_shelves:
+            logger.warning(f"Tipo de prateleira inválido: {new_shelf} para livro {book_id}")
             return JsonResponse({
                 'success': False,
                 'error': f'Prateleira inválida: {new_shelf}'
@@ -590,10 +764,27 @@ def move_book(request, book_id):
         ).first()
 
         if not shelf_item:
+            logger.warning(f"Livro {book_id} não encontrado em nenhuma prateleira do usuário {request.user.username}")
             return JsonResponse({
                 'success': False,
                 'error': 'Livro não encontrado em nenhuma prateleira'
             }, status=404)
+
+        # Verificação adicional de propriedade
+        if shelf_item.user.id != request.user.id:
+            logger.error(f"Usuário {request.user.username} tentando mover livro {book_id} que pertence a outro usuário")
+            return JsonResponse({
+                'success': False,
+                'error': 'Você não tem permissão para mover este livro'
+            }, status=403)
+
+        # Se o livro já está na prateleira de destino, retorne um aviso
+        if shelf_item.shelf_type == new_shelf:
+            logger.info(f"Livro {book_id} já está na prateleira {new_shelf}")
+            return JsonResponse({
+                'success': True,
+                'message': f'O livro já está na prateleira {new_shelf}'
+            })
 
         # Registre o movimento antigo para logs
         old_shelf = shelf_item.shelf_type
@@ -604,24 +795,21 @@ def move_book(request, book_id):
 
         # Log do movimento
         logger.info(
-            f"Usuário {request.user.username} moveu o livro '{book.titulo}' da prateleira {old_shelf} para {new_shelf}")
+            f"Usuário {request.user.username} moveu o livro '{book.titulo}' (ID: {book_id}) " +
+            f"da prateleira {old_shelf} para {new_shelf}"
+        )
 
         return JsonResponse({
             'success': True,
             'message': f'Livro movido para {new_shelf} com sucesso!'
         })
 
-    except Book.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'error': 'Livro não encontrado'
-        }, status=404)
     except Exception as e:
-        logger.error(f"Erro ao mover livro: {str(e)}", exc_info=True)
+        logger.error(f"Erro não tratado ao mover livro {book_id}: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': str(e)
-        }, status=400)
+            'error': 'Erro interno do servidor ao processar sua solicitação'
+        }, status=500)
 
 
 @login_required
@@ -699,7 +887,7 @@ class BookDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         """
-        Adiciona informações da prateleira ao contexto.
+        Adiciona informações da prateleira ao contexto com verificações de segurança aprimoradas.
 
         Returns:
             dict: Contexto estendido com informações da prateleira
@@ -708,11 +896,246 @@ class BookDetailView(LoginRequiredMixin, DetailView):
         book = self.get_object()
         user = self.request.user
 
-        user_shelf = UserBookShelf.objects.filter(user=user, book=book).first()
+        # Verificar se o usuário está autenticado
+        if not user.is_authenticated:
+            logger.warning(f"Usuário não autenticado tentando acessar detalhes do livro {book.id}")
+            context.update({
+                'shelf': None,
+                'shelf_display': 'Faça login para adicionar à sua prateleira',
+                'is_external': False,
+                'can_edit': False,
+                'can_move': False,
+                'can_remove': False,
+            })
+            return context
 
-        context.update({
-            'shelf': user_shelf.shelf_type if user_shelf else None,
-            'shelf_display': user_shelf.get_shelf_type_display() if user_shelf else None,
-        })
+        # Busca informações da prateleira do usuário com tratamento de exceção
+        try:
+            user_shelf = UserBookShelf.objects.filter(user=user, book=book).first()
+
+            # Verificar se o livro é temporário e fazer ajustes necessários
+            is_temporary = getattr(book, 'is_temporary', False)
+
+            # Definir permissões com base no contexto
+            can_edit = True  # Permite edição para todos os livros (pode ser ajustado conforme necessário)
+            can_move = bool(user_shelf)  # Permite mover apenas se estiver em uma prateleira
+            can_remove = bool(user_shelf)  # Permite remover apenas se estiver em uma prateleira
+
+            # Ajustar permissões para livros temporários ou externos
+            if is_temporary or book.external_id:
+                # Pode limitar certas operações para livros externos ou temporários
+                logger.info(f"Livro {book.id} é {'temporário' if is_temporary else 'externo'}")
+
+            # Adiciona informações da prateleira ao contexto
+            context.update({
+                'shelf': user_shelf.shelf_type if user_shelf else None,
+                'shelf_display': user_shelf.get_shelf_type_display() if user_shelf else 'Não está em sua prateleira',
+                'is_external': bool(book.external_id),
+                'can_edit': can_edit,
+                'can_move': can_move,
+                'can_remove': can_remove,
+                'is_temporary': is_temporary,
+            })
+
+            # Registrar acesso para análise de uso
+            logger.info(f"Usuário {user.username} (ID: {user.id}) acessou o livro {book.titulo} (ID: {book.id})")
+
+        except Exception as e:
+            # Em caso de erro, configurar para valores seguros
+            logger.error(f"Erro ao obter informações da prateleira: {str(e)}", exc_info=True)
+            context.update({
+                'shelf': None,
+                'shelf_display': 'Erro ao carregar informações da prateleira',
+                'is_external': False,
+                'can_edit': False,
+                'can_move': False,
+                'can_remove': False,
+                'error': True,
+            })
 
         return context
+
+
+@login_required
+@require_http_methods(["POST"])
+def add_external_to_shelf(request):
+    """
+    Adiciona um livro externo diretamente à prateleira sem importá-lo
+    completamente.
+
+    Esta é uma alternativa para quando a importação completa falha.
+    Cria um livro com dados mínimos a partir dos dados externos.
+
+    Returns:
+        JsonResponse: Resposta com status da operação
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Usuário não autenticado'}, status=401)
+
+    try:
+        # Carrega dados do corpo da requisição
+        data = json.loads(request.body)
+        external_id = data.get('external_id')
+        shelf_type = data.get('shelf_type')
+
+        if not external_id or not shelf_type:
+            return JsonResponse({'status': 'error', 'message': 'Dados incompletos'}, status=400)
+
+        # Verifica se o livro já existe pelo ID externo
+        existing_book = Book.objects.filter(external_id=external_id).first()
+
+        if existing_book:
+            # Se existe, apenas adiciona à prateleira
+            _, created = UserBookShelf.objects.get_or_create(
+                user=request.user,
+                book=existing_book,
+                defaults={'shelf_type': shelf_type}
+            )
+
+            message = 'Livro adicionado à prateleira'
+            if not created:
+                message = 'Livro já estava na prateleira'
+
+            return JsonResponse({
+                'status': 'success',
+                'message': message
+            })
+
+        # Se não existe, tenta criar a partir dos dados externos
+        try:
+            external_data = json.loads(data.get('external_data', '{}'))
+            volume_info = external_data.get('volumeInfo', {})
+
+            # Cria livro minimalista
+            new_book = Book.objects.create(
+                titulo=volume_info.get('title', 'Sem título'),
+                autor=volume_info.get('authors', ['Autor desconhecido'])[0] if volume_info.get(
+                    'authors') else 'Autor desconhecido',
+                external_id=external_id,
+                capa_url=volume_info.get('imageLinks', {}).get('thumbnail', '')
+            )
+
+            # Adiciona à prateleira
+            UserBookShelf.objects.create(
+                user=request.user,
+                book=new_book,
+                shelf_type=shelf_type
+            )
+
+            logger.info(f"Livro externo adicionado diretamente: {new_book.titulo} (ID: {new_book.id})")
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Livro adicionado à prateleira'
+            })
+
+        except Exception as e:
+            logger.error(f"Erro ao processar dados externos: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': f'Erro ao processar dados externos: {str(e)}'},
+                                status=500)
+
+    except Exception as e:
+        logger.error(f"Erro ao adicionar livro externo à prateleira: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+@login_required
+def external_book_details_view(request, external_id):
+    """
+    View para exibir detalhes de um livro externo (Google Books).
+    Cria uma entrada temporária no banco de dados para exibição.
+
+    Principais funcionalidades:
+        - Pesquisa de livros via Google Books API
+        - Gerenciamento de prateleiras de usuário
+        - Processamento de capas de livros
+        - Adição e remoção de livros
+    """
+    if not external_id:
+        raise Http404("ID do livro externo não fornecido")
+
+    try:
+        # Verificar se já existe um livro com este ID externo
+        existing_book = Book.objects.filter(external_id=external_id).first()
+
+        if existing_book:
+            # Se o livro já existe, simplesmente redireciona para a página de detalhes
+            return redirect('book_detail', pk=existing_book.id)
+
+        # Buscar detalhes do livro externo
+        client = GoogleBooksClient(context="recommendations")
+        external_data = client.get_book_by_id(external_id)
+
+        if not external_data:
+            raise Http404("Livro externo não encontrado")
+
+        # Processar os dados para criar um livro temporário
+        volume_info = external_data.get('volumeInfo', {})
+
+        # Extrair campos do formato volumeInfo
+        titulo = volume_info.get('title', 'Título desconhecido')
+
+        if 'authors' in volume_info:
+            if isinstance(volume_info['authors'], list):
+                autor = ', '.join(volume_info['authors'])
+            else:
+                autor = str(volume_info['authors'])
+        else:
+            autor = 'Autor desconhecido'
+
+        editora = volume_info.get('publisher', '')
+        data_publicacao_str = volume_info.get('publishedDate', '')
+        descricao = volume_info.get('description', '')
+        numero_paginas = volume_info.get('pageCount', 0)
+
+        if 'categories' in volume_info:
+            if isinstance(volume_info['categories'], list):
+                genero = volume_info['categories'][0] if volume_info['categories'] else ''
+            else:
+                genero = str(volume_info['categories'])
+        else:
+            genero = ''
+
+        idioma = volume_info.get('language', 'pt')
+        capa_url = volume_info.get('imageLinks', {}).get('thumbnail', '')
+
+        # Processar data de publicação
+        data_publicacao = None
+        if data_publicacao_str:
+            try:
+                # Tenta converter para data
+                if len(data_publicacao_str) >= 10:  # Formato completo YYYY-MM-DD
+                    data_publicacao = datetime.strptime(data_publicacao_str[:10], '%Y-%m-%d').date()
+                elif len(data_publicacao_str) >= 7:  # Formato YYYY-MM
+                    data_publicacao = datetime.strptime(data_publicacao_str[:7], '%Y-%m').date()
+                elif len(data_publicacao_str) >= 4:  # Apenas ano YYYY
+                    data_publicacao = datetime.strptime(f"{data_publicacao_str[:4]}-01-01", '%Y-%m-%d').date()
+            except ValueError:
+                # Se falhar na conversão, mantém como None
+                data_publicacao = None
+
+        # Criar livro temporário no banco de dados
+        temp_book = Book.objects.create(
+            titulo=titulo,
+            autor=autor,
+            editora=editora,
+            data_publicacao=data_publicacao,
+            descricao=descricao,
+            numero_paginas=numero_paginas if isinstance(numero_paginas, int) else 0,
+            genero=genero,
+            idioma=idioma,
+            capa_url=capa_url,
+            external_id=external_id,
+            is_temporary=True,
+            external_data=json.dumps(external_data),
+            origem='Google Books'
+        )
+
+        # Redirecionar para a página de detalhes do livro
+        return redirect('book_detail', pk=temp_book.id)
+
+    except Exception as e:
+        logger.error(f"Erro ao processar livro externo: {str(e)}")
+        # Trate o erro e exiba uma mensagem para o usuário
+        return render(request, 'core/error.html', {
+            'error_message': "Não foi possível carregar os detalhes do livro externo. Por favor, tente novamente mais tarde."
+        })

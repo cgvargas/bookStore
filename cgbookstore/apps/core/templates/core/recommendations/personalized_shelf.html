@@ -1,0 +1,266 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Recomendações Personalizadas{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/personalized_shelf.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold mb-3">Prateleira Personalizada</h1>
+    <p class="lead text-muted">
+      Sugestões personalizadas baseadas no seu histórico de leitura
+      {% if has_external %}
+      <span class="d-block d-md-inline">e no catálogo estendido do Google Books</span>
+      {% endif %}
+    </p>
+  </div>
+
+  <!-- Sections of recommendations -->
+  {% for section in sections %}
+    <div class="mb-5">
+      <h2 class="h4 mb-4 pb-2 border-bottom">{{ section.title }}</h2>
+
+      {% if section.type == 'external' %}
+        <!-- External books layout -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+          {% for book in section.books %}
+            <div class="col">
+              <div class="card h-100 shadow-sm border-0 hover-scale border-primary">
+                <a href="#" class="text-decoration-none text-dark external-book" data-bs-toggle="modal" data-bs-target="#externalBookModal" data-book-external-id="{{ book.id }}">
+                  <div class="position-relative">
+                    {% if book.volumeInfo.imageLinks.thumbnail %}
+                      <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" class="card-img-top" alt="{{ book.volumeInfo.title }}" style="height: 300px; object-fit: cover;" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                    {% else %}
+                      <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <i class="bi bi-book fs-1 text-muted"></i>
+                      </div>
+                    {% endif %}
+                    <div class="position-absolute top-0 end-0 m-2">
+                      <span class="badge bg-success">Google Books</span>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title mb-1">{{ book.volumeInfo.title|default:"Título desconhecido" }}</h5>
+                    <p class="text-muted small mb-2">
+                      {% if book.volumeInfo.authors %}
+                        {% if book.volumeInfo.authors.0 %}
+                          {{ book.volumeInfo.authors.0 }}
+                        {% else %}
+                          Autor desconhecido
+                        {% endif %}
+                      {% else %}
+                        Autor desconhecido
+                      {% endif %}
+                    </p>
+                    {% if book.volumeInfo.categories %}
+                      {% if book.volumeInfo.categories.0 %}
+                        <span class="badge rounded-pill bg-light text-dark border">{{ book.volumeInfo.categories.0 }}</span>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Local books layout -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+          {% for book in section.books %}
+            <div class="col">
+              <div class="card h-100 shadow-sm border-0 hover-scale">
+                <a href="{% url 'book_details' book.id %}" class="text-decoration-none text-dark">
+                  <div class="position-relative">
+                    {% if book.capa %}
+                      <img src="{{ book.capa.url }}" class="card-img-top" alt="{{ book.titulo }}" style="height: 300px; object-fit: cover;" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                    {% elif book.capa_url %}
+                      <img src="{{ book.capa_url }}" class="card-img-top" alt="{{ book.titulo }}" style="height: 300px; object-fit: cover;" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                    {% else %}
+                      <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <i class="bi bi-book fs-1 text-muted"></i>
+                      </div>
+                    {% endif %}
+                    <div class="position-absolute top-0 end-0 m-2">
+                      <span class="badge bg-primary">Nosso Catálogo</span>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title mb-1">{{ book.titulo }}</h5>
+                    <p class="text-muted small mb-2">{{ book.autor|default:"Autor desconhecido" }}</p>
+                    {% if book.genero %}
+                      <span class="badge rounded-pill bg-light text-dark border">{{ book.genero }}</span>
+                    {% endif %}
+                  </div>
+                </a>
+                <div class="card-footer bg-transparent border-0">
+                  <button class="btn btn-outline-primary w-100 btn-sm add-to-shelf-btn" data-bs-toggle="modal" data-bs-target="#shelfModal" data-book-id="{{ book.id }}">
+                    <i class="bi bi-plus-circle me-2"></i>Adicionar
+                  </button>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  {% empty %}
+    <!-- Empty State -->
+    <div class="text-center py-5 my-5">
+      <div class="empty-state-icon mb-4">
+        <i class="bi bi-binoculars fs-1 text-muted"></i>
+      </div>
+      <h2 class="h4 mb-3">Vamos encontrar seus próximos livros!</h2>
+      <p class="text-muted mb-4">Adicione alguns livros às suas prateleiras para personalizarmos suas recomendações.</p>
+      <a href="{% url 'book_search' %}" class="btn btn-primary px-4">
+        <i class="bi bi-search me-2"></i>Explorar Catálogo
+      </a>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- External Book Modal -->
+<div class="modal fade" id="externalBookModal" tabindex="-1" aria-labelledby="externalBookModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="externalBookModalLabel">Detalhes do Livro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-4 text-center">
+            <img id="externalBookCover" src="" class="img-fluid rounded shadow mb-3" alt="Capa do livro" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+            <span class="badge bg-success">Google Books</span>
+          </div>
+          <div class="col-md-8">
+            <h3 id="externalBookTitle" class="h4 mb-3">Carregando...</h3>
+            <div class="row small text-muted g-2 mb-4">
+              <div class="col-6">
+                <i class="bi bi-person me-1"></i>
+                <span id="externalBookAuthor">-</span>
+              </div>
+              <div class="col-6">
+                <i class="bi bi-tags me-1"></i>
+                <span id="externalBookCategories">-</span>
+              </div>
+              <div class="col-6">
+                <i class="bi bi-building me-1"></i>
+                <span id="externalBookPublisher">-</span>
+              </div>
+              <div class="col-6">
+                <i class="bi bi-calendar me-1"></i>
+                <span id="externalBookYear">-</span>
+              </div>
+              <div class="col-6">
+                <i class="bi bi-file-text me-1"></i>
+                <span id="externalBookPages">- páginas</span>
+              </div>
+            </div>
+            <div class="border-top pt-3">
+              <h6 class="text-uppercase small mb-3">Descrição</h6>
+              <div id="externalBookDescription" class="small text-muted" style="max-height: 200px; overflow-y: auto;">
+                Carregando descrição...
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Campo oculto para armazenar o ID do livro externo -->
+        <input type="hidden" id="externalBookId" value="">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary" id="addExternalBookToShelf">
+          <i class="bi bi-plus-circle me-2"></i>Adicionar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Shelf Selection Modal -->
+<div class="modal fade" id="shelfModal" tabindex="-1" aria-labelledby="shelfModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shelfModalLabel">Adicionar à Prateleira</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Campos ocultos para armazenar informações do livro -->
+        <input type="hidden" id="selectedBookId" value="">
+        <input type="hidden" id="isExternalBook" value="0">
+
+        <div class="vstack gap-2">
+          <button class="btn btn-outline-secondary text-start d-flex align-items-center shelf-option" data-shelf="lendo">
+            <i class="bi bi-bookmark-check me-3 fs-5"></i>
+            <div>
+              <div class="fw-bold">Lendo Agora</div>
+              <small class="text-muted">Livros em progresso</small>
+            </div>
+          </button>
+          <button class="btn btn-outline-secondary text-start d-flex align-items-center shelf-option" data-shelf="vou_ler">
+            <i class="bi bi-bookmarks me-3 fs-5"></i>
+            <div>
+              <div class="fw-bold">Planejados</div>
+              <small class="text-muted">Próximas leituras</small>
+            </div>
+          </button>
+          <button class="btn btn-outline-secondary text-start d-flex align-items-center shelf-option" data-shelf="lido">
+            <i class="bi bi-check-circle me-3 fs-5"></i>
+            <div>
+              <div class="fw-bold">Concluídos</div>
+              <small class="text-muted">Leituras finalizadas</small>
+            </div>
+          </button>
+          <button class="btn btn-outline-secondary text-start d-flex align-items-center shelf-option" data-shelf="favorito">
+            <i class="bi bi-star me-3 fs-5"></i>
+            <div>
+              <div class="fw-bold">Favoritos</div>
+              <small class="text-muted">Livros destacados</small>
+            </div>
+          </button>
+        </div>
+
+        <!-- Botões de confirmação -->
+        <div class="d-flex justify-content-end mt-3">
+          <button type="button" class="btn btn-secondary me-2" id="cancelShelfSelection" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="confirmShelfSelection">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+// Script para debug de imagens
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Verificando imagens na prateleira personalizada...");
+
+  // Log de todas as imagens
+  document.querySelectorAll('.card-img-top').forEach(img => {
+    if (img.tagName === 'IMG') {
+      console.log(`Imagem: ${img.src}`);
+
+      // Adicionando listeners para monitorar carregamento
+      img.addEventListener('load', function() {
+        console.log(`✅ Imagem carregada: ${this.src}`);
+      });
+
+      img.addEventListener('error', function() {
+        console.error(`❌ Erro ao carregar imagem: ${this.src}`);
+        this.src = '/static/images/no-cover.svg';
+      });
+    }
+  });
+});
+</script>
+<script src="{% static 'js/personalized_shelf.js' %}"></script>
+{% endblock %}

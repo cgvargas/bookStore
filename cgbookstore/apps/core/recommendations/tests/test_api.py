@@ -42,7 +42,7 @@ class RecommendationsAPITests(TestCase):
 
     def test_get_recommendations(self):
         """Testa o endpoint de recomendações gerais"""
-        url = reverse('recommendations-api:recommendations')
+        url = reverse('recommendations:recommendations')  # Alterado o namespace
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -54,7 +54,7 @@ class RecommendationsAPITests(TestCase):
 
     def test_get_personalized_shelf(self):
         """Testa o endpoint de prateleira personalizada"""
-        url = reverse('recommendations-api:personalized-shelf')
+        url = reverse('recommendations:personalized-shelf')  # Alterado o namespace
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
