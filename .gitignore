@@ -28,6 +28,7 @@ static/
 # Virtual Environment
 .env.dev
 .env.prod
+.env.local
 .env
 .venv
 venv/

@@ -1,0 +1,269 @@
+{% load static %}
+{% load dashboard_filters %}
+
+<div class="modalities-dashboard">
+    <div class="section-header mb-4">
+        <h2><i class="fas fa-book me-2"></i>Métricas de Modalidades de Livros</h2>
+        <p class="text-muted">Estatísticas de desempenho e interação para as diferentes modalidades de livros</p>
+    </div>
+
+    <!-- Resumo de Modalidades -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-star me-2"></i>Lançamentos</h5>
+                    <p class="display-4">{{ modalities_metrics.new_releases_count }}</p>
+                    <p class="small">{{ modalities_metrics.new_releases_percent|floatformat:1 }}% do catálogo</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Visualizações: {{ modalities_metrics.new_releases_views }}</span>
+                    <span class="badge bg-light text-primary">
+                        <i class="fas fa-arrow-{% if modalities_metrics.new_releases_trend > 0 %}up{% else %}down{% endif %}"></i>
+                        {{ modalities_metrics.new_releases_trend|floatformat:1 }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Mais Vendidos</h5>
+                    <p class="display-4">{{ modalities_metrics.bestsellers_count }}</p>
+                    <p class="small">Vendas totais: {{ modalities_metrics.bestsellers_total_sales }}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Visualizações: {{ modalities_metrics.bestsellers_views }}</span>
+                    <span class="badge bg-light text-success">
+                        <i class="fas fa-arrow-{% if modalities_metrics.bestsellers_trend > 0 %}up{% else %}down{% endif %}"></i>
+                        {{ modalities_metrics.bestsellers_trend|floatformat:1 }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-thumbs-up me-2"></i>Recomendados</h5>
+                    <p class="display-4">{{ modalities_metrics.recommended_count }}</p>
+                    <p class="small">Taxa de conversão: {{ modalities_metrics.recommended_conversion_rate|floatformat:1 }}%</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Visualizações: {{ modalities_metrics.recommended_views }}</span>
+                    <span class="badge bg-light text-info">
+                        <i class="fas fa-arrow-{% if modalities_metrics.recommended_trend > 0 %}up{% else %}down{% endif %}"></i>
+                        {{ modalities_metrics.recommended_trend|floatformat:1 }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-dark text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-th me-2"></i>Catálogo</h5>
+                    <p class="display-4">{{ modalities_metrics.catalogue_count }}</p>
+                    <p class="small">Categorias: {{ modalities_metrics.catalogue_categories }}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Visualizações: {{ modalities_metrics.catalogue_views }}</span>
+                    <span class="badge bg-light text-dark">
+                        <i class="fas fa-arrow-{% if modalities_metrics.catalogue_trend > 0 %}up{% else %}down{% endif %}"></i>
+                        {{ modalities_metrics.catalogue_trend|floatformat:1 }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos de Desempenho -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title m-0"><i class="fas fa-chart-bar me-2"></i>Visualizações por Modalidade (30 dias)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="modalitiesViewsChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title m-0"><i class="fas fa-percentage me-2"></i>Taxas de Conversão por Modalidade</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="modalitiesConversionChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Análise Detalhada por Modalidade -->
+    <div class="row g-4">
+        <!-- Lançamentos -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title m-0"><i class="fas fa-star me-2"></i>Análise de Lançamentos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Livro</th>
+                                    <th>Data</th>
+                                    <th>Visualizações</th>
+                                    <th>Adições</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for book in modalities_metrics.top_new_releases %}
+                                <tr>
+                                    <td>{{ book.titulo }}</td>
+                                    <td>{{ book.data_publicacao|date:"d/m/Y" }}</td>
+                                    <td>{{ book.quantidade_acessos }}</td>
+                                    <td>{{ book.shelf_count }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Nenhum lançamento encontrado</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mais Vendidos -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title m-0"><i class="fas fa-chart-line me-2"></i>Análise de Mais Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Livro</th>
+                                    <th>Vendas</th>
+                                    <th>Visualizações</th>
+                                    <th>Taxa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for book in modalities_metrics.top_bestsellers %}
+                                <tr>
+                                    <td>{{ book.titulo }}</td>
+                                    <td>{{ book.quantidade_vendida }}</td>
+                                    <td>{{ book.quantidade_acessos }}</td>
+                                    <td>{{ book.conversion_rate|floatformat:1 }}%</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Nenhum bestseller encontrado</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dados para os gráficos
+        const viewsData = {
+            labels: ['Lançamentos', 'Mais Vendidos', 'Recomendados', 'Catálogo'],
+            datasets: [{
+                label: 'Visualizações',
+                data: [
+                    {{ modalities_metrics.new_releases_views }},
+                    {{ modalities_metrics.bestsellers_views }},
+                    {{ modalities_metrics.recommended_views }},
+                    {{ modalities_metrics.catalogue_views }}
+                ],
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.7)',
+                    'rgba(25, 135, 84, 0.7)',
+                    'rgba(13, 202, 240, 0.7)',
+                    'rgba(33, 37, 41, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(13, 110, 253, 1)',
+                    'rgba(25, 135, 84, 1)',
+                    'rgba(13, 202, 240, 1)',
+                    'rgba(33, 37, 41, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const conversionData = {
+            labels: ['Lançamentos', 'Mais Vendidos', 'Recomendados', 'Catálogo'],
+            datasets: [{
+                label: 'Taxa de Conversão (%)',
+                data: [
+                    {{ modalities_metrics.new_releases_conversion_rate|floatformat:1 }},
+                    {{ modalities_metrics.bestsellers_conversion_rate|floatformat:1 }},
+                    {{ modalities_metrics.recommended_conversion_rate|floatformat:1 }},
+                    {{ modalities_metrics.catalogue_conversion_rate|floatformat:1 }}
+                ],
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.7)',
+                    'rgba(25, 135, 84, 0.7)',
+                    'rgba(13, 202, 240, 0.7)',
+                    'rgba(33, 37, 41, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(13, 110, 253, 1)',
+                    'rgba(25, 135, 84, 1)',
+                    'rgba(13, 202, 240, 1)',
+                    'rgba(33, 37, 41, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // Configurações comuns dos gráficos
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        };
+
+        // Inicializa os gráficos
+        new Chart(
+            document.getElementById('modalitiesViewsChart').getContext('2d'),
+            {
+                type: 'bar',
+                data: viewsData,
+                options: chartOptions
+            }
+        );
+
+        new Chart(
+            document.getElementById('modalitiesConversionChart').getContext('2d'),
+            {
+                type: 'bar',
+                data: conversionData,
+                options: chartOptions
+            }
+        );
+    });
+</script>

@@ -106,6 +106,7 @@ class GoogleBooksClient:
 
         self.default_timeout = 5  # timeout em segundos
         self.context = context or "general"
+        self.max_start_index = 1000  # Limite máximo suportado pela API Google Books
         logger.info(f"GoogleBooksClient inicializado para contexto: {self.context}")
 
     def search_books(self, query: str, max_results: int = 10, search_type: str = None,
@@ -113,7 +114,7 @@ class GoogleBooksClient:
         """
         Busca livros na API do Google Books
         """
-        print(f"[{self.context}] Iniciando busca com: {query}, tipo: {search_type}, max_results: {max_results}")
+        logger.info(f"[{self.context}] Iniciando busca com: {query}, tipo: {search_type}, max_results: {max_results}")
 
         # Formatar a consulta baseada no tipo de busca
         formatted_query = query
@@ -132,6 +133,19 @@ class GoogleBooksClient:
         # Calcular limite e início para paginação
         limit = items_per_page if items_per_page is not None else max_results
         start_index = (page - 1) * limit
+
+        # Verificar se o índice de início ultrapassa o limite permitido pela API
+        if start_index >= self.max_start_index:
+            logger.warning(f"[{self.context}] Índice de início ({start_index}) excede o limite da API ({self.max_start_index})")
+            max_page = self.max_start_index // limit
+            return {
+                'books': [],
+                'total_pages': max_page,
+                'current_page': page,
+                'has_previous': True,
+                'has_next': False,
+                'error': f'Página {page} excede o limite da API Google Books. O máximo é {max_page} páginas.'
+            }
 
         # Criar chave de cache
         cache_key = f"search_{self.context}_{formatted_query}_{limit}_{page}"
@@ -167,6 +181,39 @@ class GoogleBooksClient:
             # Processar resultados
             raw_books = data.get('items', [])
             total_items = data.get('totalItems', 0)
+
+            # Se não há resultados, retornar resposta vazia
+            if not raw_books and total_items == 0:
+                result = {
+                    'books': [],
+                    'total_pages': 0,
+                    'current_page': 1,
+                    'has_previous': False,
+                    'has_next': False,
+                    'error': 'Nenhum livro encontrado para esta busca.'
+                }
+                self.cache.set(cache_key, result, timeout=SEARCH_CACHE_TIMEOUT)
+                return result
+
+            # Se esta página específica não tem resultados mas total_items > 0
+            # Isso significa que estamos além dos resultados disponíveis
+            if not raw_books and total_items > 0 and page > 1:
+                # Calcular o número real de páginas com base no total_items
+                real_total_pages = min((total_items + limit - 1) // limit, self.max_start_index // limit)
+                result = {
+                    'books': [],
+                    'total_pages': real_total_pages,
+                    'current_page': page,
+                    'has_previous': page > 1,
+                    'has_next': False,
+                    'error': f'A página {page} não existe. O último resultado está na página {real_total_pages}.'
+                }
+                self.cache.set(cache_key, result, timeout=SEARCH_CACHE_TIMEOUT)
+                return result
+
+            # Limitar o total_items ao máximo suportado pela API
+            if total_items > self.max_start_index:
+                total_items = self.max_start_index
 
             # Transformar resultados
             books = []
@@ -204,7 +251,23 @@ class GoogleBooksClient:
                     logger.error(f"[{self.context}] Erro ao processar livro: {str(e)}")
 
             # Calcular informações de paginação
-            total_pages = max(1, (total_items + limit - 1) // limit)
+            # Número total de páginas baseado no total_items e no limite por página
+            total_pages = (total_items + limit - 1) // limit
+
+            # Se o total_pages calculado for maior que o permitido pela API, limitar
+            if total_pages > self.max_start_index // limit:
+                total_pages = self.max_start_index // limit
+
+            # Garantir que total_pages seja pelo menos 1 se há resultados
+            if total_pages < 1 and books:
+                total_pages = 1
+
+            # Verificar se há próxima página
+            # Se o número de resultados retornados é menor que o limite, provavelmente é a última página
+            if len(books) < limit:
+                has_next = False
+            else:
+                has_next = page < total_pages
 
             # Estrutura de resposta
             result = {
@@ -212,20 +275,44 @@ class GoogleBooksClient:
                 'total_pages': total_pages,
                 'current_page': page,
                 'has_previous': page > 1,
-                'has_next': page < total_pages
+                'has_next': has_next
             }
 
-            # Armazenar no cache com tempo diferente para buscas
+            # Armazenar no cache
             self.cache.set(cache_key, result, timeout=SEARCH_CACHE_TIMEOUT)
 
             return result
+        except requests.exceptions.HTTPError as e:
+            # Tratar especificamente erros HTTP
+            if e.response.status_code == 400 and 'Invalid Value' in e.response.text:
+                # Isso geralmente indica uma página que está além dos resultados disponíveis
+                logger.warning(f"[{self.context}] Erro 400 ao acessar página {page}: {str(e)}")
+                return {
+                    'books': [],
+                    'total_pages': page - 1 if page > 1 else 1,  # Assumir que a página anterior era válida
+                    'current_page': page,
+                    'has_previous': page > 1,
+                    'has_next': False,
+                    'error': f'A página {page} não existe ou está além dos resultados disponíveis.'
+                }
+            else:
+                # Outros erros HTTP
+                logger.error(f"[{self.context}] Erro HTTP na API: {str(e)}")
+                return {
+                    'books': [],
+                    'total_pages': 1,
+                    'current_page': page,
+                    'has_previous': page > 1,
+                    'has_next': False,
+                    'error': f'Erro ao processar a requisição: {str(e)}'
+                }
         except Exception as e:
             logger.error(f"[{self.context}] Erro ao buscar na API: {str(e)}")
             return {
                 'books': [],
                 'total_pages': 1,
                 'current_page': page,
-                'has_previous': False,
+                'has_previous': page > 1,
                 'has_next': False,
                 'error': str(e)
             }

@@ -1,0 +1,180 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Chatbot Literário - CG.BookStore{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-robot me-2"></i>Assistente Literário
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="chat-container" id="chatMessages">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="message {% if message.sender == 'bot' %}bot-message{% else %}user-message{% endif %}">
+                                    <div class="message-content">
+                                        {{ message.content }}
+                                    </div>
+                                    <div class="message-time">
+                                        {{ message.timestamp|time:"H:i" }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="message bot-message">
+                                <div class="message-content">
+                                    Olá! Sou o assistente literário da CG.BookStore. Como posso ajudar você hoje? Posso recomendar livros, falar sobre autores ou ajudar a navegar no site.
+                                </div>
+                                <div class="message-time">
+                                    Agora
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <form id="chatForm" class="d-flex">
+                        <input type="text" id="userMessage" class="form-control me-2" placeholder="Digite sua mensagem..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Sugestões de perguntas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-sm btn-outline-secondary suggestion-btn">Recomende livros de fantasia</button>
+                        <button class="btn btn-sm btn-outline-secondary suggestion-btn">Quem é o autor de 1984?</button>
+                        <button class="btn btn-sm btn-outline-secondary suggestion-btn">Como encontro meus favoritos?</button>
+                        <button class="btn btn-sm btn-outline-secondary suggestion-btn">Quais são os livros mais populares?</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatForm = document.getElementById('chatForm');
+        const userMessageInput = document.getElementById('userMessage');
+        const chatMessages = document.getElementById('chatMessages');
+        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+        
+        // Rolar para o final do chat
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        scrollToBottom();
+        
+        // Adicionar mensagem ao chat
+        function addMessage(content, sender, time) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            contentDiv.textContent = content;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.classList.add('message-time');
+            timeDiv.textContent = time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(timeDiv);
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Enviar mensagem
+        async function sendMessage(message) {
+            // Adicionar mensagem do usuário
+            addMessage(message, 'user');
+            
+            // Limpar campo de input
+            userMessageInput.value = '';
+            
+            try {
+                // Enviar requisição para o backend
+                const response = await fetch('{% url "chatbot_literario:api_message" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro na comunicação com o servidor');
+                }
+                
+                const data = await response.json();
+                
+                // Adicionar resposta do bot
+                addMessage(data.response, 'bot', data.timestamp);
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                addMessage('Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.', 'bot');
+            }
+        }
+        
+        // Enviar formulário
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = userMessageInput.value.trim();
+            if (message) {
+                sendMessage(message);
+            }
+        });
+        
+        // Usar sugestões
+        suggestionBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const message = this.textContent.trim();
+                userMessageInput.value = message;
+                sendMessage(message);
+            });
+        });
+        
+        // Função para obter o token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

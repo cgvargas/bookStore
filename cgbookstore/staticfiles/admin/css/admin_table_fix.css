@@ -1,0 +1,374 @@
+/**
+ * admin_table_fix.css
+ * Correções para as tabelas do Admin Django - Versão final com compatibilidade entre navegadores
+ */
+
+/* Reset para tabelas do admin */
+.module table,
+#result_list,
+#changelist table,
+.change-list table,
+.dashboard-table,
+#changelist .results table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: fixed !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid #1A1A2E !important;
+    background-color: #121212 !important;
+}
+
+/* Cabeçalhos de tabelas - APENAS a linha de cabeçalho real */
+#result_list thead th:first-child,
+#changelist table thead th:first-child {
+    background: #2B2B40 !important;
+}
+
+/* Cabeçalho individual para cada coluna */
+#result_list thead th,
+#changelist table thead th,
+.module thead th,
+.change-list table thead th,
+.dashboard-table thead th {
+    background: #2B2B40 !important; /* Mudando a cor de fundo para um tom escuro do seu tema */
+    background-image: none !important;
+    color: white !important;
+    padding: 12px 15px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    border: none !important;
+    text-align: center !important; /* Centralizando o texto */
+    text-shadow: none !important;
+    vertical-align: middle !important;
+    border-radius: 0 !important; /* Removendo bordas arredondadas */
+}
+
+/* Garantir que não haja gradientes em cabeçalhos */
+#result_list thead th,
+#changelist table thead th,
+.module thead th {
+    background-image: none !important;
+    background: #2B2B40 !important;
+    background-color: #2B2B40 !important;
+}
+
+/* Limpar qualquer estilo de coluna com título */
+#result_list td.field-titulo,
+#changelist table td.field-titulo,
+#result_list td.field-name,
+#changelist table td.field-name,
+td[class*="field-titulo"],
+td[class*="field-nome"],
+td[class*="field-name"],
+td[class*="column-titulo"],
+td[class*="column-nome"],
+td[class*="column-name"] {
+    background-color: transparent !important;
+    background-image: none !important;
+    font-size: 14px !important;
+    font-weight: normal !important;
+    color: #FFFFFF !important;
+}
+
+/* Garantir que as células de dados não tenham gradientes ou cores */
+#result_list tbody td,
+#changelist table tbody td,
+tbody td {
+    background: transparent !important;
+    background-image: none !important;
+    background-color: transparent !important;
+}
+
+/* Restaurar os estilos originais da barra lateral */
+#nav-sidebar .module caption,
+#nav-sidebar caption,
+#nav-sidebar .app-module .section,
+#nav-sidebar caption a.section {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    color: white !important;
+}
+
+/* Links nos cabeçalhos das tabelas do conteúdo principal */
+#content-main #result_list th a,
+#content-main #changelist table th a,
+#content-main .change-list table th a {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* Zebrado de linhas escuras (como na barra lateral) */
+.row1,
+tr.row1,
+tr:nth-child(odd),
+#result_list tbody tr:nth-child(odd) td,
+#changelist tbody tr:nth-child(odd) td,
+.module tbody tr:nth-child(odd) td {
+    background-color: #121212 !important;
+    color: #FFFFFF !important;
+    background-image: none !important;
+}
+
+.row2,
+tr.row2,
+tr:nth-child(even),
+#result_list tbody tr:nth-child(even) td,
+#changelist tbody tr:nth-child(even) td,
+.module tbody tr:nth-child(even) td {
+    background-color: #2A2A3A !important;
+    color: #FFFFFF !important;
+    background-image: none !important;
+}
+
+/* Manter as linhas zebradas na barra lateral */
+#nav-sidebar tr.row-odd {
+    background-color: #121212 !important;
+}
+
+#nav-sidebar tr.row-even {
+    background-color: #2A2A3A !important;
+}
+
+/* Itens selecionados na barra lateral */
+#nav-sidebar .module tr.current-model th a {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Títulos de módulos regulares (não na barra lateral) */
+#content-main .module caption,
+#content-main .module .section {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    color: white !important;
+    padding: 15px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border-bottom: none !important;
+}
+
+/* IMPORTANTE: Células da tabela - definições cruciais para corrigir o problema da coluna de título */
+#result_list td,
+#changelist table td,
+.change-list table td,
+.dashboard-table td,
+.module td {
+    padding: 10px 15px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #FFFFFF !important;
+    vertical-align: middle !important;
+    line-height: 1.5 !important;
+    font-size: 14px !important;
+    word-break: break-word !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    background-image: none !important;
+    background-color: transparent !important;
+}
+
+/* Correção específica para navegadores Edge/Chrome/Firefox para coluna de título */
+#result_list td[class*="column-titulo"],
+#result_list td[class*="field-titulo"],
+#changelist td[class*="column-titulo"],
+#changelist td[class*="field-titulo"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* Links em células de tabela */
+#result_list td a,
+#changelist td a,
+.module td a {
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    font-weight: normal !important;
+    text-decoration: none !important;
+}
+
+/* Garantir que textos de título tenham o mesmo tamanho que outros textos */
+.field-titulo,
+.column-titulo,
+td.field-titulo,
+td.column-titulo,
+td.field-titulo a,
+td.column-titulo a {
+    font-size: 14px !important;
+    font-weight: normal !important;
+    color: #FFFFFF !important;
+    background: transparent !important;
+}
+
+/* Conter as tabelas dentro dos cards */
+.results,
+.change-list .results,
+#changelist .results {
+    width: 100% !important;
+    overflow-x: auto !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Efeito hover nas linhas */
+.module tr:hover td,
+#result_list tr:hover td,
+#changelist table tr:hover td {
+    background-color: rgba(255, 140, 0, 0.1) !important;
+}
+
+/* Botões de ações principais em laranja */
+.addlink,
+.button.default,
+input[type="submit"].default,
+.submit-row input.default {
+    background-color: #2B2B40 !important;
+}
+
+.addlink:hover,
+.button.default:hover,
+input[type="submit"].default:hover,
+.submit-row input.default:hover {
+    background-color:#1A1A2E !important;
+}
+
+/* Cabeçalhos de filtro em laranja */
+#changelist-filter h2 {
+    background: #2B2B40 !important;
+    color: white !important;
+}
+
+/* Seleção de filtro em laranja */
+#changelist-filter li.selected {
+    border-right: 3px solid #2B2B40 !important;
+}
+
+#changelist-filter li.selected a {
+    color: #2B2B40 !important;
+}
+
+/* Barra de paginação */
+.paginator a:hover {
+    background-color: #2B2B40 !important;
+}
+
+.paginator .this-page {
+    background-color: #2B2B40 !important;
+}
+
+/* Ajustes de compatibilidade para Edge/IE */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    #result_list,
+    #changelist table,
+    .module table {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+
+    #result_list td,
+    #changelist table td,
+    .module td {
+        max-width: 100% !important;
+        word-break: break-all !important;
+    }
+}
+
+/* Correções específicas para Microsoft Edge */
+@supports (-ms-ime-align:auto) {
+    #result_list td,
+    #changelist table td {
+        background-color: transparent !important;
+    }
+}
+
+/* Correções para container de cards */
+.module {
+    margin-bottom: 20px !important;
+    overflow: hidden !important;
+    background-color: #1A1A2E !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Corrige problemas de texto sendo cortado */
+.module td.field-title,
+.module td.field-name,
+.module td.field-description {
+    white-space: normal !important;
+}
+
+/* Garantir que botões de ação mantenham layout responsivo */
+.object-tools {
+    margin-bottom: 15px !important;
+}
+
+.object-tools a {
+    background: #2B2B40 !important;
+    margin-left: 5px !important;
+}
+
+.object-tools a:hover {
+    background: #1A1A2E !important;
+}
+
+/* Corrigir texto cortado nas tabelas */
+.module td a {
+    display: inline-block !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+}
+
+/* Dashboard card layout */
+body.dashboard #content-main {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)) !important;
+    gap: 20px !important;
+    padding: 20px !important;
+}
+
+/* Força estilos de fontes corretas */
+.module td,
+.module th,
+#result_list td,
+#result_list th {
+    font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif !important;
+}
+
+/* Evitar degradês em qualquer local da tabela */
+#result_list * {
+    background-image: none !important;
+}
+
+/* Ajustes para responsividade */
+@media (max-width: 1024px) {
+    .module table,
+    #result_list,
+    #changelist table {
+        display: block !important;
+        overflow-x: auto !important;
+    }
+}
+
+/* Remover fundo laranja das células de título */
+#result_list td,
+#changelist td,
+#result_list tbody td,
+#changelist tbody td,
+td.column-titulo,
+td.field-titulo {
+    background: transparent !important;
+    background-image: none !important;
+    background-color: transparent !important;
+}
+
+/* Garantir que apenas os cabeçalhos de tabela tenham a cor laranja */
+#result_list thead th,
+#changelist thead th {
+    background: #2B2B40 !important;
+}

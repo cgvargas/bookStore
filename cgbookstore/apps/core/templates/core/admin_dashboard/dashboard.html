@@ -20,12 +20,15 @@
 {% block content %}
 {# Container principal do dashboard com métricas e gráficos #}
 <div class="dashboard-container">
-    {# Título do dashboard com ícone #}
-    <h1><i class="fas fa-chart-line me-2"></i>Dashboard de Analytics</h1>
+    <div align="center">
+        <h1><i class="fas fa-chart-line me-2"></i>Dashboard Analytics</h1>
+        <br><br>
+    </div>
 
     {# Grade de métricas principais #}
-    <div class="metrics-grid">
-        {# Métrica: Total de Interações #}
+    <div class="metrics-grid row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+    {# Métrica: Total de Interações #}
+    <div class="col">
         <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Total de interações dos usuários">
             <h3><i class="fas fa-sync me-2"></i>Total de Interações</h3>
             <p class="h2" data-animate-number="{{ total_interactions }}">{{ total_interactions }}</p>
@@ -34,18 +37,22 @@
                 {{ total_interactions_trend|default:0 }}%
             </div>
         </div>
+    </div>
 
-        {# Métrica: Usuários Únicos #}
+    {# Métrica: Usuários Únicos #}
+    <div class="col">
         <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Número de usuários únicos">
             <h3><i class="fas fa-users me-2"></i>Usuários Únicos</h3>
             <p class="h2" data-animate-number="{{ unique_users }}">{{ unique_users }}</p>
             <div class="trend-indicator {% if users_trend > 0 %}trend-up{% else %}trend-down{% endif %}">
-                <i class="fas fa-{% if users_trend > 0 %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                <i class="fas fa-{% if users_trend > 0 %}trend-up{% else %}arrow-down{% endif %}"></i>
                 {{ users_trend|default:0 }}%
             </div>
         </div>
+    </div>
 
-        {# Métrica: Taxa de Conversão #}
+    {# Métrica: Taxa de Conversão #}
+    <div class="col">
         <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Taxa de conversão geral">
             <h3><i class="fas fa-chart-pie me-2"></i>Taxa de Conversão</h3>
             <p class="h2" data-animate-number="{{ conversion_rate }}" data-decimals="1">{{ conversion_rate|floatformat:1 }}%</p>
@@ -54,8 +61,10 @@
                 {{ conversion_trend|default:0 }}%
             </div>
         </div>
+    </div>
 
-        {# Métrica: Livros Únicos #}
+    {# Métrica: Livros Únicos #}
+    <div class="col">
         <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Número de livros únicos">
             <h3><i class="fas fa-book me-2"></i>Livros Únicos</h3>
             <p class="h2" data-animate-number="{{ unique_books }}">{{ unique_books }}</p>
@@ -64,22 +73,27 @@
                 {{ books_trend|default:0 }}%
             </div>
         </div>
+    </div>
 
-        {# Métrica: Média de Interações #}
+    {# Métrica: Média de Interações #}
+    <div class="col">
         <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Média de interações por usuário">
             <h3><i class="fas fa-calculator me-2"></i>Média de Interações/Usuário</h3>
             <p class="h2" data-animate-number="{{ avg_interactions_per_user }}" data-decimals="1">{{ avg_interactions_per_user|floatformat:1 }}</p>
         </div>
+    </div>
 
-        {# Métrica: Taxa de Retorno #}
+    {# Métrica: Taxa de Retorno #}
+    <div class="col">
         <div class="metric-card" data-bs-toggle="tooltip" data-bs-placement="top" title="Taxa de retorno dos usuários">
             <h3><i class="fas fa-undo me-2"></i>Taxa de Retorno</h3>
             <p class="h2" data-animate-number="{{ return_rate }}" data-decimals="1">{{ return_rate|floatformat:1 }}%</p>
         </div>
     </div>
+</div>
 
     {# Container do gráfico de interações diárias #}
-    <div class="chart-container">
+    <div class="chart-container mb-4 p-3 bg-light rounded shadow-sm">
         <h3><i class="fas fa-chart-area me-2"></i>Interações Diárias</h3>
         <canvas id="dailyInteractionsChart"></canvas>
     </div>
@@ -87,6 +101,7 @@
     {# Seção de métricas detalhadas #}
     <div id="metrics-details" class="metrics-section mt-4">
         {% include "core/admin_dashboard/metrics.html" with metrics=metrics conversion_metrics=conversion_metrics popular_books=popular_books category_metrics=category_metrics hourly_patterns=hourly_patterns weekly_patterns=weekly_patterns session_metrics=session_metrics user_segments=user_segments avg_time_between=avg_time_between %}
+        {% include "core/admin_dashboard/book_categories_metrics.html" with modalities_metrics=modalities_metrics %}
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,283 @@
+/* Estilos para o card de previsão do tempo */
+.weather-card-wrapper {
+    position: sticky;
+    top: 20px; /* Distância do topo quando fixado */
+    z-index: 100;
+}
+
+.weather-card {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    color: #fff;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+}
+
+.weather-card:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+    transform: translateY(-5px);
+}
+
+.weather-card.is-sticky {
+    animation: bounce-in 0.5s;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes bounce-in {
+    0% { transform: translateY(-10px); opacity: 0.8; }
+    50% { transform: translateY(5px); }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.weather-card-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.weather-card-header h3 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.toggle-card-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+    transition: transform 0.3s ease;
+}
+
+.toggle-card-btn i {
+    display: block;
+}
+
+.weather-card.collapsed .toggle-card-btn i {
+    transform: rotate(180deg);
+}
+
+.weather-card.collapsed .weather-card-body,
+.weather-card.collapsed .weather-card-footer,
+.weather-card.collapsed .location-selector {
+    display: none;
+}
+
+.location-selector {
+    display: flex;
+    position: relative;
+}
+
+.location-selector input {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    flex: 1;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.location-selector input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.location-selector input:focus {
+    background-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+    outline: none;
+}
+
+.location-selector button {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.weather-card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    padding: 1.5rem 1rem;
+    position: relative;
+}
+
+.weather-loading {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+}
+
+.weather-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.weather-icon-container {
+    height: 80px;
+    margin-bottom: 0.5rem;
+    position: relative;
+    width: 80px;
+}
+
+/* Animações para os ícones climáticos */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Estilos para os diferentes ícones de clima */
+.weather-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.weather-icon svg {
+    height: 80px;
+    width: 80px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.weather-icon.sunny svg {
+    animation: pulse 3s ease-in-out infinite;
+}
+
+.weather-icon.cloudy svg {
+    animation: float 5s ease-in-out infinite;
+}
+
+.weather-icon.rainy svg .rain-drop {
+    animation: float 1s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.2s);
+}
+
+.weather-icon.stormy svg {
+    animation: rotate 15s linear infinite;
+}
+
+.city-name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.temperature-container {
+    align-items: baseline;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.temperature {
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.unit {
+    font-size: 1.2rem;
+    margin-left: 2px;
+    font-weight: 300;
+}
+
+.weather-description {
+    font-size: 1rem;
+    margin: 0 0 0.75rem 0;
+    text-transform: capitalize;
+}
+
+.weather-details {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.detail {
+    align-items: center;
+    display: flex;
+    font-size: 0.9rem;
+}
+
+.detail i {
+    margin-right: 0.5rem;
+}
+
+.weather-error {
+    align-items: center;
+    color: #ffcc00;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+.weather-error i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.weather-error p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.weather-card-footer {
+    background-color: rgba(0, 0, 0, 0.2);
+    font-size: 0.75rem;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.last-updated {
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .weather-card {
+        max-width: 100%;
+    }
+}

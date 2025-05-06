@@ -1,0 +1,325 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .config-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .config-section {
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+        }
+        .card-header i {
+            margin-right: 10px;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .status-active {
+            background-color: #28a745;
+        }
+        .status-inactive {
+            background-color: #dc3545;
+        }
+        .btn-save {
+            min-width: 120px;
+        }
+        .preview-container {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            background-color: #f8f9fa;
+        }
+        .book-count {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="config-container">
+    <div class="config-header">
+        <h1><i class="fas fa-cogs me-2"></i>Configurações de Modalidades de Livros</h1>
+        <a href="{% url 'admin:core_book_changelist' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar para Lista de Livros
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Configure os parâmetros de exibição para as diferentes categorias de livros nas páginas públicas do site.
+    </div>
+
+    <form method="post" id="category-config-form">
+        {% csrf_token %}
+        
+        <!-- Seção: Lançamentos -->
+        <div class="card config-section">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-star"></i>
+                <strong>Lançamentos</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="new_releases_limit">Número máximo de livros exibidos:</label>
+                            <input type="number" id="new_releases_limit" name="new_releases_limit" 
+                                  class="form-control" value="{{ config.new_releases_limit }}" min="4" max="50">
+                            <small class="form-text text-muted">Recomendado: múltiplos de 4 para melhor exibição em grade</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="new_releases_days">Considerar como lançamento até:</label>
+                            <div class="input-group">
+                                <input type="number" id="new_releases_days" name="new_releases_days" 
+                                      class="form-control" value="{{ config.new_releases_days }}" min="7" max="180">
+                                <span class="input-group-text">dias</span>
+                            </div>
+                            <small class="form-text text-muted">Número de dias após a data de publicação</small>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="new_releases_active" 
+                                  name="new_releases_active" {% if config.new_releases_active %}checked{% endif %}>
+                            <label class="form-check-label" for="new_releases_active">Ativo</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="preview-container">
+                            <h5>Estatísticas:</h5>
+                            <p>Total de lançamentos: <span class="book-count">{{ stats.new_releases_count }}</span></p>
+                            <p>Último lançamento: <span>{{ stats.new_releases_last|default:"Nenhum" }}</span></p>
+                            <p>Lançamentos nos últimos 30 dias: <span class="book-count">{{ stats.new_releases_last_30 }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção: Mais Vendidos -->
+        <div class="card config-section">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-chart-line"></i>
+                <strong>Mais Vendidos</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="bestsellers_limit">Número máximo de livros exibidos:</label>
+                            <input type="number" id="bestsellers_limit" name="bestsellers_limit" 
+                                  class="form-control" value="{{ config.bestsellers_limit }}" min="4" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="bestsellers_threshold">Limiar mínimo de vendas:</label>
+                            <input type="number" id="bestsellers_threshold" name="bestsellers_threshold" 
+                                  class="form-control" value="{{ config.bestsellers_threshold }}" min="1">
+                            <small class="form-text text-muted">Quantidade mínima de vendas para aparecer nesta seção</small>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="bestsellers_active" 
+                                  name="bestsellers_active" {% if config.bestsellers_active %}checked{% endif %}>
+                            <label class="form-check-label" for="bestsellers_active">Ativo</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="preview-container">
+                            <h5>Estatísticas:</h5>
+                            <p>Total de livros com vendas: <span class="book-count">{{ stats.bestsellers_with_sales }}</span></p>
+                            <p>Livro mais vendido: <span>{{ stats.bestsellers_top|default:"Nenhum" }}</span></p>
+                            <p>Média de vendas: <span>{{ stats.bestsellers_avg }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção: Recomendados -->
+        <div class="card config-section">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-thumbs-up"></i>
+                <strong>Recomendados</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="recommended_limit">Número máximo de livros exibidos:</label>
+                            <input type="number" id="recommended_limit" name="recommended_limit" 
+                                  class="form-control" value="{{ config.recommended_limit }}" min="4" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="recommended_algorithm">Algoritmo de recomendação:</label>
+                            <select id="recommended_algorithm" name="recommended_algorithm" class="form-control">
+                                <option value="hybrid" {% if config.recommended_algorithm == 'hybrid' %}selected{% endif %}>
+                                    Híbrido (Combinação de métodos)
+                                </option>
+                                <option value="collaborative" {% if config.recommended_algorithm == 'collaborative' %}selected{% endif %}>
+                                    Filtragem Colaborativa
+                                </option>
+                                <option value="content" {% if config.recommended_algorithm == 'content' %}selected{% endif %}>
+                                    Baseado em Conteúdo
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recommended_external_ratio">Proporção de livros externos:</label>
+                            <div class="input-group">
+                                <input type="number" id="recommended_external_ratio" name="recommended_external_ratio" 
+                                      class="form-control" value="{{ config.recommended_external_ratio }}" min="0" max="100">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <small class="form-text text-muted">Percentual de livros da API externa nas recomendações</small>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="recommended_active" 
+                                  name="recommended_active" {% if config.recommended_active %}checked{% endif %}>
+                            <label class="form-check-label" for="recommended_active">Ativo</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="preview-container">
+                            <h5>Estatísticas:</h5>
+                            <p>Usuários com recomendações: <span class="book-count">{{ stats.recommended_users }}</span></p>
+                            <p>Total de interações: <span class="book-count">{{ stats.recommended_interactions }}</span></p>
+                            <p>Interações médias por usuário: <span>{{ stats.recommended_avg_interactions }}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção: Catálogo -->
+        <div class="card config-section">
+            <div class="card-header bg-dark text-white">
+                <i class="fas fa-book"></i>
+                <strong>Catálogo</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="catalogue_per_page">Livros por página:</label>
+                            <input type="number" id="catalogue_per_page" name="catalogue_per_page" 
+                                  class="form-control" value="{{ config.catalogue_per_page }}" min="12" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="catalogue_default_sort">Ordenação padrão:</label>
+                            <select id="catalogue_default_sort" name="catalogue_default_sort" class="form-control">
+                                <option value="title" {% if config.catalogue_default_sort == 'title' %}selected{% endif %}>Por Título</option>
+                                <option value="author" {% if config.catalogue_default_sort == 'author' %}selected{% endif %}>Por Autor</option>
+                                <option value="pub_date" {% if config.catalogue_default_sort == 'pub_date' %}selected{% endif %}>Data de Publicação</option>
+                                <option value="views" {% if config.catalogue_default_sort == 'views' %}selected{% endif %}>Mais Visualizados</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="catalogue_filter_options">Opções de filtro ativas:</label>
+                            <div class="checkbox-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="filter_category" 
+                                          name="catalogue_filters" value="category" 
+                                          {% if 'category' in config.catalogue_filters %}checked{% endif %}>
+                                    <label class="form-check-label" for="filter_category">Categoria</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="filter_author" 
+                                          name="catalogue_filters" value="author" 
+                                          {% if 'author' in config.catalogue_filters %}checked{% endif %}>
+                                    <label class="form-check-label" for="filter_author">Autor</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="filter_publisher" 
+                                          name="catalogue_filters" value="publisher" 
+                                          {% if 'publisher' in config.catalogue_filters %}checked{% endif %}>
+                                    <label class="form-check-label" for="filter_publisher">Editora</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="filter_language" 
+                                          name="catalogue_filters" value="language" 
+                                          {% if 'language' in config.catalogue_filters %}checked{% endif %}>
+                                    <label class="form-check-label" for="filter_language">Idioma</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="preview-container">
+                            <h5>Estatísticas:</h5>
+                            <p>Total de livros no catálogo: <span class="book-count">{{ stats.catalogue_count }}</span></p>
+                            <p>Livros por categoria:</p>
+                            <ul>
+                                {% for category, count in stats.categories.items %}
+                                <li>{{ category }}: <span class="book-count">{{ count }}</span></li>
+                                {% empty %}
+                                <li>Nenhuma categoria cadastrada</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botões -->
+        <div class="form-actions text-end mt-4">
+            <button type="button" class="btn btn-secondary me-2" onclick="window.history.back();">Cancelar</button>
+            <button type="submit" class="btn btn-primary btn-save"><i class="fas fa-save me-2"></i>Salvar Configurações</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('category-config-form');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Coleta os filtros do catálogo marcados
+            const catalogueFilters = [];
+            document.querySelectorAll('input[name="catalogue_filters"]:checked').forEach(function(checkbox) {
+                catalogueFilters.push(checkbox.value);
+            });
+            
+            // Cria um campo hidden para armazenar os filtros como JSON
+            const filtersInput = document.createElement('input');
+            filtersInput.type = 'hidden';
+            filtersInput.name = 'catalogue_filters_json';
+            filtersInput.value = JSON.stringify(catalogueFilters);
+            form.appendChild(filtersInput);
+            
+            // Submete o formulário
+            form.submit();
+        });
+    });
+</script>
+{% endblock %}

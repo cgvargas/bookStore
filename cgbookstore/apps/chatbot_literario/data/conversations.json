@@ -1,0 +1,65 @@
+[
+  {
+    "user_input": "Boa noite!",
+    "bot_response": "Desculpe, estou enfrentando algumas dificuldades no momento. Poderia tentar novamente mais tarde?",
+    "timestamp": "2025-05-05T17:46:33.820221",
+    "feedback": null
+  },
+  {
+    "user_input": "Quem é o autor do senhor dos anéis?",
+    "bot_response": "J.R.R. Tolkien é o autor de 'O Senhor dos Anéis', uma obra épica de fantasia publicada entre 1954 e 1955.",
+    "timestamp": "2025-05-05T17:46:44.263139",
+    "feedback": null
+  },
+  {
+    "user_input": "Quem é o autor de solo leveling?",
+    "bot_response": "Solo Leveling pertence à categoria de Mangá.",
+    "timestamp": "2025-05-05T17:47:09.852871",
+    "feedback": null
+  },
+  {
+    "user_input": "Quem é o autor do mangá se solo leveling?",
+    "bot_response": "Desculpe, estou enfrentando algumas dificuldades no momento. Poderia tentar novamente mais tarde?",
+    "timestamp": "2025-05-05T17:47:51.396661",
+    "feedback": {
+      "helpful": false,
+      "comment": ""
+    }
+  },
+  {
+    "user_input": "Recomende livros",
+    "bot_response": "Com base em nosso catálogo, posso recomendar alguns livros populares: 'O Hobbit' para fantasia, '1984' para ficção distópica, 'O Nome do Vento' para fantasia épica, e 'Orgulho e Preconceito' para clássicos. Qual gênero te interessa mais?",
+    "timestamp": "2025-05-05T18:07:20.900885",
+    "feedback": null
+  },
+  {
+    "user_input": "Recomende livros",
+    "bot_response": "Com base em nosso catálogo, posso recomendar alguns livros populares: 'O Hobbit' para fantasia, '1984' para ficção distópica, 'O Nome do Vento' para fantasia épica, e 'Orgulho e Preconceito' para clássicos. Qual gênero te interessa mais?",
+    "timestamp": "2025-05-05T18:07:20.901112",
+    "feedback": null
+  },
+  {
+    "user_input": "Como funciona?",
+    "bot_response": "Sou um assistente literário projetado para ajudar com recomendações de livros, informações sobre autores e navegação no site. Você pode me perguntar sobre gêneros literários, encontrar funcionalidades específicas no site, ou obter sugestões personalizadas.",
+    "timestamp": "2025-05-05T18:07:33.526648",
+    "feedback": null
+  },
+  {
+    "user_input": "Como funciona?",
+    "bot_response": "Sou um assistente literário projetado para ajudar com recomendações de livros, informações sobre autores e navegação no site. Você pode me perguntar sobre gêneros literários, encontrar funcionalidades específicas no site, ou obter sugestões personalizadas.",
+    "timestamp": "2025-05-05T18:07:33.533315",
+    "feedback": null
+  },
+  {
+    "user_input": "Meus favoritos",
+    "bot_response": "Seus livros favoritos podem ser encontrados na sua página de perfil. Basta clicar em 'Perfil' no menu superior e você verá a seção 'Favoritos' com todos os livros que você marcou.",
+    "timestamp": "2025-05-05T18:07:43.161087",
+    "feedback": null
+  },
+  {
+    "user_input": "Meus favoritos",
+    "bot_response": "Seus livros favoritos podem ser encontrados na sua página de perfil. Basta clicar em 'Perfil' no menu superior e você verá a seção 'Favoritos' com todos os livros que você marcou.",
+    "timestamp": "2025-05-05T18:07:43.164360",
+    "feedback": null
+  }
+]

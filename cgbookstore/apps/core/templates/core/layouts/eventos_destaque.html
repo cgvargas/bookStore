@@ -1,0 +1,106 @@
+{% load static %}
+
+<div class="eventos-destaque-container">
+    <div class="section-header">
+        <h2 class="section-title">{{ section.titulo }}</h2>
+        {% if section.subtitulo %}<p class="section-subtitle">{{ section.subtitulo }}</p>{% endif %}
+    </div>
+
+    {% if eventos_destaque %}
+        {% with eventos_destaque.0 as featured_event %}
+            <div class="featured-event">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="featured-event-content">
+                            <div class="featured-badge">Evento em Destaque</div>
+                            <h3 class="featured-title">{{ featured_event.titulo }}</h3>
+
+                            <div class="featured-details">
+                                <div class="featured-date">
+                                    <i class="far fa-calendar-alt"></i> {{ featured_event.data_evento|date:"d/m/Y" }} às {{ featured_event.data_evento|date:"H:i" }}
+                                </div>
+
+                                {% if featured_event.local %}
+                                    <div class="featured-location">
+                                        <i class="fas fa-map-marker-alt"></i> {{ featured_event.local }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if featured_event.descricao %}
+                                <div class="featured-description">
+                                    {{ featured_event.descricao|linebreaksbr }}
+                                </div>
+                            {% endif %}
+
+                            {% if featured_event.url %}
+                                <a href="{{ featured_event.url }}" class="btn btn-primary" target="_blank">Inscreva-se</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        {% if featured_event.imagem %}
+                            <div class="featured-image">
+                                <img src="{{ featured_event.imagem.url }}" alt="{{ featured_event.titulo }}" class="img-fluid">
+                            </div>
+                        {% else %}
+                            <div class="featured-image-placeholder">
+                                <i class="fas fa-calendar-week"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endwith %}
+    {% endif %}
+
+    {% if eventos_secundarios %}
+        <div class="secondary-events">
+            <h4 class="secondary-events-title">Próximos Eventos</h4>
+
+            <div class="row">
+                {% for event in eventos_secundarios %}
+                    <div class="col-md-4">
+                        <div class="secondary-event-card">
+                            <div class="secondary-event-date">
+                                <span class="day">{{ event.data_evento|date:"d" }}</span>
+                                <span class="month">{{ event.data_evento|date:"b" }}</span>
+                            </div>
+
+                            <div class="secondary-event-content">
+                                <h5 class="secondary-event-title">{{ event.titulo }}</h5>
+
+                                <div class="secondary-event-details">
+                                    <div class="secondary-event-time">
+                                        <i class="far fa-clock"></i> {{ event.data_evento|date:"H:i" }}
+                                    </div>
+
+                                    {% if event.local %}
+                                        <div class="secondary-event-location">
+                                            <i class="fas fa-map-marker-alt"></i> {{ event.local }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                {% if event.url %}
+                                    <a href="{{ event.url }}" class="btn btn-outline-primary btn-sm" target="_blank">Saiba mais</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if not eventos_destaque and not eventos_secundarios %}
+        <p class="no-events">Não há eventos agendados no momento.</p>
+    {% endif %}
+
+    {% if section.botao_texto and section.botao_url %}
+        <div class="section-cta">
+            <a href="{{ section.botao_url }}" class="btn btn-primary">{{ section.botao_texto }}</a>
+        </div>
+    {% endif %}
+</div>

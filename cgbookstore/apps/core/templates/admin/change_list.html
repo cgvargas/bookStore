@@ -1,0 +1,225 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/changelists.css' %}?v={% now 'U' %}">
+  {% if cl.formset %}
+    <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+  {% endif %}
+  {% if cl.formset or action_form %}
+    <script src="{% static 'admin/js/jquery.init.js' %}"></script>
+    <script src="{% static 'admin/js/core.js' %}"></script>
+  {% endif %}
+  {% if cl.formset %}
+    {{ cl.formset.media }}
+  {% endif %}
+  {% if action_form %}
+    {{ action_form.media }}
+  {% endif %}
+  <style>
+    /* Estilos para alinhar os botões de pesquisa e ação na mesma linha */
+    .actions-and-search-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    #changelist-search {
+      margin: 0;
+      text-align: right;
+    }
+
+    .actions {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .changelist-form-container {
+      width: 100%;
+    }
+
+    #changelist .actions {
+      float: none;
+    }
+
+    #changelist #toolbar {
+      float: none;
+    }
+
+    /* Ajuste para corrigir quebras de layout */
+    #changelist table {
+      clear: both;
+    }
+  </style>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ media }}
+<style>
+    #result_list th,
+    #changelist table th,
+    .module thead th,
+    .change-list table thead th,
+    .dashboard-table thead th {
+        background: #2B2B40 !important;
+        background-image: none !important;
+        color: white !important;
+        padding: 12px 15px !important;
+        text-align: center !important;
+        border-radius: 0 !important;
+    }
+
+    #result_list thead th:first-child,
+    #changelist table thead th:first-child {
+        background: #2B2B40 !important;
+    }
+
+    .object-tools a, .addlink {
+        background-color: #2B2B40 !important;
+    }
+
+    .object-tools a:hover, .addlink:hover {
+        background-color: #1A1A2E !important;
+    }
+
+    #changelist-filter h2 {
+        background: #2B2B40 !important;
+    }
+
+    #changelist-filter li.selected {
+        border-right: 3px solid #2B2B40 !important;
+    }
+
+    #changelist-filter li.selected a {
+        color: #2B2B40 !important;
+    }
+
+    .paginator a:hover, .paginator .this-page {
+        background-color: #2B2B40 !important;
+    }
+
+    /* Garante que links dentro do cabeçalho mantenham a cor branca */
+    #result_list th a,
+    #changelist table th a {
+        color: white !important;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function forceTableStylesFix() {
+            const tableHeaders = document.querySelectorAll('#result_list th, #changelist table th');
+            tableHeaders.forEach(header => {
+                header.style.backgroundColor = '#2B2B40';
+                header.style.backgroundImage = 'none';
+                header.style.borderRadius = '0';
+                header.style.textAlign = 'center';
+                const headerLinks = header.querySelectorAll('a');
+                headerLinks.forEach(link => {
+                    link.style.color = 'white';
+                });
+            });
+        }
+        forceTableStylesFix();
+        setTimeout(forceTableStylesFix, 100);
+        setTimeout(forceTableStylesFix, 500);
+
+        // Script para reorganizar os elementos
+        function reorganizeElements() {
+            const searchForm = document.getElementById('changelist-search');
+            const actions = document.querySelector('.actions');
+
+            if (!searchForm || !actions) return;
+
+            // Criar o container para os botões
+            const container = document.createElement('div');
+            container.className = 'actions-and-search-container';
+
+            // Mover os elementos para o container
+            actions.parentNode.insertBefore(container, actions);
+            container.appendChild(actions);
+            container.appendChild(searchForm);
+        }
+
+        // Executar a reorganização após um breve delay para garantir que os elementos estejam renderizados
+        setTimeout(reorganizeElements, 100);
+    });
+</script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-list{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{% if cl.opts.app_label == 'core' %}Organizador{% else %}{{ cl.opts.app_config.verbose_name }}{% endif %}</a>
+&rsaquo; {{ cl.opts.verbose_name_plural|capfirst }}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block coltype %}{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    {% block object-tools %}
+        <ul class="object-tools">
+          {% block object-tools-items %}
+            {% if has_add_permission %}
+            <li>
+              {% url cl.opts|admin_urlname:'add' as add_url %}
+              <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+                {% blocktranslate with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktranslate %}
+              </a>
+            </li>
+            {% endif %}
+          {% endblock %}
+        </ul>
+    {% endblock %}
+    {% if cl.formset and cl.formset.errors %}
+        <p class="errornote">
+        {% blocktranslate count errors=cl.formset.errors|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
+        </p>
+        {{ cl.formset.non_form_errors }}
+    {% endif %}
+    <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
+      <div class="changelist-form-container">
+        <!-- Bloco de pesquisa e hierarquia de data removido daqui -->
+
+        <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>{% csrf_token %}
+        {% if cl.formset %}
+          <div>{{ cl.formset.management_form }}</div>
+        {% endif %}
+
+        <!-- Container para ações e pesquisa -->
+        <div class="actions-and-search-container">
+          {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+          {% block search %}{% search_form cl %}{% endblock %}
+        </div>
+        {% block date_hierarchy %}{% if cl.date_hierarchy %}{% date_hierarchy cl %}{% endif %}{% endblock %}
+
+        {% block result_list %}
+          {% result_list cl %}
+          {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+        {% endblock %}
+        {% block pagination %}{% pagination cl %}{% endblock %}
+        </form>
+      </div>
+      {% block filters %}
+        {% if cl.has_filters %}
+          <div id="changelist-filter">
+            <h2>{% translate 'Filter' %}</h2>
+            {% if cl.has_active_filters %}<h3 id="changelist-filter-clear">
+              <a href="{{ cl.clear_all_filters_qs }}">&#10006; {% translate "Clear all filters" %}</a>
+            </h3>{% endif %}
+            {% for spec in cl.filter_specs %}{% admin_list_filter cl spec %}{% endfor %}
+          </div>
+        {% endif %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}

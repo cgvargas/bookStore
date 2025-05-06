@@ -1,150 +1,263 @@
-.sticky {
-    position: sticky;
-    top: 0;
-    max-height: 100vh;
-}
+/*
+ * nav_sidebar.css - Estilos para a barra lateral do Admin Django
+ * Versão: 3.0
+ * Este arquivo deve ser colocado em static/admin/css/ e ser o último CSS carregado
+ */
 
-.toggle-nav-sidebar {
-    z-index: 20;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 23px;
-    width: 23px;
-    border: 0;
-    border-right: 1px solid var(--hairline-color);
-    background-color: var(--body-bg);
-    cursor: pointer;
-    font-size: 1.25rem;
-    color: var(--link-fg);
-    padding: 0;
-}
-
-[dir="rtl"] .toggle-nav-sidebar {
-    border-left: 1px solid var(--hairline-color);
-    border-right: 0;
-}
-
-.toggle-nav-sidebar:hover,
-.toggle-nav-sidebar:focus {
-    background-color: var(--darkened-bg);
-}
-
+/* Reset completo para a barra lateral */
 #nav-sidebar {
-    z-index: 15;
-    flex: 0 0 275px;
-    left: -276px;
-    margin-left: -276px;
-    border-top: 1px solid transparent;
-    border-right: 1px solid var(--hairline-color);
-    background-color: var(--body-bg);
-    overflow: auto;
+    width: 280px !important;
+    max-width: 280px !important;
+    overflow-y: scroll !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background-color: #121212 !important;
+    background-image: none !important;
 }
 
-[dir="rtl"] #nav-sidebar {
-    border-left: 1px solid var(--hairline-color);
-    border-right: 0;
-    left: 0;
-    margin-left: 0;
-    right: -276px;
-    margin-right: -276px;
+/* Garantir que todos os elementos dentro tenham fundo preto */
+#nav-sidebar div,
+#nav-sidebar table,
+#nav-sidebar tr,
+#nav-sidebar th,
+#nav-sidebar td,
+#nav-sidebar .app-module,
+#nav-sidebar .module,
+#nav-sidebar .app-modules,
+#nav-sidebar *:not(caption):not(caption a) {
+    background-color: #121212 !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
-.toggle-nav-sidebar::before {
-    content: '\00BB';
+/* Formatação dos links */
+#nav-sidebar th a {
+    color: white !important;
+    font-weight: normal !important;
+    padding: 6px 16px 6px 24px !important; /* Reduzido de 12px para 6px no topo e base */
+    min-height: 32px !important; /* Reduzido de 44px para 32px */
+    display: flex !important;
+    align-items: center !important;
+    background-color: #121212 !important;
+    text-transform: none !important;
+    margin: 0 !important;
 }
 
-.main.shifted .toggle-nav-sidebar::before {
-    content: '\00AB';
+/* Formatação do título */
+#nav-sidebar caption {
+    background: linear-gradient(135deg, #3699FF, #6D28D9) !important;
+    background-image: linear-gradient(135deg, #3699FF, #6D28D9) !important;
+    background-color: transparent !important;
+    font-size: 0.9rem !important;
+    padding: 6px 12px !important; /* Reduzido de 8px para 6px */
+    border: none !important;
+    margin: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 4px 4px 0 0 !important;
 }
 
-.main > #nav-sidebar {
-    visibility: hidden;
+/* Reduzir espaçamento entre as linhas */
+#nav-sidebar tr {
+    background-color: #121212 !important;
+    border: none !important;
+    line-height: 1.2 !important; /* Reduzir o line-height padrão */
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.main.shifted > #nav-sidebar {
-    margin-left: 0;
-    visibility: visible;
+/* Ajustar espaçamento das células th */
+#nav-sidebar th {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
 }
 
-[dir="rtl"] .main.shifted > #nav-sidebar {
-    margin-right: 0;
+#nav-sidebar caption a {
+    color: white !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    font-weight: bold !important;
+    border: none !important;
 }
 
-#nav-sidebar .module th {
-    width: 100%;
-    overflow-wrap: anywhere;
+/* Substituir "Autenticação e Autorização" por apenas "Autenticação" */
+#nav-sidebar caption a[href*="auth"] {
+    font-size: 0 !important; /* Esconder texto original */
 }
 
-#nav-sidebar .module th,
-#nav-sidebar .module caption {
-    padding-left: 16px;
+#nav-sidebar caption a[href*="auth"]::after {
+    content: "Autenticação" !important;
+    font-size: 0.9rem !important; /* Restaurar tamanho */
+    font-weight: bold !important;
 }
 
-#nav-sidebar .module td {
-    white-space: nowrap;
+/* Barra de rolagem */
+#nav-sidebar::-webkit-scrollbar {
+    width: 8px !important;
+    background-color: transparent !important;
+    display: block !important;
 }
 
-[dir="rtl"] #nav-sidebar .module th,
-[dir="rtl"] #nav-sidebar .module caption {
-    padding-left: 8px;
-    padding-right: 16px;
+#nav-sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 4px !important;
 }
 
-#nav-sidebar .current-app .section:link,
-#nav-sidebar .current-app .section:visited {
-    color: var(--header-color);
-    font-weight: bold;
+/* Override para cores de fundo específicas */
+.custom-scrollbar,
+.app-modules,
+.app-module,
+.module {
+    background-color: #121212 !important;
 }
 
-#nav-sidebar .current-model {
-    background: var(--selected-row);
+/* Primeiro caractere em maiúsculo sem usar text-transform */
+#nav-sidebar th a::first-letter {
+    text-transform: uppercase !important;
 }
 
-@media (forced-colors: active) {
-    #nav-sidebar .current-model {
-        background-color: SelectedItem;
-    }
+/* Ajustes para o botão toggle */
+.toggle-sidebar-btn {
+    background-color: transparent !important;
+    border: none !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: fixed !important;
+    z-index: 1001 !important;
+    color: white !important;
+    cursor: pointer !important;
+    left: 240px !important;
+    top: 120px !important; /* Posicionado abaixo do header e da barra de navegação */
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: left 0.3s ease, transform 0.3s ease !important;
 }
 
-.main > #nav-sidebar + .content {
-    max-width: calc(100% - 23px);
+/* Posição do botão quando a barra está oculta */
+#nav-sidebar.hidden ~ .toggle-sidebar-btn {
+    left: 10px !important;
+    background-color: rgba(54, 153, 255, 0.9) !important;
+    border-radius: 4px !important;
+    transform: rotate(180deg) !important; /* Rotacionar o botão */
 }
 
-.main.shifted > #nav-sidebar + .content {
-    max-width: calc(100% - 299px);
+/* Ajuste para o ícone */
+.toggle-sidebar-btn i {
+    font-size: 18px !important;
+    transition: transform 0.3s ease !important;
 }
 
-@media (max-width: 767px) {
-    #nav-sidebar, #toggle-nav-sidebar {
-        display: none;
-    }
-
-    .main > #nav-sidebar + .content,
-    .main.shifted > #nav-sidebar + .content {
-        max-width: 100%;
-    }
+/* Configuração para o conteúdo principal com barra lateral */
+#content {
+    transition: margin-left 0.3s ease !important;
 }
 
-#nav-filter {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 2px 5px;
-    margin: 5px 0;
-    border: 1px solid var(--border-color);
-    background-color: var(--darkened-bg);
-    color: var(--body-fg);
+/* Estado inicial - com barra lateral visível */
+#content {
+    margin-left: var(--nav-sidebar-width, 280px) !important;
 }
 
-#nav-filter:focus {
-    border-color: var(--body-quiet-color);
+/* Estado com barra lateral oculta */
+#nav-sidebar.hidden ~ #content {
+    margin-left: 0 !important;
 }
 
-#nav-filter.no-results {
-    background: var(--message-error-bg);
+/* Formatação do título - Corrigindo o problema do retângulo */
+#nav-sidebar caption {
+    border-radius: 0 !important; /* Remove qualquer arredondamento */
+    background: linear-gradient(135deg, #3699FF, #6D28D9) !important;
+    background-image: linear-gradient(135deg, #3699FF, #6D28D9) !important;
+    font-size: 0.9rem !important;
+    padding: 6px 12px !important;
+    border: none !important;
+    margin: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
+/* Correção para os links dentro do caption */
+#nav-sidebar caption a {
+    color: white !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    font-weight: bold !important;
+    border: none !important;
+    display: block !important;
+    width: 100% !important;
+    text-decoration: none !important;
+}
+
+/* Remover qualquer padding ou margin adicional */
 #nav-sidebar table {
-    width: 100%;
+    width: 100% !important;
+    max-width: 280px !important;
+    border-collapse: collapse !important;
+    border: none !important;
+    background-color: #121212 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Garantir que os app-module tenham espaçamento correto */
+.app-module {
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 0 !important; /* Remove qualquer arredondamento */
+    margin-bottom: 8px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    background-color: #121212 !important;
+}
+
+/* Garantir que não haja arredondamento em nenhum elemento interno */
+#nav-sidebar *:not(caption):not(caption a) {
+    border-radius: 0 !important;
+}
+
+/* Barra lateral com altura e posição ajustadas */
+#nav-sidebar {
+    position: fixed !important;
+    top: 110px !important; /* Posicionado abaixo do header principal */
+    left: 0 !important;
+    height: calc(100vh - 110px) !important; /* Altura ajustada para não ultrapassar o topo */
+    overflow-y: auto !important;
+    z-index: 999 !important;
+    padding-top: 15px !important;
+    margin-top: 0 !important; /* Removido margin-top pois estamos usando top diretamente */
+    background-color: #121212 !important;
+}
+
+/* Botão toggle posicionado corretamente */
+.toggle-sidebar-btn {
+    position: fixed !important;
+    left: 240px !important;
+    top: 120px !important; /* Ajustado para ficar logo após o início da barra */
+    z-index: 1000 !important;
+}
+
+/* Quando a barra está oculta */
+#nav-sidebar.hidden ~ .toggle-sidebar-btn {
+    left: 10px !important;
+}
+
+/* Garantir que o fundo da barra lateral esteja correto */
+#nav-sidebar,
+#nav-sidebar div,
+#nav-sidebar .app-module,
+#nav-sidebar .module,
+#nav-sidebar .app-modules {
+    background-color: #121212 !important;
+}
+
+/* Garantir que o último item tenha espaço adequado no final */
+.app-modules {
+    padding-bottom: 30px !important;
 }

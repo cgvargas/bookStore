@@ -25,7 +25,7 @@ class CoreConfig(AppConfig):
     name = 'cgbookstore.apps.core'
 
     # Nome legível do aplicativo
-    verbose_name = 'Core'
+    verbose_name = 'Organização'
 
     def ready(self):
         """

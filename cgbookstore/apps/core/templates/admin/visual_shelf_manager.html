@@ -1,0 +1,569 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .shelf-container {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .book-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            background: white;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .book-item:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .book-cover {
+            width: 40px;
+            height: 60px;
+            object-fit: cover;
+            margin-right: 10px;
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .book-title {
+            flex: 1;
+            font-weight: 500;
+        }
+        .book-author {
+            color: #666;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        .unassigned-books {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            height: calc(100vh - 300px);
+            overflow-y: auto;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .book-list {
+            min-height: 50px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #ffffff;
+        }
+        .empty-shelf {
+            color: #999;
+            font-style: italic;
+            padding: 15px;
+            text-align: center;
+        }
+        .shelf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .shelf-info {
+            display: flex;
+            align-items: center;
+        }
+        .shelf-title {
+            margin: 0;
+            margin-right: 15px;
+        }
+        .shelf-type {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 350px;
+            z-index: 9999;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: opacity 0.3s;
+            opacity: 1;
+        }
+        .success-notification {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-notification {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info-notification {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .remove-book {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .book-item:hover .remove-book {
+            opacity: 1;
+        }
+        .control-panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .available-book {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .available-book:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .selected-book {
+            border: 2px solid #007bff;
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        .book-panel-title {
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Estilo para o dropdown de prateleiras */
+        #shelf-select {
+            width: 100%;
+            white-space: normal;
+            height: auto;
+            min-height: calc(1.5em + 0.75rem + 2px);
+            word-wrap: break-word;
+        }
+
+        #shelf-select option {
+            white-space: normal;
+            padding: 8px;
+            line-height: 1.2;
+        }
+
+        /* Aumentar o tamanho do painel de controle */
+        .control-panel {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:shelf-overview' %}">Gerenciamento de Prateleiras</a>
+    &rsaquo; {% trans 'Gerenciador Visual' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> <strong>Gerenciador de Prateleiras:</strong>
+                Selecione um livro, escolha uma prateleira e clique em "Adicionar".
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            {% for shelf in book_shelves %}
+            <div class="shelf-container">
+                <div class="shelf-header mb-3">
+                    <div class="shelf-info">
+                        <h3 class="shelf-title">{{ shelf.section.titulo }}</h3>
+                        <span class="badge bg-secondary">{{ shelf.get_shelf_type_name }}</span>
+                    </div>
+                    <div>
+                        <a href="{% url 'admin:core_bookshelfsection_change' shelf.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="shelf-stats mb-3">
+                    <span class="badge bg-info" id="counter-{{ shelf.id }}">
+                        Livros: {{ shelf.bookshelfitem_set.count }} / {{ shelf.max_livros }}
+                    </span>
+                </div>
+
+                <div class="book-list" id="shelf-{{ shelf.id }}" data-shelf-id="{{ shelf.id }}">
+                    {% for item in shelf.sorted_items %}
+                    <div class="book-item fade-in" data-book-id="{{ item.livro.id }}" id="book-item-{{ item.livro.id }}-{{ shelf.id }}">
+                        <img src="{{ item.livro.get_capa_url }}" alt="{{ item.livro.titulo }}" class="book-cover">
+                        <div class="book-title">{{ item.livro.titulo }}</div>
+                        <div class="book-author">{{ item.livro.autor }}</div>
+                        <button class="btn btn-sm btn-outline-danger ms-auto remove-book"
+                                onclick="removeBookFromShelf('{{ item.livro.id }}', '{{ shelf.id }}')"
+                                title="Remover da prateleira">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    {% empty %}
+                    <div class="empty-shelf" id="empty-{{ shelf.id }}">Adicione livros a esta prateleira</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">
+                Nenhuma prateleira encontrada. Utilize o botão "Nova Prateleira" para criar uma.
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="control-panel">
+                <h4 class="book-panel-title">Painel de Controle</h4>
+
+                <div class="mb-3">
+                    <label for="shelf-select" class="form-label"><i class="fas fa-bookmark"></i> Escolha a Prateleira:</label>
+                    <select class="form-select" id="shelf-select" style="width: 100%; max-width: 100%; text-overflow: ellipsis; white-space: normal;">
+                        {% for shelf in book_shelves %}
+                        <option value="{{ shelf.id }}" title="{{ shelf.section.titulo }}">{{ shelf.section.titulo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" id="add-book-btn" disabled>
+                        <i class="fas fa-plus"></i> Adicionar à Prateleira
+                    </button>
+                </div>
+
+                <div class="mt-3 small text-muted">
+                    <i class="fas fa-info-circle"></i> Selecione um livro da lista abaixo, escolha a prateleira desejada e clique em "Adicionar".
+                </div>
+            </div>
+
+            <div class="unassigned-books">
+                <h4 class="book-panel-title"><i class="fas fa-book"></i> Livros Disponíveis</h4>
+
+                <div id="unassigned-books">
+                    {% for book in unassigned_books %}
+                    <div class="book-item available-book"
+                         data-book-id="{{ book.id }}"
+                         id="available-book-{{ book.id }}"
+                         onclick="selectBook('{{ book.id }}')">
+                        <img src="{{ book.get_capa_url }}" alt="{{ book.titulo }}" class="book-cover">
+                        <div class="book-title">{{ book.titulo }}</div>
+                        <div class="book-author">{{ book.autor }}</div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-shelf">Nenhum livro disponível</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script inline no bloco de conteúdo -->
+<script>
+// Estado da aplicação
+let selectedBookId = null;
+
+// Função para selecionar um livro
+function selectBook(bookId) {
+    // Limpar seleção anterior
+    document.querySelectorAll('.available-book').forEach(book => {
+        book.classList.remove('selected-book');
+    });
+
+    // Selecionar o novo livro
+    const bookElement = document.getElementById(`available-book-${bookId}`);
+    if (bookElement) {
+        bookElement.classList.add('selected-book');
+        selectedBookId = bookId;
+
+        // Habilitar botão de adicionar
+        const addButton = document.getElementById('add-book-btn');
+        if (addButton) {
+            addButton.disabled = false;
+        }
+    }
+}
+
+// Função para obter token CSRF
+function getCsrfToken() {
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrfToken = getCsrfToken();
+
+// Função para mostrar notificação
+function showNotification(message, type) {
+    // Remover notificações existentes
+    document.querySelectorAll('.notification').forEach(n => n.remove());
+
+    // Criar notificação
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}-notification`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    // Auto-remover após 3 segundos
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Função para enviar requisições AJAX
+function sendRequest(action, data) {
+    return fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            action: action,
+            ...data
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showNotification('Erro ao processar requisição: ' + error.message, 'error');
+        throw error;
+    });
+}
+
+// Função para atualizar contador de livros na prateleira
+function updateShelfCounter(shelfId) {
+    const counter = document.getElementById(`counter-${shelfId}`);
+    const shelf = document.getElementById(`shelf-${shelfId}`);
+
+    if (counter && shelf) {
+        const bookCount = shelf.querySelectorAll('.book-item').length;
+        const maxBooks = counter.textContent.split('/')[1].trim();
+        counter.textContent = `Livros: ${bookCount} / ${maxBooks}`;
+
+        // Alterar cor se exceder o limite
+        if (bookCount > parseInt(maxBooks)) {
+            counter.classList.remove('bg-info');
+            counter.classList.add('bg-warning');
+        } else {
+            counter.classList.remove('bg-warning');
+            counter.classList.add('bg-info');
+        }
+    }
+}
+
+// Função para adicionar livro à prateleira
+function addBookToShelf() {
+    if (!selectedBookId) {
+        showNotification('Selecione um livro primeiro', 'error');
+        return;
+    }
+
+    const selectElement = document.getElementById('shelf-select');
+    if (!selectElement) {
+        showNotification('Elemento de seleção não encontrado', 'error');
+        return;
+    }
+
+    const shelfId = selectElement.value;
+    if (!shelfId) {
+        showNotification('Selecione uma prateleira', 'error');
+        return;
+    }
+
+    const bookId = selectedBookId;
+    console.log(`Adicionando livro ${bookId} à prateleira ${shelfId}`);
+
+    // Desabilitar botão durante a operação
+    const addButton = document.getElementById('add-book-btn');
+    if (addButton) {
+        addButton.disabled = true;
+        addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adicionando...';
+    }
+
+    // Enviar requisição
+    sendRequest('add', {
+        book_id: bookId,
+        shelf_id: shelfId
+    })
+    .then(response => {
+        console.log('Resposta:', response);
+
+        // Buscar elementos necessários
+        const bookItem = document.getElementById(`available-book-${bookId}`);
+        const shelf = document.getElementById(`shelf-${shelfId}`);
+        const emptyShelf = document.getElementById(`empty-${shelfId}`);
+
+        if (!bookItem || !shelf) {
+            throw new Error('Elementos não encontrados');
+        }
+
+        // Remover mensagem vazia se existir
+        if (emptyShelf) {
+            emptyShelf.remove();
+        }
+
+        // Clonar livro para a prateleira
+        const clone = bookItem.cloneNode(true);
+        clone.id = `book-item-${bookId}-${shelfId}`;
+        clone.classList.remove('available-book', 'selected-book');
+        clone.classList.add('fade-in');
+        clone.removeAttribute('onclick');
+
+        // Adicionar botão de remover
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'btn btn-sm btn-outline-danger ms-auto remove-book';
+        removeBtn.title = 'Remover da prateleira';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.setAttribute('onclick', `removeBookFromShelf('${bookId}', '${shelfId}')`);
+        clone.appendChild(removeBtn);
+
+        // Adicionar à prateleira
+        shelf.appendChild(clone);
+
+        // Atualizar contador
+        updateShelfCounter(shelfId);
+
+        // Mostrar notificação
+        showNotification('Livro adicionado com sucesso', 'success');
+
+        // Limpar seleção
+        selectedBookId = null;
+        bookItem.classList.remove('selected-book');
+    })
+    .catch(error => {
+        console.error('Erro ao adicionar livro:', error);
+        showNotification('Erro ao adicionar livro: ' + error.message, 'error');
+    })
+    .finally(() => {
+        // Restaurar botão
+        if (addButton) {
+            addButton.disabled = true;
+            addButton.innerHTML = '<i class="fas fa-plus"></i> Adicionar à Prateleira';
+        }
+    });
+}
+
+// Função para remover livro da prateleira
+function removeBookFromShelf(bookId, shelfId) {
+    console.log(`Removendo livro ${bookId} da prateleira ${shelfId}`);
+
+    // Buscar elemento do livro
+    const bookItem = document.getElementById(`book-item-${bookId}-${shelfId}`);
+    if (!bookItem) {
+        showNotification('Livro não encontrado', 'error');
+        return;
+    }
+
+    // Encontrar botão de remover e mostrar indicador
+    const removeBtn = bookItem.querySelector('.remove-book');
+    if (removeBtn) {
+        removeBtn.disabled = true;
+        removeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+
+    // Enviar requisição
+    sendRequest('remove', {
+        book_id: bookId,
+        shelf_id: shelfId
+    })
+    .then(response => {
+        console.log('Resposta:', response);
+
+        // Adicionar classe de fade out
+        bookItem.style.opacity = '0';
+
+        // Remover após pequena animação
+        setTimeout(() => {
+            // Remover elemento da UI
+            bookItem.remove();
+
+            // Buscar prateleira
+            const shelf = document.getElementById(`shelf-${shelfId}`);
+
+            // Adicionar mensagem vazia se necessário
+            if (shelf && shelf.querySelectorAll('.book-item').length === 0) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'empty-shelf';
+                emptyDiv.id = `empty-${shelfId}`;
+                emptyDiv.textContent = 'Adicione livros a esta prateleira';
+                shelf.appendChild(emptyDiv);
+            }
+
+            // Atualizar contador
+            updateShelfCounter(shelfId);
+        }, 200);
+
+        // Mostrar notificação
+        showNotification('Livro removido com sucesso', 'success');
+    })
+    .catch(error => {
+        console.error('Erro ao remover livro:', error);
+        showNotification('Erro ao remover livro: ' + error.message, 'error');
+
+        // Restaurar botão
+        if (removeBtn) {
+            removeBtn.disabled = false;
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        }
+    });
+}
+
+// Configurar evento de clique no botão de adicionar
+document.addEventListener('DOMContentLoaded', function() {
+    const addButton = document.getElementById('add-book-btn');
+    if (addButton) {
+        addButton.addEventListener('click', addBookToShelf);
+    }
+
+    // Mostrar notificação inicial
+    showNotification('Selecione um livro e uma prateleira para começar', 'info');
+});
+</script>
+{% endblock %}

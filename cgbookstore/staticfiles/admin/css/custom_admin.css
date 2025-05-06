@@ -1,0 +1,682 @@
+/*
+ * custom_admin.css - Tema Escuro para Admin Django
+ * Este arquivo consolida todos os estilos principais do tema escuro
+ * Version: 1.2
+ */
+
+/* Reset e Estilos Globais */
+body {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-primary) !important;
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Links globais */
+a {
+    color: var(--primary-color) !important;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--primary-hover) !important;
+    text-decoration: underline;
+}
+
+/* Container Principal */
+#container {
+    background-color: var(--bg-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cabeçalho */
+#header {
+    background-color: var(--bg-dark-secondary) !important;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+#branding h1 a {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Ferramentas de Usuário */
+#user-tools {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+#user-tools a, #user-tools strong {
+    color: var(--text-primary) !important;
+    font-weight: 500;
+}
+
+#user-tools a:hover {
+    color: var(--primary-hover) !important;
+}
+
+.logout-button {
+    background: var(--primary-color);
+    border: none;
+    color: white !important;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: var(--border-radius-sm);
+    transition: background 0.2s ease;
+}
+
+.logout-button:hover {
+    background: var(--primary-hover);
+    text-decoration: none;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    background-color: var(--bg-dark-secondary) !important;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    margin: 0;
+}
+
+.breadcrumbs a {
+    color: var(--text-secondary) !important;
+}
+
+.breadcrumbs a:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Conteúdo principal */
+.main {
+    display: flex;
+    flex: 1;
+}
+
+#content {
+    flex: 1;
+    padding: 20px;
+    background-color: var(--bg-dark);
+}
+
+/* Layout do conteúdo principal na página inicial */
+body.dashboard #content-main {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+/* Módulos e Cards */
+.module {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.module:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-active);
+}
+
+.module caption, .module .section {
+    background: linear-gradient(135deg, #2B2B40, #1A1A2E) !important; /* Mudando de laranja para tons escuros */
+    color: var(--text-primary) !important;
+    padding: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: none;
+}
+
+/* Tabelas - Estilos globais para todas as tabelas */
+.module table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed; /* Impede que as células se expandam */
+    margin: 0;
+}
+
+.module tbody {
+    background-color: var(--bg-panel);
+}
+
+.module tr {
+    transition: background-color 0.2s;
+}
+
+.module tr:hover {
+    background-color: var(--bg-hover);
+}
+
+.module th, .module td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Cabeçalho de todas as tabelas */
+.module thead th,
+#result_list thead th,
+#changelist table thead th {
+    background: #2B2B40 !important; /* Laranja sólido sem gradiente */
+    color: white !important;
+    padding: 12px 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    border: none;
+    text-align: left;
+}
+
+/* Garantir que células de dados nunca tenham fundo colorido */
+#result_list tbody td,
+#changelist table tbody td,
+.change-list table tbody td {
+    background: transparent !important;
+    background-image: none !important;
+}
+
+/* Cabeçalho de seção */
+.section-header {
+    background-color: var(--bg-element) !important;
+}
+
+.section-header th {
+    font-weight: 600;
+    color: var(--warning-color) !important;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    padding: 10px 15px;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Linhas alternadas nas tabelas - zebrado com cinza escuro/preto */
+.row1,
+tr.row1,
+tr:nth-child(odd),
+#result_list tbody tr:nth-child(odd),
+#changelist tbody tr:nth-child(odd),
+.module tbody tr:nth-child(odd),
+#result_list tbody tr:nth-child(odd) td,
+#changelist tbody tr:nth-child(odd) td,
+.module tbody tr:nth-child(odd) td {
+    background-color: #121212 !important;
+    color: #FFFFFF !important;
+    background-image: none !important;
+}
+
+.row2,
+tr.row2,
+tr:nth-child(even),
+#result_list tbody tr:nth-child(even),
+#changelist tbody tr:nth-child(even),
+.module tbody tr:nth-child(even),
+#result_list tbody tr:nth-child(even) td,
+#changelist tbody tr:nth-child(even) td,
+.module tbody tr:nth-child(even) td {
+    background-color: #2A2A3A !important;
+    color: #FFFFFF !important;
+    background-image: none !important;
+}
+
+#result_list thead th,
+#changelist table thead th,
+.change-list table thead th {
+    background: #2B2B40 !important; /* Laranja sólido sem gradiente */
+    color: white !important;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+    table-layout: fixed;
+}
+
+#result_list th,
+#changelist table th,
+.change-list table th {
+    background: linear-gradient(135deg, #1A1A2E, #2B2B40) !important; /* Laranja em vez de azul */
+    color: white !important;
+    padding: 12px 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#result_list td,
+#changelist table td,
+.change-list table td {
+    background-color: transparent;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ajuste para conter as tabelas dentro dos cards */
+.results {
+    width: 100%;
+    overflow-x: auto; /* Adiciona rolagem horizontal se necessário */
+}
+
+/* Células de tabela com imagens ou conteúdo específico */
+.module td a img,
+#result_list td a img,
+#changelist td a img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Melhoria no alinhamento vertical de células */
+.module td,
+.module th,
+#result_list td,
+#result_list th,
+#changelist td,
+#changelist th {
+    vertical-align: middle;
+}
+
+/* Botões de Ação */
+.button, input[type="submit"], input[type="button"], .submit-row input {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 8px 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.button:hover, input[type="submit"]:hover, input[type="button"]:hover, .submit-row input:hover {
+    background: var(--primary-hover) !important;
+}
+
+.button.default, input[type="submit"].default, .submit-row input.default {
+    background: #2B2B40 !important; /* Mudança de laranja para tom escuro */
+    font-weight: 700;
+}
+
+.button.default:hover, input[type="submit"].default:hover, .submit-row input.default:hover {
+    background: #1A1A2E !important; /* Tom escuro mais profundo no hover */
+}
+
+/* Botões de Ferramentas de Objeto */
+.object-tools {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.object-tools a {
+    background: #2B2B40 !important; /* Mudando de laranja para tom escuro */
+    color: white !important;
+    border-radius: var(--border-radius-sm);
+    padding: 8px 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-left: 10px;
+    transition: all 0.2s ease;
+}
+
+.object-tools a:hover {
+    background: #1A1A2E !important; /* Tom escuro mais profundo no hover */
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Links de ação */
+.addlink, .changelink, .viewlink, .deletelink {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 2px;
+    color: white !important;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.addlink {
+    background-color: #2B2B40 !important; /* Mudança de laranja para tom escuro */
+}
+
+.changelink {
+    background-color: var(--warning-color) !important;
+}
+
+.viewlink {
+    background-color: var(--primary-color) !important;
+}
+
+.deletelink {
+    background-color: var(--danger-color) !important;
+}
+
+.addlink:hover {
+    background-color: #1A1A2E !important; /* Tom escuro mais profundo no hover */
+    text-decoration: none;
+}
+
+.changelink:hover {
+    background-color: #e09600 !important;
+    text-decoration: none;
+}
+
+.viewlink:hover {
+    background-color: var(--primary-hover) !important;
+    text-decoration: none;
+}
+
+.deletelink:hover {
+    background-color: #d42545 !important;
+    text-decoration: none;
+}
+
+/* Filtros */
+#changelist-filter {
+    background-color: var(--bg-element) !important;
+    border-left: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+#changelist-filter h2 {
+    background: linear-gradient(135deg, #2B2B40, #1A1A2E) !important; /* Mudança de laranja para tons escuros */
+    color: white !important;
+    padding: 15px;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+#changelist-filter h3 {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    padding: 15px 15px 5px;
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#changelist-filter ul {
+    padding: 0;
+    margin: 0 0 15px 0;
+    list-style: none;
+}
+
+#changelist-filter li {
+    padding: 5px 15px;
+}
+
+#changelist-filter li.selected {
+    background-color: var(--info-bg);
+    border-right: 3px solid #2B2B40; /* Mudança de laranja para tom escuro */
+}
+
+#changelist-filter li.selected a {
+    color: #2B2B40 !important; /* Mudança de laranja para tom escuro */
+    font-weight: 600;
+}
+
+/* Formulários */
+.form-row {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-row label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    background-color: var(--bg-element) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+    width: 100%;
+    max-width: 500px;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    border-color: #2B2B40; /* Mudança de laranja para tom escuro */
+    box-shadow: 0 0 0 2px rgba(43, 43, 64, 0.25); /* Sombra escura para foco */
+    outline: none;
+}
+
+/* Corrige textos em fundos claros */
+.form-row p {
+    color: var(--text-secondary) !important;
+}
+
+.help {
+    color: var(--text-muted) !important;
+    font-size: 0.9rem;
+}
+
+/* Mensagens e Alertas */
+.messagelist {
+    padding: 0;
+    margin: 0 0 15px 0;
+    list-style: none;
+}
+
+.messagelist li {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+}
+
+.messagelist .success {
+    background-color: var(--success-bg);
+    color: var(--text-primary);
+    border-left: 4px solid #2B2B40; /* Mudança de laranja para tom escuro */
+}
+
+.messagelist .warning {
+    background-color: var(--warning-bg);
+    color: var(--text-primary);
+    border-left: 4px solid var(--warning-color);
+}
+
+.messagelist .error {
+    background-color: var(--danger-bg);
+    color: var(--text-primary);
+    border-left: 4px solid var(--danger-color);
+}
+
+/* Paginação */
+.paginator {
+    padding: 15px;
+    background-color: var(--bg-element);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.paginator a, .paginator .this-page {
+    padding: 4px 10px;
+    margin: 0 2px;
+    border-radius: var(--border-radius-sm);
+    display: inline-block;
+}
+
+.paginator a {
+    background-color: var(--bg-panel);
+    color: var(--text-secondary) !important;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.paginator a:hover {
+    background-color: #2B2B40; /* Mudança de laranja para tom escuro */
+    color: white !important;
+    text-decoration: none;
+}
+
+.paginator .this-page {
+    background-color: #2B2B40; /* Mudança de laranja para tom escuro */
+    color: white;
+    font-weight: 600;
+}
+
+/* Dashboard customizado */
+.system-tools {
+    grid-column: 1 / -1;
+    margin-top: 30px;
+}
+
+.system-tools caption, .system-tools .section {
+    background: linear-gradient(135deg, var(--danger-color), #FF6B8A) !important;
+}
+
+/* Renomear "Core" para "Organizador" */
+.app-core caption a.section {
+    font-size: 16px;
+}
+
+/* Correções de compatibilidade cross-browser */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    /* Correções específicas para Edge */
+    .module table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    #result_list th,
+    #changelist table th,
+    .change-list table th {
+        word-break: break-word;
+    }
+
+    .module td, .module th {
+        max-width: 200px;
+    }
+}
+
+/* Estilos para as células e textos */
+.module td, #result_list td {
+    word-break: break-all; /* Quebra palavras longas */
+    max-width: 200px; /* Limita a largura máxima */
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    #changelist-filter {
+        float: none;
+        width: auto;
+        margin-top: 15px;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+
+    body.dashboard #content-main {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    /* Ajuste para tabelas responsivas */
+    .module table,
+    #result_list,
+    #changelist table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 767px) {
+    #header {
+        padding: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #branding h1 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    #user-tools {
+        margin-top: 10px;
+        float: none;
+        display: block;
+        width: 100%;
+    }
+
+    .object-tools {
+        float: none;
+        text-align: left;
+        margin-bottom: 15px;
+    }
+
+    .object-tools a {
+        margin: 0 10px 10px 0;
+    }
+
+    body.dashboard #content-main {
+        display: block !important;
+        padding: 10px !important;
+    }
+
+    body.dashboard #content-main .module {
+        margin-bottom: 15px !important;
+    }
+
+    /* Ajustes para tabelas em telas pequenas */
+    .module th, .module td {
+        padding: 8px;
+    }
+}

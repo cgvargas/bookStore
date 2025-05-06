@@ -89,6 +89,6 @@ Para mais detalhes, consulte o arquivo [`LICENSE`](./LICENSE) ou leia sobre a li
 
 ## Contato
 
-- **Desenvolvedor:** CG BookStore Team  
+- **Desenvolvedor:** CGVargas Informática Team  
 - **Email:** [cg.bookstore.online@gmail.com](mailto:cg.bookstore.online@gmail.com)
 

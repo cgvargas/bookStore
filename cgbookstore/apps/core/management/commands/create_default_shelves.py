@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 'nome': 'Mais Vendidos',
                 'identificador': 'mais_vendidos',
                 'filtro_campo': 'quantidade_vendida',
-                'filtro_valor': '0',
+                'filtro_valor': 'True',
                 'ordem': 3
             },
             {

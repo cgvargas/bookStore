@@ -1,29 +1,315 @@
-/* DASHBOARD */
-.dashboard td, .dashboard th {
-    word-break: break-word;
+/**
+ * Dashboard específico para o Admin do CG BookStore
+ *
+ * Este arquivo contém estilos específicos para o dashboard administrativo,
+ * incluindo cards, gráficos e elementos visuais do painel administrativo.
+ */
+
+/* Configurações Globais */
+.dashboard-container {
+    padding: 1.5rem;
+    background-color: var(--bg-dark);
 }
 
-.dashboard .module table th {
-    width: 100%;
+/* Títulos do Container */
+.dashboard-container h1 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 0.5rem;
 }
 
-.dashboard .module table td {
-    white-space: nowrap;
+.dashboard-container h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
 }
 
-.dashboard .module table td a {
-    display: block;
-    padding-right: .6em;
+/* Grid de Métricas */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-/* RECENT ACTIONS MODULE */
-
-.module ul.actionlist {
-    margin-left: 0;
-}
-
-ul.actionlist li {
-    list-style-type: none;
+/* Cards de Métricas */
+.metric-card {
+    background: var(--bg-panel);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
     overflow: hidden;
-    text-overflow: ellipsis;
+    border: 1px solid var(--border-color);
+}
+
+/* Efeitos de Hover nos Cards */
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-active);
+}
+
+/* Barra de Destaque no Topo do Card */
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+}
+
+/* Títulos dos Cards */
+.metric-card h3 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Valores das Métricas */
+.metric-card p.h2 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Contêiner de Gráficos */
+.chart-container {
+    background: var(--bg-panel);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    margin-top: 2rem;
+    height: 400px;
+    border: 1px solid var(--border-color);
+}
+
+/* Indicadores de Tendência */
+.trend-indicator {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Indicador de Tendência Positiva */
+.trend-up {
+    background-color: var(--success-bg);
+    color: var(--accent-color);
+}
+
+/* Indicador de Tendência Negativa */
+.trend-down {
+    background-color: var(--danger-bg);
+    color: var(--danger-color);
+}
+
+/* Estilos de Botões */
+.dashboard-btn {
+    background-color: var(--primary-color);
+    color: var(--text-primary);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dashboard-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Tabelas do Dashboard */
+.dashboard-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 2rem;
+    background-color: var(--bg-panel);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard-table th {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-primary);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.dashboard-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.dashboard-table tr:hover td {
+    background-color: var(--bg-hover);
+}
+
+.dashboard-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Personalização para as Ferramentas de Sistema */
+.system-tools caption,
+.system-tools .section {
+    background: linear-gradient(135deg, var(--danger-color), #FF6B8A) !important;
+    color: white !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Cards do Dashboard Customizado */
+.admin-dashboard .module {
+    margin-bottom: 20px;
+    background-color: var(--bg-panel);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-dashboard .module:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-active);
+}
+
+.admin-dashboard .module caption,
+.admin-dashboard .module .section {
+    padding: 15px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    color: white !important;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Estilos para páginas específicas do admin */
+.shelf-management-view .module,
+.book-category-config .module {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+/* Estilo para o gerenciador visual de prateleiras */
+.visual-shelf-manager {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.shelf-container {
+    flex: 1;
+    min-width: 300px;
+    background-color: var(--bg-panel);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    padding: 0;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.shelf-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 12px 15px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.shelf-items {
+    padding: 15px;
+    min-height: 100px;
+}
+
+.shelf-item {
+    background-color: var(--bg-element);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.shelf-item:hover {
+    background-color: var(--bg-hover);
+}
+
+.shelf-item-title {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.shelf-item-actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+    .metrics-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .admin-dashboard .module {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metric-card {
+        padding: 1rem;
+    }
+
+    .metric-card p.h2 {
+        font-size: 1.7rem;
+    }
+
+    .visual-shelf-manager {
+        flex-direction: column;
+    }
+
+    .shelf-container {
+        min-width: 100%;
+    }
 }

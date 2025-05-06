@@ -6,6 +6,9 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/book-details.css' %}">
+<link rel="stylesheet" href="{% static 'css/book-details-fixes.css' %}">
+<link rel="stylesheet" href="{% static 'css/book-details-background.css' %}">
+<link rel="stylesheet" href="{% static 'css/book-details-modal.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -68,9 +71,9 @@
                         {% endif %}
 
                         {% if can_edit %}
-                        <button class="btn btn-outline-secondary" onclick="window.openEditModal && window.openEditModal()">
+                        <a href="{% url 'book_edit' book.pk %}" class="btn btn-outline-secondary d-flex justify-content-center align-items-center">
                             <i class="bi bi-pencil"></i> Editar Livro
-                        </button>
+                        </a>
                         {% endif %}
 
                         {% if can_remove %}
@@ -367,233 +370,14 @@
         </div>
     </div>
 </div>
-<!-- Modal de Edição -->
-<div class="modal fade" id="editBookModal" tabindex="-1" data-book-id="{{ book.id }}" data-shelf-type="{{ shelf }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Editar Livro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editBookForm">
-                    {% csrf_token %}
-                    <div class="row">
-                        <!-- Abas de navegação -->
-                        <div class="col-12 mb-3">
-                            <ul class="nav nav-tabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basicInfo" type="button">
-                                        <i class="bi bi-info-circle"></i> Informações Básicas
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#publishInfo" type="button">
-                                        <i class="bi bi-book"></i> Publicação
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#contentInfo" type="button">
-                                        <i class="bi bi-file-text"></i> Conteúdo
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#extraInfo" type="button">
-                                        <i class="bi bi-plus-circle"></i> Extras
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#priceInfo" type="button">
-                                        <i class="bi bi-currency-dollar"></i> Preços
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Conteúdo das abas -->
-                        <div class="col-12">
-                            <div class="tab-content">
-                                <!-- Informações Básicas -->
-                                <div class="tab-pane fade show active" id="basicInfo">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Título</label>
-                                            <input type="text" class="form-control" name="titulo" value="{{ book.titulo }}" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Subtítulo</label>
-                                            <input type="text" class="form-control" name="subtitulo" value="{{ book.subtitulo }}">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Autor</label>
-                                            <input type="text" class="form-control" name="autor" value="{{ book.autor }}" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Tradutor</label>
-                                            <input type="text" class="form-control" name="tradutor" value="{{ book.tradutor }}">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Ilustrador</label>
-                                            <input type="text" class="form-control" name="ilustrador" value="{{ book.ilustrador }}">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Capa do Livro</label>
-                                            <input type="file" class="form-control" name="capa" accept="image/*">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Informações de Publicação -->
-                                <div class="tab-pane fade" id="publishInfo">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Editora</label>
-                                            <input type="text" class="form-control" name="editora" value="{{ book.editora }}">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">ISBN</label>
-                                            <input type="text" class="form-control" name="isbn" value="{{ book.isbn }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Edição</label>
-                                            <input type="text" class="form-control" name="edicao" value="{{ book.edicao }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Data de Publicação</label>
-                                            <input type="date" class="form-control" name="data_publicacao" value="{{ book.data_publicacao|date:'Y-m-d' }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Número de Páginas</label>
-                                            <input type="number" class="form-control" name="numero_paginas" value="{{ book.numero_paginas }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Idioma</label>
-                                            <input type="text" class="form-control" name="idioma" value="{{ book.idioma }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Formato</label>
-                                            <input type="text" class="form-control" name="formato" value="{{ book.formato }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Dimensões</label>
-                                            <input type="text" class="form-control" name="dimensoes" value="{{ book.dimensoes }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Peso</label>
-                                            <input type="text" class="form-control" name="peso" value="{{ book.peso }}">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Informações de Conteúdo -->
-                                <div class="tab-pane fade" id="contentInfo">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Categoria</label>
-                                            <input type="text" class="form-control" name="categoria" value="{{ book.categoria }}">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Gênero Literário</label>
-                                            <input type="text" class="form-control" name="genero" value="{{ book.genero }}">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Descrição</label>
-                                            <textarea class="form-control" name="descricao" rows="3">{{ book.descricao }}</textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Temas</label>
-                                            <textarea class="form-control" name="temas" rows="2">{{ book.temas }}</textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Personagens Principais</label>
-                                            <textarea class="form-control" name="personagens" rows="2">{{ book.personagens }}</textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Enredo</label>
-                                            <textarea class="form-control" name="enredo" rows="3">{{ book.enredo }}</textarea>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Público-alvo</label>
-                                            <input type="text" class="form-control" name="publico_alvo" value="{{ book.publico_alvo }}">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Informações Extras -->
-                                <div class="tab-pane fade" id="extraInfo">
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            <label class="form-label">Prêmios</label>
-                                            <textarea class="form-control" name="premios" rows="2">{{ book.premios }}</textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Adaptações</label>
-                                            <textarea class="form-control" name="adaptacoes" rows="2">{{ book.adaptacoes }}</textarea>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Coleção</label>
-                                            <input type="text" class="form-control" name="colecao" value="{{ book.colecao }}">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Classificação Indicativa</label>
-                                            <input type="text" class="form-control" name="classificacao" value="{{ book.classificacao }}">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Citações</label>
-                                            <textarea class="form-control" name="citacoes" rows="2">{{ book.citacoes }}</textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Curiosidades</label>
-                                            <textarea class="form-control" name="curiosidades" rows="2">{{ book.curiosidades }}</textarea>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label class="form-label">Website</label>
-                                            <input type="url" class="form-control" name="website" value="{{ book.website }}">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Informações de Preço -->
-                                <div class="tab-pane fade" id="priceInfo">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Moeda</label>
-                                            <select class="form-select" name="preco_moeda">
-                                                <option value="BRL" {% if book.preco.moeda == 'BRL' %}selected{% endif %}>Real (BRL)</option>
-                                                <option value="USD" {% if book.preco.moeda == 'USD' %}selected{% endif %}>Dólar (USD)</option>
-                                                <option value="EUR" {% if book.preco.moeda == 'EUR' %}selected{% endif %}>Euro (EUR)</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Preço Normal</label>
-                                            <input type="number" step="0.01" class="form-control" name="preco_valor" value="{{ book.preco.valor }}">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Preço Promocional</label>
-                                            <input type="number" step="0.01" class="form-control" name="preco_promocional" value="{{ book.preco.valor_promocional }}">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="saveBookEdit()">Salvar Alterações</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal de Mover Livro -->
 <div class="modal fade" id="moveBookModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
                 <h5 class="modal-title">Mover para Outra Prateleira</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="moveBookForm">
@@ -601,28 +385,52 @@
                     <div class="mb-3">
                         <label class="form-label">Selecione a Nova Prateleira</label>
                         <select class="form-select" name="new_shelf">
-                            <option value="favorito" {% if shelf == 'favorito' %}selected{% endif %}>Favoritos</option>
-                            <option value="lendo" {% if shelf == 'lendo' %}selected{% endif %}>Lendo</option>
-                            <option value="vou_ler" {% if shelf == 'vou_ler' %}selected{% endif %}>Quero Ler</option>
-                            <option value="lido" {% if shelf == 'lido' %}selected{% endif %}>Lido</option>
+                            <option value="favorito" {% if shelf == 'favorito' %}disabled{% endif %}>
+                                ⭐ Favoritos
+                            </option>
+                            <option value="lendo" {% if shelf == 'lendo' %}disabled{% endif %}>
+                                📖 Lendo
+                            </option>
+                            <option value="vou_ler" {% if shelf == 'vou_ler' %}disabled{% endif %}>
+                                📚 Quero Ler
+                            </option>
+                            <option value="lido" {% if shelf == 'lido' %}disabled{% endif %}>
+                                ✅ Lido
+                            </option>
                         </select>
+                        <small class="form-text">
+                            Escolha a prateleira para onde deseja mover este livro.
+                        </small>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="moveBook()">Mover</button>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal" id="cancelMoveButton">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="moveBook()">
+                    <i class="bi bi-arrow-right-circle"></i> Mover
+                </button>
             </div>
         </div>
     </div>
 </div>
+
 <!-- Modal para visualização da imagem completa -->
 <div id="imageModal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            <div class="modal-body">
-                <img src="" id="modalImage" alt="Capa em tamanho completo">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
+                <h5 class="modal-title">Visualizar Imagem</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+                <img src="" id="modalImage" alt="Capa em tamanho completo" class="img-fluid">
+            </div>
+            <div class="modal-footer border-top-0 justify-content-center">
+                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal">
+                    Fechar
+                </button>
             </div>
         </div>
     </div>
@@ -630,11 +438,11 @@
 
 <!-- Modal para adicionar à prateleira -->
 <div class="modal fade" id="addToShelfModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
                 <h5 class="modal-title">Adicionar à Prateleira</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addToShelfForm">
@@ -650,8 +458,8 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal" id="cancelShelfButton">Cancelar</button>
                 <button type="button" class="btn btn-primary" onclick="window.addToShelf && window.addToShelf()">
                    <i class="bi bi-bookmark-plus"></i> Adicionar à Prateleira
                 </button>
@@ -683,9 +491,64 @@ function showFullImage(previewImg) {
 console.log('Book ID no template:', '{{ book.id }}');
 console.log('Shelf:', '{{ shelf }}');
 </script>
+
+<!-- Script para correção dos problemas nos modais -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuração dos modais com opções corretas
+    const modalOptions = {
+        backdrop: 'static',
+        keyboard: true,
+        focus: true
+    };
+
+    // Inicializa os modais com as opções corretas
+    const addToShelfModal = new bootstrap.Modal(document.getElementById('addToShelfModal'), modalOptions);
+    const moveBookModal = new bootstrap.Modal(document.getElementById('moveBookModal'), modalOptions);
+
+    // Correção para o botão cancelar do modal de adicionar à prateleira
+    document.getElementById('cancelShelfButton')?.addEventListener('click', function() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addToShelfModal'));
+        if (modal) {
+            modal.hide();
+        }
+    });
+
+    // Correção para o botão cancelar do modal de mover livro
+    document.getElementById('cancelMoveButton')?.addEventListener('click', function() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('moveBookModal'));
+        if (modal) {
+            modal.hide();
+        }
+    });
+
+    // Tratamento para o botão fechar (X) dos modais
+    document.querySelectorAll('.btn-close').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const modalElement = this.closest('.modal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        });
+    });
+
+    // Redefine a função de abertura do modal de prateleira
+    window.openShelfModal = function() {
+        addToShelfModal.show();
+    };
+
+    // Redefine a função de abertura do modal de mover
+    window.openMoveModal = function() {
+        moveBookModal.show();
+    };
+});
+</script>
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/book-details-init.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="{% static 'js/book-details-modal.js' %}"></script>
 <script src="{% static 'js/book-details.js' %}"></script>
 {% endblock %}

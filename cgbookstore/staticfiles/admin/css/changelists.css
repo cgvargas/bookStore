@@ -1,343 +1,317 @@
-/* CHANGELISTS */
+/**
+ * Estilos para as listas de alteração do Admin Django
+ * Este arquivo estiliza as tabelas de listagem e filtragem de registros
+ */
 
+/* Container da lista de alteração */
 #changelist {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-}
-
-#changelist .changelist-form-container {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-#changelist table {
-    width: 100%;
-}
-
-.change-list .hiddenfields { display:none; }
-
-.change-list .filtered table {
-    border-right: none;
-}
-
-.change-list .filtered {
-    min-height: 400px;
-}
-
-.change-list .filtered .results, .change-list .filtered .paginator,
-.filtered #toolbar, .filtered div.xfull {
-    width: auto;
-}
-
-.change-list .filtered table tbody th {
-    padding-right: 1em;
-}
-
-#changelist-form .results {
-    overflow-x: auto;
-    width: 100%;
-}
-
-#changelist .toplinks {
-    border-bottom: 1px solid var(--hairline-color);
-}
-
-#changelist .paginator {
-    color: var(--body-quiet-color);
-    border-bottom: 1px solid var(--hairline-color);
-    background: var(--body-bg);
+    background-color: var(--bg-panel);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
-}
-
-/* CHANGELIST TABLES */
-
-#changelist table thead th {
-    padding: 0;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
-#changelist table thead th.action-checkbox-column {
-    width: 1.5em;
-    text-align: center;
-}
-
-#changelist table tbody td.action-checkbox {
-    text-align: center;
-}
-
-#changelist table tfoot {
-    color: var(--body-quiet-color);
-}
-
-/* TOOLBAR */
-
-#toolbar {
-    padding: 8px 10px;
-    margin-bottom: 15px;
-    border-top: 1px solid var(--hairline-color);
-    border-bottom: 1px solid var(--hairline-color);
-    background: var(--darkened-bg);
-    color: var(--body-quiet-color);
-}
-
-#toolbar form input {
-    border-radius: 4px;
-    font-size: 0.875rem;
-    padding: 5px;
-    color: var(--body-fg);
-}
-
-#toolbar #searchbar {
-    height: 1.1875rem;
     border: 1px solid var(--border-color);
-    padding: 2px 5px;
-    margin: 0;
-    vertical-align: top;
-    font-size: 0.8125rem;
-    max-width: 100%;
+    margin-top: 15px;
 }
 
-#toolbar #searchbar:focus {
-    border-color: var(--body-quiet-color);
+/* Container do formulário de lista */
+.changelist-form-container {
+    width: 100%;
 }
 
-#toolbar form input[type="submit"] {
-    border: 1px solid var(--border-color);
-    font-size: 0.8125rem;
-    padding: 4px 8px;
-    margin: 0;
-    vertical-align: middle;
-    background: var(--body-bg);
-    box-shadow: 0 -15px 20px -10px rgba(0, 0, 0, 0.15) inset;
-    cursor: pointer;
-    color: var(--body-fg);
-}
-
-#toolbar form input[type="submit"]:focus,
-#toolbar form input[type="submit"]:hover {
-    border-color: var(--body-quiet-color);
-}
-
-#changelist-search img {
-    vertical-align: middle;
-    margin-right: 4px;
-}
-
-#changelist-search .help {
-    word-break: break-word;
-}
-
-/* FILTER COLUMN */
-
+/* Filtros da lista */
 #changelist-filter {
-    flex: 0 0 240px;
-    order: 1;
-    background: var(--darkened-bg);
-    border-left: none;
-    margin: 0 0 0 30px;
-}
-
-@media (forced-colors: active) {
-  #changelist-filter {
-      border: 1px solid;
-  }
+    background-color: var(--bg-element);
+    border-left: 1px solid var(--border-subtle, var(--border-color));
+    padding-bottom: 15px;
 }
 
 #changelist-filter h2 {
-    font-size: 0.875rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-primary);
+    padding: 10px 15px;
+    font-weight: 600;
+    margin: 0;
+    font-size: 14px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 5px 15px;
-    margin-bottom: 12px;
-    border-bottom: none;
 }
 
-#changelist-filter h3,
-#changelist-filter details summary {
-    font-weight: 400;
-    padding: 0 15px;
-    margin-bottom: 10px;
-}
-
-#changelist-filter details summary > * {
-    display: inline;
-}
-
-#changelist-filter details > summary {
-    list-style-type: none;
-}
-
-#changelist-filter details > summary::-webkit-details-marker {
-    display: none;
-}
-
-#changelist-filter details > summary::before {
-    content: '→';
-    font-weight: bold;
-    color: var(--link-hover-color);
-}
-
-#changelist-filter details[open] > summary::before {
-    content: '↓';
+#changelist-filter h3 {
+    color: var(--accent-color);
+    padding: 10px 15px;
+    margin: 10px 0 0 0;
+    font-weight: 600;
+    font-size: 14px;
 }
 
 #changelist-filter ul {
-    margin: 5px 0;
-    padding: 0 15px 15px;
-    border-bottom: 1px solid var(--hairline-color);
-}
-
-#changelist-filter ul:last-child {
-    border-bottom: none;
+    padding: 0;
+    margin: 0 0 10px 0;
+    list-style-type: none;
 }
 
 #changelist-filter li {
-    list-style-type: none;
-    margin-left: 0;
-    padding-left: 0;
+    padding: 5px 15px;
 }
 
 #changelist-filter a {
-    display: block;
-    color: var(--body-quiet-color);
-    word-break: break-word;
+    color: var(--text-secondary);
+}
+
+#changelist-filter a:hover,
+#changelist-filter li.selected a {
+    color: var(--primary-color);
 }
 
 #changelist-filter li.selected {
-    border-left: 5px solid var(--hairline-color);
-    padding-left: 10px;
-    margin-left: -15px;
+    border-right: 3px solid var(--primary-color);
+    background-color: var(--info-bg);
 }
 
-#changelist-filter li.selected a {
-    color: var(--link-selected-fg);
+/* Botão para limpar todos os filtros */
+#changelist-filter-clear {
+    margin: 0 15px 10px;
+    padding: 5px 0;
 }
 
-#changelist-filter a:focus, #changelist-filter a:hover,
-#changelist-filter li.selected a:focus,
-#changelist-filter li.selected a:hover {
-    color: var(--link-hover-color);
+#changelist-filter-clear a {
+    color: var(--danger-color) !important;
+    font-size: 12px;
+    text-decoration: none;
 }
 
-#changelist-filter #changelist-filter-extra-actions {
-    font-size: 0.8125rem;
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--hairline-color);
+#changelist-filter-clear a:hover {
+    text-decoration: underline;
 }
 
-/* DATE DRILLDOWN */
+/* Barra de busca e ferramentas */
+#toolbar {
+    background-color: var(--bg-element);
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+}
 
-.change-list .toplinks {
-    display: flex;
-    padding-bottom: 5px;
-    flex-wrap: wrap;
-    gap: 3px 17px;
+#toolbar form input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-subtle, var(--border-color));
+    color: var(--text-primary);
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+#toolbar form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+#toolbar #searchbar {
+    padding: 5px 10px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-subtle, var(--border-color));
+    color: var(--text-primary);
+    min-width: 250px;
+}
+
+#toolbar #searchbar:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Ferramentas de objeto */
+.object-tools {
+    margin-top: 0;
+    text-align: right;
+    float: right;
+    padding: 10px 0;
+}
+
+.object-tools a {
+    background-color: var(--accent-color);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 3px;
+    display: inline-block;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.object-tools a:hover {
+    background-color: var(--accent-hover, #09a173);
+}
+
+/* Barra de ações */
+.actions {
+    background-color: var(--bg-element);
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+}
+
+.actions label {
+    color: var(--text-secondary);
+    margin-right: 10px;
+}
+
+.actions select {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-subtle, var(--border-color));
+    color: var(--text-primary);
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+
+.actions button {
+    background-color: var(--accent-color);
+    border: none;
+    color: var(--text-primary);
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.actions button:hover {
+    background-color: var(--accent-hover, #09a173);
+}
+
+/* Tabela de resultados */
+#result_list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#result_list th {
+    background-color: var(--primary-color);
+    color: var(--text-primary);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+}
+
+#result_list th a {
+    color: var(--text-primary) !important;
+}
+
+#result_list td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+    color: var(--text-secondary);
+}
+
+#result_list tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+#result_list a {
+    color: var(--primary-color);
+}
+
+#result_list a:hover {
+    color: var(--primary-hover);
+}
+
+/* Alternância de cores das linhas */
+.row1 {
+    background-color: var(--bg-row1, rgba(255, 255, 255, 0.02));
+}
+
+.row2 {
+    background-color: var(--bg-row2, transparent);
+}
+
+/* Paginação */
+.paginator {
+    padding: 10px 15px;
+    background-color: var(--bg-element);
+    border-top: 1px solid var(--border-subtle, var(--border-color));
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 22px;
+    margin-top: 0;
+    text-align: center;
+}
+
+.paginator a,
+.paginator span.this-page {
+    padding: 2px 6px;
+    margin: 0 2px;
+    border-radius: 3px;
+    font-weight: normal;
+}
+
+.paginator a {
+    background-color: var(--primary-color);
+    color: var(--text-primary) !important;
+    text-decoration: none;
+}
+
+.paginator a:hover {
+    background-color: var(--primary-hover);
+}
+
+.paginator span.this-page {
+    background-color: var(--bg-element);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     font-weight: bold;
 }
 
-.change-list .toplinks a {
-    font-size: 0.8125rem;
+/* Data Hierarchy (filtro por datas) */
+.xfull {
+    background-color: var(--bg-element);
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-subtle, var(--border-color));
 }
 
-.change-list .toplinks .date-back {
-    color: var(--body-quiet-color);
+.calendarbox, .clockbox {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
 }
 
-.change-list .toplinks .date-back:focus,
-.change-list .toplinks .date-back:hover {
-    color: var(--link-hover-color);
+.calendar caption,
+.calendarbox h2 {
+    background: var(--primary-color);
+    color: var(--text-primary);
 }
 
-/* ACTIONS */
-
-.filtered .actions {
-    border-right: none;
+.calendar td a {
+    background-color: var(--accent-color);
+    color: var(--text-primary);
 }
 
-#changelist table input {
-    margin: 0;
-    vertical-align: baseline;
+.calendar td a:hover {
+    background-color: var(--accent-hover, #09a173);
 }
 
-/* Once the :has() pseudo-class is supported by all browsers, the tr.selected
-   selector and the JS adding the class can be removed. */
-#changelist tbody tr.selected {
-    background-color: var(--selected-row);
+/* Estilos para tabelas vazias */
+p.paginator {
+    border-top: 1px solid var(--border-subtle, var(--border-color));
+    margin-top: 0;
 }
 
-#changelist tbody tr:has(.action-select:checked) {
-    background-color: var(--selected-row);
-}
-
-@media (forced-colors: active) {
-    #changelist tbody tr.selected {
-        background-color: SelectedItem;
-    }
-    #changelist tbody tr:has(.action-select:checked) {
-        background-color: SelectedItem;
-    }
-}
-
-#changelist .actions {
-    padding: 10px;
-    background: var(--body-bg);
-    border-top: none;
-    border-bottom: none;
-    line-height: 1.5rem;
-    color: var(--body-quiet-color);
+.filtered .results,
+.change-list .filtered .paginator,
+.filtered table#result_list,
+.filtered .calendarbox {
     width: 100%;
 }
 
-#changelist .actions span.all,
-#changelist .actions span.action-counter,
-#changelist .actions span.clear,
-#changelist .actions span.question {
-    font-size: 0.8125rem;
-    margin: 0 0.5em;
+/* Corrige padding no cabeçalho da tabela quando ordenável */
+thead th.sortable {
+    padding-right: 20px;
 }
 
-#changelist .actions:last-child {
-    border-bottom: none;
+thead th.sortable .text {
+    padding-right: 0;
 }
 
-#changelist .actions select {
-    vertical-align: top;
-    height: 1.5rem;
-    color: var(--body-fg);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 0.875rem;
-    padding: 0 0 0 4px;
-    margin: 0;
-    margin-left: 10px;
-}
-
-#changelist .actions select:focus {
-    border-color: var(--body-quiet-color);
-}
-
-#changelist .actions label {
-    display: inline-block;
-    vertical-align: middle;
-    font-size: 0.8125rem;
-}
-
-#changelist .actions .button {
-    font-size: 0.8125rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--body-bg);
-    box-shadow: 0 -15px 20px -10px rgba(0, 0, 0, 0.15) inset;
-    cursor: pointer;
-    height: 1.5rem;
-    line-height: 1;
-    padding: 4px 8px;
-    margin: 0;
-    color: var(--body-fg);
-}
-
-#changelist .actions .button:focus, #changelist .actions .button:hover {
-    border-color: var(--body-quiet-color);
+/* Estilos para total de resultados filtrados */
+.filtered .results,
+.change-list .filtered .results,
+.change-list .filtered table#result_list {
+    margin-right: 0;
+    width: 100%;
 }

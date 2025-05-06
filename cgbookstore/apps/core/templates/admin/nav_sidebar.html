@@ -1,0 +1,43 @@
+{% load i18n %}
+
+<!-- IMPORTANTE: Nav-sidebar PRIMEIRO, botão DEPOIS -->
+<nav class="module custom-scrollbar" id="nav-sidebar">
+  {% if available_apps %}
+    <div class="app-modules">
+      {% for app in available_apps %}
+        <div class="app-module{% if app.active %} active{% endif %}" id="app-{{ app.app_label }}">
+          <table>
+            <caption>
+              {% if app.name == "Autenticação e autorização" or app.name == "Authentication and Authorization" %}
+                <a href="{{ app.app_url }}" class="section">Autenticação</a>
+              {% else %}
+                <a href="{{ app.app_url }}" class="section">{{ app.name }}</a>
+              {% endif %}
+            </caption>
+            {% for model in app.models %}
+              <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current-model{% endif %}">
+                <th scope="row">
+                  {% if model.admin_url %}
+                    <a href="{{ model.admin_url }}"{% if model.admin_url in request.path %} aria-current="page"{% endif %}>
+                      {{ model.name }}
+                    </a>
+                  {% else %}
+                    {{ model.name }}
+                  {% endif %}
+                </th>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</nav>
+
+<!-- Botão de toggle DEPOIS do nav-sidebar para que o seletor ~ funcione -->
+<button class="toggle-sidebar-btn" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}">
+    <i class="bi bi-chevron-left"></i>
+</button>
+
+<!-- Incluir Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">

@@ -6,6 +6,7 @@ Contém formulários para:
 - Registro de usuário
 - Atualização de perfil
 - Formulário de contato
+- Criação rápida de prateleiras
 
 Inclui validações personalizadas para campos como CPF, email,
 data de nascimento e senha.
@@ -16,13 +17,18 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.validators import MinLengthValidator
 from datetime import date
-from .models import Profile
+from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from django.core.mail import send_mail
 from django.template import loader
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
+
+from .models import Profile
+from .models.home_content import HomeSection, DefaultShelfType, BookShelfSection
+from .models.book import Book
 
 User = get_user_model()
 
@@ -395,21 +401,197 @@ class CustomPasswordResetForm(PasswordResetForm):
             print(f"DEFAULT_FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
             raise
 
-    class CustomPasswordResetForm(PasswordResetForm):
-        def clean_new_password2(self):
-            password1 = self.cleaned_data.get('new_password1')
-            password2 = self.cleaned_data.get('new_password2')
-            user = self.user
 
-            if password1 and password2:
-                if password1 != password2:
-                    raise forms.ValidationError('As senhas não conferem.')
+class QuickShelfCreationForm(forms.Form):
+    nome = forms.CharField(
+        label='Nome da Prateleira',
+        max_length=200,
+        help_text='Este será o título exibido na página inicial',
+        widget=forms.TextInput(attrs={'id': 'id_nome'})
+    )
 
-                # Verifica se a senha está no histórico
-                for old_password in user.password_history:
-                    if check_password(password1, old_password):
-                        raise forms.ValidationError(
-                            'Esta senha já foi utilizada recentemente. Por favor, escolha uma senha diferente.'
-                        )
+    identificador = forms.SlugField(
+        label='Identificador',
+        help_text='Identificador único usado para filtragem (somente letras, números e underscore)',
+        required=False,
+        widget=forms.TextInput(attrs={'id': 'id_identificador'})
+    )
 
-                return password2
+    filtro_campo = forms.ChoiceField(
+        label='Campo do Filtro',
+        choices=[
+            ('tipo_shelf_especial', 'Tipo de Prateleira Especial'),
+            ('e_lancamento', 'É Lançamento'),
+            ('e_destaque', 'É Destaque'),
+            ('adaptado_filme', 'Adaptado para Filme/Série'),
+            ('e_manga', 'É Mangá'),
+            ('quantidade_vendida', 'Quantidade Vendida'),
+        ],
+        initial='tipo_shelf_especial',
+        help_text='Campo usado para filtrar os livros',
+        widget=forms.Select(attrs={'id': 'id_filtro_campo'})
+    )
+
+    filtro_valor = forms.CharField(
+        label='Valor do Filtro',
+        max_length=100,
+        required=False,
+        help_text='Valor usado para filtrar (necessário apenas para alguns tipos de filtro)',
+        widget=forms.TextInput(attrs={'id': 'id_filtro_valor'})
+    )
+
+    ordem = forms.IntegerField(
+        label='Ordem de Exibição',
+        initial=0,
+        help_text='Ordem em que a prateleira aparecerá na página inicial',
+        widget=forms.NumberInput(attrs={'id': 'id_ordem'})
+    )
+
+    max_livros = forms.IntegerField(
+        label='Máximo de Livros',
+        initial=12,
+        min_value=1,
+        max_value=50,
+        help_text='Número máximo de livros exibidos nesta prateleira',
+        widget=forms.NumberInput(attrs={'id': 'id_max_livros'})
+    )
+
+    ativo = forms.BooleanField(
+        label='Ativo',
+        initial=True,
+        required=False,
+        help_text='Indica se a prateleira está ativa e visível na página inicial',
+        widget=forms.CheckboxInput(attrs={'id': 'id_ativo'})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        filtro_campo = cleaned_data.get('filtro_campo')
+        filtro_valor = cleaned_data.get('filtro_valor')
+        identificador = cleaned_data.get('identificador')
+        nome = cleaned_data.get('nome')
+
+        # Se o identificador não foi fornecido, cria um a partir do nome
+        if not identificador and nome:
+            cleaned_data['identificador'] = slugify(nome).replace('-', '_')
+
+        # Se o campo de filtro é 'tipo_shelf_especial' e não foi fornecido valor,
+        # usa o identificador como valor padrão
+        if filtro_campo == 'tipo_shelf_especial' and not filtro_valor:
+            cleaned_data['filtro_valor'] = cleaned_data['identificador']
+
+        # Para filtros booleanos, define o valor como 'True' se não especificado
+        if filtro_campo in ['e_lancamento', 'e_destaque', 'adaptado_filme', 'e_manga'] and not filtro_valor:
+            cleaned_data['filtro_valor'] = 'True'
+
+        # Para quantidade_vendida, define como 0 se não especificado
+        if filtro_campo == 'quantidade_vendida' and not filtro_valor:
+            cleaned_data['filtro_valor'] = '0'
+
+        # Verifica se o identificador já existe
+        if DefaultShelfType.objects.filter(identificador=cleaned_data['identificador']).exists():
+            raise ValidationError(
+                f"Já existe um tipo de prateleira com o identificador '{cleaned_data['identificador']}'")
+
+        return cleaned_data
+
+    def save(self):
+        """Cria todos os objetos necessários para uma prateleira completa"""
+        nome = self.cleaned_data['nome']
+        identificador = self.cleaned_data['identificador']
+        filtro_campo = self.cleaned_data['filtro_campo']
+        filtro_valor = self.cleaned_data['filtro_valor']
+        ordem = self.cleaned_data['ordem']
+        max_livros = self.cleaned_data['max_livros']
+        ativo = self.cleaned_data['ativo']
+
+        # 1. Cria o tipo de prateleira
+        shelf_type = DefaultShelfType.objects.create(
+            nome=nome,
+            identificador=identificador,
+            filtro_campo=filtro_campo,
+            filtro_valor=filtro_valor,
+            ordem=ordem,
+            ativo=ativo
+        )
+
+        # 2. Cria a seção na home
+        section = HomeSection.objects.create(
+            titulo=nome,
+            tipo='shelf',
+            ordem=ordem,
+            ativo=ativo
+        )
+
+        # 3. Cria a prateleira e associa com a seção e o tipo
+        book_shelf = BookShelfSection.objects.create(
+            section=section,
+            shelf_type=shelf_type,
+            max_livros=max_livros
+        )
+
+        return {
+            'shelf_type': shelf_type,
+            'section': section,
+            'book_shelf': book_shelf
+        }
+
+
+# Adicionar após os outros formulários existentes
+class BookForm(forms.ModelForm):
+    """Formulário para edição de livros"""
+
+    class Meta:
+        model = Book
+        fields = [
+            'titulo', 'subtitulo', 'autor', 'tradutor', 'ilustrador',
+            'editora', 'isbn', 'edicao', 'data_publicacao', 'numero_paginas',
+            'idioma', 'formato', 'dimensoes', 'peso', 'categoria', 'genero',
+            'descricao', 'temas', 'personagens', 'enredo', 'publico_alvo',
+            'premios', 'adaptacoes', 'colecao', 'classificacao', 'citacoes',
+            'curiosidades', 'website', 'capa', 'preco', 'preco_promocional'
+        ]
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
+            'subtitulo': forms.TextInput(attrs={'class': 'form-control'}),
+            'autor': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
+            'tradutor': forms.TextInput(attrs={'class': 'form-control'}),
+            'ilustrador': forms.TextInput(attrs={'class': 'form-control'}),
+            'editora': forms.TextInput(attrs={'class': 'form-control'}),
+            'isbn': forms.TextInput(attrs={'class': 'form-control'}),
+            'edicao': forms.TextInput(attrs={'class': 'form-control'}),
+            'data_publicacao': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'numero_paginas': forms.NumberInput(attrs={'class': 'form-control'}),
+            'idioma': forms.TextInput(attrs={'class': 'form-control'}),
+            'formato': forms.TextInput(attrs={'class': 'form-control'}),
+            'dimensoes': forms.TextInput(attrs={'class': 'form-control'}),
+            'peso': forms.TextInput(attrs={'class': 'form-control'}),
+            'categoria': forms.TextInput(attrs={'class': 'form-control'}),
+            'genero': forms.TextInput(attrs={'class': 'form-control'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control', 'rows': 6}),
+            'temas': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'personagens': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'enredo': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'publico_alvo': forms.TextInput(attrs={'class': 'form-control'}),
+            'premios': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'adaptacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'colecao': forms.TextInput(attrs={'class': 'form-control'}),
+            'classificacao': forms.TextInput(attrs={'class': 'form-control'}),
+            'citacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'curiosidades': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'website': forms.URLInput(attrs={'class': 'form-control'}),
+            'capa': forms.FileInput(attrs={'class': 'form-control'}),
+            'preco': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'preco_promocional': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Campos obrigatórios
+        self.fields['titulo'].required = True
+        self.fields['autor'].required = True
+
+        # Configurações específicas
+        if 'data_publicacao' in self.fields:
+            self.fields['data_publicacao'].widget.format = '%Y-%m-%d'
+            self.fields['data_publicacao'].input_formats = ['%Y-%m-%d']

@@ -6,107 +6,45 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+<link rel="stylesheet" href="{% static 'css/swiper-custom.css' %}">
+<link rel="stylesheet" href="{% static 'css/custom_sections.css' %}">
+<link rel="stylesheet" href="{% static 'css/weather_widget.css' %}">
+<link rel="stylesheet" href="{% static 'css/video-section.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/ranking.css' %}">
 {% endblock %}
 
 {% block content %}
-<!-- Banner Carousel -->
-{% if banners %}
-<div class="banner-carousel">
-    <div class="swiper bannerSwiper">
-        <div class="swiper-wrapper">
-            {% for banner in banners %}
-            <div class="swiper-slide">
-                <div class="banner-content">
-                    <picture>
-                        <source media="(max-width: 768px)" srcset="{{ banner.get_mobile_url }}" loading="lazy">
-                        <img src="{{ banner.get_imagem_url }}" alt="{{ banner.titulo }}" class="banner-image" loading="lazy" decoding="async">
-                    </picture>
-                    {% if banner.titulo or banner.subtitulo or banner.descricao %}
-                    <div class="banner-text">
-                        <h2>{{ banner.titulo }}</h2>
-                        {% if banner.subtitulo %}<h3>{{ banner.subtitulo }}</h3>{% endif %}
-                        {% if banner.descricao %}<p>{{ banner.descricao }}</p>{% endif %}
-                        {% if banner.link %}
-                        <a href="{{ banner.link }}" class="btn btn-primary">Saiba mais</a>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-pagination"></div>
+<div class="row">
+    <!-- Coluna lateral para o widget de previsão do tempo -->
+    <div class="col-lg-2 mb-4">
+        {% include 'core/components/weather_widget.html' %}
     </div>
-</div>
-{% endif %}
 
-<!-- Novo componente de recomendações personalizadas -->
-{% if user.is_authenticated and has_mixed_recommendations %}
-<div class="mt-5">
-    {% include 'core/components/recommendation_widget.html' %}
-</div>
-{% endif %}
-
-<!-- Seções da Home -->
-{% for section in shelves %}
-    {% if section.tipo == 'shelf' and section.livros and section.id != 'recomendados' %}
-    <!-- Prateleira de Livros -->
-    <section class="book-shelf" :id="`section-${sectionIndex}`">
-        <div class="container">
-            <h2 class="section-title animate-fade-in">
-                {{ section.titulo }}
-                {% if section.id == 'recomendados' and not user.is_authenticated %}
-                <small class="text-muted">(Faça login para ver recomendações personalizadas)</small>
-                {% endif %}
-            </h2>
-            <div class="swiper bookSwiper">
+    <!-- Conteúdo principal -->
+    <div class="col-lg-9">
+        <!-- Banner Carousel -->
+        {% if banners %}
+        <div class="banner-carousel">
+            <div class="swiper bannerSwiper">
                 <div class="swiper-wrapper">
-                    {% for livro in section.livros %}
+                    {% for banner in banners %}
                     <div class="swiper-slide">
-                        {% include 'core/includes/book_card.html' with livro=livro %}
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-            </div>
-        </div>
-    </section>
-    {% endif %}
-
-    {% if section.tipo == 'video' %}
-    <!-- Seção de Vídeo -->
-    <section class="video-section {% if section.css_class %}{{ section.css_class }}{% endif %}" id="{{ section.id }}">
-        <div class="container">
-            <h2 class="section-title">{{ section.titulo }}</h2>
-            {% if section.videos %}
-            <div class="videoSwiper">
-                <div class="swiper-wrapper">
-                    {% for video_item in section.videos %}
-                    <div class="swiper-slide">
-                        <div class="video-card">
-                            <div class="video-cover">
-                                {% if 'youtube.com' in video_item.url or 'youtu.be' in video_item.url %}
-                                    {% with video_id=video_item.url|get_youtube_id %}
-                                    <a href="https://www.youtube.com/watch?v={{ video_id }}"
-                                       class="video-link"
-                                       data-video-id="{{ video_id }}"
-                                       target="_blank">
-                                        <img src="{{ video_id|get_youtube_thumbnail }}"
-                                             alt="{{ video_item.titulo }}"
-                                             class="video-thumbnail"
-                                             loading="lazy">
-                                        <div class="play-overlay">
-                                            <span class="play-icon">▶</span>
-                                        </div>
-                                    </a>
-                                    {% endwith %}
+                        <div class="banner-content">
+                            <picture>
+                                <source media="(max-width: 768px)" srcset="{{ banner.get_mobile_url }}" loading="lazy">
+                                <img src="{{ banner.get_imagem_url }}" alt="{{ banner.titulo }}" class="banner-image" loading="lazy" decoding="async">
+                            </picture>
+                            {% if banner.titulo or banner.subtitulo or banner.descricao %}
+                            <div class="banner-text">
+                                <h2>{{ banner.titulo }}</h2>
+                                {% if banner.subtitulo %}<h3>{{ banner.subtitulo }}</h3>{% endif %}
+                                {% if banner.descricao %}<p>{{ banner.descricao }}</p>{% endif %}
+                                {% if banner.link %}
+                                <a href="{{ banner.link }}" class="btn btn-primary">Saiba mais</a>
                                 {% endif %}
                             </div>
-                            {% if video_item.titulo %}
-                            <h3 class="video-title">{{ video_item.titulo }}</h3>
                             {% endif %}
                         </div>
                     </div>
@@ -114,62 +52,274 @@
                 </div>
                 <div class="swiper-button-next"></div>
                 <div class="swiper-button-prev"></div>
+                <div class="swiper-pagination"></div>
             </div>
-            {% endif %}
         </div>
+        {% endif %}
 
-        <!-- Modal para reprodução do vídeo -->
-        <div id="videoModal" class="video-modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <div class="video-container">
-                    <div id="modalVideoPlayer"></div>
+        <!-- Novo componente de recomendações personalizadas -->
+        {% if user.is_authenticated and has_mixed_recommendations %}
+        <div class="mt-5">
+            {% include 'core/components/recommendation_widget.html' %}
+        </div>
+        {% endif %}
+
+        <!-- Seções da Home -->
+        {% for section in shelves %}
+            {% if section.tipo == 'shelf' and section.livros and section.id != 'recomendados' %}
+            <!-- Prateleira de Livros -->
+            <section class="book-shelf" :id="`section-${sectionIndex}`">
+                <div class="container">
+                    <h2 class="section-title animate-fade-in">
+                        {{ section.titulo }}
+                        {% if section.id == 'recomendados' and not user.is_authenticated %}
+                        <small class="text-muted">(Faça login para ver recomendações personalizadas)</small>
+                        {% endif %}
+                    </h2>
+                    <div class="swiper bookSwiper">
+                        <div class="swiper-wrapper">
+                            {% for livro in section.livros %}
+                            <div class="swiper-slide">
+                                {% include 'core/includes/book_card.html' with livro=livro %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </section>
-    {% endif %}
+            </section>
+            {% endif %}
 
-    {% if section.tipo == 'ad' and section.advertisement %}
-    <!-- Área de Propaganda -->
-    <section class="ad-section {% if section.css_class %}{{ section.css_class }}{% endif %}" :id="`section-${sectionIndex}`">
-        <div class="container">
-            <a href="{{ section.advertisement.url }}" target="_blank" class="ad-link">
-                <img src="{{ section.advertisement.imagem.url }}"
-                     alt="{{ section.titulo }}"
-                     class="ad-image"
-                     loading="lazy">
-            </a>
-        </div>
-    </section>
-    {% endif %}
+            {% if section.tipo == 'video' %}
+            <!-- Seção de Vídeo -->
+            <section class="video-section {% if section.css_class %}{{ section.css_class }}{% endif %}" id="{{ section.id }}">
+                <div class="container">
+                    <h2 class="section-title">{{ section.titulo }}</h2>
+                    {% if section.videos %}
+                    <div class="videoSwiper">
+                        <div class="swiper-wrapper">
+                            {% for video_item in section.videos %}
+                            <div class="swiper-slide">
+                                <div class="video-card">
+                                    <div class="video-cover">
+                                        {% if 'youtube.com' in video_item.url or 'youtu.be' in video_item.url %}
+                                            {% with video_id=video_item.url|get_youtube_id %}
+                                            <a href="https://www.youtube.com/watch?v={{ video_id }}"
+                                               class="video-link"
+                                               data-video-id="{{ video_id }}"
+                                               target="_blank">
+                                                <img src="https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg"
+                                                     alt="{{ video_item.titulo|default:'Vídeo YouTube' }}"
+                                                     class="video-thumbnail"
+                                                     loading="lazy"
+                                                     onerror="this.onerror=null; this.src='https://img.youtube.com/vi/{{ video_id }}/default.jpg';">
+                                                <div class="play-overlay">
+                                                    <span class="play-icon">▶</span>
+                                                </div>
+                                            </a>
+                                            {% endwith %}
+                                        {% endif %}
+                                    </div>
+                                    {% if video_item.titulo %}
+                                    <h3 class="video-title">{{ video_item.titulo }}</h3>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+                    {% endif %}
+                </div>
 
-    {% if section.tipo == 'link_grid' and section.links %}
-    <!-- Grade de Links -->
-    <section class="link-grid {% if section.css_class %}{{ section.css_class }}{% endif %}" id="{{ section.id }}">
-        <div class="container">
-            <h2 class="section-title">{{ section.titulo }}</h2>
-            <div class="link-grid-container">
-                {% for link in section.links %}
-                <a href="{{ link.url }}" class="link-item">
-                    <img src="{{ link.imagem.url }}" alt="{{ link.titulo }}" loading="lazy">
-                    <span class="link-title">{{ link.titulo }}</span>
-                </a>
-                {% endfor %}
+                <!-- Modal para reprodução do vídeo -->
+                <div id="videoModal" class="video-modal">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <div class="video-container">
+                            <div id="modalVideoPlayer"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            {% if section.tipo == 'ad' and section.advertisement %}
+            <!-- Área de Propaganda -->
+            <section class="ad-section {% if section.css_class %}{{ section.css_class }}{% endif %}" :id="`section-${sectionIndex}`">
+                <div class="container">
+                    <a href="{{ section.advertisement.url }}" target="_blank" class="ad-link">
+                        <img src="{{ section.advertisement.imagem.url }}"
+                             alt="{{ section.titulo }}"
+                             class="ad-image"
+                             loading="lazy">
+                    </a>
+                </div>
+            </section>
+            {% endif %}
+
+            {% if section.tipo == 'link_grid' and section.links %}
+            <!-- Grade de Links -->
+            <section class="link-grid {% if section.css_class %}{{ section.css_class }}{% endif %}" id="section-{{ section.id }}">
+                <div class="container">
+                    <h2 class="section-title">{{ section.titulo }}</h2>
+                    <div class="link-grid-container">
+                        {% for link in section.links %}
+                        <a href="{{ link.url }}" class="link-item">
+                            <img src="{{ link.imagem.url }}" alt="{{ link.titulo }}" loading="lazy">
+                            <span class="link-title">{{ link.titulo }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            {% if section.tipo == 'custom' %}
+                <!-- Seção Personalizada -->
+                <section class="custom-section {% if section.css_class %}{{ section.css_class }}{% endif %}" id="section-{{ section.tipo }}-{{ section.id }}">
+                    {% if section.template and section.data %}
+                        {% include section.template with section=section events=section.data.events eventos_destaque=section.data.eventos_destaque eventos_secundarios=section.data.eventos_secundarios %}
+                    {% elif section.author_section and section.authors %}
+                        <!-- Nova condição para renderizar seção de autores -->
+                        {% include 'core/components/author_section.html' with section=section.author_section authors=section.authors %}
+                    {% else %}
+                        <div class="container">
+                            <h2 class="section-title">{{ section.titulo }}</h2>
+                            {% if section.subtitulo %}<p class="section-subtitle">{{ section.subtitulo }}</p>{% endif %}
+
+                            {% if section.botao_texto and section.botao_url %}
+                                <div class="text-center mt-4">
+                                    <a href="{{ section.botao_url }}" class="btn btn-primary">{{ section.botao_texto }}</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </section>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Seção: Ranking de Leitores -->
+        {% if ranking_usuarios %}
+        <section class="reader-ranking-section mt-5 py-4 bg-light rounded">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h2 class="section-title display-6 fw-bold">
+                            <i class="bi bi-trophy-fill text-warning me-2"></i>Ranking de Leitores
+                        </h2>
+                        <p class="text-muted">Nossos leitores mais dedicados deste mês</p>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    {% for usuario in ranking_usuarios %}
+                    <div class="col-md-4 mb-4">  <!-- Alterado para col-md-4 para ter 3 colunas iguais -->
+                        <div class="card shadow h-100 border-0 ranking-card position-relative text-center">
+                            {% if forloop.counter <= 3 %}
+                            <div class="position-absolute top-0 start-50 translate-middle">
+                                <span class="badge rounded-pill
+                                    {% if forloop.counter == 1 %}bg-warning text-dark{% endif %}
+                                    {% if forloop.counter == 2 %}bg-secondary text-white{% endif %}
+                                    {% if forloop.counter == 3 %}bg-danger text-white{% endif %}
+                                    px-3 py-2 shadow">
+                                    <i class="bi bi-trophy-fill me-1"></i>
+                                    #{{ forloop.counter }}
+                                </span>
+                            </div>
+                            {% endif %}
+
+                            <div class="card-body text-center pt-5">
+                                {% if usuario.avatar_url %}
+                                    <img src="{{ usuario.avatar_url }}" class="rounded-circle mb-3 border shadow-sm" width="90" height="90" alt="{{ usuario.nome }}">
+                                {% else %}
+                                    <img src="{% static 'images/default-avatar.png' %}" class="rounded-circle mb-3 border shadow-sm" width="90" height="90" alt="{{ usuario.nome }}">
+                                {% endif %}
+
+                                <h5 class="card-title fw-bold mb-1">{{ usuario.nome }}</h5>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span class="badge bg-primary rounded-pill px-3 py-2 mt-2">
+                                        <i class="bi bi-book me-1"></i>
+                                        {{ usuario.livros_lidos }} livro{{ usuario.livros_lidos|pluralize }}
+                                    </span>
+                                </div>
+
+                                <div class="progress mt-3" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        style="width: {% widthratio usuario.livros_lidos 20 100 %}%;"
+                                        aria-valuenow="{{ usuario.livros_lidos }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="20">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if user.is_authenticated %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'ranking_leitores' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-trophy me-1"></i>Ver mais
+                    </a>
+                </div>
+                {% else %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Entrar para participar
+                    </a>
+                </div>
+                {% endif %}
             </div>
-        </div>
-    </section>
-    {% endif %}
-{% endfor %}
+        </section>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
 
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 <script src="{% static 'js/video-section.js' %}"></script>
+<script src="{% static 'js/weather_widget.js' %}"></script>
 
+<!-- Script adicional para corrigir os thumbnails dos vídeos -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Função para tratar imagens de thumbnails que não carregam
+    function fixYoutubeThumbnails() {
+        const thumbnails = document.querySelectorAll('.video-thumbnail');
+
+        thumbnails.forEach(function(img) {
+            // Verificar se a imagem está quebrada
+            if (img.complete && (img.naturalWidth === 0 || img.naturalHeight === 0)) {
+                const videoId = img.closest('.video-link').getAttribute('data-video-id');
+                if (videoId) {
+                    // Tentar versão de menor qualidade
+                    img.src = `https://img.youtube.com/vi/${videoId}/default.jpg`;
+                    console.log('Thumbnail substituído para:', videoId);
+                }
+            }
+
+            // Adicionar listener para erros
+            img.addEventListener('error', function() {
+                const videoId = this.closest('.video-link').getAttribute('data-video-id');
+                if (videoId) {
+                    // Tentar versão de menor qualidade
+                    this.src = `https://img.youtube.com/vi/${videoId}/default.jpg`;
+                    console.log('Erro ao carregar thumbnail:', videoId);
+                }
+            });
+        });
+    }
+
+    // Executar a função após um pequeno atraso para garantir que todas as imagens foram processadas
+    setTimeout(fixYoutubeThumbnails, 500);
+
     // Banner Swiper
     new Swiper('.bannerSwiper', {
         loop: true,

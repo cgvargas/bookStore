@@ -3,25 +3,56 @@
 <!DOCTYPE html>
 {% load static %}
 
-<html lang="pt-BR" {% if user.is_authenticated %}data-auth="true"{% endif %}>
+<html lang="pt-BR" {% if user.is_authenticated %}data-auth="true"{% endif %} class="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'css/background.css' %}">
     <title>{% block title %}CG.BookStore Online{% endblock %}</title>
+    <style>
+        /* Remove a setinha do dropdown Explorando */
+        #exploreDropdown.dropdown-toggle::after {
+            display: none !important;
+        }
+
+        /* Estilo para dropdown hover */
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        /* Corrigir posição do dropdown */
+        .navbar .nav-item.dropdown {
+            position: relative;
+        }
+
+        .navbar .nav-item.dropdown .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 0;
+        }
+    </style>
     {% block extra_css %}
     {% endblock %}
 </head>
 <body>
+    {% if background_settings %}
+        <div class="custom-background
+            position-{{ background_settings.posicao }}
+            opacity-{{ background_settings.opacidade|floatformat:"0" }}
+            {% if background_settings.aplicar_em == 'light' %}only-light{% elif background_settings.aplicar_em == 'dark' %}only-dark{% endif %}"
+            style="background-image: url('{{ background_settings.imagem.url }}');">
+        </div>
+    {% endif %}
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 1020;">
         <a class="navbar-brand d-flex align-items-center" href="/">
             <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
             <span class="store-name ml-2">CG.BookStore Online</span>
@@ -37,6 +68,17 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == '/books/' %}active{% endif %}" href="{% url 'book_search' %}">Buscar Livro</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="exploreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Explorando
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="exploreDropdown">
+                        <li><a class="dropdown-item" href="{% url 'catalogue' %}">Catálogo Completo</a></li>
+                        <li><a class="dropdown-item" href="{% url 'new_releases' %}">Novos Lançamentos</a></li>
+                        <li><a class="dropdown-item" href="{% url 'bestsellers' %}">Mais Vendidos</a></li>
+                        <li><a class="dropdown-item" href="{% url 'recommended_books' %}">Recomendados</a></li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.path == '/sobre/' %}active{% endif %}" href="{% url 'sobre' %}">Sobre</a>
@@ -57,6 +99,19 @@
                             <a class="nav-link {% if request.path == '/analytics/dashboard/' %}active{% endif %}" href="/api/analytics/dashboard/">Analytics</a>
                         </li>
                     {% endif %}
+                    <!-- Início: Seletor de tema -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-circle-half"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                            <li><a class="dropdown-item" href="#" id="theme-light"><i class="bi bi-sun-fill"></i> Tema Claro</a></li>
+                            <li><a class="dropdown-item" href="#" id="theme-dark"><i class="bi bi-moon-fill"></i> Tema Escuro</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="theme-auto"><i class="bi bi-circle-half"></i> Padrão do Sistema</a></li>
+                        </ul>
+                    </li>
+                    <!-- Fim: Seletor de tema -->
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}" class="d-inline">
                             {% csrf_token %}
@@ -74,16 +129,29 @@
                             <i class="bi bi-person" style="font-size: 1.4rem;"></i>
                         </a>
                     </li>
+                    <!-- Seletor de tema para usuários não logados -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-circle-half"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                            <li><a class="dropdown-item" href="#" id="theme-light"><i class="bi bi-sun-fill"></i> Tema Claro</a></li>
+                            <li><a class="dropdown-item" href="#" id="theme-dark"><i class="bi bi-moon-fill"></i> Tema Escuro</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="theme-auto"><i class="bi bi-circle-half"></i> Padrão do Sistema</a></li>
+                        </ul>
+                    </li>
+
                 {% endif %}
             </ul>
         </div>
     </nav>
 
     <!-- Linha decorativa -->
-    <div class="line"></div>
+    <div class="line" style="margin-top: 60px; position: relative; z-index: 10;"></div>
 
     <!-- Conteúdo principal -->
-    <div class="container-fluid mt-4">
+    <div class="container-fluid mt-4" style="padding-top: 20px;">
         {% block content %}
         {% endblock %}
     </div>
@@ -119,10 +187,10 @@
                 <div class="col-lg-3 col-md-6">
                     <h3 class="footer-heading">Explorando</h3>
                     <ul class="footer-links">
-                        <li><a href="{% url 'book_search' %}"><i class="bi bi-chevron-right"></i> Catálogo</a></li>
-                        <li><a href="{% url 'book_search' %}?filter=new"><i class="bi bi-chevron-right"></i> Novos Lançamentos</a></li>
-                        <li><a href="{% url 'book_search' %}?filter=best"><i class="bi bi-chevron-right"></i> Mais Vendidos</a></li>
-                        <li><a href="{% url 'book_search' %}?filter=recommended"><i class="bi bi-chevron-right"></i> Recomendados</a></li>
+                        <li><a href="{% url 'catalogue' %}"><i class="bi bi-chevron-right"></i> Catálogo</a></li>
+                        <li><a href="{% url 'new_releases' %}"><i class="bi bi-chevron-right"></i> Novos Lançamentos</a></li>
+                        <li><a href="{% url 'bestsellers' %}"><i class="bi bi-chevron-right"></i> Mais Vendidos</a></li>
+                        <li><a href="{% url 'recommended_books' %}"><i class="bi bi-chevron-right"></i> Recomendados</a></li>
                     </ul>
                 </div>
 
@@ -133,6 +201,7 @@
                         <li><a href="{% url 'sobre' %}"><i class="bi bi-chevron-right"></i> Sobre Nós</a></li>
                         <li><a href="{% url 'contato' %}"><i class="bi bi-chevron-right"></i> FAQ</a></li>
                         <li><a href="{% url 'contato' %}"><i class="bi bi-chevron-right"></i> Contato</a></li>
+                        <li><a href="{% url 'planos' %}"><i class="bi bi-chevron-right"></i> Planos</a></li>
                         <li><a href="{% url 'index' %}"><i class="bi bi-chevron-right"></i> Blog Literário</a></li>
                     </ul>
                 </div>
@@ -253,12 +322,21 @@
   </div>
 </div>
 
+<div id="cookie-banner" class="fixed-bottom bg-dark text-white p-3 shadow-lg d-none" style="z-index: 9999;">
+  <div class="container d-flex justify-content-between align-items-center flex-column flex-md-row text-center text-md-start">
+    <span>
+      Utilizamos cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa
+      <a href="{% url 'politica_privacidade' %}" class="text-warning text-decoration-underline">Política de Privacidade</a>.
+    </span>
+    <button id="accept-cookies" class="btn btn-warning mt-3 mt-md-0">Aceitar</button>
+  </div>
+</div>
+
 {% block extra_js %}
 <!-- Scripts principais -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 
 <script>
@@ -273,8 +351,8 @@
 
 <!-- CSRF Setup -->
 <script src="{% static 'js/csrf-setup.js' %}"></script>
-
 <script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/theme-switcher.js' %}"></script>
 
 <!-- Script de verificação e recuperação -->
 <script>
@@ -395,6 +473,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+</script>
+
+<!-- Script para inicializar os dropdowns -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicialização específica para dropdowns
+    if (typeof bootstrap !== 'undefined') {
+        // Inicializa todos os dropdowns na página
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElementList.forEach(function(dropdownToggleEl) {
+            new bootstrap.Dropdown(dropdownToggleEl);
+        });
+
+        // Log para confirmar inicialização
+        console.log('Dropdowns inicializados:', dropdownElementList.length);
+    } else {
+        console.error('Bootstrap não está disponível para inicializar dropdowns');
+    }
+});
+
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("{% url 'aceitar_cookies' %}")
+      .then(response => response.json())
+      .then(data => {
+        if (!data.cookie_consent) {
+          document.getElementById("cookie-banner").classList.remove("d-none");
+        }
+      });
+
+    document.getElementById("accept-cookies").addEventListener("click", function () {
+      fetch("{% url 'aceitar_cookies' %}", { method: 'GET' })
+        .then(() => document.getElementById("cookie-banner").classList.add("d-none"));
+    });
+  });
 </script>
 {% endblock %}
 

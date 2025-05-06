@@ -42,6 +42,8 @@ from .book import (
     add_book_manual        # Adicionar livro manualmente
 )
 
+from .book_edit import BookEditView
+
 # Exporta todas as views para facilitar importação
 __all__ = [
     # Views gerais
@@ -52,5 +54,5 @@ __all__ = [
     'ProfileUpdateView',
     # Views de livros
     'BookSearchView', 'search_books', 'add_to_shelf', 'remove_from_shelf',
-    'get_book_details', 'update_book', 'move_book', 'add_book_manual'
+    'get_book_details', 'update_book', 'move_book', 'add_book_manual', 'BookEditView'
 ]

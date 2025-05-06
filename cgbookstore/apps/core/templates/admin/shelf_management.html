@@ -1,0 +1,243 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .shelf-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        .btn-group-management {
+            margin-bottom: 20px;
+        }
+        .shelf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .book-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .book-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #f0f0f0;
+        }
+        .book-item:hover {
+            background-color: #f8f9fa;
+        }
+        .book-cover {
+            width: 45px;
+            height: 70px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        .book-title {
+            font-weight: bold;
+            flex-grow: 1;
+        }
+        .book-author {
+            color: #666;
+            margin-left: 15px;
+        }
+        .empty-shelf {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        .search-form {
+            margin-bottom: 20px;
+        }
+        .alert-info {
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- Gerenciamento de Prateleiras -->
+<div class="shelf-container">
+    <div class="btn-group-management">
+        <a href="{% url 'admin:core_homesection_add' %}?tipo=shelf" class="btn btn-outline-primary">
+            <i class="fas fa-plus me-1"></i> Nova Seção
+        </a>
+        <a href="{% url 'admin:core_defaultshelftype_add' %}" class="btn btn-outline-success ms-2">
+            <i class="fas fa-folder-plus me-1"></i> Novo Tipo de Prateleira
+        </a>
+        <a href="{% url 'admin:core_book_add' %}" class="btn btn-outline-info ms-2">
+            <i class="fas fa-book me-1"></i> Novo Livro
+        </a>
+        <a href="{% url 'admin:quick-shelf-creation' %}" class="btn btn-outline-success ms-2">
+            <i class="fas fa-book-medical me-1"></i> Criação Rápida de Prateleira
+        </a>
+        <a href="{% url 'admin:visual-shelf-manager' %}" class="btn btn-outline-info ms-2">
+            <i class="fas fa-layer-group me-1"></i> Gerenciador Visual
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-layer-group me-2"></i> Tipos de Prateleiras
+                </div>
+                <div class="card-body">
+                    <form method="get" class="search-form">
+                        <div class="input-group mb-3">
+                            <input type="text" name="shelf_type_q" class="form-control" placeholder="Buscar tipo..." value="{{ request.GET.shelf_type_q }}">
+                            <button class="btn btn-outline-primary" type="submit">Buscar</button>
+                        </div>
+                    </form>
+
+                    <div class="list-group">
+                        {% for shelf_type in shelf_types %}
+                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ shelf_type.nome }}</strong>
+                                <span class="badge bg-secondary ms-2">{{ shelf_type.identificador }}</span>
+                            </div>
+                            <div>
+                                <a href="{% url 'admin:core_defaultshelftype_change' shelf_type.id %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'admin:book-statistics' %}?shelf_type={{ shelf_type.id }}" class="btn btn-sm btn-outline-info ms-1" title="Ver livros">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-shelf">Nenhum tipo de prateleira encontrado</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-th-large me-2"></i> Seções da Home
+                </div>
+                <div class="card-body">
+                    <form method="get" class="search-form">
+                        <div class="input-group mb-3">
+                            <input type="text" name="section_q" class="form-control" placeholder="Buscar seção..." value="{{ request.GET.section_q }}">
+                            <button class="btn btn-outline-success" type="submit">Buscar</button>
+                        </div>
+                    </form>
+
+                    <div class="list-group">
+                        {% for section in sections %}
+                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ section.titulo }}</strong>
+                                {% if section.prateleira_status %}
+                                <span class="badge bg-success ms-2">Prateleira: {{ section.book_shelf.get_shelf_type_name }}</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark ms-2">Sem prateleira</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <a href="{% url 'admin:core_homesection_change' section.id %}" class="btn btn-sm btn-outline-primary" title="Editar seção">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if section.prateleira_status %}
+                                <a href="{% url 'admin:core_bookshelfsection_change' section.book_shelf.id %}" class="btn btn-sm btn-outline-success ms-1" title="Gerenciar livros">
+                                    <i class="fas fa-book"></i>
+                                </a>
+                                {% else %}
+                                <a href="{% url 'admin:core_bookshelfsection_add' %}?section={{ section.id }}" class="btn btn-sm btn-outline-secondary ms-1" title="Criar prateleira">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-shelf">Nenhuma seção encontrada</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <i class="fas fa-book me-2"></i> Prateleiras Ativas
+        </div>
+        <div class="card-body">
+            <form method="get" class="search-form">
+                <div class="input-group mb-3">
+                    <input type="text" name="book_shelf_q" class="form-control" placeholder="Buscar prateleira..." value="{{ request.GET.book_shelf_q }}">
+                    <button class="btn btn-outline-info" type="submit">Buscar</button>
+                </div>
+            </form>
+
+            {% for book_shelf in book_shelves %}
+            <div class="card mb-3">
+                <div class="card-header shelf-header">
+                    <div>
+                        <h5 class="mb-0">{{ book_shelf.section.titulo }}</h5>
+                        <small class="text-muted">
+                            Tipo: {{ book_shelf.get_shelf_type_name }} |
+                            Livros: {{ book_shelf.livros.count }} / {{ book_shelf.max_livros }}
+                        </small>
+                    </div>
+                    <div>
+                        <a href="{% url 'admin:core_bookshelfsection_change' book_shelf.id %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit me-1"></i> Gerenciar
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="book-list">
+                        {% for book_item in book_shelf.bookshelfitem_set.all %}
+                        <div class="book-item">
+                            <img src="{{ book_item.livro.get_preview_url }}" alt="{{ book_item.livro.titulo }}" class="book-cover">
+                            <div class="book-title">{{ book_item.livro.titulo }}</div>
+                            <div class="book-author">{{ book_item.livro.autor }}</div>
+                            <a href="{% url 'admin:core_book_change' book_item.livro.id %}" class="btn btn-sm btn-outline-secondary ms-2" title="Editar livro">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="empty-shelf">Nenhum livro nesta prateleira</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Nenhuma prateleira ativa encontrada. Crie uma seção do tipo prateleira e associe um tipo de prateleira a ela.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

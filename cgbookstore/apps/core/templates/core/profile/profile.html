@@ -3,51 +3,151 @@
 {% load i18n %}
 
 {% block extra_css %}
+{{ block.super }}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile-card-stats.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile-card-themes.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile-card-quote.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile-card-reading-status.css' %}">
+<link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+<style>
+    /* Estilos adicionais para o card de perfil */
+    .profile-sidebar {
+        position: sticky;
+        top: 2rem;
+        max-width: 300px;
+        margin-left: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .col-md-3 {
+        padding-right: 0;
+    }
+
+    .customizable-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform-origin: center left;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none;
+    }
+
+    .customizable-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .profile-image {
+        transition: all 0.5s ease;
+    }
+
+    .customizable-card:hover .profile-image {
+        transform: scale(1.05);
+    }
+
+    .stat-item {
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-3px);
+        color: #0d6efd;
+    }
+
+    @media (max-width: 768px) {
+        .profile-sidebar {
+            position: relative;
+            max-width: 100%;
+            margin-left: 0;
+            margin-bottom: 2rem;
+        }
+
+        .customizable-card {
+            border-radius: 0.25rem;
+            border-left: 1px solid rgba(0, 0, 0, 0.125);
+        }
+
+        .col-md-3 {
+            padding-right: 12px;
+        }
+    }
+
+    /* Animação para o card */
+    .customizable-card.animated {
+        animation: fadeInLeft 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Estilo para hover nas estatísticas */
+    .stat-hover {
+        background-color: rgba(13, 110, 253, 0.05);
+        border-radius: 8px;
+    }
+</style>
 {% endblock %}
 
 {% block title %}Perfil - {{ user.get_full_name|default:user.username }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4 profile-container">
+<div class="container-fluid mt-4 profile-container">
     <div class="row g-4">
-        <!-- Sidebar usuário -->
+        <!-- Sidebar usuário (ajustado para ficar colado à esquerda) -->
         <div class="col-md-3">
-            <div class="card customizable-card">
-                <div class="card-body text-center">
-                    <div class="profile-image mb-3">
-                        {% if user.foto %}
-                            <img src="{{ user.foto.url }}" alt="Foto de perfil" class="rounded-circle img-fluid" style="width: 150px; height: 150px; object-fit: cover;">
-                        {% else %}
-                            <div class="avatar-placeholder">
-                                <i class="bi bi-person-circle" style="font-size: 6rem;"></i>
-                            </div>
-                        {% endif %}
-                        <form id="avatarForm" class="mt-2">
-                            {% csrf_token %}
-                            <input type="file" id="avatarInput" name="profile_photo" style="display: none;" accept="image/jpeg,image/png,image/gif">
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('avatarInput').click()">
-                                <i class="bi bi-camera"></i> Alterar foto
-                            </button>
-                        </form>
-                    </div>
-
-                    <h4 class="card-title">{{ user.get_full_name|default:user.username }}</h4>
-                    <p class="text-muted">@{{ user.username }}</p>
-                    <p class="text-muted"><small>Membro desde {{ user.date_joined|date:"F Y" }}</small></p>
-
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <i class="bi bi-book"></i>
-                            <span class="stat-value">{{ total_livros }}</span>
-                            <span class="stat-label">livros</span>
+            <div class="profile-sidebar">
+                <div class="card customizable-card">
+                    <div class="card-body text-center">
+                        <div class="profile-image mb-3">
+                            {% if user.foto %}
+                                <img src="{{ user.foto.url }}" alt="Foto de perfil" class="rounded-circle img-fluid" style="width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="avatar-placeholder">
+                                    <i class="bi bi-person-circle" style="font-size: 6rem;"></i>
+                                </div>
+                            {% endif %}
+                            <form id="avatarForm" class="mt-2">
+                                {% csrf_token %}
+                                <input type="file" id="avatarInput" name="profile_photo" style="display: none;" accept="image/jpeg,image/png,image/gif">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('avatarInput').click()">
+                                    <i class="bi bi-camera"></i> Alterar foto
+                                </button>
+                            </form>
                         </div>
-                    </div>
 
-                    <div class="mt-3">
-                        <a href="{% url 'profile_update' %}" class="btn btn-primary">
-                            <i class="bi bi-pencil"></i> Editar Perfil
-                        </a>
+                        <h4 class="card-title">{{ user.get_full_name|default:user.username }}</h4>
+                        <p class="text-muted">@{{ user.username }}</p>
+                        <p class="text-muted"><small>Membro desde {{ user.date_joined|date:"F Y" }}</small></p>
+
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <i class="bi bi-book"></i>
+                                <span class="stat-value">{{ total_livros }}</span>
+                                <span class="stat-label">livros</span>
+                            </div>
+
+                            <!-- Nova estatística: pontos de conquistas -->
+                            <div class="stat-item">
+                                <i class="bi bi-trophy"></i>
+                                <span class="stat-value">{{ total_points }}</span>
+                                <span class="stat-label">pontos</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="{% url 'profile_update' %}" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center">
+                                <i class="bi bi-pencil"></i> <span class="ms-1">Editar Perfil</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -55,8 +155,11 @@
 
         <!-- Conteúdo principal -->
         <div class="col-md-9">
+            <!-- TÍTULO DA SEÇÃO DE PRATELEIRAS -->
+            <h2 class="display-5 mb-4 mt-2 border-bottom pb-2 text-primary">Minhas Prateleiras</h2>
+
             <!-- Favoritos -->
-            <div class="card mb-4">
+            <div class="card mb-4" data-shelf-type="favorito">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="bi bi-heart-fill text-danger"></i> Favoritos
@@ -69,7 +172,7 @@
                             <div class="swiper-wrapper">
                                 {% for livro in favoritos %}
                                 <div class="swiper-slide">
-                                    <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
+                                    <div class="book-item" data-book-id="{{ livro.book.id }}" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
                                         <img src="{{ livro.book.get_capa_url }}"
                                              alt="Capa do livro {{ livro.book.titulo }}"
                                              class="book-cover"
@@ -94,7 +197,7 @@
             </div>
 
             <!-- Lendo -->
-            <div class="card mb-4">
+             <div class="card mb-4" data-shelf-type="lendo">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="bi bi-book-half text-primary"></i> Lendo
@@ -107,7 +210,7 @@
                             <div class="swiper-wrapper">
                                 {% for livro in lendo %}
                                 <div class="swiper-slide">
-                                    <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
+                                    <div class="book-item" data-book-id="{{ livro.book.id }}" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
                                         <img src="{{ livro.book.get_capa_url }}"
                                              alt="Capa do livro {{ livro.book.titulo }}"
                                              class="book-cover"
@@ -132,7 +235,7 @@
             </div>
 
             <!-- Vou Ler -->
-            <div class="card mb-4">
+            <div class="card mb-4" data-shelf-type="vou_ler">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="bi bi-bookmark text-success position-relative"></i> Vou ler
@@ -145,7 +248,7 @@
                             <div class="swiper-wrapper">
                                 {% for livro in vou_ler %}
                                 <div class="swiper-slide">
-                                    <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
+                                    <div class="book-item" data-book-id="{{ livro.book.id }}" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
                                         <img src="{{ livro.book.get_capa_url }}"
                                              alt="Capa do livro {{ livro.book.titulo }}"
                                              class="book-cover"
@@ -170,7 +273,7 @@
             </div>
 
             <!-- Lidos -->
-            <div class="card mb-4">
+            <div class="card mb-4" data-shelf-type="lido">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="bi bi-check-circle-fill text-primary"></i> Lidos
@@ -183,7 +286,7 @@
                             <div class="swiper-wrapper">
                                 {% for livro in lidos %}
                                 <div class="swiper-slide">
-                                    <div class="book-item" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
+                                    <div class="book-item" data-book-id="{{ livro.book.id }}" onclick="window.location.href='{% url 'book_detail' livro.book.id %}'">
                                         <img src="{{ livro.book.get_capa_url }}"
                                              alt="Capa do livro {{ livro.book.titulo }}"
                                              class="book-cover"
@@ -204,6 +307,156 @@
                             </button>
                         </div>
                     {% endif %}
+                </div>
+            </div>
+
+            <!-- TÍTULO DA SEÇÃO DE ESTATÍSTICAS -->
+            <h2 class="display-5 mb-4 mt-5 border-bottom pb-2 text-primary">Minhas Estatísticas</h2>
+
+            <!-- Seção expandida de estatísticas -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart-fill text-primary"></i> Estatísticas de Leitura
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row stats-row">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stats-card">
+                                <div class="stats-icon bg-primary-soft">
+                                    <i class="bi bi-book text-primary"></i>
+                                </div>
+                                <div class="stats-info">
+                                    <h5>{{ stats.total_lidos }}</h5>
+                                    <span>Livros Lidos</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stats-card">
+                                <div class="stats-icon bg-success-soft">
+                                    <i class="bi bi-file-text text-success"></i>
+                                </div>
+                                <div class="stats-info">
+                                    <h5>{{ stats.total_paginas }}</h5>
+                                    <span>Páginas Lidas</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stats-card">
+                                <div class="stats-icon bg-info-soft">
+                                    <i class="bi bi-calendar-check text-info"></i>
+                                </div>
+                                <div class="stats-info">
+                                    <h5>{{ stats.sequencia_atual }}</h5>
+                                    <span>Sequência Atual</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stats-card">
+                                <div class="stats-icon bg-warning-soft">
+                                    <i class="bi bi-tags text-warning"></i>
+                                </div>
+                                <div class="stats-info">
+                                    <h5>{{ stats.genero_favorito }}</h5>
+                                    <span>Gênero Favorito</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de leitura mensal -->
+                    <div class="chart-container mt-4" style="height: 300px;">
+                        <h6 class="text-muted mb-3">Livros lidos por mês</h6>
+                        <canvas id="readingChart" height="200" data-books="{{ stats.livros_por_mes|safe }}"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nova seção de conquistas -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trophy-fill text-warning"></i> Conquistas
+                    </h5>
+                    <span class="badge bg-warning text-dark">{{ achievements.total }} desbloqueada{{ achievements.total|pluralize }}</span>
+                </div>
+                <div class="card-body">
+                    {% if achievements.unlocked %}
+                        <div class="row achievement-grid">
+                            {% for achievement in achievements.unlocked %}
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="achievement-card" data-achievement-id="{{ achievement.achievement_id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ achievement.achievement__description }}">
+                                        <div class="achievement-icon tier-{{ achievement.achievement__tier }}">
+                                            <i class="bi {{ achievement.achievement__icon }}"></i>
+                                        </div>
+                                        <div class="achievement-info">
+                                            <h6>{{ achievement.achievement__name }}</h6>
+                                            <span class="achievement-date">{{ achievement.achieved_at|date:"d/m/Y" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if achievements.in_progress %}
+                            <h6 class="text-muted mt-4 mb-3">Em progresso</h6>
+                            <div class="row">
+                                {% for progress in achievements.in_progress %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="achievement-progress-card">
+                                            <div class="achievement-icon tier-{{ progress.tier }} locked">
+                                                <i class="bi {{ progress.icon }}"></i>
+                                            </div>
+                                            <div class="achievement-info">
+                                                <h6>{{ progress.name }}</h6>
+                                                <p class="achievement-description small">{{ progress.description }}</p>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ progress.progress }}%;" aria-valuenow="{{ progress.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <small class="text-muted">{{ progress.progress }}% concluído</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="empty-achievements text-center py-4">
+                            <i class="bi bi-trophy text-muted display-1"></i>
+                            <h6 class="mt-3">Nenhuma conquista desbloqueada ainda</h6>
+                            <p class="text-muted">Continue lendo e interagindo com a plataforma para ganhar conquistas!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalhes da conquista -->
+    <div class="modal fade" id="achievementDetailsModal" tabindex="-1" aria-labelledby="achievementModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="achievementModalTitle">Detalhes da Conquista</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <div class="achievement-icon-lg">
+                            <i id="achievementModalIcon" class="bi"></i>
+                        </div>
+                    </div>
+                    <p id="achievementModalDescription" class="text-center"></p>
+                    <div class="text-center mt-3">
+                        <span class="badge bg-light text-dark">
+                            <i class="bi bi-calendar-check me-1"></i>
+                            Conquistado em <span id="achievementModalDate"></span>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -268,30 +521,32 @@
             <div class="modal-body">
                 <form id="editBookForm">
                     {% csrf_token %}
-                    <input type="hidden" id="editBookId">
+                    <!-- Certifique-se de que este campo existe e está corretamente definido -->
+                    <input type="hidden" id="editBookId" name="id">
+
                     <div class="mb-3">
                         <label for="editTitle" class="form-label">Título</label>
-                        <input type="text" class="form-control" id="editTitle" required>
+                        <input type="text" class="form-control" id="editTitle" name="titulo" required>
                     </div>
                     <div class="mb-3">
                         <label for="editAuthor" class="form-label">Autor</label>
-                        <input type="text" class="form-control" id="editAuthor" required>
+                        <input type="text" class="form-control" id="editAuthor" name="autor" required>
                     </div>
                     <div class="mb-3">
                         <label for="editDescription" class="form-label">Descrição</label>
-                        <textarea class="form-control" id="editDescription" rows="3"></textarea>
+                        <textarea class="form-control" id="editDescription" name="descricao" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="editPublisher" class="form-label">Editora</label>
-                        <input type="text" class="form-control" id="editPublisher">
+                        <input type="text" class="form-control" id="editPublisher" name="editora">
                     </div>
                     <div class="mb-3">
                         <label for="editCategory" class="form-label">Categoria</label>
-                        <input type="text" class="form-control" id="editCategory">
+                        <input type="text" class="form-control" id="editCategory" name="categoria">
                     </div>
                     <div class="mb-3">
                         <label for="editCover" class="form-label">Nova Capa</label>
-                        <input type="file" class="form-control" id="editCover" accept="image/*">
+                        <input type="file" class="form-control" id="editCover" name="capa" accept="image/*">
                     </div>
                 </form>
             </div>
@@ -379,6 +634,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal de Customização do Card -->
 <div class="modal fade" id="customizeCardModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -390,62 +646,156 @@
             <div class="modal-body">
                 <form id="cardCustomizationForm">
                     <div class="mb-3">
-                        <label class="form-label">Cor de Fundo</label>
-                        <input type="color" class="form-control form-control-color" id="style_background_color">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Cor do Texto</label>
-                        <input type="color" class="form-control form-control-color" id="style_text_color">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Cor da Borda</label>
-                        <input type="color" class="form-control form-control-color" id="style_border_color">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Estilo da Imagem</label>
-                        <select class="form-select" id="style_image_style">
-                            <option value="circle">Circular</option>
-                            <option value="square">Quadrado</option>
-                            <option value="hexagon">Hexágono</option>
+                        <label class="form-label">Temas Predefinidos</label>
+                        <select class="form-select" id="style_preset">
+                            <option value="custom">Personalizado</option>
+                            <option value="classic">Clássico</option>
+                            <option value="dark">Escuro</option>
+                            <option value="minimalist">Minimalista</option>
+                            <option value="vibrant">Vibrante</option>
                         </select>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Efeito Hover</label>
-                        <select class="form-select" id="style_hover_effect">
-                            <option value="translate">Elevação</option>
-                            <option value="scale">Escala</option>
-                            <option value="glow">Brilho</option>
-                            <option value="none">Nenhum</option>
-                        </select>
+                    <hr class="my-3">
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Cor de Fundo</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-palette"></i></span>
+                                <input type="color" class="form-control form-control-color" id="style_background_color">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Cor do Texto</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-type"></i></span>
+                                <input type="color" class="form-control form-control-color" id="style_text_color">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Cor da Borda</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-border"></i></span>
+                                <input type="color" class="form-control form-control-color" id="style_border_color">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Estilo dos Ícones</label>
-                        <select class="form-select" id="style_icon_style">
-                            <option value="default">Padrão</option>
-                            <option value="filled">Preenchido</option>
-                            <option value="outline">Contorno</option>
-                            <option value="minimal">Minimalista</option>
-                        </select>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Estilo da Imagem</label>
+                            <select class="form-select" id="style_image_style">
+                                <option value="circle">Circular</option>
+                                <option value="square">Quadrado</option>
+                                <option value="hexagon">Hexágono</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Efeito Hover</label>
+                            <select class="form-select" id="style_hover_effect">
+                                <option value="translate">Elevação</option>
+                                <option value="scale">Escala</option>
+                                <option value="glow">Brilho</option>
+                                <option value="none">Nenhum</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <label class="form-label">Estilo dos Ícones</label>
+                            <select class="form-select" id="style_icon_style">
+                                <option value="default">Padrão</option>
+                                <option value="filled">Preenchido</option>
+                                <option value="outline">Contorno</option>
+                                <option value="minimal">Minimalista</option>
+                            </select>
+                            </label>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Raio da Borda</label>
+                            <select class="form-select" id="style_border_radius">
+                                <option value="0">Sem arredondamento</option>
+                                <option value="0.25rem">Suave</option>
+                                <option value="0.5rem">Médio</option>
+                                <option value="1rem">Grande</option>
+                                <option value="2rem">Extra Grande</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Estilo da Sombra</label>
+                            <select class="form-select" id="style_shadow_style">
+                                <option value="none">Nenhuma</option>
+                                <option value="light">Suave</option>
+                                <option value="medium">Média</option>
+                                <option value="dark">Forte</option>
+                                <option value="colored">Colorida</option>
+                            </select>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-outline-secondary" id="cancelCustomizationBtn" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary" onclick="saveCardCustomization()">Salvar</button>
             </div>
         </div>
     </div>
 </div>
 
+{% include 'chatbot_literario/widget.html' %}
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script src="{% static 'js/profile.js' %}"></script>
 <script src="{% static 'js/profile-customization.js' %}"></script>
+<script src="{% static 'js/profile-interaction.js' %}"></script>
+<script src="{% static 'js/profile-stats.js' %}"></script>
+<script src="{% static 'js/profile-card-stats.js' %}"></script>
+<script src="{% static 'js/profile-card-themes.js' %}"></script>
+<script src="{% static 'js/profile-card-quote.js' %}"></script>
+<script src="{% static 'js/profile-card-reading-status.js' %}"></script>
+<script src="{% static 'js/fix-customize-button.js' %}"></script>
+<script src="{% static 'js/profile-card-integration.js' %}"></script>
+<script src="{% static 'js/chatbot.js' %}"></script>
+
+<script>
+    // Script adicional para animar o card de perfil
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animação de entrada para o card de perfil
+        const profileCard = document.querySelector('.customizable-card');
+        setTimeout(() => {
+            profileCard.classList.add('animated');
+        }, 300);
+
+        // Efeito de paralaxe suave ao rolar a página
+        window.addEventListener('scroll', function() {
+            const scrollY = window.scrollY;
+            const sidebar = document.querySelector('.profile-sidebar');
+            if (sidebar && window.innerWidth > 768) {
+                sidebar.style.transform = `translateY(${scrollY * 0.05}px)`;
+            }
+        });
+
+        // Adicionar classe aos itens de estatísticas para animar ao passar o mouse
+        const statItems = document.querySelectorAll('.stat-item');
+        statItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.classList.add('stat-hover');
+            });
+            item.addEventListener('mouseleave', function() {
+                this.classList.remove('stat-hover');
+            });
+        });
+    });
+</script>
 {% endblock %}

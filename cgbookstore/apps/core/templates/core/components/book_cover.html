@@ -1,0 +1,37 @@
+{% comment %}
+    Componente para exibir capas de livros com tratamento padronizado
+    Uso: {% include 'core/components/book_cover.html' with book=book size='medium' %}
+
+    Parâmetros:
+    - book: objeto de livro ou dicionário com informações
+    - size: tamanho (small, medium, large)
+    - title_class: classes CSS adicionais para o título
+{% endcomment %}
+
+{% load static %}
+
+{% if book.volumeInfo %}
+    {# Formato de livro externo da API Google Books #}
+    {% with title=book.volumeInfo.title %}
+    {% with thumbnail=book.volumeInfo.imageLinks.thumbnail|default:'' %}
+    <div class="book-cover-container book-size-{{ size|default:'medium' }}">
+        {% if thumbnail %}
+            <img src="{{ thumbnail }}" alt="{{ title }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="book-cover-missing" style="display: none;">{{ title }}</div>
+        {% else %}
+            <div class="book-cover-missing">{{ title }}</div>
+        {% endif %}
+    </div>
+    {% endwith %}
+    {% endwith %}
+{% else %}
+    {# Formato de livro interno do banco de dados #}
+    <div class="book-cover-container book-size-{{ size|default:'medium' }}">
+        {% if book.capa_url %}
+            <img src="{{ book.capa_url }}" alt="{{ book.titulo }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="book-cover-missing" style="display: none;">{{ book.titulo }}</div>
+        {% else %}
+            <div class="book-cover-missing">{{ book.titulo }}</div>
+        {% endif %}
+    </div>
+{% endif %}

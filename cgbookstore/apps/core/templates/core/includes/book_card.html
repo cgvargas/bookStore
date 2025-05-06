@@ -1,30 +1,35 @@
-{% load custom_tags %}
-<div class="book-card animate-scale-in gpu-accelerated">
-    <a href="{% url 'book_detail' livro.pk %}" class="book-link">
-        <div class="book-cover hover-lift">
-            <img src="{{ livro.get_capa_url }}" alt="{{ livro.titulo }}" loading="lazy" decoding="async">
-            {% if livro.preco_promocional %}
-            <div class="discount-badge">
-                {% with desconto=livro.preco|sub:livro.preco_promocional %}
-                {% widthratio desconto livro.preco 100 as percent %}
-                <span>-{{ percent }}%</span>
-                {% endwith %}
-            </div>
-            {% endif %}
-        </div>
-        <div class="book-info">
-            <h3 class="book-title">{{ livro.titulo }}</h3>
-            <p class="book-author">{{ livro.autor }}</p>
-            {% if livro.preco %}
-                <div class="book-price {% if livro.preco_promocional %}has-discount{% endif %}">
-                    {% if livro.preco_promocional %}
-                        <span class="original-price">R$ {{ livro.preco|floatformat:2 }}</span>
-                        <span class="promotional-price">R$ {{ livro.preco_promocional|floatformat:2 }}</span>
-                    {% else %}
-                        <span class="regular-price">R$ {{ livro.preco|floatformat:2 }}</span>
-                    {% endif %}
+{% load static %}
+
+<div class="book-card">
+    <a href="{% url 'book_detail' livro.id %}" class="book-link">
+        <div class="book-cover">
+            {% if livro.capa %}
+                <img src="{{ livro.get_capa_url }}" alt="{{ livro.titulo }}" class="book-image-rounded">
+            {% elif livro.capa_url %}
+                <img src="{{ livro.capa_url }}" alt="{{ livro.titulo }}" class="book-image-rounded">
+            {% else %}
+                <div class="no-cover">
+                    <img src="{% static 'images/no-cover.svg' %}" alt="Capa não disponível" class="book-image-rounded">
                 </div>
             {% endif %}
         </div>
     </a>
+    <div class="book-info">
+        <h3 class="book-title" title="{{ livro.titulo }}">{{ livro.titulo }}</h3>
+        <p class="book-author" title="{{ livro.autor }}">{{ livro.autor }}</p>
+
+        {% if livro.preco_promocional %}
+            <div class="book-price has-discount">
+                <span class="original-price">{{ livro.get_formatted_price.valor_formatado }}</span>
+                <span class="promotional-price">{{ livro.get_formatted_price.valor_promocional_formatado }}</span>
+            </div>
+            <div class="discount-badge">
+                <!-- Removido o cálculo com filtros personalizados -->
+            </div>
+        {% elif livro.preco %}
+            <div class="book-price">
+                <span class="regular-price">{{ livro.get_formatted_price.valor_formatado }}</span>
+            </div>
+        {% endif %}
+    </div>
 </div>

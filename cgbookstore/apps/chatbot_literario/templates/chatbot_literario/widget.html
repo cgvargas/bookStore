@@ -1,0 +1,304 @@
+{% load static %}
+
+<div class="chatbot-widget" id="chatbotWidget">
+    <div class="chatbot-header" id="chatbotHeader">
+        <h6 class="mb-0"><i class="bi bi-robot me-2"></i>Assistente Literário</h6>
+        <button class="btn-close btn-close-white" id="chatbotClose" aria-label="Fechar chatbot"></button>
+    </div>
+
+    <div class="chatbot-body" id="chatbotBody">
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    Olá! Sou o assistente literário da CG.BookStore. Como posso ajudar você hoje?
+                </div>
+                <div class="message-time">
+                    {% now "H:i" %}
+                </div>
+            </div>
+
+            {% for message in messages %}
+                <div class="message {% if message.sender == 'bot' %}bot-message{% else %}user-message{% endif %}">
+                    <div class="message-content">
+                        {{ message.content }}
+                    </div>
+                    <div class="message-time">
+                        {{ message.timestamp|time:"H:i" }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="chatbot-suggestions">
+        <div class="d-flex flex-wrap gap-1">
+            <button class="btn btn-sm btn-outline-primary suggestion-btn">Recomende livros</button>
+            <button class="btn btn-sm btn-outline-primary suggestion-btn">Como funciona?</button>
+            <button class="btn btn-sm btn-outline-primary suggestion-btn">Meus favoritos</button>
+        </div>
+    </div>
+
+    <div class="chatbot-footer">
+        <form id="widgetChatForm" class="d-flex">
+            <input type="text" id="widgetUserMessage" class="form-control me-1" placeholder="Digite aqui..." required>
+            <button type="submit" class="chatbot-send-btn">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<button class="chatbot-toggle-btn" id="chatbotToggle" aria-label="Abrir chatbot">
+    <i class="bi bi-chat-text-fill"></i>
+</button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatbotWidget = document.getElementById('chatbotWidget');
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const widgetChatForm = document.getElementById('widgetChatForm');
+        const widgetUserMessage = document.getElementById('widgetUserMessage');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+
+        // Flag para evitar envios duplicados
+        let isProcessing = false;
+
+        // Detectar tema do sistema
+        function detectTheme() {
+            // Verificar se o site tem uma classe ou variável de tema
+            const htmlElement = document.documentElement;
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            // Verificar se o elemento body tem classe dark-mode (ou similar)
+            const bodyHasDarkClass = document.body.classList.contains('dark-mode') ||
+                                    document.body.classList.contains('dark') ||
+                                    document.body.classList.contains('theme-dark');
+
+            // Aplicar tema escuro se necessário
+            if (isDarkMode || bodyHasDarkClass) {
+                chatbotWidget.classList.add('dark-mode');
+            } else {
+                chatbotWidget.classList.remove('dark-mode');
+            }
+        }
+
+        // Detectar tema inicial
+        detectTheme();
+
+        // Observar mudanças no tema
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    detectTheme();
+                }
+            });
+        });
+
+        // Observar mudanças nas classes do body
+        observer.observe(document.body, { attributes: true });
+
+        // Observar alteração na preferência do sistema
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectTheme);
+
+        // Abrir/fechar widget
+        chatbotToggle.addEventListener('click', function() {
+            chatbotWidget.style.display = 'flex';
+            chatbotToggle.style.display = 'none';
+            scrollToBottom();
+        });
+
+        chatbotClose.addEventListener('click', function() {
+            chatbotWidget.style.display = 'none';
+            chatbotToggle.style.display = 'flex';
+        });
+
+        // Rolar para o final do chat
+        function scrollToBottom() {
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        // Formatação correta de hora
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        function addMessage(content, sender, time, messageId = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+
+            // Adicionar ID na mensagem se disponível
+            if (messageId) {
+                messageDiv.dataset.messageId = messageId;
+            }
+
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            contentDiv.textContent = content;
+
+            const timeDiv = document.createElement('div');
+            timeDiv.classList.add('message-time');
+            timeDiv.textContent = time || getCurrentTime();
+
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(timeDiv);
+
+            // Adicionar botões de feedback apenas para mensagens do bot
+            if (sender === 'bot' && messageId) {
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.classList.add('message-feedback');
+                feedbackDiv.innerHTML = `
+                    <span class="feedback-question">Foi útil?</span>
+                    <button class="feedback-btn feedback-yes" data-message-id="${messageId}" data-helpful="true" title="Sim, foi útil">
+                        <i class="bi bi-hand-thumbs-up"></i>
+                    </button>
+                    <button class="feedback-btn feedback-no" data-message-id="${messageId}" data-helpful="false" title="Não foi útil">
+                        <i class="bi bi-hand-thumbs-down"></i>
+                    </button>
+                `;
+                messageDiv.appendChild(feedbackDiv);
+
+                // Adicionar evento aos botões de feedback
+                setTimeout(() => {
+                    const feedbackBtns = messageDiv.querySelectorAll('.feedback-btn');
+                    feedbackBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            sendFeedback(this.dataset.messageId, this.dataset.helpful === 'true');
+                            // Destacar botão selecionado
+                            feedbackBtns.forEach(b => b.classList.remove('selected'));
+                            this.classList.add('selected');
+                            // Mostrar mensagem
+                            const feedbackQuestion = messageDiv.querySelector('.feedback-question');
+                            feedbackQuestion.textContent = 'Obrigado pelo feedback!';
+                            setTimeout(() => {
+                                feedbackDiv.style.opacity = '0.5';
+                            }, 2000);
+                        });
+                    });
+                }, 100);
+            }
+
+            chatbotMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Enviar feedback para o servidor
+        async function sendMessage(message) {
+            // Verificar se já está processando uma mensagem
+            if (isProcessing) {
+                console.log("Já existe uma requisição em andamento. Aguarde.");
+                return;
+            }
+
+            // Definir flag para bloquear novos envios
+            isProcessing = true;
+
+            // Adicionar mensagem do usuário
+            addMessage(message, 'user');
+
+            // Limpar campo de input
+            widgetUserMessage.value = '';
+
+            try {
+                // Adicionar indicador de digitação
+                const typingIndicator = document.createElement('div');
+                typingIndicator.classList.add('message', 'bot-message', 'typing-indicator');
+                typingIndicator.innerHTML = '<div class="message-content">Digitando...</div>';
+                chatbotMessages.appendChild(typingIndicator);
+                scrollToBottom();
+
+                // Enviar requisição para o backend
+                const response = await fetch('{% url "chatbot_literario:api_message" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                // Remover indicador de digitação
+                const indicator = document.querySelector('.typing-indicator');
+                if (indicator) {
+                    chatbotMessages.removeChild(indicator);
+                }
+
+                if (!response.ok) {
+                    throw new Error('Erro na comunicação com o servidor');
+                }
+
+                const data = await response.json();
+
+                // Adicionar resposta do bot com o ID da mensagem se disponível
+                addMessage(data.response, 'bot', data.timestamp, data.message_id);
+
+            } catch (error) {
+                console.error('Erro:', error);
+
+                // Remover indicador de digitação em caso de erro
+                const indicator = document.querySelector('.typing-indicator');
+                if (indicator) {
+                    chatbotMessages.removeChild(indicator);
+                }
+
+                addMessage('Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.', 'bot');
+            } finally {
+                // Sempre resetar a flag ao finalizar o processamento
+                isProcessing = false;
+            }
+        }
+
+        // Função para obter o token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Remover quaisquer event listeners anteriores
+        widgetChatForm.removeEventListener('submit', handleFormSubmit);
+
+        // Função para manipular o envio do formulário
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const message = widgetUserMessage.value.trim();
+            if (message) {
+                sendMessage(message);
+            }
+        }
+
+        // Adicionar o event listener apenas uma vez
+        widgetChatForm.addEventListener('submit', handleFormSubmit);
+
+        // Usar sugestões - com verificação de duplicação
+        suggestionBtns.forEach(btn => {
+            // Remover quaisquer event listeners anteriores
+            btn.replaceWith(btn.cloneNode(true));
+        });
+
+        // Adicionar event listeners novos para os botões clonados
+        document.querySelectorAll('.suggestion-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!isProcessing) {
+                    const message = this.textContent.trim();
+                    widgetUserMessage.value = message;
+                    sendMessage(message);
+                }
+            });
+        });
+    });
+</script>

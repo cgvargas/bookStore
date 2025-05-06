@@ -1,0 +1,175 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+<style>
+    /* Estilos para centralizar o card de formulário */
+    #content {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    #content-main {
+        max-width: 1000px;
+        width: 100%;
+    }
+
+    /* Ajustes para o formulário */
+    .form-panel {
+        background-color: var(--bg-panel, #1A1A2E);
+        border-radius: var(--border-radius, 8px);
+        box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.2));
+        border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .form-header {
+        background-color: #2c5f7c;
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.1));
+    }
+
+    .form-content {
+        padding: 20px;
+    }
+
+    /* Estilos para campos do formulário */
+    .form-row {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.1));
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .field-box {
+        flex: 1;
+        min-width: 300px;
+        padding: 5px 15px;
+    }
+
+    /* Estilos para botões */
+    .submit-row {
+        display: flex;
+        justify-content: flex-start;
+        padding: 15px 20px;
+        background-color: var(--bg-element, #2B2B40);
+        border-top: 1px solid var(--border-color, rgba(255,255,255,0.1));
+    }
+
+    .submit-row input, 
+    .submit-row a {
+        margin-right: 10px;
+    }
+
+    /* Estilo para título e descrição de expandíveis */
+    .collapse-header {
+        background-color: #2c5f7c;
+        color: white;
+        padding: 10px 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+    }
+
+    .collapse-header:hover {
+        background-color: #265370;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-panel">
+    <div class="form-header">
+        Configurações da Prateleira
+    </div>
+    <div class="form-content">
+        <form id="bookshelfform" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="field-box">
+                    <label for="id_secao">Seção:</label>
+                    <select name="secao" id="id_secao" class="form-control">
+                        <option value="">---------</option>
+                        <!-- Opções de seção seriam preenchidas dinamicamente -->
+                    </select>
+                    <button type="button" class="btn-add">+</button>
+                    <button type="button" class="btn-remove">×</button>
+                    <button type="button" class="btn-view">👁</button>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="field-box">
+                    <label for="id_tipo_personalizada">Tipo de Prateleira Personalizada:</label>
+                    <select name="tipo_personalizada" id="id_tipo_personalizada" class="form-control">
+                        <option value="">---------</option>
+                        <!-- Opções de tipo seriam preenchidas dinamicamente -->
+                    </select>
+                    <button type="button" class="btn-add">+</button>
+                    <button type="button" class="btn-remove">×</button>
+                    <button type="button" class="btn-view">👁</button>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="field-box">
+                    <label for="id_tipo_legado">Tipo de Prateleira (Legado):</label>
+                    <select name="tipo_legado" id="id_tipo_legado" class="form-control">
+                        <option value="">---------</option>
+                        <!-- Opções de tipo legado seriam preenchidas dinamicamente -->
+                    </select>
+                    <p class="help">Usado apenas para compatibilidade. Prefira o campo "Tipo de Prateleira Personalizada".</p>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="field-box">
+                    <label for="id_max_livros">Máximo de Livros:</label>
+                    <input type="number" name="max_livros" id="id_max_livros" class="form-control" value="12">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="form-panel">
+    <div class="collapse-header" onclick="toggleCollapse('itens-prateleira')">
+        <span>ITENS DA PRATELEIRA</span>
+        <span class="collapse-icon">▼</span>
+    </div>
+    <div id="itens-prateleira" class="form-content">
+        <p>Nenhum item adicionado ainda.</p>
+        <button type="button" class="btn-add-item">+ Adicionar outro(s) Item da Prateleira</button>
+    </div>
+</div>
+
+<div class="submit-row">
+    <input type="submit" value="SALVAR" name="_save" class="btn-primary">
+    <input type="submit" value="Salvar e adicionar outro(s)" name="_addanother" class="btn-secondary">
+    <input type="submit" value="Salvar e continuar editando" name="_continue" class="btn-secondary">
+</div>
+
+<script>
+    function toggleCollapse(id) {
+        const element = document.getElementById(id);
+        const header = element.previousElementSibling;
+        const icon = header.querySelector('.collapse-icon');
+        
+        if (element.style.display === 'none') {
+            element.style.display = 'block';
+            icon.textContent = '▼';
+        } else {
+            element.style.display = 'none';
+            icon.textContent = '►';
+        }
+    }
+</script>
+{% endblock %}

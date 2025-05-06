@@ -1,28 +1,632 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Sobre{% endblock %}
+{% block title %}Sobre - CG BookStore
+<!-- Incluindo os modais -->
+{% include 'core/components/modal_prateleiras.html' %}
+{% include 'core/components/modal_recomendacoes.html' %}
+
+<!-- Script para redirecionar para a seção de vídeos na home -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Botão para ir para a seção de vídeos
+        document.getElementById('btn-assistir-resenhas').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = "{% url 'index' %}#video-section";
+        });
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Regras existentes que serão mantidas */
+    .card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-radius: 10px;
+        border: none;
+        background: #f8f9fa;
+        height: 100%;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .list-unstyled li {
+        padding-left: 1.5rem;
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    .list-unstyled li::before {
+        position: absolute;
+        left: 0;
+    }
+    .journey-card {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+    }
+    .tech-card {
+        background: linear-gradient(to bottom, #f8f9fa, #e2e8f0);
+    }
+    .feature-icon {
+        font-size: 1.5rem;
+        color: #0d6efd;
+        margin-right: 0.5rem;
+    }
+    .section-title {
+        position: relative;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+        color: #2c3e50;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50px;
+        height: 3px;
+        background: #0d6efd;
+    }
+    .section-title.text-center::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .quote-card {
+        background-color: #e9f2ff;
+        border-left: 5px solid #0d6efd;
+        padding: 20px;
+        font-style: italic;
+    }
+    .future-feature {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .future-feature:hover {
+        transform: translateX(5px);
+    }
+    .commitment-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+        border-radius: 10px;
+    }
+    .badge-custom {
+        background: #e7f0fd;
+        color: #0d6efd;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+    .tech-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        margin: 5px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background: #f1f5f9;
+        color: #334155;
+        border-radius: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .tech-badge i {
+        margin-right: 5px;
+    }
+    .btn-vertical-center {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        line-height: 1.2;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+     .section-title::after {
+        display: none; /* Remove a linha completamente */
+    }
+    /* Manter algum espaçamento onde a linha estava */
+    .section-title {
+        margin-bottom: 20px; /* Ajuste conforme necessário */
+    }
+
+    .no-scroll-modal {
+        overflow: hidden !important;
+        max-height: none !important;
+        scrollbar-width: none; /* Firefox */
+    }
+    .no-scroll-modal::-webkit-scrollbar {
+        display: none; /* Chrome, Edge */
+    }
+
+    .modal-body h5,
+        .modal-body p,
+        .modal-body li {
+            color: #000 !important;
+    }
+
+    /* Remove scroll de todas as partes do modal */
+    .modal,
+    .modal-dialog,
+    .modal-content,
+    .modal-body {
+        overflow: hidden !important;
+        max-height: 100vh !important;
+    }
+
+    /* Esconde scrollbar do Chrome, Edge */
+    .modal-body::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* Esconde scrollbar do Firefox */
+    .modal-body {
+        scrollbar-width: none !important;
+    }
+    .modal-content {
+    border-radius: 1rem !important; /* mais arredondado */
+    }
+
+    .modal-header {
+        border-top-left-radius: 1rem !important;
+        border-top-right-radius: 1rem !important;
+    }
+
+    .modal-header {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-bottom: none;
+    }
+
+    .btn-vertical-fix {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 38px;
+    }
+
+    /* NOVAS REGRAS PARA CORREÇÃO DE CONTRASTE */
+
+    /* Regras para modo claro */
+    html.light-mode .journey-card .card-title,
+    html.light-mode .tech-card .section-title,
+    html.light-mode .card h3,
+    html.light-mode .card h4,
+    html.light-mode .card h5 {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+    }
+
+    html.light-mode .journey-card .card-text,
+    html.light-mode .journey-card li,
+    html.light-mode .journey-card .quote-card,
+    html.light-mode .tech-card .card-text,
+    html.light-mode .card p:not(.text-muted) {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+    }
+
+    html.light-mode .card .text-muted {
+        color: #333333 !important;
+        -webkit-text-fill-color: #333333 !important;
+    }
+
+    /* Regras para modo escuro */
+    html.dark-mode .journey-card .card-title,
+    html.dark-mode .tech-card .section-title,
+    html.dark-mode .card h3,
+    html.dark-mode .card h4,
+    html.dark-mode .card h5 {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+    html.dark-mode .journey-card .card-text,
+    html.dark-mode .journey-card li,
+    html.dark-mode .journey-card .quote-card,
+    html.dark-mode .tech-card .card-text,
+    html.dark-mode .card p:not(.text-muted) {
+        color: #e2e8f0 !important;
+        -webkit-text-fill-color: #e2e8f0 !important;
+    }
+
+    html.dark-mode .card .text-muted {
+        color: #a0aec0 !important;
+        -webkit-text-fill-color: #a0aec0 !important;
+    }
+
+    /* Garantir alta especificidade para sobrescrever qualquer outro estilo */
+    html[class] .section-title.text-center,
+    html[class] .section-title.text-dark,
+    html[class] h2.section-title {
+        color: inherit !important;
+    }
+
+    /* Ajustar cores específicas para cada tema */
+    html.light-mode h2.section-title {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+    }
+
+    html.dark-mode h2.section-title {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center">CG BookStore</h1>
-    <p class="lead text-center">A sua livraria virtual favorita, onde o amor pelos livros encontra a tecnologia.</p>
-
-    <div class="row mt-5">
-        <div class="col-md-6">
-            <h3>A Nossa História</h3>
-            <p>A CG BookStore foi fundada em 2023 com a missão de conectar leitores ao vasto universo literário.</p>
+<!-- Cabeçalho da página -->
+<div class="container py-5">
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-4 mb-3 text-dark">Conheça a CG BookStore</h1>
+            <p class="lead text-dark">Um universo literário criado para leitores apaixonados</p>
+            <div class="d-flex justify-content-center gap-2 mt-4">
+                <span class="badge-custom"><i class="bi bi-book"></i> +2 milhões de títulos</span>
+                <span class="badge-custom"><i class="bi bi-people"></i> Comunidade literária</span>
+                <span class="badge-custom"><i class="bi bi-stars"></i> Experiência personalizada</span>
+            </div>
         </div>
-        <div class="col-md-6">
-            <h3>O que Oferecemos</h3>
-            <p>Na CG BookStore, você encontrará uma extensa coleção de informações sobre livros em diversas categorias.</p>
-            <ul>
-                <li>Informações detalhadas de livros físicos e eBooks</li>
-                <li>Recomendações baseadas em tendências</li>
-                <li>Links para aquisição em livrarias</li>
-                <li>Navegação rápida e intuitiva</li>
-            </ul>
+    </div>
+
+    <!-- Nossa Jornada -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="section-title">Nossa Jornada Literária</h2>
+        </div>
+        <div class="col-md-7">
+            <div class="card journey-card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="bi bi-book-half feature-icon me-3" style="font-size: 2.5rem;"></i>
+                        <h3 class="card-title m-0" style="color: #000000 !important;">A Inspiração por Trás da Nossa História</h3>
+                    </div>
+
+                    <p class="card-text" style="color: #000000 !important;">Fundada em 2023, a CG BookStore nasceu da paixão por conectar pessoas a histórias transformadoras. Mais que uma simples livraria digital, somos uma plataforma <strong>micro SaaS</strong> que reinventa a experiência de descoberta literária.</p>
+
+                    <p class="card-text" style="color: #000000 !important;">Nossa jornada começou com uma pergunta simples: <em>"Como podemos aproximar cada leitor do livro perfeito?"</em> A resposta nos levou a desenvolver um ecossistema que combina:</p>
+
+                    <ul class="mt-3" style="color: #000000 !important;">
+                        <li style="color: #000000 !important;">Curadoria inteligente baseada nos seus gostos literários</li>
+                        <li style="color: #000000 !important;">Ferramentas para organizar sua vida como leitor</li>
+                        <li style="color: #000000 !important;">Uma comunidade vibrante para compartilhar descobertas</li>
+                    </ul>
+
+                    <div class="quote-card mt-4" style="color: #000000 !important;">
+                        "Acreditamos que cada livro tem seu leitor, e cada leitor merece encontrar aquelas histórias que falarão diretamente à sua alma."
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-4">Nossa Missão</h3>
+
+                    <div class="d-flex align-items-start mb-4">
+                        <i class="bi bi-compass feature-icon mt-1"></i>
+                        <div>
+                            <h5>Guiar Descobertas</h5>
+                            <p class="text-muted">Ser a ponte entre leitores e os livros que transformarão suas vidas.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start mb-4">
+                        <i class="bi bi-people feature-icon mt-1"></i>
+                        <div>
+                            <h5>Fomentar Comunidade</h5>
+                            <p class="text-muted">Criar espaços onde leitores possam compartilhar paixões literárias.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-lightbulb feature-icon mt-1"></i>
+                        <div>
+                            <h5>Inovar Constantemente</h5>
+                            <p class="text-muted">Aplicar tecnologia de ponta para personalizar cada jornada de leitura.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diferenciais Exclusivos -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="section-title">Diferenciais Exclusivos</h2>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-collection feature-icon"></i>
+                        <h4>Prateleiras Virtuais</h4>
+                    </div>
+                    <p class="text-muted">Organize sua vida literária com nossas prateleiras personalizáveis. Categorize o que está lendo, o que já leu e o que deseja ler próximo, mantendo sua coleção sempre organizada.</p>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#prateleirasModal">Explorar prateleiras</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-graph-up feature-icon"></i>
+                        <h4>Recomendações AI-Driven</h4>
+                    </div>
+                    <p class="text-muted">Nosso algoritmo inteligente analisa seus hábitos de leitura e preferências para sugerir novas obras que se alinham perfeitamente com seu gosto literário único.</p>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#recomendacoesModal">Ver recomendações</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-globe2 feature-icon"></i>
+                        <h4>Acervo Global</h4>
+                    </div>
+                    <p class="text-muted">Acesso a mais de 2 milhões de títulos através da integração com a Google Books API, garantindo que você encontrará desde bestsellers até obras raras e de nicho.</p>
+                    <a href="{% url 'catalogue' %}" class="btn btn-sm btn-outline-primary mt-2 btn-vertical-center">Explorar catálogo</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-camera-video feature-icon"></i>
+                        <h4>Conteúdo Multimídia</h4>
+                    </div>
+                    <p class="text-muted">Acesse resenhas em vídeo diretamente do YouTube, trazendo uma dimensão adicional à sua experiência literária com opiniões detalhadas de booktubers renomados.</p>
+                    <div class="text-center">
+                        <a href="#" class="btn btn-sm btn-outline-primary mt-2 btn-vertical-center" id="btn-assistir-resenhas">Assistir resenhas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-gem feature-icon"></i>
+                    <h4>Modelo Flexível</h4>
+                </div>
+                <p class="text-muted">Escolha entre nossos planos Freemium e Premium, adaptando a experiência às suas necessidades. O plano Premium desbloqueia funcionalidades avançadas como análises de leitura, exportação de dados e muito mais.</p>
+                <div class="text-center">
+                    <a href="{% url 'planos' %}" class="btn btn-sm btn-outline-primary mt-2 btn-vertical-center">Comparar planos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção Tecnológica -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="section-title text-center" style="color: #000000 !important;">Tecnologia de Ponta</h2>
+        </div>
+        <div class="col-lg-8 mx-auto">
+            <div class="card tech-card">
+                <div class="card-body p-4 text-center">
+                    <i class="bi bi-gear-wide-connected mb-3" style="font-size: 2.5rem; color: #0d6efd;"></i>
+                    <p class="card-text" style="color: #000000 !important;">Construímos a CG BookStore utilizando as tecnologias mais modernas para garantir uma experiência fluida, segura e escalável para nossos usuários:</p>
+                        <div class="mt-4">
+                            <span class="tech-badge"><i class="bi bi-code-slash"></i> Framework Web Avançado</span>
+                            <span class="tech-badge"><i class="bi bi-filetype-py"></i> Linguagem de Programação Moderna e Eficiente</span>
+                            <span class="tech-badge"><i class="bi bi-database"></i> Banco de Dados Relacional de Alta Performance</span>
+                            <span class="tech-badge"><i class="bi bi-bootstrap"></i> Framework Front-end Responsivo</span>
+                            <span class="tech-badge"><i class="bi bi-arrows-move"></i> Biblioteca de Carrosséis e Animações Interativas</span>
+                            <span class="tech-badge"><i class="bi bi-shield-check"></i> Segurança e Conformidade com Normas de Proteção de Dados</span>
+                        </div>
+                    <p class="mt-4 mb-0 text-muted">Nossa equipe de desenvolvimento trabalha continuamente para implementar melhorias e novos recursos, sempre priorizando desempenho e segurança.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+
+    <!-- Visão Futura -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="section-title text-dark">O Futuro da Leitura</h2>
+            <p class="lead mb-4 text-dark">Estamos construindo o ecossistema literário do século XXI. Conheça algumas das inovações que estamos preparando:</p>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="future-feature">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-people-fill me-2 text-primary"></i>
+                    <h5 class="m-0 text-dark">Clubes de Leitura Interativos</h5>
+                </div>
+                <p class="text-dark mb-0">Participe de discussões literárias moderadas e conecte-se com leitores que compartilham seus interesses.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="future-feature">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-youtube me-2 text-primary"></i>
+                    <h5 class="m-0 text-dark">Integração com Booktubers</h5>
+                </div>
+                <p class="text-dark mb-0">Acompanhe seus criadores de conteúdo literário favoritos diretamente em nossa plataforma.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="future-feature">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-pencil-square me-2 text-primary"></i>
+                    <h5 class="m-0 text-dark">Sistema de Resenhas Colaborativas</h5>
+                </div>
+                <p class="text-dark mb-0">Contribua com suas impressões e veja como outros leitores interpretaram a mesma obra.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="future-feature">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-book me-2 text-primary"></i>
+                    <h5 class="m-0 text-dark">Loja de eBooks Integrada</h5>
+                </div>
+                <p class="text-dark mb-0">Adquira suas próximas leituras diretamente na plataforma, com recomendações personalizadas.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="future-feature">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-calendar-event me-2 text-primary"></i>
+                    <h5 class="m-0 text-dark">Eventos ao Vivo com Autores</h5>
+                </div>
+                <p class="text-dark mb-0">Participe de sessões exclusivas com seus autores favoritos através de nossa plataforma.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="future-feature">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-trophy me-2 text-primary"></i>
+                    <h5 class="m-0 text-dark">Programa de Recompensas</h5>
+                </div>
+                <p class="text-dark mb-0">Ganhe pontos por atividades na plataforma e troque por benefícios exclusivos e descontos.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compromisso -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="card commitment-card">
+                <div class="card-body p-4 text-center">
+                    <h3 class="mb-4"><i class="bi bi-shield-lock me-2"></i>Compromisso CG BookStore</h3>
+
+                    <div class="row justify-content-center">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-arrow-clockwise me-3 text-primary"></i>
+                                <div class="text-start">
+                                    <h5 class="mb-0">Atualizações Constantes</h5>
+                                    <p class="text-muted mb-0">Melhorias semanais</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-shield-check me-3 text-primary"></i>
+                                <div class="text-start">
+                                    <h5 class="mb-0">Segurança Avançada</h5>
+                                    <p class="text-muted mb-0">Criptografia de Alto Nível</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-file-earmark-text me-3 text-primary"></i>
+                                <div class="text-start">
+                                    <h5 class="mb-0">Privacidade Garantida</h5>
+                                    <p class="text-muted mb-0">Conformidade com LGPD</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="mt-4 mb-0 small text-muted">Versão 2.1.5 | Última atualização: Fevereiro/2025</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="row">
+        <div class="col-md-8 mx-auto text-center">
+            <h3 class="mb-4 text-dark">Faça Parte da Nossa Comunidade Literária</h3>
+            <p class="mb-4 text-dark">Junte-se a milhares de leitores apaixonados e descubra uma nova forma de vivenciar a literatura.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="mailto:cg.bookstore.online@gmail.com" class="btn btn-primary btn-lg">
+                    <i class="bi bi-envelope me-2"></i>Entre em Contato
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-person-plus me-2"></i>Criar Conta
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para prateleiras virtuais -->
+<div class="modal fade" id="prateleirasModal" tabindex="-1" aria-labelledby="prateleirasModalLabel" aria-hidden="true">
+  <!-- Conteúdo do modal das prateleiras -->
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="prateleirasModalLabel">Prateleiras Virtuais</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <!-- O conteúdo do modal vem aqui -->
+        <div class="text-center mb-4">
+          <img src="{% static 'images/placeholder-prateleira.jpg' %}" class="img-fluid rounded" alt="Exemplo de prateleira">
+        </div>
+        <h5 class="fw-bold">Organize sua vida literária</h5>
+        <p>Nossas prateleiras virtuais permitem que você:</p>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-success me-2"></i> Acompanhe o progresso das suas leituras atuais</li>
+          <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-success me-2"></i> Mantenha uma lista organizada dos próximos livros</li>
+          <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-success me-2"></i> Registre suas impressões sobre cada obra lida</li>
+          <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-success me-2"></i> Destaque suas obras favoritas para recomendações</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <a href="{% url 'register' %}" class="btn btn-primary">Criar Minha Prateleira</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para recomendações -->
+<div class="modal fade" id="recomendacoesModal" tabindex="-1" aria-labelledby="recomendacoesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="recomendacoesModalLabel">
+          <i class="bi bi-stars me-2"></i>Recomendações Inteligentes
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-4 bg-light p-3 rounded">
+          <p>Nossa tecnologia proprietária analisa seus padrões de leitura, avaliações e interações para criar um perfil literário único. Com ele, podemos sugerir obras que se alinham perfeitamente ao seu gosto.</p>
+        </div>
+
+        <div class="text-center">
+          <img src="{% static 'images/placeholder-recomendacao.jpg' %}" class="img-fluid rounded shadow" alt="Exemplo de Recomendações">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <a href="{% url 'recommended_books' %}" class="btn btn-primary">Ver Minhas Recomendações</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar modais do Bootstrap
+    var prateleirasModal = document.getElementById('prateleirasModal');
+    var recomendacoesModal = document.getElementById('recomendacoesModal');
+
+    if (prateleirasModal && recomendacoesModal) {
+      new bootstrap.Modal(prateleirasModal);
+      new bootstrap.Modal(recomendacoesModal);
+    }
+  });
+</script>
 {% endblock %}

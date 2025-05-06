@@ -1,0 +1,83 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('CGBookStore') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        {{ site_header|default:_('Administração CG BookStore') }}
+    </a>
+</h1>
+{% endblock %}
+
+{% block dark_mode_vars %}
+<style>
+    :root {
+        /* Paleta de Cores Principal - Tema Escuro */
+        --bg-dark: #121212;
+        --bg-dark-secondary: #1E1E2D;
+        --bg-panel: #1A1A2E;
+        --bg-element: #2B2B40;
+        --bg-hover: #2A2A42;
+
+        /* Texto e Tipografia */
+        --text-primary: #FFFFFF;
+        --text-secondary: #B5B5C3;
+        --text-muted: #7E8299;
+
+        /* Cores de Destaque */
+        --primary-color: #3699FF;
+        --primary-hover: #187DE4;
+        --secondary-color: #6D28D9;
+        --accent-color: #2B2B40; /* Alterado para laranja */
+        --accent-hover: #1A1A2E; /* Laranja mais escuro */
+        --warning-color: #FFA800;
+        --danger-color: #F64E60;
+
+        /* Cores de Estado */
+        --success-bg: rgba(11, 183, 131, 0.2);
+        --warning-bg: rgba(255, 168, 0, 0.2);
+        --danger-bg: rgba(246, 78, 96, 0.2);
+        --info-bg: rgba(54, 153, 255, 0.2);
+
+        /* Bordas e Sombras */
+        --border-color: rgba(255, 255, 255, 0.1);
+        --border-subtle: rgba(255, 255, 255, 0.05);
+        --border-active: rgba(255, 255, 255, 0.2);
+        --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.15);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+        --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.25);
+
+        /* Arredondamento e Espaçamento */
+        --border-radius-sm: 4px;
+        --border-radius: 8px;
+        --border-radius-lg: 12px;
+
+        /* Cores para tabelas e alternância de linhas */
+        --bg-row1: #121212; /* Preto */
+        --bg-row2: #2A2A3A; /* Cinza escuro */
+
+        /* Largura da barra de navegação */
+        --nav-sidebar-width: 280px;
+    }
+</style>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- Adiciona o CSS de correção de tabelas como o último arquivo a ser carregado -->
+<link rel="stylesheet" href="{% static 'admin/css/admin_table_fix.css' %}">
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('enhanced-admin');
+    });
+</script>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

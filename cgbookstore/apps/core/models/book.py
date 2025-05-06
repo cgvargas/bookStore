@@ -2,14 +2,19 @@
 Modelo para gerir informações detalhadas de livros no sistema.
 Inclui suporte para livros locais e externos/temporários da API do Google Books.
 """
+
+from django.utils.functional import cached_property
+from django.db.models.signals import post_migrate
+from django.apps import apps
 from pathlib import Path
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
-from cgbookstore.apps.core.utils.image_processor import process_book_cover
+from cgbookstore.apps.core.utils.processor import process_book_cover
 from cgbookstore.config import settings
 from ..recommendations.utils.cache_manager import RecommendationCache
+from ..managers.book_managers import BookManager
 
 User = get_user_model()
 
@@ -20,7 +25,7 @@ class Book(models.Model):
     # Campos bibliográficos básicos
     titulo = models.CharField(_('Título'), max_length=200)
     subtitulo = models.CharField(_('Subtítulo'), max_length=200, blank=True)
-    autor = models.CharField(_('Autor'), max_length=200)
+    autor = models.CharField(_('Autor'), max_length=200) # Mantido para compatibilidade com código existente
     tradutor = models.CharField(_('Tradutor'), max_length=200, blank=True)
     ilustrador = models.CharField(_('Ilustrador'), max_length=200, blank=True)
     editora = models.CharField(_('Editora'), max_length=100, blank=True)
@@ -44,6 +49,14 @@ class Book(models.Model):
     personagens = models.TextField(_('Personagens Principais'), blank=True)
     enredo = models.TextField(_('Enredo'), blank=True)
     publico_alvo = models.CharField(_('Público-alvo'), max_length=100, blank=True)
+
+    # Relacionamento com autores
+    authors = models.ManyToManyField(
+        'Author',
+        through='BookAuthor',
+        related_name='books',
+        verbose_name=_('Autores')
+    )
 
     # Campos de metadados e conteúdo adicional
     premios = models.TextField(_('Prêmios'), blank=True)
@@ -89,14 +102,26 @@ class Book(models.Model):
         ('destaques', _('Destaques')),
         ('filmes', _('Adaptados para Filme/Série')),
         ('mangas', _('Mangás')),
+        ('ebooks', 'eBooks'),
     ]
 
     tipo_shelf_especial = models.CharField(
-        _('Tipo de prateleira especial'),
+        _('Prateleira'),
         max_length=50,
-        choices=SHELF_SPECIAL_CHOICES,
         blank=True
     )
+
+    # Configuração do gerenciador personalizado
+    objects = BookManager()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.pk:
+            self._original_capa = self.capa
+
+        # Atualiza as escolhas do campo tipo_shelf_especial
+        field = self._meta.get_field('tipo_shelf_especial')
+        field.choices = self.get_shelf_special_choices
 
     def get_capa_url(self):
         """Retorna a URL da capa, considerando fontes externas e locais"""
@@ -147,6 +172,28 @@ class Book(models.Model):
             return 'Google Books'
         return 'Local'
 
+    def get_primary_author(self):
+        """Retorna o autor principal do livro"""
+        # Tenta obter da relação de autores
+        author = self.bookauthor_set.filter(is_primary=True).first()
+        if author:
+            return author.author
+
+        # Tenta obter qualquer autor associado
+        author = self.bookauthor_set.first()
+        if author:
+            return author.author
+
+        # Fallback para o campo autor legado
+        return self.autor
+
+    def sync_author_field(self):
+        """Sincroniza o campo autor legado com os autores do relacionamento"""
+        author_names = [a.author.get_nome_completo() for a in self.bookauthor_set.all()]
+        if author_names:
+            self.autor = ", ".join(author_names)
+            self.save(update_fields=['autor'])
+
     def __str__(self):
         return f"{self.titulo} - {self.autor}"
 
@@ -167,10 +214,101 @@ class Book(models.Model):
                 process_book_cover(self, self.capa.name)
             super().save(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.pk:
-            self._original_capa = self.capa
+    @cached_property
+    def get_shelf_special_choices(self):
+        """Retorna dinamicamente as opções para tipo_shelf_especial"""
+        from .home_content import DefaultShelfType
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # Opções padrão
+        standard_choices = [
+            ('', 'Nenhum'),
+            ('lancamentos', 'Lançamentos'),
+            ('mais_vendidos', 'Mais Vendidos'),
+            ('mais_acessados', 'Mais Acessados'),
+            ('destaques', 'Destaques'),
+            ('filmes', 'Adaptados para Filme/Série'),
+            ('mangas', 'Mangás'),
+            ('ebooks', 'eBooks'),
+        ]
+
+        # Adiciona tipos personalizados
+        try:
+            custom_shelves = DefaultShelfType.objects.filter(ativo=True)
+            custom_choices = [(shelf.identificador, shelf.nome) for shelf in custom_shelves
+                              if shelf.identificador not in dict(standard_choices)]
+            return standard_choices + custom_choices
+        except Exception as e:
+            logger.error(f"Erro ao carregar tipos de prateleiras personalizados: {str(e)}")
+            return standard_choices
+
+
+class BookAuthor(models.Model):
+    """Modelo intermediário para relacionamento entre livros e autores"""
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, verbose_name=_('Livro'))
+    author = models.ForeignKey('Author', on_delete=models.CASCADE, verbose_name=_('Autor'))
+    role = models.CharField(_('Função'), max_length=100, blank=True,
+                          help_text=_('Ex: Autor principal, Co-autor, Editor, etc.'))
+    is_primary = models.BooleanField(_('Autor Principal'), default=False)
+    created_at = models.DateTimeField(_('Criado em'), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Autor do Livro')
+        verbose_name_plural = _('Autores dos Livros')
+        unique_together = ['book', 'author']  # Evita duplicação
+        ordering = ['is_primary', 'id']
+
+    def __str__(self):
+        return f"{self.author} - {self.book}"
+
+    def save(self, *args, **kwargs):
+        # Se for marcado como autor principal, garante que não haja outro
+        if self.is_primary:
+            BookAuthor.objects.filter(book=self.book, is_primary=True).exclude(pk=self.pk).update(is_primary=False)
+        # Se não houver autor principal, marca este como principal
+        elif not BookAuthor.objects.filter(book=self.book, is_primary=True).exists():
+            self.is_primary = True
+
+        super().save(*args, **kwargs)
+
+        # Sincroniza o campo autor legado
+        self.book.sync_author_field()
+
+
+def get_tipo_shelf_especial_choices(sender, **kwargs):
+    """Atualiza as escolhas disponíveis para o campo tipo_shelf_especial"""
+    Book = apps.get_model('core', 'Book')
+    field = Book._meta.get_field('tipo_shelf_especial')
+
+    # Obtém o modelo DefaultShelfType
+    DefaultShelfType = apps.get_model('core', 'DefaultShelfType')
+
+    # Opções padrão
+    standard_choices = [
+        ('', 'Nenhum'),
+        ('lancamentos', 'Lançamentos'),
+        ('mais_vendidos', 'Mais Vendidos'),
+        ('mais_acessados', 'Mais Acessados'),
+        ('destaques', 'Destaques'),
+        ('filmes', 'Adaptados para Filme/Série'),
+        ('mangas', 'Mangás'),
+        ('ebooks', 'eBooks'),
+    ]
+
+    # Adiciona tipos personalizados
+    try:
+        custom_shelves = DefaultShelfType.objects.filter(ativo=True)
+        custom_choices = [(shelf.identificador, shelf.nome) for shelf in custom_shelves
+                          if shelf.identificador not in dict(standard_choices)]
+        field.choices = standard_choices + custom_choices
+    except Exception:
+        field.choices = standard_choices
+
+
+# Conector de sinal para atualização automática
+post_migrate.connect(get_tipo_shelf_especial_choices)
 
 
 class UserBookShelf(models.Model):

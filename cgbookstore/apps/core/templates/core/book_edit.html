@@ -1,0 +1,266 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Editar Livro - {{ book.titulo }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/book-edit.css' %}">
+<!-- Garantir que o Bootstrap está carregado -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index' %}">Página Inicial</a></li>
+            {% if shelf %}
+            <li class="breadcrumb-item"><a href="{% url 'profile' %}#{{ shelf }}">{{ shelf_display }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item"><a href="{% url 'book_detail' book.pk %}">{{ book.titulo }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Editar</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-pencil-square"></i> Editar Livro
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="editBookForm">
+                        {% csrf_token %}
+
+                        <!-- Abas de navegação -->
+                        <ul class="nav nav-tabs" id="bookTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                                    <i class="bi bi-info-circle"></i> Informações Básicas
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="publish-tab" data-bs-toggle="tab" data-bs-target="#publish" type="button" role="tab">
+                                    <i class="bi bi-book"></i> Publicação
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content" type="button" role="tab">
+                                    <i class="bi bi-file-text"></i> Conteúdo
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="extra-tab" data-bs-toggle="tab" data-bs-target="#extra" type="button" role="tab">
+                                    <i class="bi bi-plus-circle"></i> Extras
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="price-tab" data-bs-toggle="tab" data-bs-target="#price" type="button" role="tab">
+                                    <i class="bi bi-currency-dollar"></i> Preços
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Conteúdo das abas -->
+                        <div class="tab-content mt-3">
+                            <!-- Informações Básicas -->
+                            <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.titulo.id_for_label }}" class="form-label">{{ form.titulo.label }}</label>
+                                        {{ form.titulo }}
+                                        {% if form.titulo.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.titulo.errors|join:", " }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.subtitulo.id_for_label }}" class="form-label">{{ form.subtitulo.label }}</label>
+                                        {{ form.subtitulo }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.autor.id_for_label }}" class="form-label">{{ form.autor.label }}</label>
+                                        {{ form.autor }}
+                                        {% if form.autor.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.autor.errors|join:", " }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.tradutor.id_for_label }}" class="form-label">{{ form.tradutor.label }}</label>
+                                        {{ form.tradutor }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.ilustrador.id_for_label }}" class="form-label">{{ form.ilustrador.label }}</label>
+                                        {{ form.ilustrador }}
+                                    </div>
+                                    <div class="col-12">
+                                        {% if book.capa %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Capa Atual</label>
+                                            <div class="current-cover">
+                                                <img src="{{ book.capa.url }}" alt="Capa atual" class="img-thumbnail" style="max-height: 200px;">
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        <label for="{{ form.capa.id_for_label }}" class="form-label">{{ form.capa.label }}</label>
+                                        {{ form.capa }}
+                                        <small class="form-text text-muted">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informações de Publicação -->
+                            <div class="tab-pane fade" id="publish" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.editora.id_for_label }}" class="form-label">{{ form.editora.label }}</label>
+                                        {{ form.editora }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.isbn.id_for_label }}" class="form-label">{{ form.isbn.label }}</label>
+                                        {{ form.isbn }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.edicao.id_for_label }}" class="form-label">{{ form.edicao.label }}</label>
+                                        {{ form.edicao }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.data_publicacao.id_for_label }}" class="form-label">{{ form.data_publicacao.label }}</label>
+                                        {{ form.data_publicacao }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.numero_paginas.id_for_label }}" class="form-label">{{ form.numero_paginas.label }}</label>
+                                        {{ form.numero_paginas }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.idioma.id_for_label }}" class="form-label">{{ form.idioma.label }}</label>
+                                        {{ form.idioma }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.formato.id_for_label }}" class="form-label">{{ form.formato.label }}</label>
+                                        {{ form.formato }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.dimensoes.id_for_label }}" class="form-label">{{ form.dimensoes.label }}</label>
+                                        {{ form.dimensoes }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="{{ form.peso.id_for_label }}" class="form-label">{{ form.peso.label }}</label>
+                                        {{ form.peso }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informações de Conteúdo -->
+                            <div class="tab-pane fade" id="content" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.categoria.id_for_label }}" class="form-label">{{ form.categoria.label }}</label>
+                                        {{ form.categoria }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.genero.id_for_label }}" class="form-label">{{ form.genero.label }}</label>
+                                        {{ form.genero }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="{{ form.descricao.id_for_label }}" class="form-label">{{ form.descricao.label }}</label>
+                                        {{ form.descricao }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="{{ form.temas.id_for_label }}" class="form-label">{{ form.temas.label }}</label>
+                                        {{ form.temas }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="{{ form.personagens.id_for_label }}" class="form-label">{{ form.personagens.label }}</label>
+                                        {{ form.personagens }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="{{ form.enredo.id_for_label }}" class="form-label">{{ form.enredo.label }}</label>
+                                        {{ form.enredo }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.publico_alvo.id_for_label }}" class="form-label">{{ form.publico_alvo.label }}</label>
+                                        {{ form.publico_alvo }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informações Extras -->
+                            <div class="tab-pane fade" id="extra" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.premios.id_for_label }}" class="form-label">{{ form.premios.label }}</label>
+                                        {{ form.premios }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="{{ form.adaptacoes.id_for_label }}" class="form-label">{{ form.adaptacoes.label }}</label>
+                                        {{ form.adaptacoes }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.colecao.id_for_label }}" class="form-label">{{ form.colecao.label }}</label>
+                                        {{ form.colecao }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.classificacao.id_for_label }}" class="form-label">{{ form.classificacao.label }}</label>
+                                        {{ form.classificacao }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="{{ form.citacoes.id_for_label }}" class="form-label">{{ form.citacoes.label }}</label>
+                                        {{ form.citacoes }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="{{ form.curiosidades.id_for_label }}" class="form-label">{{ form.curiosidades.label }}</label>
+                                        {{ form.curiosidades }}
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label for="{{ form.website.id_for_label }}" class="form-label">{{ form.website.label }}</label>
+                                        {{ form.website }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informações de Preço -->
+                            <div class="tab-pane fade" id="price" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.preco.id_for_label }}" class="form-label">{{ form.preco.label }}</label>
+                                        {{ form.preco }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.preco_promocional.id_for_label }}" class="form-label">{{ form.preco_promocional.label }}</label>
+                                        {{ form.preco_promocional }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de ação -->
+                        <div class="text-end mt-4">
+                            <a href="{% url 'book_detail' book.pk %}" class="btn btn-secondary me-2">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Salvar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Garantir que o Bootstrap JS está carregado -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/theme-switcher.js' %}"></script>
+<script src="{% static 'js/book-edit.js' %}"></script>
+{% endblock %}

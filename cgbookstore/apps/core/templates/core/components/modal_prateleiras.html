@@ -1,0 +1,100 @@
+{% load static %}
+<!-- Modal para demonstração de prateleiras virtuais -->
+<div class="modal fade" id="prateleirasModal" tabindex="-1" aria-labelledby="prateleirasModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="prateleirasModalLabel">Prateleiras Virtuais</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <!-- Adicionado !important ao overflow para garantir aplicação em todos os navegadores -->
+      <div class="modal-body">
+        <div id="prateleirasCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#prateleirasCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#prateleirasCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#prateleirasCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#prateleirasCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img src="{% static 'images/prateleiras/lendo_agora.jpg' %}" class="d-block w-100 rounded" alt="Prateleira Lendo Agora">
+              <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+                <h5>Lendo Agora</h5>
+                <p>Acompanhe todos os livros que você está lendo atualmente</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <img src="{% static 'images/prateleiras/vou_ler.jpg' %}" class="d-block w-100 rounded" alt="Prateleira Vou Ler">
+              <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+                <h5>Vou Ler</h5>
+                <p>Sua lista de desejos literários organizados em uma prateleira</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <img src="{% static 'images/prateleiras/lidos.jpg' %}" class="d-block w-100 rounded" alt="Prateleira Lidos">
+              <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+                <h5>Lidos</h5>
+                <p>Mantenha um histórico de todos os livros que você já leu</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <img src="{% static 'images/prateleiras/favoritos.jpg' %}" class="d-block w-100 rounded" alt="Prateleira Favoritos">
+              <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+                <h5>Favoritos</h5>
+                <p>Destaque os livros que marcaram sua jornada literária</p>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#prateleirasCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#prateleirasCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Próximo</span>
+          </button>
+        </div>
+
+        <!-- Textos com cores mais escuras e !important para todos os navegadores -->
+        <div class="mt-4">
+          <!-- Uso de estilo inline com !important -->
+          <h5 class="fw-bold" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important;">Organize sua vida literária</h5>
+          <p style="color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 500 !important;">Nossas prateleiras virtuais permitem que você:</p>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item bg-transparent" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important;"><i class="bi bi-check-circle-fill text-success me-2"></i> Acompanhe o progresso das suas leituras atuais</li>
+            <li class="list-group-item bg-transparent" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important;"><i class="bi bi-check-circle-fill text-success me-2"></i> Mantenha uma lista organizada dos próximos livros</li>
+            <li class="list-group-item bg-transparent" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important;"><i class="bi bi-check-circle-fill text-success me-2"></i> Registre suas impressões sobre cada obra lida</li>
+            <li class="list-group-item bg-transparent" style="color: #000000 !important; -webkit-text-fill-color: #000000 !important;"><i class="bi bi-check-circle-fill text-success me-2"></i> Destaque suas obras favoritas para recomendações</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'register' %}'">
+          Criar Minha Prateleira
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Adicionar este script para garantir configuração universal -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Garantir que o modal seja exibido corretamente em todos os navegadores
+    var modalBody = document.querySelector('#prateleirasModal .modal-body');
+    if (modalBody) {
+      modalBody.style.overflow = 'hidden';
+      modalBody.style.maxHeight = '100%';
+    }
+
+    // Garantir que o texto seja escuro em todos os navegadores
+    var modalTexts = document.querySelectorAll('#prateleirasModal h5, #prateleirasModal p, #prateleirasModal li');
+    modalTexts.forEach(function(element) {
+      element.style.color = '#000000';
+      element.style.webkitTextFillColor = '#000000';
+    });
+  });
+</script>

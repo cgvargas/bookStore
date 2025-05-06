@@ -297,13 +297,23 @@ def get_engagement_kpis(interactions, start_date=None, end_date=None):
     # KPIs gerais
     total_users = filtered.values('user_id').distinct().count()
 
+    # Cálculos básicos da agregação
+    basic_metrics = filtered.aggregate(
+        total_interactions=Count('id'),
+        unique_users=Count('user_id', distinct=True),
+        unique_books=Count('book_id', distinct=True)
+    )
+
+    # Adiciona a média de interações por usuário manualmente para evitar divisão por zero
+    engagement_metrics = basic_metrics.copy()
+    if basic_metrics['unique_users'] > 0:
+        engagement_metrics['avg_interactions_per_user'] = basic_metrics['total_interactions'] * 1.0 / basic_metrics[
+            'unique_users']
+    else:
+        engagement_metrics['avg_interactions_per_user'] = 0
+
     kpis = {
-        'engagement_metrics': filtered.aggregate(
-            total_interactions=Count('id'),
-            unique_users=Count('user_id', distinct=True),
-            unique_books=Count('book_id', distinct=True),
-            avg_interactions_per_user=Count('id') * 1.0 / Count('user_id', distinct=True)
-        ),
+        'engagement_metrics': engagement_metrics,
 
         # Taxa de retorno (usuários com mais de uma sessão)
         'return_rate': filtered.values('user_id').annotate(

@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" font-family="Arial, sans-serif">
+    <!-- Definições de filtros para as sombras -->
+    <defs>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+            <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+        </filter>
+    </defs>
+
+    <!-- Título do diagrama -->
+    <text x="600" y="30" text-anchor="middle" font-size="24" font-weight="bold">Estrutura do Projeto Bookstore Django</text>
+
+    <!-- Estrutura principal -->
+    <rect x="50" y="50" width="1100" height="730" fill="#f5f5f5" stroke="#333" stroke-width="2" rx="10" filter="url(#shadow)"/>
+    <text x="600" y="70" text-anchor="middle" font-size="18" font-weight="bold">projectDjango/bookstore</text>
+
+    <!-- Config do projeto (settings, urls, etc.) -->
+    <rect x="70" y="100" width="200" height="120" fill="#ffe0b2" stroke="#ff9800" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="170" y="120" text-anchor="middle" font-size="14" font-weight="bold" fill="#8d6e63">Configuração</text>
+    <text x="170" y="145" text-anchor="middle" font-size="12">cgbookstore/config</text>
+    <text x="170" y="165" text-anchor="middle" font-size="11">settings.py, urls.py</text>
+    <text x="170" y="185" text-anchor="middle" font-size="11">asgi.py, wsgi.py</text>
+
+    <!-- Core App -->
+    <rect x="300" y="100" width="830" height="650" fill="#e3f2fd" stroke="#2196f3" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="715" y="120" text-anchor="middle" font-size="16" font-weight="bold" fill="#0d47a1">Apps Core</text>
+    <text x="715" y="140" text-anchor="middle" font-size="12">cgbookstore/apps/core</text>
+
+    <!-- Models -->
+    <rect x="320" y="160" width="200" height="150" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="420" y="180" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">Models</text>
+    <text x="420" y="200" text-anchor="middle" font-size="11">user.py, profile.py</text>
+    <text x="420" y="220" text-anchor="middle" font-size="11">book.py, banner.py</text>
+    <text x="420" y="240" text-anchor="middle" font-size="11">home_content.py</text>
+
+    <!-- Views -->
+    <rect x="320" y="330" width="200" height="150" fill="#fff9c4" stroke="#ffc107" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="420" y="350" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff6f00">Views</text>
+    <text x="420" y="370" text-anchor="middle" font-size="11">auth.py, book.py</text>
+    <text x="420" y="390" text-anchor="middle" font-size="11">general.py, profile.py</text>
+    <text x="420" y="410" text-anchor="middle" font-size="11">recommendation_views.py</text>
+    <text x="420" y="430" text-anchor="middle" font-size="11">external_book_details_view.py</text>
+
+    <!-- Sistema de Recomendações -->
+    <rect x="540" y="160" width="570" height="320" fill="#e1bee7" stroke="#9c27b0" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="825" y="180" text-anchor="middle" font-size="14" font-weight="bold" fill="#6a1b9a">Sistema de Recomendações</text>
+    <text x="825" y="200" text-anchor="middle" font-size="11">cgbookstore/apps/core/recommendations</text>
+
+    <!-- Analytics (dentro das recomendações) -->
+    <rect x="560" y="220" width="250" height="100" fill="#d1c4e9" stroke="#673ab7" stroke-width="2" rx="5"/>
+    <text x="685" y="240" text-anchor="middle" font-size="12" font-weight="bold" fill="#4527a0">Analytics</text>
+    <text x="685" y="260" text-anchor="middle" font-size="10">models.py, tracker.py</text>
+    <text x="685" y="280" text-anchor="middle" font-size="10">endpoints.py, serializers.py</text>
+    <text x="685" y="300" text-anchor="middle" font-size="10">admin_dashboard</text>
+
+    <!-- API (dentro das recomendações) -->
+    <rect x="560" y="340" width="250" height="100" fill="#bbdefb" stroke="#2196f3" stroke-width="2" rx="5"/>
+    <text x="685" y="360" text-anchor="middle" font-size="12" font-weight="bold" fill="#1565c0">API</text>
+    <text x="685" y="380" text-anchor="middle" font-size="10">endpoints.py, serializers.py</text>
+    <text x="685" y="400" text-anchor="middle" font-size="10">performance.py, urls.py</text>
+
+    <!-- Providers (dentro das recomendações) -->
+    <rect x="830" y="220" width="260" height="100" fill="#dcedc8" stroke="#8bc34a" stroke-width="2" rx="5"/>
+    <text x="960" y="240" text-anchor="middle" font-size="12" font-weight="bold" fill="#33691e">Providers</text>
+    <text x="960" y="260" text-anchor="middle" font-size="10">category.py, history.py</text>
+    <text x="960" y="280" text-anchor="middle" font-size="10">similarity.py, external_api.py</text>
+    <text x="960" y="300" text-anchor="middle" font-size="10">temporal.py, exclusion.py</text>
+
+    <!-- Services (dentro das recomendações) -->
+    <rect x="830" y="340" width="260" height="100" fill="#ffecb3" stroke="#ffc107" stroke-width="2" rx="5"/>
+    <text x="960" y="360" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6f00">Services</text>
+    <text x="960" y="380" text-anchor="middle" font-size="10">calculator.py</text>
+    <text x="960" y="400" text-anchor="middle" font-size="10">engine.py</text>
+
+    <!-- Templates -->
+    <rect x="540" y="500" width="260" height="230" fill="#ffccbc" stroke="#ff5722" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="670" y="520" text-anchor="middle" font-size="14" font-weight="bold" fill="#bf360c">Templates</text>
+    <text x="670" y="540" text-anchor="middle" font-size="10">core/base.html</text>
+    <text x="670" y="560" text-anchor="middle" font-size="10">core/book/*, core/profile/*</text>
+    <text x="670" y="580" text-anchor="middle" font-size="10">core/recommendations/*</text>
+    <text x="670" y="600" text-anchor="middle" font-size="10">core/admin_dashboard/*</text>
+    <text x="670" y="620" text-anchor="middle" font-size="10">core/components/*</text>
+    <text x="670" y="640" text-anchor="middle" font-size="10">admin/*.html</text>
+
+    <!-- Static Files -->
+    <rect x="820" y="500" width="290" height="230" fill="#c8e6c9" stroke="#4caf50" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="965" y="520" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">Static Files</text>
+    <text x="965" y="540" text-anchor="middle" font-size="10">css/styles.css, css/admin/*</text>
+    <text x="965" y="560" text-anchor="middle" font-size="10">css/book-*.css, css/recommendations.css</text>
+    <text x="965" y="580" text-anchor="middle" font-size="10">js/book-*.js, js/recommendations.js</text>
+    <text x="965" y="600" text-anchor="middle" font-size="10">js/admin/*, js/profile.js</text>
+    <text x="965" y="620" text-anchor="middle" font-size="10">images/</text>
+
+    <!-- Management commands -->
+    <rect x="320" y="500" width="200" height="150" fill="#b3e5fc" stroke="#03a9f4" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="420" y="520" text-anchor="middle" font-size="14" font-weight="bold" fill="#01579b">Management Commands</text>
+    <text x="420" y="540" text-anchor="middle" font-size="10">create_profiles.py</text>
+    <text x="420" y="560" text-anchor="middle" font-size="10">create_default_shelves.py</text>
+    <text x="420" y="580" text-anchor="middle" font-size="10">generate_tables.py</text>
+    <text x="420" y="600" text-anchor="middle" font-size="10">generate_project_structure.py</text>
+    <text x="420" y="620" text-anchor="middle" font-size="10">benchmark_recommendations.py</text>
+
+    <!-- Serviços Externos -->
+    <rect x="320" y="670" width="790" height="60" fill="#b2dfdb" stroke="#009688" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="715" y="700" text-anchor="middle" font-size="14" font-weight="bold" fill="#004d40">Serviços Externos</text>
+    <text x="715" y="720" text-anchor="middle" font-size="10">google_books_service.py, google_books_client.py, google_books_cache.py</text>
+
+    <!-- Configuração e Ambientes (parte inferior) -->
+    <rect x="70" y="500" width="200" height="230" fill="#d1c4e9" stroke="#673ab7" stroke-width="2" rx="5" filter="url(#shadow)"/>
+    <text x="170" y="520" text-anchor="middle" font-size="14" font-weight="bold" fill="#4527a0">Configuração</text>
+    <text x="170" y="540" text-anchor="middle" font-size="10">manage.py, .env.dev, .env.prod</text>
+    <text x="170" y="560" text-anchor="middle" font-size="10">requirements.txt</text>
+    <text x="170" y="580" text-anchor="middle" font-size="10">pytest.ini, .coverage</text>
+    <text x="170" y="600" text-anchor="middle" font-size="10">.venv, .venv1</text>
+    <text x="170" y="620" text-anchor="middle" font-size="10">docs/</text>
+
+    <!-- Setas de integração -->
+    <!-- Models -> Views -->
+    <path d="M420 310 L420 330" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Views -> Templates -->
+    <path d="M520 400 L540 550" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Recommendations -> Views -->
+    <path d="M540 320 L520 380" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Models -> Recommendations -->
+    <path d="M520 230 L540 260" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Recommendations -> Templates -->
+    <path d="M670 480 L670 500" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Static Files -> Templates -->
+    <path d="M820 580 L800 580" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Serviços Externos -> Recommendations -->
+    <path d="M650 670 L650 480" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Definição de marcador de seta -->
+    <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+        </marker>
+    </defs>
+
+    <!-- Legenda (parte inferior) -->
+    <rect x="80" y="740" width="1040" height="30" fill="#eeeeee" stroke="#333" stroke-width="1" rx="5"/>
+    <text x="600" y="760" text-anchor="middle" font-size="12">Cores representam diferentes módulos e componentes | Setas indicam integrações entre módulos</text>
+</svg>

@@ -174,6 +174,176 @@ def admin_dashboard(request):
         'avg_time_between': engagement_kpis['avg_time_between']
     }
 
+    # Métricas das modalidades de livros
+    from cgbookstore.apps.core.models.book import Book
+    from cgbookstore.apps.core.models import UserBookShelf
+    from django.db.models import Sum, F, ExpressionWrapper, FloatField, When, Case, Value
+
+    # Métricas gerais para cada modalidade
+    modalities_metrics = {}
+
+    # 1. Lançamentos
+    new_releases = Book.objects.filter(e_lancamento=True)
+    new_releases_count = new_releases.count()
+    new_releases_views = new_releases.aggregate(total=Sum('quantidade_acessos'))['total'] or 0
+    total_books = Book.objects.count()
+    new_releases_percent = (new_releases_count / total_books * 100) if total_books > 0 else 0
+
+    # Tendência - comparação com período anterior
+    prev_period_start = start_date - timedelta(days=30)
+    prev_period_views = interactions.filter(
+        book__e_lancamento=True,
+        timestamp__range=[prev_period_start, start_date]
+    ).count()
+    current_period_views = interactions.filter(
+        book__e_lancamento=True,
+        timestamp__range=[start_date, end_date]
+    ).count()
+
+    if prev_period_views > 0:
+        new_releases_trend = ((current_period_views - prev_period_views) / prev_period_views * 100)
+    else:
+        new_releases_trend = 100 if current_period_views > 0 else 0
+
+    # Taxa de conversão para lançamentos
+    new_releases_interactions = interactions.filter(book__e_lancamento=True)
+    new_releases_shelf_adds = new_releases_interactions.filter(interaction_type='add_to_shelf').count()
+    new_releases_conversion_rate = (new_releases_shelf_adds / new_releases_views * 100) if new_releases_views > 0 else 0
+
+    # Top 5 lançamentos
+    top_new_releases = new_releases.annotate(
+        shelf_count=Count('shelves')
+    ).order_by('-quantidade_acessos')[:5]
+
+    # 2. Mais Vendidos
+    bestsellers = Book.objects.filter(quantidade_vendida__gt=0).order_by('-quantidade_vendida')
+    bestsellers_count = bestsellers.count()
+    bestsellers_total_sales = bestsellers.aggregate(total=Sum('quantidade_vendida'))['total'] or 0
+    bestsellers_views = bestsellers.aggregate(total=Sum('quantidade_acessos'))['total'] or 0
+
+    # Tendência para mais vendidos
+    prev_period_sales = interactions.filter(
+        book__quantidade_vendida__gt=0,
+        timestamp__range=[prev_period_start, start_date]
+    ).count()
+    current_period_sales = interactions.filter(
+        book__quantidade_vendida__gt=0,
+        timestamp__range=[start_date, end_date]
+    ).count()
+
+    if prev_period_sales > 0:
+        bestsellers_trend = ((current_period_sales - prev_period_sales) / prev_period_sales * 100)
+    else:
+        bestsellers_trend = 100 if current_period_sales > 0 else 0
+
+    # Taxa de conversão para mais vendidos
+    bestsellers_interactions = interactions.filter(book__quantidade_vendida__gt=0)
+    bestsellers_purchases = bestsellers_interactions.filter(interaction_type='purchase').count()
+    bestsellers_conversion_rate = (bestsellers_purchases / bestsellers_views * 100) if bestsellers_views > 0 else 0
+
+    # Top 5 mais vendidos
+    top_bestsellers = bestsellers.annotate(
+        conversion_rate=ExpressionWrapper(
+            Case(
+                When(quantidade_acessos__gt=0,
+                     then=F('quantidade_vendida') * 100.0 / F('quantidade_acessos')),
+                default=Value(0.0)
+            ),
+            output_field=FloatField()
+        )
+    )[:5]
+
+    # 3. Recomendados
+    # Recupera livros que apareceram em recomendações
+    recommended_interactions = interactions.filter(source='recommendation')
+    recommended_books_ids = recommended_interactions.values_list('book', flat=True).distinct()
+    recommended_count = len(recommended_books_ids)
+    recommended_views = recommended_interactions.filter(interaction_type='view').count()
+
+    # Tendência para recomendados
+    prev_period_rec = interactions.filter(
+        source='recommendation',
+        timestamp__range=[prev_period_start, start_date]
+    ).count()
+    current_period_rec = interactions.filter(
+        source='recommendation',
+        timestamp__range=[start_date, end_date]
+    ).count()
+
+    if prev_period_rec > 0:
+        recommended_trend = ((current_period_rec - prev_period_rec) / prev_period_rec * 100)
+    else:
+        recommended_trend = 100 if current_period_rec > 0 else 0
+
+    # Taxa de conversão para recomendados
+    recommended_actions = recommended_interactions.filter(
+        interaction_type__in=['add_to_shelf', 'purchase']
+    ).count()
+    recommended_conversion_rate = (recommended_actions / recommended_views * 100) if recommended_views > 0 else 0
+
+    # 4. Catálogo
+    catalogue_views = interactions.filter(source='catalogue').count()
+    catalogue_categories = Book.objects.values('categoria').distinct().count()
+
+    # Tendência para catálogo
+    prev_period_cat = interactions.filter(
+        source='catalogue',
+        timestamp__range=[prev_period_start, start_date]
+    ).count()
+    current_period_cat = interactions.filter(
+        source='catalogue',
+        timestamp__range=[start_date, end_date]
+    ).count()
+
+    if prev_period_cat > 0:
+        catalogue_trend = ((current_period_cat - prev_period_cat) / prev_period_cat * 100)
+    else:
+        catalogue_trend = 100 if current_period_cat > 0 else 0
+
+    # Taxa de conversão para catálogo
+    catalogue_interactions = interactions.filter(source='catalogue')
+    catalogue_actions = catalogue_interactions.filter(
+        interaction_type__in=['add_to_shelf', 'purchase']
+    ).count()
+    catalogue_conversion_rate = (catalogue_actions / catalogue_views * 100) if catalogue_views > 0 else 0
+
+    # Montar dicionário de métricas
+    modalities_metrics = {
+        # Lançamentos
+        'new_releases_count': new_releases_count,
+        'new_releases_views': new_releases_views,
+        'new_releases_percent': new_releases_percent,
+        'new_releases_trend': new_releases_trend,
+        'new_releases_conversion_rate': new_releases_conversion_rate,
+        'top_new_releases': top_new_releases,
+
+        # Mais Vendidos
+        'bestsellers_count': bestsellers_count,
+        'bestsellers_total_sales': bestsellers_total_sales,
+        'bestsellers_views': bestsellers_views,
+        'bestsellers_trend': bestsellers_trend,
+        'bestsellers_conversion_rate': bestsellers_conversion_rate,
+        'top_bestsellers': top_bestsellers,
+
+        # Recomendados
+        'recommended_count': recommended_count,
+        'recommended_views': recommended_views,
+        'recommended_trend': recommended_trend,
+        'recommended_conversion_rate': recommended_conversion_rate,
+
+        # Catálogo
+        'catalogue_count': total_books,
+        'catalogue_categories': catalogue_categories,
+        'catalogue_views': catalogue_views,
+        'catalogue_trend': catalogue_trend,
+        'catalogue_conversion_rate': catalogue_conversion_rate
+    }
+
+    # Adicionar as métricas ao contexto
+    context.update({
+        'modalities_metrics': modalities_metrics
+    })
+
     return render(request, 'core/admin_dashboard/dashboard.html', context)
 
 
@@ -282,6 +452,50 @@ def recommendation_metrics(request):
         'engagement_metrics': engagement_metrics,
         'user_segments': engagement_kpis['depth_metrics'],
         'avg_time_between': engagement_kpis['avg_time_between']
+    })
+
+    # Métricas das modalidades de livros (versão simplificada para página de métricas)
+    from cgbookstore.apps.core.models.book import Book
+    from cgbookstore.apps.core.models import UserBookShelf
+    from django.db.models import Sum, F, ExpressionWrapper, FloatField, When, Case, Value
+
+    # Estatísticas básicas para modalidades
+    modalities_metrics = {}
+
+    # Lançamentos
+    new_releases_count = Book.objects.filter(e_lancamento=True).count()
+    total_books = Book.objects.count()
+    new_releases_percent = (new_releases_count / total_books * 100) if total_books > 0 else 0
+
+    # Mais Vendidos
+    bestsellers_count = Book.objects.filter(quantidade_vendida__gt=0).count()
+    bestsellers_total_sales = Book.objects.filter(quantidade_vendida__gt=0).aggregate(
+        total=Sum('quantidade_vendida')
+    )['total'] or 0
+
+    # Recomendados
+    recommended_interactions = interactions.filter(source='recommendation')
+    recommended_count = recommended_interactions.values('book').distinct().count()
+
+    # Taxa de conversão simplificada
+    recommendation_views = recommended_interactions.filter(interaction_type='view').count()
+    recommendation_actions = recommended_interactions.filter(
+        interaction_type__in=['add_to_shelf', 'purchase']
+    ).count()
+    recommendation_conversion = (recommendation_actions / recommendation_views * 100) if recommendation_views > 0 else 0
+
+    modalities_metrics = {
+        'new_releases_count': new_releases_count,
+        'new_releases_percent': new_releases_percent,
+        'bestsellers_count': bestsellers_count,
+        'bestsellers_total_sales': bestsellers_total_sales,
+        'recommended_count': recommended_count,
+        'recommended_conversion_rate': recommendation_conversion,
+        'catalogue_count': total_books,
+    }
+
+    context.update({
+        'modalities_metrics': modalities_metrics
     })
 
     return render(request, 'core/admin_dashboard/metrics.html', context)

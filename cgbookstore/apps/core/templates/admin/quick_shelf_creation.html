@@ -1,0 +1,253 @@
+<!-- cgbookstore/apps/core/templates/admin/quick_shelf_creation.html -->
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+  <style>
+    .help-text {
+      color: #666;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+    .field-container {
+      margin-bottom: 15px;
+    }
+    .errorlist {
+      color: #ba2121;
+      list-style-type: none;
+      padding-left: 0;
+    }
+    .submit-row {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f8f8f8;
+      border: 1px solid #eee;
+      border-radius: 4px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .form-field {
+      margin-top: 5px;
+    }
+    .form-checkbox {
+      display: flex;
+      align-items: center;
+    }
+    .form-checkbox label {
+      margin-bottom: 0;
+      margin-left: 5px;
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:shelf-overview' %}">Gerenciamento de Prateleiras</a>
+&rsaquo; {% trans 'Criação Rápida de Prateleira' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <p>
+        Este formulário permite criar uma prateleira completa em um único passo, incluindo:
+        <ul>
+            <li>Tipo de Prateleira (DefaultShelfType)</li>
+            <li>Seção na Home (HomeSection)</li>
+            <li>Prateleira Associada (BookShelfSection)</li>
+        </ul>
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="errorlist">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <fieldset class="module aligned">
+            <h2>Informações Básicas</h2>
+
+            <div class="field-container">
+                <div class="form-row">
+                    <div class="field-box field-{{ form.nome.name }}">
+                        <label>
+                            {{ form.nome.label }}:
+                            <div class="form-field">
+                                {{ form.nome }}
+                            </div>
+                        </label>
+                        {% if form.nome.errors %}
+                            <div class="errorlist">{{ form.nome.errors }}</div>
+                        {% endif %}
+                        {% if form.nome.help_text %}
+                            <div class="help-text">{{ form.nome.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-container">
+                <div class="form-row">
+                    <div class="field-box field-{{ form.identificador.name }}">
+                        <label>
+                            {{ form.identificador.label }}:
+                            <div class="form-field">
+                                {{ form.identificador }}
+                            </div>
+                        </label>
+                        {% if form.identificador.errors %}
+                            <div class="errorlist">{{ form.identificador.errors }}</div>
+                        {% endif %}
+                        {% if form.identificador.help_text %}
+                            <div class="help-text">{{ form.identificador.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-container">
+                <div class="form-row">
+                    <div class="field-box field-{{ form.ativo.name }}">
+                        <div class="form-checkbox">
+                            {{ form.ativo }}
+                            <label>{{ form.ativo.label }}</label>
+                        </div>
+                        {% if form.ativo.errors %}
+                            <div class="errorlist">{{ form.ativo.errors }}</div>
+                        {% endif %}
+                        {% if form.ativo.help_text %}
+                            <div class="help-text">{{ form.ativo.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="module aligned">
+            <h2>Configurações de Filtro</h2>
+
+            <div class="field-container">
+                <div class="form-row">
+                    <div class="field-box field-{{ form.filtro_campo.name }}">
+                        <label>
+                            {{ form.filtro_campo.label }}:
+                            <div class="form-field">
+                                {{ form.filtro_campo }}
+                            </div>
+                        </label>
+                        {% if form.filtro_campo.errors %}
+                            <div class="errorlist">{{ form.filtro_campo.errors }}</div>
+                        {% endif %}
+                        {% if form.filtro_campo.help_text %}
+                            <div class="help-text">{{ form.filtro_campo.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-container" id="filtro-valor-container">
+                <div class="form-row">
+                    <div class="field-box field-{{ form.filtro_valor.name }}">
+                        <label>
+                            {{ form.filtro_valor.label }}:
+                            <div class="form-field">
+                                {{ form.filtro_valor }}
+                            </div>
+                        </label>
+                        {% if form.filtro_valor.errors %}
+                            <div class="errorlist">{{ form.filtro_valor.errors }}</div>
+                        {% endif %}
+                        {% if form.filtro_valor.help_text %}
+                            <div class="help-text">{{ form.filtro_valor.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="module aligned">
+            <h2>Exibição</h2>
+
+            <div class="field-container">
+                <div class="form-row">
+                    <div class="field-box field-{{ form.ordem.name }}">
+                        <label>
+                            {{ form.ordem.label }}:
+                            <div class="form-field">
+                                {{ form.ordem }}
+                            </div>
+                        </label>
+                        {% if form.ordem.errors %}
+                            <div class="errorlist">{{ form.ordem.errors }}</div>
+                        {% endif %}
+                        {% if form.ordem.help_text %}
+                            <div class="help-text">{{ form.ordem.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-container">
+                <div class="form-row">
+                    <div class="field-box field-{{ form.max_livros.name }}">
+                        <label>
+                            {{ form.max_livros.label }}:
+                            <div class="form-field">
+                                {{ form.max_livros }}
+                            </div>
+                        </label>
+                        {% if form.max_livros.errors %}
+                            <div class="errorlist">{{ form.max_livros.errors }}</div>
+                        {% endif %}
+                        {% if form.max_livros.help_text %}
+                            <div class="help-text">{{ form.max_livros.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="submit-row">
+            <input type="submit" value="Criar Prateleira" class="default" name="_save">
+            <a href="{% url 'admin:shelf-overview' %}" class="button">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obter referências aos elementos
+        const filtroCampoSelect = document.querySelector('[name="filtro_campo"]');
+        const filtroValorContainer = document.getElementById('filtro-valor-container');
+
+        if (filtroCampoSelect && filtroValorContainer) {
+            function toggleFiltroValorField() {
+                // Campos que não precisam de valor específico
+                const booleanFields = ['e_lancamento', 'e_destaque', 'adaptado_filme', 'e_manga'];
+                const selectedValue = filtroCampoSelect.value;
+
+                if (booleanFields.includes(selectedValue)) {
+                    filtroValorContainer.style.display = 'none';
+                } else {
+                    filtroValorContainer.style.display = 'block';
+                }
+            }
+
+            // Inicializar estado
+            toggleFiltroValorField();
+
+            // Configurar evento de mudança
+            filtroCampoSelect.addEventListener('change', toggleFiltroValorField);
+        }
+    });
+</script>
+{% endblock %}

@@ -15,13 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-# cgbookstore/config/urls.py
-
-from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+
 from cgbookstore.apps.core.admin import admin_site
+
 
 urlpatterns = [
     path('admin/', admin_site.urls),
@@ -30,6 +29,8 @@ urlpatterns = [
     # APIs
     path('api/recommendations/', include('cgbookstore.apps.core.recommendations.api.urls', namespace='recommendations')),
     path('api/analytics/', include('cgbookstore.apps.core.recommendations.analytics.urls', namespace='analytics')),
+
+    path('chatbot/', include('cgbookstore.apps.chatbot_literario.urls', namespace='chatbot_literario')),
 ]
 
 # Registro de arquivos estáticos e de mídia (somente em DEBUG)

@@ -1,0 +1,108 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}Catálogo Completo - CG.BookStore Online{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/book-search.css' %}">
+<link rel="stylesheet" href="{% static 'css/book-cards-shared.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalogue.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="catalogue-header">
+        <h1 class="display-5">{{ title }}</h1>
+        <p class="text-muted">Explore nossa coleção completa de obras disponíveis</p>
+    </div>
+    
+    <div class="catalogue-filter">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="search" class="form-label">Buscar</label>
+                <input type="text" class="form-control" id="search" name="search"
+                       placeholder="Título, autor ou categoria" value="{{ current_search|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="sort" class="form-label">Ordenar por</label>
+                <select class="form-select" id="sort" name="sort">
+                    <option value="titulo" {% if current_sort == 'titulo' %}selected{% endif %}>Título A-Z</option>
+                    <option value="-titulo" {% if current_sort == '-titulo' %}selected{% endif %}>Título Z-A</option>
+                    <option value="autor" {% if current_sort == 'autor' %}selected{% endif %}>Autor A-Z</option>
+                    <option value="-autor" {% if current_sort == '-autor' %}selected{% endif %}>Autor Z-A</option>
+                    <option value="-data_publicacao" {% if current_sort == '-data_publicacao' %}selected{% endif %}>Mais recentes</option>
+                    <option value="data_publicacao" {% if current_sort == 'data_publicacao' %}selected{% endif %}>Mais antigos</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="categoria" class="form-label">Categoria</label>
+                <select class="form-select" id="categoria" name="categoria">
+                    <option value="">Todas as categorias</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if current_category == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+    </div>
+
+    {% if books %}
+        <div class="books-grid">
+            {% for book in books %}
+                <div class="book-card-container">
+                    {% include 'core/includes/book_card.html' with livro=book %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        {% if page_obj %}
+        <nav aria-label="Navegação de páginas">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}" aria-label="Primeira">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}" aria-label="Próxima">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}" aria-label="Última">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info text-center my-5">
+            <i class="bi bi-info-circle me-2"></i>
+            Nenhum livro encontrado com os critérios selecionados.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

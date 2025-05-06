@@ -89,6 +89,1039 @@
 }
 
 /* ==========================================================================
+   Suporte a Temas - Claro, Escuro e Automático
+   ========================================================================== */
+
+/* Tema Claro (Padrão) - Modificação da navbar */
+:root, .light-mode {
+    /* Cores Principais */
+    --primary-color: #ff6600;
+    --primary-hover: #ff4500;
+    --secondary-color: #0d6efd;
+    --secondary-hover: #0a58ca;
+
+    /* Cores de Background */
+    --dark-bg: #343a40;
+    --light-bg: #f9f9f9;
+    --body-bg: #ffffff;
+    --card-bg: #ffffff;
+    --white: #ffffff;
+    --navbar-bg: #ffffff; /* Nova variável para fundo da navbar no tema claro */
+    --navbar-text: #333333; /* Nova variável para texto da navbar no tema claro */
+    --footer-bg: #ffffff; /* Footer branco no tema claro */
+    --footer-text: #333333; /* Cor do texto no footer claro */
+
+    /* Cores de Texto */
+    --text-dark: #1a1a1a;
+    --text-muted: #4a5568;
+    --text-light: #f7fafc;
+
+    /* Cores de Elementos */
+    --border-color: rgba(0, 0, 0, 0.1);
+    --input-bg: #ffffff;
+    --input-border: #ced4da;
+    --modal-bg: #ffffff;
+    --dropdown-bg: #ffffff;
+    --dropdown-hover: #f8f9fa;
+}
+
+/* Tema Escuro */
+.dark-mode {
+    /* Cores Principais - mantém as cores de destaque para acessibilidade */
+    --primary-color: #ff6600;
+    --primary-hover: #ff4500;
+    --secondary-color: #3b82f6;
+    --secondary-hover: #2563eb;
+
+    /* Cores de Background */
+    --dark-bg: #121212;
+    --light-bg: #1e1e1e;
+    --body-bg: #121212;
+    --card-bg: #1e1e1e;
+    --white: #1e1e1e;
+    --navbar-bg: #121212; /* Fundo da navbar no tema escuro */
+    --navbar-text: #e2e8f0; /* Texto da navbar no tema escuro */
+    --footer-bg: #121212; /* Footer escuro no tema escuro */
+    --footer-text: #f7fafc; /* Cor do texto no footer */
+
+    /* Cores de Texto */
+    --text-dark: #e2e8f0;
+    --text-muted: #a0aec0;
+    --text-light: #f7fafc;
+
+    /* Cores de Elementos */
+    --border-color: rgba(255, 255, 255, 0.1);
+    --input-bg: #2d2d2d;
+    --input-border: #444444;
+    --modal-bg: #1e1e1e;
+    --dropdown-bg: #1e1e1e;
+    --dropdown-hover: #2d2d2d;
+}
+
+/* Aplicação dos temas à navbar e footer */
+.navbar {
+    background-color: var(--navbar-bg) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .navbar {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .navbar-nav .nav-link {
+    color: var(--navbar-text) !important;
+}
+
+.light-mode .navbar-nav .nav-link:hover,
+.light-mode .navbar-nav .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+.light-mode .navbar-brand .store-name {
+    /* Mantém o gradiente laranja/amarelo para o nome da loja */
+    background: linear-gradient(45deg, var(--orange) 30%, var(--yellow) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.light-mode .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 0, 0, 0.75)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Ajustes específicos para os ícones no modo claro */
+.light-mode .navbar-nav .nav-item .bi {
+    color: var(--navbar-text);
+}
+
+.light-mode .navbar-nav .nav-item:hover .bi {
+    color: var(--primary-color);
+}
+
+/* Ajustes para footer */
+.footer {
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
+    border-top: 3px solid var(--primary-color);
+}
+
+/* Estilos específicos do footer no modo claro */
+/* Estilos específicos do footer no modo claro */
+.light-mode .footer {
+    background-color: var(--footer-bg);
+    color: var(--text-dark);
+}
+
+.light-mode .footer-heading {
+    color: #1a1a1a; /* Cor escura para os títulos do footer */
+    font-weight: 600;
+}
+
+.light-mode .brand-name {
+    color: var(--secondary-color); /* Mantém "CG BookStore" em azul */
+}
+
+.light-mode .footer-about {
+    color: #333333; /* Cor escura para a descrição */
+}
+
+.light-mode .footer-links a {
+    color: #333333; /* Cor escura para os links */
+}
+
+.light-mode .footer-links a:hover {
+    color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.light-mode .footer-links a i {
+    color: var(--primary-color);
+}
+
+/* Ajuste para os links de mídias sociais */
+.light-mode .social-links {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+}
+
+.light-mode .social-link {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: #333333;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-circle);
+    transition: all var(--transition-default);
+    text-decoration: none;
+}
+
+.light-mode .social-link:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-3px);
+}
+
+.light-mode .social-link i {
+    font-size: 1.1rem;
+}
+
+.light-mode .copyright,
+.light-mode .credits {
+    color: #333333; /* Cor escura para textos de copyright/créditos */
+}
+
+/* Personalização da linha decorativa */
+.light-mode .line {
+    background-color: var(--primary-color);
+}
+
+/* Aplicação dos temas aos elementos do corpo */
+body {
+    background-color: var(--body-bg);
+    color: var(--text-dark);
+}
+
+.card, .book-card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    color: var(--text-dark);
+}
+
+.dropdown-menu {
+    background-color: var(--dropdown-bg);
+    border-color: var(--border-color);
+}
+
+.dropdown-item {
+    color: var(--text-dark);
+}
+
+.dropdown-item:hover {
+    background-color: var(--dropdown-hover);
+}
+
+/* Ajuste para cor do texto nos dropdowns em modo claro */
+.dropdown-menu {
+    background-color: #ffffff; /* Fundo branco para garantir contraste */
+}
+
+.dropdown-item {
+    color: #000000 !important; /* Texto preto para alta visibilidade no modo claro */
+    transition: color 0.3s ease; /* Transição suave para a mudança de cor */
+}
+
+.dropdown-item:hover {
+    color: var(--primary-color) !important; /* Cor laranja no hover (usando a variável primária) */
+    background-color: rgba(0, 0, 0, 0.05); /* Fundo levemente cinza no hover */
+}
+
+/* Ajuste específico para o dropdown de tema quando no modo claro */
+.light-mode .dropdown-menu {
+    background-color: #ffffff;
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.light-mode .dropdown-item {
+    color: #000000 !important;
+}
+
+.light-mode .dropdown-item:hover {
+    color: var(--primary-color) !important; /* FF6600 */
+}
+
+.form-control {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-dark);
+}
+
+.form-control:focus {
+    background-color: var(--input-bg);
+    color: var(--text-dark);
+}
+
+/* Ajustes para componentes específicos no modo escuro */
+.dark-mode .navbar {
+    background-color: var(--dark-bg);
+}
+
+.dark-mode .book-title {
+    color: var(--text-dark);
+}
+
+.dark-mode .section-title {
+    color: var(--text-dark);
+}
+
+.dark-mode .footer {
+    background-color: var(--dark-bg);
+}
+
+.dark-mode .footer-heading {
+    color: var(--text-light);
+}
+
+.dark-mode .footer-links a {
+    color: var(--text-muted);
+}
+
+.dark-mode .footer-links a:hover {
+    color: var(--text-light);
+}
+
+/* Ajuste de contraste para elementos de texto no modo escuro */
+.dark-mode .text-muted {
+    color: var(--text-muted) !important;
+}
+
+.dark-mode .text-dark {
+    color: var(--text-dark) !important;
+}
+
+/* Ajustes para elementos de formulário no modo escuro */
+.dark-mode .form-check-input {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+}
+
+.dark-mode .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-dark);
+}
+
+/* Ajustes para tabelas no modo escuro */
+.dark-mode .table {
+    color: var(--text-dark);
+}
+
+.dark-mode .table-bordered {
+    border-color: var(--border-color);
+}
+
+.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Ajustes para notificações e alertas no modo escuro */
+.dark-mode .alert-info {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #93c5fd;
+}
+
+.dark-mode .alert-success {
+    background-color: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #6ee7b7;
+}
+
+.dark-mode .alert-warning {
+    background-color: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #fcd34d;
+}
+
+.dark-mode .alert-danger {
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+/* Transição suave entre os temas */
+body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
+.footer, .alert, .table, .btn-outline-secondary {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Correções para problemas específicos no modo escuro */
+
+/* Correção dos cards que permanecem brancos */
+.dark-mode .card,
+.dark-mode .book-card,
+.dark-mode .ranking-card {
+    background-color: var(--card-bg);
+    color: var(--text-dark);
+    border-color: var(--border-color);
+}
+
+/* Correção para títulos das prateleiras que ficam muito escuros */
+.dark-mode .section-title {
+    color: #e2e8f0;
+    border-bottom-color: var(--primary-color);
+}
+
+/* Correção para o fundo das imagens de livros */
+.dark-mode .book-cover {
+    background: linear-gradient(45deg, #2d2d2d, #333333);
+}
+
+/* Correção para seções de vídeo e ranking que permanecem brancas */
+.dark-mode .video-section,
+.dark-mode .reader-ranking-section,
+.dark-mode .bg-light {
+    background-color: var(--light-bg) !important;
+}
+
+/* Correção para textos dentro das seções */
+.dark-mode .video-title,
+.dark-mode .reader-ranking-section h2,
+.dark-mode .reader-ranking-section .text-muted {
+    color: var(--text-dark);
+}
+
+/* Correção para o widget de previsão do tempo */
+.dark-mode .weather-widget {
+    background-color: var(--card-bg);
+    color: var(--text-dark);
+    border-color: var(--border-color);
+}
+
+/* Ajustes para o componente de recomendações */
+.dark-mode .recommendations-widget {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .recommendations-widget-content {
+    background-color: var(--card-bg);
+}
+
+.dark-mode .book-card-compact .book-title {
+    color: var(--text-dark);
+}
+
+/* Ajuste para progresso em ranking */
+.dark-mode .progress {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Ajustes para botões outline que podem ficar com baixo contraste */
+.dark-mode .btn-outline-primary,
+.dark-mode .btn-outline-secondary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.dark-mode .btn-outline-primary:hover,
+.dark-mode .btn-outline-secondary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Ajuste para links dentro de texto */
+.dark-mode a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: var(--primary-color);
+}
+
+/* Ajustes para modais no tema escuro */
+.dark-mode .modal-header,
+.dark-mode .modal-footer {
+    background-color: var(--dark-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .modal-body {
+    background-color: var(--card-bg);
+}
+
+/* Ajustes para banners */
+.dark-mode .banner-text {
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Ajustes para o carrossel de livros */
+.dark-mode .swiper-button-next,
+.dark-mode .swiper-button-prev {
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+}
+
+.dark-mode .swiper-button-next:after,
+.dark-mode .swiper-button-prev:after {
+    color: var(--text-light);
+}
+
+/* Ajustes para ícones */
+.dark-mode .bi {
+    filter: none;
+}
+
+/* Corrigir badges e progresso */
+.dark-mode .badge {
+    border: none;
+}
+
+.dark-mode .badge.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Ajuste para melhorar visibilidade em itens de listas */
+.dark-mode li {
+    color: var(--text-dark);
+}
+
+/* Correções mais específicas para 'títulos' da pagina 'inicial' no modo escuro */
+
+/* Força todos os títulos a usar a cor de texto definida para o modo escuro */
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6,
+.dark-mode .h1,
+.dark-mode .h2,
+.dark-mode .h3,
+.dark-mode .h4,
+.dark-mode .h5,
+.dark-mode .h6 {
+    color: var(--text-dark) !important;
+}
+
+/* Regras específicas para títulos de seção */
+.dark-mode .section-title,
+.dark-mode .section-title.main,
+.dark-mode .section-title.sub {
+    color: var(--text-dark) !important;
+    border-bottom-color: var(--primary-color);
+}
+
+/* Títulos dentro de cards */
+.dark-mode .card-title,
+.dark-mode .book-title,
+.dark-mode .video-title {
+    color: var(--text-dark) !important;
+}
+
+/* Títulos do footer */
+.dark-mode .footer-heading,
+.dark-mode .brand-name {
+    color: var(--text-light) !important;
+}
+
+/* Títulos no carrossel de banner */
+.dark-mode .banner-text h2,
+.dark-mode .banner-text h3 {
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+/* Estilo para títulos específicos da página inicial */
+.dark-mode .reader-ranking-section .section-title,
+.dark-mode .reader-ranking-section .display-6 {
+    color: var(--text-dark) !important;
+}
+
+/* Títulos em modais */
+.dark-mode .modal-title {
+    color: var(--text-light) !important;
+}
+
+/* Para casos onde há um color: inherit ou outros estilos herdados */
+.dark-mode [class*="title"],
+.dark-mode [class*="heading"] {
+    color: var(--text-dark) !important;
+}
+
+/* Padronização de cores de fundo para 'seções' no modo escuro */
+
+/* Define a mesma cor de fundo para todas as seções especiais */
+.dark-mode .video-section,
+.dark-mode .reader-ranking-section,
+.dark-mode .bg-light,
+.dark-mode section[class*="section"] {
+    background-color: var(--body-bg) !important;
+}
+
+/* Corrige especificamente a seção de vídeos */
+.dark-mode .video-section .container {
+    background-color: var(--body-bg);
+}
+
+/* Corrige especificamente a seção de ranking de leitores */
+.dark-mode .reader-ranking-section.bg-light {
+    background-color: var(--body-bg) !important;
+}
+
+/* Corrige classes bg-light usadas em divs e outros elementos */
+.dark-mode .bg-light {
+    background-color: var(--body-bg) !important;
+}
+
+/* Ajusta o fundo dos cards dentro dessas seções */
+.dark-mode .video-section .card,
+.dark-mode .reader-ranking-section .card {
+    background-color: var(--card-bg);
+}
+
+/* Garante que elementos dentro das seções tenham o contraste correto */
+.dark-mode .video-section *,
+.dark-mode .reader-ranking-section * {
+    border-color: var(--border-color);
+}
+
+/* Ajusta fundo de cartões dentro da seção de ranking */
+.dark-mode .reader-ranking-section .ranking-card {
+    background-color: var(--card-bg);
+}
+
+/* Ajusta cores para os cardsde vídeo */
+.dark-mode .video-card {
+    background-color: transparent;
+}
+
+/* Corrige a cor da classe rounded que pode estar afetando essas seções */
+.dark-mode .rounded {
+    background-color: inherit;
+}
+
+/* Correções específicas para a seção de ranking de leitores */
+
+/* Corrige a seção de ranking na página principal */
+.dark-mode .reader-ranking-section.mt-5.py-4.bg-light.rounded {
+    background-color: var(--body-bg) !important;
+}
+
+/* Corrige a página completa de ranking de leitores */
+.dark-mode .reader-ranking-section {
+    background-color: var(--body-bg) !important;
+}
+
+/* Corrige os itens individuais do ranking na página específica */
+.dark-mode .bg-white {
+    background-color: var(--card-bg) !important;
+}
+
+/* Garante que os itens de ranking tenham a cor correta */
+.dark-mode .d-flex.align-items-center.justify-content-between.bg-white {
+    background-color: var(--card-bg) !important;
+    color: var(--text-dark);
+}
+
+/* Corrige o contraste do texto nos itens de ranking */
+.dark-mode .reader-ranking-section strong,
+.dark-mode .reader-ranking-section .fs-4 {
+    color: var(--text-dark);
+}
+
+/* Melhora a visibilidade dos emojis de medalha */
+.dark-mode .fs-4.fw-bold.me-3 {
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+/* Corrige a cor do texto no título da página de ranking */
+.dark-mode .reader-ranking-section h1,
+.dark-mode .reader-ranking-section .display-5 {
+    color: var(--text-dark) !important;
+}
+
+/* Garante que todos os elementos com fundo branco na página de ranking sejam tratados */
+.dark-mode .reader-ranking-section [class*="bg-white"],
+.dark-mode .reader-ranking-section .bg-white {
+    background-color: var(--card-bg) !important;
+}
+
+/* Correções para página de 'busca' no modo escuro */
+
+/* Ajuste do placeholder no campo de busca */
+.dark-mode .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Correção para formulários */
+.dark-mode .form-control,
+.dark-mode .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+}
+
+/* Ajuste para paginação */
+.dark-mode .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+}
+
+.dark-mode .page-link:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.dark-mode .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.dark-mode .page-item.disabled .page-link {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+}
+
+/* Ajustes para cor do texto em modais */
+.dark-mode .modal-title {
+    color: var(--text-light);
+}
+
+/* Ajustes para a descrição do livro */
+.dark-mode .book-description {
+    color: var(--text-muted) !important;
+}
+
+/* Ajuste para cartões de livro */
+.dark-mode .book-cover {
+    background-color: var(--card-bg);
+}
+
+/* Ajustes para cores de texto de título e autor */
+.dark-mode .book-title {
+    color: var(--primary-color) !important;
+}
+
+.dark-mode .book-author {
+    color: #f57c00 !important;
+}
+
+/* Ajustes para itens da lista no modal */
+.dark-mode .list-group-item {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+}
+
+.dark-mode .list-group-item:hover {
+    background-color: var(--dark-bg);
+}
+
+/* Garantir que os ícones dentro dos botões de lista sejam visíveis */
+.dark-mode .list-group-item i.bi-heart-fill {
+    color: #dc3545 !important;
+}
+
+.dark-mode .list-group-item i.bi-book-half {
+    color: #0d6efd !important;
+}
+
+.dark-mode .list-group-item i.bi-bookmark-plus {
+    color: #198754 !important;
+}
+
+.dark-mode .list-group-item i.bi-check-circle-fill {
+    color: #0dcaf0 !important;
+}
+
+/* Correções específicas para a página 'Sobre' no modo escuro */
+
+/* Cards com fundo claro definido inline */
+.dark-mode .card {
+    background-color: var(--card-bg) !important;
+    background: var(--card-bg) !important;
+}
+
+/* Correção para cards com gradientes */
+.dark-mode .journey-card,
+.dark-mode .tech-card {
+    background: var(--card-bg) !important;
+    background-image: none !important;
+}
+
+/* Badges customizados */
+.dark-mode .badge-custom {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Future features cards */
+.dark-mode .future-feature {
+    background-color: var(--card-bg) !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Tech badges */
+.dark-mode .tech-badge {
+    background: var(--dark-bg) !important;
+    color: var(--text-dark) !important;
+}
+
+/* Quote card */
+.dark-mode .quote-card {
+    background-color: var(--dark-bg) !important;
+    border-left: 5px solid var(--primary-color) !important;
+    color: var(--text-dark) !important;
+}
+
+/* Commitment card */
+.dark-mode .commitment-card {
+    background: var(--card-bg) !important;
+    background-image: none !important;
+}
+
+/* Listas e itens */
+.dark-mode .list-unstyled li,
+.dark-mode .list-group-item.bg-transparent {
+    color: var(--text-dark) !important;
+}
+
+/* Títulos de seção */
+.dark-mode .section-title {
+    color: var(--text-dark) !important;
+}
+
+.dark-mode .section-title::after {
+    background: var(--primary-color) !important;
+}
+
+/* Cores para texto */
+.dark-mode .lead,
+.dark-mode .text-muted,
+.dark-mode .card-text,
+.dark-mode p {
+    color: var(--text-dark) !important;
+}
+
+/* Cores para links e ícones */
+.dark-mode .feature-icon {
+    color: var(--primary-color) !important;
+}
+
+/* Background claro definido no modal */
+.dark-mode .modal-body .bg-light {
+    background-color: var(--dark-bg) !important;
+}
+
+/* Ajusta cor do texto nos modais */
+.dark-mode .modal-body p,
+.dark-mode .modal-body ul,
+.dark-mode .modal-body li,
+.dark-mode .modal-title {
+    color: var(--text-dark) !important;
+}
+
+/* Ajusta cor de fundo do cabeçalho do modal de recomendações */
+.dark-mode .modal-header.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Ajustes específicos para títulos e textos em cards */
+.dark-mode .card-title,
+.dark-mode .card h3,
+.dark-mode .card h4,
+.dark-mode .card h5 {
+    color: var(--text-dark) !important;
+}
+
+/* Ajuste para texto muted dentro de cards */
+.dark-mode .card .text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Lista de grupo transparente no modal */
+.dark-mode .list-group-item.bg-transparent {
+    background-color: transparent !important;
+}
+
+/* Correções específicas para a página de registro no modo escuro */
+
+/* Correção para o card principal */
+.dark-mode .card {
+    background-color: var(--card-bg) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Correção para textos e labels */
+.dark-mode .card h2 {
+    color: var(--text-dark) !important;
+}
+
+.dark-mode .card label {
+    color: var(--text-dark) !important;
+}
+
+.dark-mode .text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Correção para campos de formulário */
+.dark-mode .form-control,
+.dark-mode .form-select {
+    background-color: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-dark) !important;
+}
+
+.dark-mode .form-control:focus,
+.dark-mode .form-select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25) !important;
+}
+
+/* Correção para mensagens de erro */
+.dark-mode .alert-danger {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+    color: #f8d7da !important;
+    border-color: rgba(220, 53, 69, 0.3) !important;
+}
+
+.dark-mode .invalid-feedback {
+    color: #f77 !important;
+}
+
+/* Correção para o checkbox de termos */
+.dark-mode .form-check-input {
+    background-color: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+.dark-mode .form-check-input:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* Correção para links */
+.dark-mode .card a {
+    color: var(--primary-color) !important;
+}
+
+.dark-mode .card a:hover {
+    color: var(--primary-hover) !important;
+    text-decoration: underline;
+}
+
+/* Correção para botão */
+.dark-mode .btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.dark-mode .btn-primary:hover {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+}
+
+/* Correção específica para o alerta na política de privacidade */
+.dark-mode .alert-light {
+    background-color: var(--card-bg) !important;
+    color: var(--text-dark) !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* Garante que o texto do alerta tenha boa legibilidade no modo escuro */
+.dark-mode .alert-light p {
+    color: var(--text-dark) !important;
+}
+
+/* ===============================================================================
+   Ajustes específicos para cards no modo claro - correção do fundo e legibilidade
+   =============================================================================== */
+
+/* Remover efeito hover dos cards */
+.light-mode .card:hover,
+.light-mode .author-card:hover,
+.light-mode .book-card:hover,
+.light-mode .custom-section .card:hover,
+.light-mode .reader-ranking-section .card:hover {
+    background-color: rgba(255, 255, 255, 0.95) !important; /* Mantém a mesma cor de fundo */
+    transform: none !important; /* Remove o efeito de elevação */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; /* Mantém a mesma sombra */
+}
+
+/* Ajustes específicos para cards no modo claro - correção do fundo e legibilidade */
+.light-mode .card,
+.light-mode .alert-light,
+.light-mode .politica-privacidade .card,
+.light-mode .termos-uso .card {
+    background-color: rgba(255, 255, 255, 0.95) !important; /* Fundo branco mais opaco */
+    color: #333333 !important; /* Texto escuro para legibilidade */
+    border: 1px solid rgba(0, 0, 0, 0.1) !important; /* Borda leve para melhor definição */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; /* Sombra suave */
+    transition: none !important; /* Remove transições */
+}
+
+/* Ajustes para textos dentro dos cards */
+.light-mode .card h1,
+.light-mode .card h2,
+.light-mode .card h3,
+.light-mode .card h4,
+.light-mode .card h5,
+.light-mode .card h6,
+.light-mode .card .card-title,
+.light-mode .alert-light h1,
+.light-mode .alert-light h2,
+.light-mode .alert-light h3,
+.light-mode .alert-light h4 {
+    color: #1a1a1a !important; /* Garante que os títulos sejam escuros e legíveis */
+}
+
+.light-mode .card p,
+.light-mode .card li,
+.light-mode .card .card-text,
+.light-mode .alert-light p {
+    color: #333333 !important; /* Texto normal em cor escura para legibilidade */
+}
+
+/* Específico para textos do card em páginas institucionais */
+.light-mode .card .text-muted,
+.light-mode .card .text-primary {
+    color: #555555 !important; /* Garante cores adequadas para textos específicos */
+}
+
+/* Correção para o alert-light dentro dos cards */
+.light-mode .alert-light {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    border-left: 4px solid var(--primary-color) !important;
+}
+
+/* Correção para items de lista nos cards */
+.light-mode .card .list-group-item {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Garantir que os ícones mantenham suas cores */
+.light-mode .card .bi {
+    color: var(--primary-color) !important;
+}
+
+/* Ajustes específicos para títulos de páginas institucionais no tema claro */
+.light-mode .text-center h1,
+.light-mode .container .row .col-lg-10 h1,
+.light-mode .politica-privacidade h1,
+.light-mode .termos-uso h1 {
+    color: #1a1a1a !important; /* Cor escura para títulos principais */
+    font-weight: bold !important;
+    text-shadow: none !important; /* Remove qualquer sombra que possa afetar a legibilidade */
+}
+
+/* Ajuste específico para o texto abaixo do título (data de atualização) */
+.light-mode .text-center .text-muted,
+.light-mode .container .row .col-lg-10 .text-muted {
+    color: #555555 !important; /* Cinza escuro para melhor legibilidade */
+}
+
+/* Ajuste para ícones acima dos títulos */
+.light-mode .text-center .bi-shield-lock,
+.light-mode .text-center .bi-file-text {
+    color: var(--primary-color) !important;
+}
+
+/* Garantir que os títulos de seções também sejam legíveis */
+.light-mode .privacy-sections h2,
+.light-mode .terms-sections h2 {
+    color: var(--primary-color) !important;
+}
+
+/* ==========================================================================
    Breakpoints Responsivos - Sistema Unificado
    ========================================================================== */
 
@@ -324,7 +1357,7 @@
 
 .book-shelf .section-title {
     margin-bottom: var(--spacing-lg);
-    color: #1a1a1a;  /* Cinza escuro para melhor contraste */
+    color: #ffffff;  /* Branco para melhor contraste */
     font-size: 1.8rem;
     position: relative;
     padding-left: var(--spacing-md);
@@ -532,37 +1565,65 @@
     will-change: transform;
 }
 
+/* Book Cover Enhancement */
 .book-cover {
+    position: relative;
+    height: 220px; /* Altura fixa para todas as imagens */
     width: 100%;
-    max-height: var(--book-cover-height);
-    object-fit: contain;
-    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    background: linear-gradient(45deg, #f3f4f6, #ffffff);
     box-shadow: var(--shadow-sm);
+    padding: var(--spacing-sm);
+}
+
+.book-cover img {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain; /* Mantém a proporção sem cortar */
     transition: transform var(--transition-default);
 }
 
+/* Container de informações com altura fixa */
 .book-info {
-    width: 100%;
-    text-align: center;
-    margin-top: var(--spacing-md);
-}
-
-.book-title {
-    color: #1a1a1a; /* Alterado para um cinza mais escuro */
-    font-weight: 600;
-    font-size: 1rem;
-    margin-bottom: var(--spacing-xs);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza os elementos filhos */
+    justify-content: center; /* Centraliza verticalmente */
+    flex-grow: 1;
+    width: 100%; /* Garante que ocupe toda a largura disponível */
     overflow: hidden;
 }
 
+/* Título do livro padronizado */
+.book-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333333; /* Cor escura para melhor contraste no modo claro */
+    margin-bottom: 5px;
+    line-height: 1.3;
+    max-height: 2.6em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limita a 2 linhas */
+    -webkit-box-orient: vertical;
+}
+
+/* Autor do livro padronizado */
 .book-author {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    font-weight: 500;              /* Adicionado weight para melhor legibilidade */
+    font-size: 0.85rem;
+    color: #666666; /* Cinza médio para autor */
     margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Book Price Components */
@@ -571,10 +1632,11 @@
     font-weight: 600;
 }
 
+/* Ajuste para preços */
 .book-price.has-discount {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Já está centralizado, mas reforçamos */
     gap: 4px;
 }
 
@@ -609,295 +1671,192 @@
     box-shadow: var(--shadow-sm);
 }
 
-/* Book Cover Enhancement */
-.book-cover {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--radius-md);
-    background: linear-gradient(45deg, #f3f4f6, #ffffff);
-    box-shadow: var(--shadow-sm);
-    padding: var(--spacing-sm);
-}
-
-.book-cover img {
-    transition: transform var(--transition-default);
-    will-change: transform;
-    border-radius: var(--radius-sm);
-}
-
-.book-card:hover .book-cover img {
-    transform: scale(1.08) translateY(-2%);
-}
-
 /* Book Card Enhancement */
 .book-card {
-    background: var(--white);
+    height: 420px; /* Aumentada a altura para dar mais espaço */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza horizontalmente */
+    text-align: center; /* Centraliza o texto */
+    background-color: rgba(255, 255, 255, 0.85) !important; /* Fundo mais opaco para melhor legibilidade */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 20px;
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-sm);
-    transition: all var(--transition-default);
-    height: 100%;
+    padding: 12px; /* Padding em todos os lados */
+    position: relative; /* Para posicionamento de elementos internos */
 }
 
 .book-card:hover {
     box-shadow: var(--shadow-md);
     transform: translateY(-5px);
+    background-color: rgba(255, 255, 255, 0.95) !important; /* Ainda mais opaco no hover */
 }
 
-/* ==========================================================================
-   Video Components
-   ========================================================================== */
-
-/* Seção de Vídeo */
-.video-section {
-    padding: var(--spacing-xl) 0;
-    background-color: var(--light-bg);
+.book-card:hover .book-cover img {
+    transform: scale(1.05);
 }
 
-.video-section .container {
-    position: relative;
-    max-width: var(--container-max-width);
-    padding: 0;
-    margin: 0 auto;
+.book-title,
+.book-author,
+.book-price {
+    text-align: center; /* Centraliza o texto */
+    width: 90%; /* Reduz ligeiramente para evitar problemas de overflow */
+    margin-left: auto;
+    margin-right: auto;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Ajustes do Swiper para Vídeos */
-.videoSwiper {
-    position: relative;
-    padding: 0 40px;
-    overflow: hidden;
+/* Garantir que no modo claro as cores sejam consistentes */
+.light-mode .book-title {
+    color: #333333;
 }
 
-/* Cards de Vídeo */
-.video-card {
-    width: 100%;
-    padding: 10px;
-    height: 100%;
-    margin: 0 auto;
+.light-mode .book-author {
+    color: #666666;
 }
 
-.video-cover {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%;  /* Proporção 16:9 */
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background-color: #000;
+/* Ajuste de cor dos títulos para melhor legibilidade em cards transparentes */
+.book-title {
+    color: #ffffff; /* Cor branca para o título */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Sombra de texto para melhorar legibilidade */
+    font-weight: 600;
 }
 
-.video-thumbnail {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+/* Ajuste para o autor também */
+.book-author {
+    color: rgba(255, 255, 255, 0.85); /* Branco com transparência para o autor */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.play-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity var(--transition-default);
+/* Garantir que os preços também sejam legíveis */
+.regular-price {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.play-icon {
-    width: 48px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: var(--radius-circle);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: #ff0000;
+/* Ajuste para o modo escuro, caso necessário manter consistência */
+.dark-mode .book-title {
+    color: #ffffff;
 }
 
-.video-cover:hover .play-overlay {
-    opacity: 1;
+.dark-mode .book-author {
+    color: rgba(255, 255, 255, 0.85);
 }
 
-.video-title {
-    margin-top: var(--spacing-sm);
-    font-size: 0.95rem;
-    color: var(--text-dark);
+/* Ajuste forçado de cor para os títulos dos livros em cards transparentes */
+.book-card .book-title {
+    color: #ffffff !important; /* Forçando cor branca com !important */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important; /* Sombra mais forte */
+}
+
+.book-card .book-author {
+    color: var(--bs-warning) !important; /* Usando a variável de cor de alerta do Bootstrap */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Sobrescrever regras específicas do tema claro */
+.light-mode .book-card .book-title {
+    color: #ffffff !important;
+}
+
+.light-mode .book-card .book-author {
+    color: var(--bs-warning) !important; /* Usando a variável de cor de alerta do Bootstrap */
+}
+
+/* Sobrescrever qualquer outro estilo que possa estar interferindo */
+body .book-card .book-title,
+html .book-card .book-title {
+    color: #ffffff !important;
+}
+
+body .book-card .book-author,
+html .book-card .book-author {
+    color: var(--bs-warning) !important; /* Usando a variável de cor de alerta do Bootstrap */
+}
+
+/* Gestão de quebra de texto para múltiplos autores ou textos longos */
+.book-card .book-author,
+.book-card .book-title {
     text-align: center;
+    width: 90%; /* Reduzindo ligeiramente a largura para criar margem dos dois lados */
+    margin-left: auto;
+    margin-right: auto;
+    white-space: normal; /* Permite que o texto quebre */
+    word-wrap: break-word; /* Quebra palavras muito longas se necessário */
+    overflow-wrap: break-word; /* Alternativa moderna para word-wrap */
+    hyphens: none; /* Evita hifenização automática */
+}
+
+/* Ajuste específico para múltiplos autores */
+.book-card .book-author {
+    white-space: normal; /* Sobrescreve o 'white-space: nowrap' definido anteriormente */
+    max-height: 2.4em; /* Permite até duas linhas aproximadamente */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 2; /* Limita a 2 linhas */
     -webkit-box-orient: vertical;
 }
 
-/* Modal de Vídeo */
-.video-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: var(--z-modal);
-    align-items: center;
-    justify-content: center;
-}
-
-.video-modal .modal-content {
-    position: relative;
-    width: 90%;
-    max-width: 800px;
-    margin: 20px auto;
-    background: #000;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-}
-
-.video-container {
-    position: relative;
-    padding-bottom: 56.25%;
-    height: 0;
-    overflow: hidden;
-}
-
-.video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-.close-modal {
-    position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 30px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
+/* Ajuste para evitar sobreposição entre autores e preços */
+.book-card {
+    height: 380px; /* Mantendo a altura fixa */
     display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    z-index: calc(var(--z-modal) + 1);
+    flex-direction: column;
+    position: relative;
 }
 
-.close-modal:hover {
-    background: rgba(255, 255, 255, 0.5);
+/* Ajustando o container de informações para garantir espaço */
+.book-info {
+    padding: 10px 10px 10px 10px; /* Aumentando o padding inferior */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0; /* Não crescer além do necessário */
+    flex-shrink: 0; /* Não encolher */
+    flex-basis: auto; /* Tamanho baseado no conteúdo */
+    height: auto; /* Altura baseada no conteúdo */
+    max-height: 100px; /* Altura máxima limitada */
+    overflow: visible; /* Permite que o conteúdo fique visível */
+    margin-bottom: 5px; /* Espaço adicional antes do preço */
 }
 
-/* Navegação */
-.videoSwiper .swiper-button-next,
-.videoSwiper .swiper-button-prev {
-    width: 40px;
-    height: 40px;
-    background-color: var(--white);
-    border-radius: 50%;
-    box-shadow: var(--shadow-md);
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    opacity: 1;
+/* Ajustando o autor para garantir que seja visível */
+.book-card .book-author {
+    font-size: 0.68rem; /* Reduzindo ligeiramente o tamanho da fonte */
+    margin-bottom: 3px; /* Espaço após o autor */
+    line-height: 1.2; /* Reduzindo o espaçamento entre linhas */
 }
 
-.videoSwiper .swiper-button-prev {
+/* Posicionando o preço mais abaixo */
+.book-price {
+    position: absolute; /* Posicionamento absoluto */
+    bottom: 10px; /* 10px a partir do fundo */
     left: 0;
-}
-
-.videoSwiper .swiper-button-next {
     right: 0;
+    text-align: center;
+    background: transparent; /* Fundo transparente */
+    padding: 5px 0;
+    margin: 0;
+    font-size: 0.9rem; /* Fonte ligeiramente menor */
 }
 
-.videoSwiper .swiper-button-next:after,
-.videoSwiper .swiper-button-prev:after {
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--text-dark);
+/* Garantindo que os preços com desconto também fiquem bem posicionados */
+.book-price.has-discount {
+    padding: 5px 0;
 }
 
-.videoSwiper .swiper-button-next:hover,
-.videoSwiper .swiper-button-prev:hover {
-    background-color: var(--primary-color);
+.original-price {
+    font-size: 0.8rem; /* Fonte menor para o preço original */
 }
 
-.videoSwiper .swiper-button-next:hover:after,
-.videoSwiper .swiper-button-prev:hover:after {
-    color: var(--white);
+.promotional-price {
+    font-size: 0.9rem; /* Fonte menor para o preço promocional */
 }
 
-/* Responsividade */
-@media (max-width: 1024px) {
-    .video-section .container {
-        max-width: 100%;
-        padding: 0 20px;
-    }
 
-    .videoSwiper {
-        padding: 0 35px;
-    }
-}
-
-@media (max-width: 768px) {
-    .video-section .container {
-        padding: 0 15px;
-    }
-
-    .videoSwiper {
-        padding: 0 35px;
-    }
-
-    .videoSwiper .swiper-button-next,
-    .videoSwiper .swiper-button-prev {
-        width: 32px;
-        height: 32px;
-    }
-
-    .videoSwiper .swiper-button-next:after,
-    .videoSwiper .swiper-button-prev:after {
-        font-size: 14px;
-    }
-
-    .play-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
-    }
-
-    .video-modal .modal-content {
-        width: 95%;
-    }
-
-    .close-modal {
-        top: -40px;
-        right: 0;
-    }
-}
-
-@media (max-width: 576px) {
-    .video-section .container {
-        padding: 0 10px;
-    }
-
-    .videoSwiper {
-        padding: 0 30px;
-    }
-
-    .video-title {
-        font-size: 0.85rem;
-    }
-}
 
 /* Profile Components
    ========================================================================== */
@@ -928,6 +1887,12 @@
     background-color: var(--dark-bg);
     box-shadow: var(--shadow-sm);
     padding: 0.5rem var(--spacing-lg);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: var(--z-sticky);
 }
 
 .navbar-brand {
@@ -1724,4 +2689,103 @@
   .book-cover-compact {
     height: 130px;
   }
+}
+
+/* Estilo para cards transparentes em toda a aplicação */
+.card, .author-card, .book-card, .custom-section .card, .reader-ranking-section .card {
+    background-color: rgba(255, 255, 255, 0.7) !important; /* Background semi-transparente */
+    backdrop-filter: blur(5px); /* Efeito de desfoque no fundo */
+    transition: all 0.3s ease; /* Transição suave */
+    border: none !important; /* Remove bordas */
+}
+
+.card:hover, .author-card:hover, .book-card:hover, .custom-section .card:hover, .reader-ranking-section .card:hover {
+    background-color: rgba(255, 255, 255, 0.9) !important; /* Mais opaco no hover */
+    transform: translateY(-5px); /* Leve efeito de elevação */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important; /* Sombra aumentada */
+}
+
+/* Estilo para seções */
+.book-shelf, .video-section, .ad-section, .link-grid, .custom-section, .author-section, .reader-ranking-section {
+    background-color: rgba(248, 249, 250, 0.7) !important; /* Background semi-transparente */
+    backdrop-filter: blur(3px); /* Efeito de desfoque no fundo */
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.book-shelf:hover, .video-section:hover, .ad-section:hover, .link-grid:hover, .custom-section:hover, .author-section:hover, .reader-ranking-section:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajuste para modo escuro */
+@media (prefers-color-scheme: dark) {
+    .card, .author-card, .book-card, .custom-section .card, .reader-ranking-section .card {
+        background-color: rgba(33, 37, 41, 0.7) !important;
+    }
+
+    .card:hover, .author-card:hover, .book-card:hover, .custom-section .card:hover, .reader-ranking-section .card:hover {
+        background-color: rgba(33, 37, 41, 0.9) !important;
+    }
+
+    .book-shelf, .video-section, .ad-section, .link-grid, .custom-section, .author-section, .reader-ranking-section {
+        background-color: rgba(33, 37, 41, 0.7) !important;
+    }
+}
+
+/* Melhoria de contraste para tema claro */
+.card, .book-card, .video-card, .custom-section .card, .reader-ranking-section .card { /* Removendo .author-card */
+    background-color: rgba(255, 255, 255, 0.85) !important; /* Menos transparente */
+    color: #212529 !important; /* Garante texto escuro */
+}
+
+/* Melhorar legibilidade do conteúdo */
+.card-title, .card-text {
+    /*color: #000 !important;  Removendo !important */
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Mantém o ajuste de modo escuro existente */
+@media (prefers-color-scheme: dark) {
+    .card, .author-card, .book-card, .custom-section .card, .reader-ranking-section .card {
+        background-color: rgba(33, 37, 41, 0.7) !important;
+    }
+
+    .card:hover, .author-card:hover, .book-card:hover, .custom-section .card:hover, .reader-ranking-section .card:hover {
+        background-color: rgba(33, 37, 41, 0.9) !important;
+    }
+
+    /* Ajuste de cores para textos no modo escuro */
+    .card-title, .card-text {
+        color: var(--text-dark) !important;
+        text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    }
+}
+
+.book-image-rounded {
+    border-radius: var(--radius-md) !important;
+}
+
+/* Correções específicas para a página de detalhes do livro */
+.light-mode .book-details-page .navbar {
+    background-color: #ffffff !important;
+}
+
+.light-mode .book-details-page .navbar .nav-link {
+    color: #333333 !important;
+}
+
+.light-mode .book-details-page .footer {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+}
+
+.light-mode .book-details-page .footer-links a {
+    color: #333333 !important;
+}
+
+/* Garantir que cards na página de detalhes sejam brancos */
+.light-mode .book-details-page .card {
+    background-color: #ffffff !important;
 }

@@ -18,6 +18,7 @@ from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.db import models
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, DetailView
@@ -49,6 +50,11 @@ __all__ = [
     'update_book',
     'move_book',
     'add_book_manual',
+    'CatalogueView',
+    'NewReleasesView',
+    'BestSellersView',
+    'RecommendedBooksView',
+    'CheckoutPremiumView',
 ]
 
 
@@ -685,11 +691,14 @@ def update_book(request, book_id):
 
 @login_required
 @require_http_methods(["POST"])
-def move_book(request, book_id):
+@login_required
+@require_http_methods(["POST"])
+def move_book(request, book_id=None):
     """
     Move um livro para outra prateleira com verificações de segurança aprimoradas.
 
     Características:
+    - Suporta chamadas com book_id na URL ou no corpo da requisição
     - Valida existência do livro
     - Verifica tipo de prateleira
     - Verifica propriedade da prateleira
@@ -697,7 +706,7 @@ def move_book(request, book_id):
 
     Args:
         request: Requisição HTTP
-        book_id: ID do livro a ser movido
+        book_id: ID do livro a ser movido (opcional, pode vir no corpo da requisição)
 
     Returns:
         JsonResponse indicando sucesso ou falha no movimento
@@ -705,11 +714,30 @@ def move_book(request, book_id):
     try:
         # Verificação do usuário
         if not request.user.is_authenticated:
-            logger.warning(f"Tentativa de acesso não autenticado para mover livro {book_id}")
+            logger.warning(f"Tentativa de acesso não autenticado para mover livro")
             return JsonResponse({
                 'success': False,
                 'error': 'Usuário não autenticado'
             }, status=401)
+
+        # Carrega os dados do corpo da requisição com validação
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            logger.error(f"Formato JSON inválido na requisição de movimento de livro")
+            return JsonResponse({
+                'success': False,
+                'error': 'Formato de dados inválido'
+            }, status=400)
+
+        # Obter book_id do corpo da requisição se não estiver na URL
+        if book_id is None:
+            book_id = data.get('book_id')
+            if not book_id:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'ID do livro não fornecido'
+                }, status=400)
 
         # Verifica se o livro existe
         try:
@@ -721,26 +749,13 @@ def move_book(request, book_id):
                 'error': 'Livro não encontrado'
             }, status=404)
 
-        # Verifica se o livro pertence a alguma prateleira do usuário
-        if not UserBookShelf.objects.filter(user=request.user, book=book).exists():
-            logger.warning(f"Tentativa de mover livro {book_id} que não pertence ao usuário {request.user.username}")
-            return JsonResponse({
-                'success': False,
-                'error': 'Este livro não está em nenhuma de suas prateleiras'
-            }, status=403)
+        # Verificar qual é o campo para a nova prateleira no JSON
+        # Suporta tanto 'new_shelf' quanto 'new_shelf_type' para compatibilidade
+        new_shelf = data.get('new_shelf') or data.get('new_shelf_type')
+        if not new_shelf:
+            # Também verifica 'shelf_type' para compatibilidade com a UI
+            new_shelf = data.get('shelf_type')
 
-        # Carrega os dados do corpo da requisição com validação
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            logger.error(f"Formato JSON inválido na requisição de movimento de livro {book_id}")
-            return JsonResponse({
-                'success': False,
-                'error': 'Formato de dados inválido'
-            }, status=400)
-
-        # Validação da nova prateleira
-        new_shelf = data.get('new_shelf')
         if not new_shelf:
             logger.warning(f"Nova prateleira não especificada para livro {book_id}")
             return JsonResponse({
@@ -764,15 +779,30 @@ def move_book(request, book_id):
         ).first()
 
         if not shelf_item:
-            logger.warning(f"Livro {book_id} não encontrado em nenhuma prateleira do usuário {request.user.username}")
+            logger.warning(
+                f"Livro {book_id} não encontrado em nenhuma prateleira do usuário {request.user.username}")
+
+            # Se o livro não estiver em nenhuma prateleira, cria uma nova entrada
+            shelf_item = UserBookShelf.objects.create(
+                user=request.user,
+                book=book,
+                shelf_type=new_shelf
+            )
+
+            logger.info(
+                f"Usuário {request.user.username} adicionou o livro '{book.titulo}' (ID: {book_id}) " +
+                f"à prateleira {new_shelf}"
+            )
+
             return JsonResponse({
-                'success': False,
-                'error': 'Livro não encontrado em nenhuma prateleira'
-            }, status=404)
+                'success': True,
+                'message': f'Livro adicionado à prateleira {new_shelf} com sucesso!'
+            })
 
         # Verificação adicional de propriedade
         if shelf_item.user.id != request.user.id:
-            logger.error(f"Usuário {request.user.username} tentando mover livro {book_id} que pertence a outro usuário")
+            logger.error(
+                f"Usuário {request.user.username} tentando mover livro {book_id} que pertence a outro usuário")
             return JsonResponse({
                 'success': False,
                 'error': 'Você não tem permissão para mover este livro'
@@ -805,7 +835,9 @@ def move_book(request, book_id):
         })
 
     except Exception as e:
-        logger.error(f"Erro não tratado ao mover livro {book_id}: {str(e)}", exc_info=True)
+        logger.error(
+            f"Erro não tratado ao mover livro {book_id if 'book_id' in locals() else 'desconhecido'}: {str(e)}",
+            exc_info=True)
         return JsonResponse({
             'success': False,
             'error': 'Erro interno do servidor ao processar sua solicitação'
@@ -911,7 +943,8 @@ class BookDetailView(LoginRequiredMixin, DetailView):
 
         # Busca informações da prateleira do usuário com tratamento de exceção
         try:
-            user_shelf = UserBookShelf.objects.filter(user=user, book=book).first()
+            # Otimização: Usar select_related para evitar N+1 query
+            user_shelf = UserBookShelf.objects.filter(user=user, book=book).select_related('book').first()
 
             # Verificar se o livro é temporário e fazer ajustes necessários
             is_temporary = getattr(book, 'is_temporary', False)
@@ -1038,6 +1071,7 @@ def add_external_to_shelf(request):
         logger.error(f"Erro ao adicionar livro externo à prateleira: {str(e)}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+
 @login_required
 def external_book_details_view(request, external_id):
     """
@@ -1139,3 +1173,230 @@ def external_book_details_view(request, external_id):
         return render(request, 'core/error.html', {
             'error_message': "Não foi possível carregar os detalhes do livro externo. Por favor, tente novamente mais tarde."
         })
+
+
+class CatalogueView(TemplateView):
+    """
+    View para página de catálogo completo de livros.
+
+    Exibe todos os livros cadastrados no sistema.
+    """
+    template_name = 'core/book/catalogue.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Configuração de paginação
+        page = self.request.GET.get('page', 1)
+        items_per_page = 12
+
+        # Obter parâmetros de filtragem
+        search_query = self.request.GET.get('search', '')
+        sort_param = self.request.GET.get('sort', 'titulo')
+        categoria_filter = self.request.GET.get('categoria', '')
+
+        # Base query
+        books = Book.objects.filter(is_temporary=False)
+
+        # Aplicar filtros se fornecidos
+        if search_query:
+            books = books.filter(
+                models.Q(titulo__icontains=search_query) |
+                models.Q(autor__icontains=search_query) |
+                models.Q(categoria__icontains=search_query)
+            )
+
+        if categoria_filter:
+            # Tratamento especial para categorias armazenadas como listas
+            # Busca tanto o nome exato quanto como parte de uma lista
+            books = books.filter(
+                models.Q(categoria=categoria_filter) |
+                models.Q(categoria__icontains=f"'{categoria_filter}'")
+            )
+
+        # Aplicar ordenação
+        valid_sort_fields = ['titulo', '-titulo', 'autor', '-autor', 'data_publicacao', '-data_publicacao']
+        if sort_param in valid_sort_fields:
+            books = books.order_by(sort_param)
+        else:
+            books = books.order_by('titulo')
+
+        # Implementar paginação
+        from django.core.paginator import Paginator
+        paginator = Paginator(books, items_per_page)
+        books_page = paginator.get_page(page)
+
+        # Processamento especial para categorias
+        # Obtém todas as categorias e processa para exibição limpa
+        raw_categories = Book.objects.exclude(
+            models.Q(categoria__isnull=True) |
+            models.Q(categoria='')
+        ).values_list('categoria', flat=True).distinct()
+
+        # Processa as categorias para remover a formatação de lista
+        processed_categories = set()
+        for cat in raw_categories:
+            # Se for uma lista em formato de string (ex: "['Fiction']")
+            if cat.startswith('[') and cat.endswith(']'):
+                try:
+                    # Tenta extrair o conteúdo da lista
+                    import ast
+                    cat_list = ast.literal_eval(cat)
+                    for item in cat_list:
+                        if item:
+                            processed_categories.add(item)
+                except (ValueError, SyntaxError):
+                    # Se falhar na conversão, usa o valor original
+                    processed_categories.add(cat)
+            else:
+                # Categoria normal
+                processed_categories.add(cat)
+
+        # Converte para lista e ordena
+        categories = sorted(list(processed_categories))
+
+        context.update({
+            'title': 'Catálogo Completo',
+            'books': books_page,
+            'page_obj': books_page,
+            'categories': categories,
+            'current_sort': sort_param,
+            'current_search': search_query,
+            'current_category': categoria_filter,
+        })
+
+        return context
+
+
+class NewReleasesView(TemplateView):
+    """
+    View para página de novos lançamentos.
+
+    Exibe os livros marcados como lançamentos.
+    """
+    template_name = 'core/book/book_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Otimização: Obter lançamentos com prefetch_related para relacionamentos M2M
+        releases = Book.objects.filter(
+            e_lancamento=True,
+            is_temporary=False
+        ).order_by('-data_publicacao', 'titulo')
+
+        # Alternativa utilizando o campo tipo_shelf_especial
+        if not releases.exists():
+            releases = Book.objects.filter(
+                tipo_shelf_especial='lancamentos',
+                is_temporary=False
+            ).order_by('-data_publicacao', 'titulo')
+
+        context.update({
+            'title': 'Novos Lançamentos',
+            'books': releases,
+            'description': 'Descubra os mais recentes lançamentos do mundo literário.'
+        })
+
+        return context
+
+
+class BestSellersView(TemplateView):
+    """
+    View para página de livros mais vendidos.
+
+    Exibe os livros com maior quantidade de vendas.
+    """
+    template_name = 'core/book/book_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Otimização: Obter os mais vendidos com select_related
+        bestsellers = Book.objects.filter(
+            tipo_shelf_especial='mais_vendidos',
+            is_temporary=False
+        ).order_by('-quantidade_vendida', 'titulo')
+
+        # Caso não haja livros marcados especificamente como bestsellers
+        if not bestsellers.exists():
+            bestsellers = Book.objects.filter(
+                is_temporary=False
+            ).order_by('-quantidade_vendida', 'titulo')[:20]  # Limite para os 20 mais vendidos
+
+        context.update({
+            'title': 'Mais Vendidos',
+            'books': bestsellers,
+            'description': 'Os livros mais populares entre nossos leitores.'
+        })
+
+        return context
+
+
+class RecommendedBooksView(LoginRequiredMixin, TemplateView):
+    """
+    View para página de livros recomendados.
+
+    Exibe recomendações personalizadas para o usuário logado,
+    utilizando o sistema de recomendações existente.
+    """
+    template_name = 'core/book/recommended.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        try:
+            # Importa engine de recomendações
+            from ..recommendations.engine import RecommendationEngine
+
+            # Instancia o motor de recomendações
+            engine = RecommendationEngine()
+
+            # Obtém recomendações para o usuário atual
+            # Otimização: Garantir que o engine de recomendações também use select_related/prefetch_related
+            recommendations = engine.get_personalized_recommendations(
+                user=self.request.user,
+                limit=12  # Limite configurável pelo administrador
+            )
+
+            context.update({
+                'title': 'Recomendados Para Você',
+                'books': recommendations,
+                'description': 'Seleções personalizadas com base no seu histórico de leitura e preferências.'
+            })
+
+        except Exception as e:
+            logger.error(f"Erro ao obter recomendações: {str(e)}")
+            context.update({
+                'title': 'Recomendados Para Você',
+                'books': [],
+                'error': True,
+                'error_message': 'Não foi possível carregar as recomendações. Por favor, tente novamente mais tarde.'
+            })
+
+        return context
+
+
+class CheckoutPremiumView(TemplateView):
+    """
+    View temporária para o checkout do plano premium.
+
+    Esta view será expandida quando você implementar
+    a integração com sistemas de pagamento.
+
+    Características:
+    - Exibe página de placeholder para checkout
+    - Mostra informações sobre o plano premium
+    - Prepara usuário para futura integração de pagamentos
+    """
+    template_name = 'core/checkout_premium_placeholder.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'title': 'Checkout Premium',
+            'mensagem': 'Sistema de pagamento em implementação. Em breve você poderá finalizar sua assinatura Premium!',
+            'user': self.request.user
+        })
+        logger.info(f"Usuário {self.request.user.username} acessou a página de checkout premium")
+        return context

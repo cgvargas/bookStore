@@ -1,0 +1,68 @@
+{% load static %}
+<!-- Modal para demonstração de recomendações AI-Driven -->
+<div class="modal fade" id="recomendacoesModal" tabindex="-1" aria-labelledby="recomendacoesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="recomendacoesModalLabel">
+          <i class="bi bi-stars me-2"></i>Recomendações Inteligentes
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-4 bg-light p-3 rounded">
+          <div class="d-flex align-items-center mb-3">
+            <div class="bg-primary text-white rounded-circle p-3 me-3">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-1">Algoritmo de Recomendação</h5>
+              <p class="text-muted mb-0">Tecnologia que aprende com suas preferências</p>
+            </div>
+          </div>
+          <p>Nossa tecnologia proprietária analisa seus padrões de leitura, avaliações e interações para criar um perfil literário único. Com ele, podemos sugerir obras que se alinham perfeitamente ao seu gosto.</p>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Baseado em Dados</h5>
+                <p class="card-text">Nosso algoritmo considera mais de 40 fatores diferentes para cada recomendação:</p>
+                <ul>
+                  <li>Temas e subgêneros preferidos</li>
+                  <li>Estilos de escrita que você aprecia</li>
+                  <li>Padrões de leitura sazonal</li>
+                  <li>Descobertas de novos autores</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Aprendizado Contínuo</h5>
+                <p class="card-text">Quanto mais você utiliza a plataforma, mais preciso se torna o algoritmo:</p>
+                <ul>
+                  <li>Reajuste automático após cada avaliação</li>
+                  <li>Identificação de tendências em suas escolhas</li>
+                  <li>Expansão gradual para novos horizontes</li>
+                  <li>Adaptação às mudanças em seus gostos</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <img src="{% static 'images/recomendacoes/exemplo_recomendacao.jpg' %}" class="img-fluid rounded shadow" alt="Exemplo de Recomendações">
+          <p class="text-muted mt-2"><small>Exemplo de painel de recomendações personalizadas</small></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <a href="{% url 'recommended_books' %}" class="btn btn-primary">Ver Minhas Recomendações</a>
+      </div>
+    </div>
+  </div>
+</div>

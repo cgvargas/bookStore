@@ -1,21 +1,21 @@
 import json
 import logging
 import uuid
+import traceback
 from datetime import datetime
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
-from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_protect
 from django.core.serializers.json import DjangoJSONEncoder
 
 from cgbookstore.apps.core.recommendations.engine import RecommendationEngine
+from cgbookstore.apps.core.recommendations.utils.image_utils import standardize_google_book_cover
 from cgbookstore.apps.core.services.google_books_service import GoogleBooksClient
 from cgbookstore.apps.core.models.book import Book, UserBookShelf
 
 logger = logging.getLogger(__name__)
-
 
 @login_required
 @require_GET
@@ -36,15 +36,23 @@ def get_recommendations_view(request):
                     if isinstance(book, dict):
                         # Verifica se já tem a estrutura do Google Books
                         if 'volumeInfo' in book:
+                            # Padroniza o tamanho da capa
+                            if 'imageLinks' in book['volumeInfo'] and 'thumbnail' in book['volumeInfo']['imageLinks']:
+                                book['volumeInfo']['imageLinks']['thumbnail'] = standardize_google_book_cover(
+                                    book['volumeInfo']['imageLinks']['thumbnail'], 'M'
+                                )
                             processed_external.append(book)
                         else:
                             # Constrói estrutura compatível
+                            thumbnail = standardize_google_book_cover(
+                                book.get('thumbnail', book.get('capa_url', '')), 'M'
+                            )
                             book_info = {
                                 'id': book.get('id', f"temp_{uuid.uuid4().hex}"),
                                 'volumeInfo': {
                                     'title': book.get('title', book.get('titulo', 'Sem título')),
                                     'authors': book.get('authors', [book.get('autor', 'Autor desconhecido')]),
-                                    'imageLinks': {'thumbnail': book.get('thumbnail', book.get('capa_url', ''))},
+                                    'imageLinks': {'thumbnail': thumbnail},
                                     'description': book.get('description', book.get('descricao', '')),
                                     'categories': book.get('categories', [book.get('genero', '')])
                                 }
@@ -59,16 +67,24 @@ def get_recommendations_view(request):
                             # Verificar se já tem a estrutura volumeInfo
                             if 'volumeInfo' not in external_info:
                                 # Criar estrutura semelhante à API Google Books
+                                thumbnail = standardize_google_book_cover(
+                                    book.capa_url if hasattr(book, 'capa_url') and book.capa_url else '', 'M'
+                                )
                                 external_info['volumeInfo'] = {
                                     'title': book.titulo if hasattr(book, 'titulo') and book.titulo else 'Sem título',
                                     'authors': [book.autor] if hasattr(book, 'autor') and book.autor else [
                                         'Autor desconhecido'],
-                                    'imageLinks': {'thumbnail': book.capa_url if hasattr(book,
-                                                                                         'capa_url') and book.capa_url else ''},
+                                    'imageLinks': {'thumbnail': thumbnail},
                                     'description': book.descricao if hasattr(book,
-                                                                             'descricao') and book.descricao else '',
+                                        'descricao') and book.descricao else '',
                                     'categories': [book.genero] if hasattr(book, 'genero') and book.genero else []
                                 }
+                            else:
+                                # Padroniza o tamanho da capa
+                                if 'imageLinks' in external_info['volumeInfo'] and 'thumbnail' in external_info['volumeInfo']['imageLinks']:
+                                    external_info['volumeInfo']['imageLinks']['thumbnail'] = standardize_google_book_cover(
+                                        external_info['volumeInfo']['imageLinks']['thumbnail'], 'M'
+                                    )
 
                             # Adicionar ID externo para referência
                             if not external_info.get('id') and hasattr(book, 'external_id') and book.external_id:
@@ -80,12 +96,15 @@ def get_recommendations_view(request):
                         except (json.JSONDecodeError, TypeError, AttributeError) as e:
                             logger.error(f"Erro ao processar JSON de livro externo: {str(e)}")
                             # Fallback para dados básicos do modelo
+                            thumbnail = standardize_google_book_cover(
+                                getattr(book, 'capa_url', ''), 'M'
+                            )
                             fallback_book = {
                                 'id': getattr(book, 'external_id', f"temp_{getattr(book, 'id', uuid.uuid4().hex)}"),
                                 'volumeInfo': {
                                     'title': getattr(book, 'titulo', 'Título indisponível'),
                                     'authors': [getattr(book, 'autor', 'Autor desconhecido')],
-                                    'imageLinks': {'thumbnail': getattr(book, 'capa_url', '')},
+                                    'imageLinks': {'thumbnail': thumbnail},
                                     'description': getattr(book, 'descricao', ''),
                                     'categories': [getattr(book, 'genero', '')]
                                 }
@@ -93,12 +112,15 @@ def get_recommendations_view(request):
                             processed_external.append(fallback_book)
                     else:
                         # É um objeto Book sem dados externos estruturados
+                        thumbnail = standardize_google_book_cover(
+                            getattr(book, 'capa_url', ''), 'M'
+                        )
                         fallback_book = {
                             'id': getattr(book, 'external_id', f"temp_{getattr(book, 'id', uuid.uuid4().hex)}"),
                             'volumeInfo': {
                                 'title': getattr(book, 'titulo', 'Título indisponível'),
                                 'authors': [getattr(book, 'autor', 'Autor desconhecido')],
-                                'imageLinks': {'thumbnail': getattr(book, 'capa_url', '')},
+                                'imageLinks': {'thumbnail': thumbnail},
                                 'description': getattr(book, 'descricao', ''),
                                 'categories': [getattr(book, 'genero', '')]
                             }
@@ -118,7 +140,6 @@ def get_recommendations_view(request):
         return render(request, 'core/recommendations/mixed_recommendations.html', context)
     except Exception as e:
         logger.error(f"Erro na view de recomendações: {str(e)}")
-        import traceback
         logger.error(traceback.format_exc())
 
         # Retorna uma resposta de fallback em caso de erro
@@ -129,7 +150,6 @@ def get_recommendations_view(request):
             'user': request.user,
             'error': 'Erro ao carregar recomendações'
         })
-
 
 @login_required
 @require_POST
@@ -144,7 +164,7 @@ def import_external_book(request):
             data = json.loads(request.body)
         except json.JSONDecodeError:
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': 'Formato de dados inválido'
             }, status=400)
 
@@ -164,7 +184,7 @@ def import_external_book(request):
         # Validação de dados obrigatórios
         if not all([title, shelf_type]):
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': 'Título e tipo de prateleira são obrigatórios'
             }, status=400)
 
@@ -193,7 +213,7 @@ def import_external_book(request):
                 shelf.save()
 
             return JsonResponse({
-                'status': 'success',
+                'status': 'sucesso',
                 'message': 'Livro já existente adicionado à prateleira',
                 'book_id': existing_book.id
             })
@@ -205,11 +225,11 @@ def import_external_book(request):
             if published_date:
                 try:
                     # Tenta converter para data
-                    if len(published_date) >= 10:  # Formato completo YYYY-MM-DD
+                    if len(published_date) >= 10: # Formato completo YYYY-MM-DD
                         data_publicacao = datetime.strptime(published_date[:10], '%Y-%m-%d').date()
-                    elif len(published_date) >= 7:  # Formato YYYY-MM
+                    elif len(published_date) >= 7: # Formato YYYY-MM
                         data_publicacao = datetime.strptime(published_date[:7], '%Y-%m').date()
-                    elif len(published_date) >= 4:  # Apenas ano YYYY
+                    elif len(published_date) >= 4: # Apenas ano YYYY
                         data_publicacao = datetime.strptime(f"{published_date[:4]}-01-01", '%Y-%m-%d').date()
                 except ValueError:
                     # Se falhar na conversão, mantém como None
@@ -230,7 +250,7 @@ def import_external_book(request):
         except Exception as book_error:
             logger.error(f"Erro ao criar livro: {str(book_error)}")
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': f'Erro ao criar livro: {str(book_error)}'
             }, status=500)
 
@@ -247,12 +267,12 @@ def import_external_book(request):
             # Remover o livro criado para evitar inconsistências
             new_book.delete()
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': f'Erro ao adicionar à prateleira: {str(shelf_error)}'
             }, status=500)
 
         return JsonResponse({
-            'status': 'success',
+            'status': 'sucesso',
             'message': 'Livro importado com sucesso',
             'book_id': new_book.id
         })
@@ -260,10 +280,9 @@ def import_external_book(request):
     except Exception as e:
         logger.error(f"Erro ao importar livro externo: {str(e)}")
         return JsonResponse({
-            'status': 'error',
+            'status': 'erro',
             'message': f'Erro ao importar livro: {str(e)}'
         }, status=500)
-
 
 @login_required
 @require_GET
@@ -286,7 +305,7 @@ def get_recommendations_json(request):
                     'genero': book.genero if hasattr(book, 'genero') else '',
                     'categoria': book.categoria if hasattr(book, 'categoria') else '',
                     'capa_url': book.get_capa_url() if hasattr(book, 'get_capa_url') else
-                    (book.capa_url if hasattr(book, 'capa_url') else ''),
+                        (book.capa_url if hasattr(book, 'capa_url') else ''),
                     'origem': 'local'
                 })
             except Exception as book_error:
@@ -310,7 +329,7 @@ def get_recommendations_json(request):
                             'capa_url': info.get('imageLinks', {}).get('thumbnail', ''),
                             'external_id': book.get('id', ''),
                             'origem': 'Google Books',
-                            'e_externo': True
+                            'is_external': True
                         })
                     else:
                         # Formato diferente do padrão volumeInfo
@@ -321,7 +340,7 @@ def get_recommendations_json(request):
                             'capa_url': book.get('thumbnail', book.get('capa_url', '')),
                             'external_id': book.get('id', book.get('external_id', '')),
                             'origem': 'Google Books',
-                            'e_externo': True
+                            'is_external': True
                         })
                 elif hasattr(book, 'external_id') or hasattr(book, 'external_data'):
                     # Livro do modelo com dados externos
@@ -340,10 +359,10 @@ def get_recommendations_json(request):
                         'genero': book.genero if hasattr(book, 'genero') else '',
                         'capa_url': book.capa_url if hasattr(book, 'capa_url') else '',
                         'external_id': book.external_id if hasattr(book,
-                                                                   'external_id') else f"temp_{book.id}" if hasattr(
+                            'external_id') else f"temp_{book.id}" if hasattr(
                             book, 'id') else '',
                         'origem': 'Google Books',
-                        'e_externo': True
+                        'is_external': True
                     })
             except Exception as book_error:
                 logger.warning(f"Erro ao processar livro externo para JSON: {str(book_error)}")
@@ -360,7 +379,6 @@ def get_recommendations_json(request):
         return JsonResponse(response_data)
     except Exception as e:
         logger.error(f"Erro na API de recomendações: {str(e)}")
-        import traceback
         logger.error(traceback.format_exc())
         return JsonResponse({
             'error': 'Erro ao processar recomendações',
@@ -369,7 +387,6 @@ def get_recommendations_json(request):
             'has_external': False,
             'total': 0
         }, status=500)
-
 
 @login_required
 @require_GET
@@ -404,7 +421,7 @@ def get_external_book_details(request, external_id):
             return JsonResponse(book_data, encoder=DjangoJSONEncoder, safe=False)
 
         # Se não encontrou localmente, busca na API
-        client = GoogleBooksClient(context="recommendations")
+        client = GoogleBooksClient(context="recomendações")
         book_data = client.get_book_by_id(external_id)
 
         if not book_data:
@@ -416,7 +433,6 @@ def get_external_book_details(request, external_id):
     except Exception as e:
         logger.error(f"Erro ao buscar detalhes do livro externo: {str(e)}")
         return JsonResponse({'error': 'Erro ao buscar detalhes do livro'}, status=500)
-
 
 @login_required
 @require_GET
@@ -436,33 +452,33 @@ def get_personalized_shelf_view(request):
         has_external = shelf_data.get('has_external', False)
 
         # Organiza os dados em seções
-        sections = []
+        secoes = []
 
         # Seção de destaques
         if destaques:
-            sections.append({
+            secoes.append({
                 'title': 'Destaques para você',
                 'books': destaques,
-                'type': 'highlights'
+                'type': 'destaques'
             })
 
         # Seções por gênero
-        for genero, books in generos.items():
-            if books:
-                sections.append({
+        for genero, livros in generos.items():
+            if livros:
+                secoes.append({
                     'title': f'Livros de {genero}',
-                    'books': books,
-                    'type': 'genre',
-                    'genre': genero
+                    'books': livros,
+                    'type': 'genero',
+                    'genero': genero
                 })
 
         # Seções por autor
         for autor, books in autores.items():
             if books:
-                sections.append({
+                secoes.append({
                     'title': f'Obras de {autor}',
                     'books': books,
-                    'type': 'author',
+                    'type': 'autor',
                     'author': autor
                 })
 
@@ -509,8 +525,8 @@ def get_personalized_shelf_view(request):
                             # Criar estrutura manualmente
                             fallback = {
                                 'id': book.external_id if hasattr(book,
-                                                                  'external_id') else f"temp_{book.id}" if hasattr(book,
-                                                                                                                   'id') else f"temp_{uuid.uuid4().hex}",
+                                    'external_id') else f"temp_{book.id}" if hasattr(book,
+                                    'id') else f"temp_{uuid.uuid4().hex}",
                                 'volumeInfo': {
                                     'title': book.titulo if hasattr(book, 'titulo') else 'Título desconhecido',
                                     'authors': [book.autor] if hasattr(book, 'autor') and book.autor else [
@@ -543,15 +559,15 @@ def get_personalized_shelf_view(request):
                     continue
 
             if processed_external:
-                sections.append({
+                secoes.append({
                     'title': 'Sugestões externas',
                     'books': processed_external,
-                    'type': 'external',
-                    'source': 'Google Books'
+                    'type': 'externo',
+                    'fonte': 'Google Books'
                 })
 
         context = {
-            'sections': sections,
+            'secoes': secoes,
             'user': request.user,
             'total_recommendations': shelf_data.get('total', 0),
             'has_external': has_external,
@@ -560,18 +576,16 @@ def get_personalized_shelf_view(request):
         return render(request, 'core/recommendations/personalized_shelf.html', context)
     except Exception as e:
         logger.error(f"Erro ao gerar prateleira personalizada: {str(e)}")
-        import traceback
         logger.error(traceback.format_exc())
 
         # Retorna uma resposta de fallback em caso de erro
         return render(request, 'core/recommendations/personalized_shelf.html', {
-            'sections': [],
+            'secoes': [],
             'user': request.user,
             'total_recommendations': 0,
             'has_external': False,
             'error': 'Erro ao carregar prateleira personalizada'
         })
-
 
 @login_required
 @require_POST
@@ -582,12 +596,12 @@ def add_external_book_to_shelf(request):
     sem necessidade de importação completa
     """
     try:
-        # Tenta deserializar os dados da requisição
+        # Tenta desserializar os dados da requisição
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': 'Formato de dados inválido'
             }, status=400)
 
@@ -598,19 +612,19 @@ def add_external_book_to_shelf(request):
         # Validação básica
         if not shelf_type:
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': 'Tipo de prateleira é obrigatório'
             }, status=400)
 
         if not external_id and not external_data:
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': 'ID externo ou dados do livro são obrigatórios'
             }, status=400)
 
-        # Se não temos dados externos mas temos o ID, busca na API
+        # Se não temos dados externos, mas temos o ID, busca na API
         if not external_data and external_id:
-            client = GoogleBooksClient(context="recommendations")
+            client = GoogleBooksClient(context="recomendações")
             book_api_data = client.get_book_by_id(external_id)
             if book_api_data:
                 external_data = book_api_data
@@ -635,7 +649,7 @@ def add_external_book_to_shelf(request):
                 shelf.save()
 
             return JsonResponse({
-                'status': 'success',
+                'status': 'sucesso',
                 'message': 'Livro adicionado à prateleira',
                 'book_id': existing_temp.id
             })
@@ -696,11 +710,11 @@ def add_external_book_to_shelf(request):
         if data_publicacao_str:
             try:
                 # Tenta converter para data
-                if len(data_publicacao_str) >= 10:  # Formato completo YYYY-MM-DD
+                if len(data_publicacao_str) >= 10: # Formato completo YYYY-MM-DD
                     data_publicacao = datetime.strptime(data_publicacao_str[:10], '%Y-%m-%d').date()
-                elif len(data_publicacao_str) >= 7:  # Formato YYYY-MM
+                elif len(data_publicacao_str) >= 7: # Formato YYYY-MM
                     data_publicacao = datetime.strptime(data_publicacao_str[:7], '%Y-%m').date()
-                elif len(data_publicacao_str) >= 4:  # Apenas ano YYYY
+                elif len(data_publicacao_str) >= 4: # Apenas ano YYYY
                     data_publicacao = datetime.strptime(f"{data_publicacao_str[:4]}-01-01", '%Y-%m-%d').date()
             except ValueError:
                 # Se falhar na conversão, mantém como None
@@ -708,7 +722,7 @@ def add_external_book_to_shelf(request):
 
         # Criar livro temporário ou permanente
         try:
-            is_temporary = data.get('is_temporary', True)  # Por padrão, considera temporário
+            is_temporary = data.get('is_temporary', True) # Por padrão, considera temporário
             temp_book = Book.objects.create(
                 titulo=titulo,
                 autor=autor,
@@ -726,7 +740,7 @@ def add_external_book_to_shelf(request):
         except Exception as create_error:
             logger.error(f"Erro ao criar livro temporário: {str(create_error)}")
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': f'Erro ao criar livro: {str(create_error)}'
             }, status=500)
 
@@ -743,21 +757,20 @@ def add_external_book_to_shelf(request):
             # Remover o livro criado para evitar inconsistências
             temp_book.delete()
             return JsonResponse({
-                'status': 'error',
+                'status': 'erro',
                 'message': f'Erro ao adicionar à prateleira: {str(shelf_error)}'
             }, status=500)
 
         return JsonResponse({
-            'status': 'success',
+            'status': 'sucesso',
             'message': 'Livro externo adicionado à prateleira',
             'book_id': temp_book.id
         })
 
     except Exception as e:
         logger.error(f"Erro ao adicionar livro externo à prateleira: {str(e)}")
-        import traceback
         logger.error(traceback.format_exc())
         return JsonResponse({
-            'status': 'error',
+            'status': 'erro',
             'message': f'Erro ao processar dados externos: {str(e)}'
         }, status=500)

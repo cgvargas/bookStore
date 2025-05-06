@@ -1,0 +1,772 @@
+/* Tema Aprimorado para Django Admin - Versão 2.0 */
+
+:root {
+    /* Paleta de Cores Principal - Tema Escuro */
+    --bg-dark: #121212;           /* Fundo principal - mais escuro para melhor contraste */
+    --bg-dark-secondary: #1E1E2D; /* Fundo secundário - tom azulado escuro */
+    --bg-panel: #252836;          /* Painéis e cards - tom azulado escuro mais claro */
+    --bg-element: #2B2B40;        /* Elementos de UI - ainda mais claro */
+    --bg-hover: #2A2A42;          /* Background para hover */
+
+    /* Texto e Tipografia */
+    --text-primary: #FFFFFF;      /* Texto principal - branco puro para máximo contraste */
+    --text-secondary: #B5B5C3;    /* Texto secundário - cinza claro legível */
+    --text-muted: #7E8299;        /* Texto reduzido - tom médio */
+
+    /* Cores de Destaque */
+    --primary-color: #3699FF;     /* Azul principal */
+    --primary-hover: #187DE4;     /* Azul hover */
+    --secondary-color: #6D28D9;   /* Roxo/Violeta */
+    --accent-color: #0BB783;      /* Verde para ações positivas */
+    --warning-color: #FFA800;     /* Amarelo para avisos */
+    --danger-color: #F64E60;      /* Vermelho para erros/exclusão */
+
+    /* Cores de Estado */
+    --success-bg: rgba(11, 183, 131, 0.2);
+    --warning-bg: rgba(255, 168, 0, 0.2);
+    --danger-bg: rgba(246, 78, 96, 0.2);
+    --info-bg: rgba(54, 153, 255, 0.2);
+
+    /* Bordas e Sombras */
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-active: rgba(255, 255, 255, 0.2);
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.25);
+
+    /* Arredondamento e Espaçamento */
+    --border-radius-sm: 4px;
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+}
+
+/* Reset e Estilos Globais */
+body {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-primary) !important;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Links globais */
+a {
+    color: var(--primary-color) !important;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--primary-hover) !important;
+    text-decoration: underline;
+}
+
+/* Container Principal */
+#container {
+    background-color: var(--bg-dark);
+}
+
+/* Cabeçalho */
+#header {
+    background-color: var(--bg-dark-secondary) !important;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+#branding h1 {
+    margin: 0;
+}
+
+#branding h1 a {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Ferramentas de Usuário */
+#user-tools {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+#user-tools a, #user-tools strong {
+    color: var(--text-primary) !important;
+    font-weight: 500;
+}
+
+#user-tools a:hover {
+    color: var(--primary-hover) !important;
+}
+
+.logout-button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0;
+}
+
+.logout-button:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    background-color: var(--bg-dark-secondary) !important;
+    color: var(--text-muted);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.breadcrumbs a {
+    color: var(--text-secondary) !important;
+}
+
+.breadcrumbs a:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Barra de navegação lateral */
+.main > #nav-sidebar {
+    background-color: var(--bg-dark-secondary);
+    border-right: 1px solid var(--border-color);
+}
+
+#nav-sidebar .module th {
+    color: var(--text-secondary);
+}
+
+#nav-sidebar .module caption {
+    background: var(--bg-element) !important;
+    color: var(--text-primary) !important;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* Módulos e Cards */
+.module {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-lg);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.module:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-active);
+}
+
+.module caption, .module .section {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    color: var(--text-primary) !important;
+    padding: var(--spacing-md);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: none;
+}
+
+.module h2 {
+    color: var(--text-primary);
+    margin-top: var(--spacing-md);
+    padding: 0 var(--spacing-md);
+    font-size: 1.2rem;
+}
+
+/* Tabelas */
+.module table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.module tbody {
+    background-color: var(--bg-panel);
+}
+
+.module tr {
+    transition: background-color 0.2s;
+}
+
+.module tr:hover {
+    background-color: var(--bg-hover);
+}
+
+.module th, .module td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+/* Cabeçalho de seção dentro de tabelas */
+.section-header {
+    background-color: var(--bg-element) !important;
+}
+
+.section-header th {
+    font-weight: 600;
+    color: var(--warning-color);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Tabelas de Resultados */
+#result_list {
+    background-color: var(--bg-panel) !important;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+#result_list th {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    color: var(--text-primary) !important;
+    padding: var(--spacing-md);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+#result_list td {
+    background-color: var(--bg-panel);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+}
+
+#result_list tbody tr:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+.row1 {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.row2 {
+    background-color: transparent;
+}
+
+/* Botões de Ação */
+.button, input[type="submit"], input[type="button"], .submit-row input {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 8px 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.button:hover, input[type="submit"]:hover, input[type="button"]:hover, .submit-row input:hover {
+    background: var(--primary-hover) !important;
+}
+
+.button.default, input[type="submit"].default, .submit-row input.default {
+    background: var(--accent-color) !important;
+    font-weight: 700;
+}
+
+.button.default:hover, input[type="submit"].default:hover, .submit-row input.default:hover {
+    background: #09a173 !important; /* Versão mais escura do accent-color */
+}
+
+/* Botões de Ferramentas de Objeto */
+.object-tools {
+    margin-top: var(--spacing-md);
+    text-align: right;
+}
+
+.object-tools a {
+    background: var(--accent-color) !important;
+    color: white !important;
+    border-radius: var(--border-radius-sm);
+    padding: 8px 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-left: var(--spacing-sm);
+    transition: all 0.2s ease;
+}
+
+.object-tools a:hover {
+    background: #09a173 !important; /* Versão mais escura do accent-color */
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Links de ação */
+.addlink, .changelink, .viewlink {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 2px;
+    color: white !important;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.addlink {
+    background-color: var(--accent-color) !important;
+}
+
+.changelink {
+    background-color: var(--warning-color) !important;
+}
+
+.viewlink {
+    background-color: var(--primary-color) !important;
+}
+
+.addlink:hover {
+    background-color: #09a173 !important;
+    text-decoration: none;
+}
+
+.changelink:hover {
+    background-color: #e09600 !important;
+    text-decoration: none;
+}
+
+.viewlink:hover {
+    background-color: var(--primary-hover) !important;
+    text-decoration: none;
+}
+
+/* Filtros */
+#changelist-filter {
+    background-color: var(--bg-element) !important;
+    border-left: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-md);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+#changelist-filter h2 {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    color: white !important;
+    padding: var(--spacing-md);
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+#changelist-filter h3 {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs);
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#changelist-filter ul {
+    padding: 0;
+    margin: 0 0 var(--spacing-md) 0;
+    list-style: none;
+}
+
+#changelist-filter li {
+    padding: var(--spacing-xs) var(--spacing-md);
+}
+
+#changelist-filter li.selected {
+    background-color: var(--info-bg);
+    border-right: 3px solid var(--primary-color);
+}
+
+#changelist-filter li.selected a {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+}
+
+/* Formulários */
+.form-row {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-row label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    background-color: var(--bg-element) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+    width: 100%;
+    max-width: 500px;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--info-bg);
+    outline: none;
+}
+
+.form-row select {
+    appearance: none;
+    padding-right: 25px;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23B5B5C3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+}
+
+/* Mensagens e Alertas */
+.messagelist {
+    padding: 0;
+    margin: 0 0 var(--spacing-md) 0;
+    list-style: none;
+}
+
+.messagelist li {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+}
+
+.messagelist .success {
+    background-color: var(--success-bg);
+    color: var(--text-primary);
+    border-left: 4px solid var(--accent-color);
+}
+
+.messagelist .warning {
+    background-color: var(--warning-bg);
+    color: var(--text-primary);
+    border-left: 4px solid var(--warning-color);
+}
+
+.messagelist .error {
+    background-color: var(--danger-bg);
+    color: var(--text-primary);
+    border-left: 4px solid var(--danger-color);
+}
+
+/* Paginação */
+.paginator {
+    padding: var(--spacing-md);
+    background-color: var(--bg-element);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.paginator a, .paginator .this-page {
+    padding: 4px 10px;
+    margin: 0 2px;
+    border-radius: var(--border-radius-sm);
+    display: inline-block;
+}
+
+.paginator a {
+    background-color: var(--bg-panel);
+    color: var(--text-secondary) !important;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.paginator a:hover {
+    background-color: var(--primary-color);
+    color: white !important;
+    text-decoration: none;
+}
+
+.paginator .this-page {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+/* Barra de pesquisa */
+#searchbar {
+    background-color: var(--bg-element);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 8px 12px;
+    width: 100%;
+    max-width: 300px;
+    transition: all 0.2s ease;
+}
+
+#searchbar:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--info-bg);
+    outline: none;
+}
+
+/* Barra de ferramentas de pesquisa */
+#toolbar {
+    background-color: var(--bg-element);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#toolbar form {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+#toolbar form input[type="submit"] {
+    margin-left: var(--spacing-sm);
+}
+
+/* Ações */
+.actions {
+    background-color: var(--bg-element);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.actions label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-right: var(--spacing-sm);
+}
+
+.actions select {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 6px 10px;
+    margin-right: var(--spacing-sm);
+}
+
+.action-counter {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-left: var(--spacing-md);
+}
+
+/* Rodapé */
+#footer {
+    background-color: var(--bg-dark-secondary);
+    color: var(--text-muted);
+    padding: var(--spacing-md);
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    #content-main {
+        display: block !important;
+    }
+
+    .module {
+        margin: var(--spacing-md) !important;
+    }
+
+    #changelist-filter {
+        float: none;
+        width: auto;
+        margin-top: var(--spacing-md);
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+}
+
+@media (max-width: 767px) {
+    #header {
+        padding: var(--spacing-sm);
+    }
+
+    #branding h1 {
+        font-size: 1.5rem;
+    }
+
+    #user-tools {
+        margin-top: var(--spacing-sm);
+        float: none;
+        display: block;
+    }
+
+    .object-tools {
+        float: none;
+        text-align: left;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .object-tools a {
+        margin: 0 var(--spacing-sm) var(--spacing-sm) 0;
+    }
+}
+
+/* Estilos para o Dashboard personalizado */
+.system-tools {
+    grid-column: 1 / -1;
+    margin-top: var(--spacing-lg);
+}
+
+.system-tools caption, .system-tools .section {
+    background: linear-gradient(135deg, var(--danger-color), #FF6B8A) !important;
+}
+
+/* Corrige o problema específico de texto branco em fundo branco */
+.form-row p {
+    color: var(--text-secondary) !important;
+}
+
+.help {
+    color: var(--text-muted) !important;
+    font-size: 0.9rem;
+}
+
+/* Correções para elementos que podem ter contraste ruim */
+fieldset {
+    background-color: var(--bg-panel) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin: 0 0 var(--spacing-md) 0;
+}
+
+legend {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+    padding: 0 var(--spacing-sm);
+}
+
+.inline-group h2 {
+    background: var(--bg-element) !important;
+    color: var(--text-primary) !important;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    margin: 0;
+}
+
+/* Django Suit e tema escuro compatibilidade */
+.suit-column {
+    background-color: var(--bg-panel) !important;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--border-color);
+}
+
+.suit-column h2 {
+    color: var(--primary-color) !important;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-sm);
+    margin-top: 0;
+}
+
+/* Estilos específicos para a página de índice da admin */
+#content-main {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Ajustes no layout da página inicial para o tema escuro */
+.app-core .module caption a.section,
+.app-core .section {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+}
+
+/* Estilos da página inicial para o tema escuro */
+.dashboard #content-main .module {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+/* Hover nos módulos */
+.dashboard #content-main .module:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Estilos específicos para lista de modelos */
+.app-list #content-main .module {
+    margin-bottom: 20px;
+}
+
+/* Estilo para as ferramentas do sistema */
+.system-tools {
+    margin-top: 30px;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.system-tools caption,
+.system-tools .section {
+    background: linear-gradient(135deg, var(--danger-color), #FF6B8A) !important;
+    color: white !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 15px 20px;
+}
+
+/* Ajustes específicos para cabeçalhos de seção */
+.section-header th {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    color: var(--warning-color) !important;
+    font-weight: 600 !important;
+}
+
+/* Ajuste para mensagem de não autorizado */
+.no-permission {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-panel) !important;
+    padding: 30px;
+    text-align: center;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+}

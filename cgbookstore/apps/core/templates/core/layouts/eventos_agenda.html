@@ -1,0 +1,53 @@
+{% load static %}
+
+<div class="eventos-agenda-container">
+    <div class="section-header">
+        <h2 class="section-title">{{ section.titulo }}</h2>
+        {% if section.subtitulo %}<p class="section-subtitle">{{ section.subtitulo }}</p>{% endif %}
+    </div>
+
+    <div class="timeline-container">
+        {% if events %}
+            <div class="timeline">
+                {% for event in events %}
+                    <div class="timeline-item {% cycle 'left' 'right' %}">
+                        <div class="timeline-content">
+                            <div class="event-date">
+                                <span class="day">{{ event.data_evento|date:"d" }}</span>
+                                <span class="month">{{ event.data_evento|date:"b" }}</span>
+                                <span class="time">{{ event.data_evento|date:"H:i" }}</span>
+                            </div>
+                            <h3 class="event-title">{{ event.titulo }}</h3>
+                            {% if event.local %}
+                                <div class="event-location">
+                                    <i class="fas fa-map-marker-alt"></i> {{ event.local }}
+                                </div>
+                            {% endif %}
+                            {% if event.descricao %}
+                                <div class="event-description">
+                                    {{ event.descricao|linebreaksbr|truncatewords:30 }}
+                                </div>
+                            {% endif %}
+                            {% if event.url %}
+                                <a href="{{ event.url }}" class="event-link" target="_blank">Saiba mais</a>
+                            {% endif %}
+                        </div>
+                        {% if event.imagem %}
+                            <div class="event-image">
+                                <img src="{{ event.imagem.url }}" alt="{{ event.titulo }}">
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-events">Não há eventos agendados no momento.</p>
+        {% endif %}
+    </div>
+
+    {% if section.botao_texto and section.botao_url %}
+        <div class="section-cta">
+            <a href="{{ section.botao_url }}" class="btn btn-primary">{{ section.botao_texto }}</a>
+        </div>
+    {% endif %}
+</div>

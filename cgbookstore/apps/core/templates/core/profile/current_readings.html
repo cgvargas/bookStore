@@ -1,0 +1,786 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Minhas Leituras Atuais{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<style>
+    /* Variáveis para tema claro/escuro */
+    :root {
+        --bg-color: #ffffff;
+        --text-color: #212529;
+        --card-bg: #ffffff;
+        --card-border: #dee2e6;
+        --card-hover-shadow: rgba(0,0,0,0.1);
+        --book-cover-bg: #f8f9fa;
+        --reading-stats-bg: #f8f9fa;
+        --progress-bar-bg: #198754;
+        --progress-text: #6c757d;
+        --active-indicator-bg: rgba(25, 135, 84, 0.9);
+        --btn-primary-bg: #0d6efd;
+        --btn-primary-border: #0d6efd;
+        --btn-success-border: #198754;
+        --btn-outline-primary-color: #0d6efd;
+        --alert-info-bg: #cff4fc;
+        --alert-info-text: #055160;
+    }
+
+    /* Estilos para tema escuro */
+    [data-bs-theme="dark"] {
+        --bg-color: #212529;
+        --text-color: #f8f9fa;
+        --card-bg: #343a40;
+        --card-border: #495057;
+        --card-hover-shadow: rgba(0,0,0,0.5);
+        --book-cover-bg: #2b3035;
+        --reading-stats-bg: #2b3035;
+        --progress-bar-bg: #20c997;
+        --progress-text: #adb5bd;
+        --active-indicator-bg: rgba(32, 201, 151, 0.9);
+        --btn-primary-bg: #0d6efd;
+        --btn-primary-border: #0a58ca;
+        --btn-success-border: #146c43;
+        --btn-outline-primary-color: #6ea8fe;
+        --alert-info-bg: rgba(13, 202, 240, 0.2);
+        --alert-info-text: #a8e4ed;
+    }
+
+    /* Estilos gerais */
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+        background-color: var(--bg-color);
+    }
+
+    /* Correções para texto nos cards */
+    .text-muted {
+        color: var(--progress-text) !important;
+    }
+
+    /* Cards de leitura */
+    .reading-card {
+        transition: all 0.3s ease;
+        border: 1px solid var(--card-border);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        height: 100%;
+        background-color: var(--card-bg);
+        position: relative;
+    }
+
+    .reading-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px var(--card-hover-shadow);
+    }
+
+    .book-cover-container {
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--book-cover-bg);
+    }
+
+    .book-cover {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .book-info {
+        padding: 1rem;
+    }
+
+    /* Corrigindo o problema do título truncado */
+    .book-title {
+        font-weight: 500;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: auto;
+        min-height: 2.4em;
+    }
+
+    /* Corrigindo o problema do autor truncado */
+    .book-author {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .active-indicator {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--active-indicator-bg);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .reading-statistics {
+        padding: 1rem;
+        border-top: 1px solid var(--card-border);
+        background-color: var(--reading-stats-bg);
+    }
+
+    .reading-actions {
+        padding: 1rem;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: var(--progress-text);
+        margin-top: 0.25rem;
+    }
+
+    .reading-card.last-read {
+        border: 2px solid var(--progress-bar-bg);
+    }
+
+    /* Personalização da barra de progresso */
+    .progress {
+        background-color: var(--book-cover-bg);
+    }
+
+    .progress-bar.bg-success {
+        background-color: var(--progress-bar-bg) !important;
+    }
+
+    /* Estilos para alertas compatíveis com tema escuro */
+    .alert-info {
+        background-color: var(--alert-info-bg);
+        color: var(--alert-info-text);
+    }
+
+    /* Estilos específicos para botões */
+    .btn-primary {
+        background-color: var(--btn-primary-bg);
+        border-color: var(--btn-primary-border);
+    }
+
+    .btn-outline-primary {
+        color: var(--btn-outline-primary-color);
+        border-color: var(--btn-outline-primary-color);
+    }
+
+    .btn-outline-success {
+        border-color: var(--btn-success-border);
+    }
+
+    /* Estilo para as estatísticas nos cards */
+    .stat {
+        transition: all 0.3s ease;
+    }
+
+    .stat:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-value {
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--progress-text);
+    }
+
+    /* Estilos para o modal adaptados ao tema */
+    .modal-content {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        border-color: var(--card-border);
+    }
+
+    .modal-header, .modal-footer {
+        border-color: var(--card-border);
+    }
+
+    .form-control {
+        background-color: var(--book-cover-bg);
+        color: var(--text-color);
+        border-color: var(--card-border);
+    }
+
+    .form-check-input {
+        background-color: var(--book-cover-bg);
+        border-color: var(--card-border);
+    }
+
+    /* Estilos para o botão de tema */
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: transparent;
+        border: 1px solid var(--card-border);
+    }
+
+    .theme-toggle:hover {
+        transform: rotate(30deg);
+    }
+
+    .theme-toggle i {
+        font-size: 1.25rem;
+        color: var(--text-color);
+    }
+
+    /* Garantir que o fundo do corpo e outros elementos principais estão corretos */
+    [data-bs-theme="dark"] {
+        --bs-body-bg: #212529 !important;
+        --bs-body-color: #f8f9fa !important;
+    }
+
+    /* Estilos para corrigir o footer na página de edição */
+    footer, .footer {
+        background-color: #1e1e1e;
+        color: #e2e8f0;
+        padding: 1.5rem 0;
+        margin-top: 3rem;
+        border-top: 1px solid #ff6600;
+    }
+
+    .book-edit-page footer,
+    .book-edit-page .footer {
+        margin-top: 2rem;
+        width: 100%;
+    }
+
+    /* Garantir que o container principal não interfira no footer */
+    .container.py-4 {
+        min-height: calc(100vh - 350px);
+        padding-bottom: 2rem !important;
+    }
+
+    /* Corrigir a margem inferior do card principal */
+    .card.shadow-sm {
+        margin-bottom: 2rem;
+    }
+
+    /* Ajuste para o tema escuro no footer */
+    .dark-mode footer,
+    .dark-mode .footer {
+        background-color: #121212;
+        border-top-color: #ff6600;
+    }
+
+    /* Ajuste para data-bs-theme="dark" */
+    [data-bs-theme="dark"] footer,
+    [data-bs-theme="dark"] .footer {
+        background-color: #212529 !important;
+        color: #f8f9fa !important;
+        border-top-color: #0d6efd !important;
+    }
+
+    /* Garantir que o footer fique no fim da página */
+    html, body {
+        height: 100%;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .book-edit-page {
+        flex: 1 0 auto;
+    }
+
+    footer, .footer {
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Minhas Leituras Atuais</h1>
+        <div class="d-flex gap-2 align-items-center">
+            <a href="{% url 'profile' %}" class="btn btn-outline-primary d-flex align-items-center justify-content-center">
+                <i class="bi bi-person me-2"></i> Perfil
+            </a>
+        </div>
+    </div>
+
+    {% if reading_progress_list %}
+        <div class="row g-4">
+            {% for item in reading_progress_list %}
+            <div class="col-md-4 col-sm-6">
+                <div class="reading-card position-relative {% if forloop.first %}last-read{% endif %}" data-book-id="{{ item.book.id }}">
+                    {% if forloop.first %}
+                    <div class="active-indicator">
+                        <i class="bi bi-star-fill me-1"></i> Leitura atual
+                    </div>
+                    {% endif %}
+
+                    <div class="book-cover-container">
+                        <img src="{{ item.book.get_capa_url }}" alt="Capa de {{ item.book.titulo }}" class="book-cover">
+                    </div>
+
+                    <div class="book-info">
+                        <h5 class="book-title" title="{{ item.book.titulo }}">{{ item.book.titulo }}</h5>
+                        <p class="book-author text-muted mb-2" title="{{ item.book.autor }}">{{ item.book.autor }}</p>
+
+                        <div class="progress mb-1" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ item.progress_percent }}%;"
+                                aria-valuenow="{{ item.progress_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <!-- Modificação no bloco de progresso do livro -->
+                        <div class="progress-info">
+                            {% if item.book.numero_paginas %}
+                                <span>Lido {{ item.progress.current_page }} páginas de {{ item.book.numero_paginas }}</span>
+                            {% else %}
+                                <span>Lido {{ item.progress_percent }}%</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="reading-statistics">
+                        <div class="row g-2 text-center">
+                            <div class="col-4">
+                                <div class="stat">
+                                    <div class="stat-value">
+                                        {{ item.progress.started_at|date:"d/m/Y"|default:"-" }}
+                                    </div>
+                                    <div class="stat-label small">Iniciado</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat">
+                                    <div class="stat-value">
+                                        {{ item.avg_pages_per_day }} pág/dia
+                                    </div>
+                                    <div class="stat-label small">Ritmo</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat">
+                                    <div class="stat-value">
+                                        {{ item.estimated_completion|date:"d/m"|default:"-" }}
+                                    </div>
+                                    <div class="stat-label small">Conclusão</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="reading-actions">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary update-progress-btn"
+                                    data-book-id="{{ item.book.id }}"
+                                    data-book-title="{{ item.book.titulo }}"
+                                    data-current-page="{{ item.progress.current_page }}"
+                                    data-total-pages="{{ item.book.numero_paginas|default:'100' }}"
+                                    data-started-at="{{ item.progress.started_at|date:'Y-m-d'|default:'' }}">
+                                <i class="bi bi-pencil"></i> Atualizar Progresso
+                            </button>
+                            {% if not forloop.first %}
+                            <button class="btn btn-outline-success set-current-btn"
+                                    data-book-id="{{ item.book.id }}">
+                                <i class="bi bi-star"></i> Definir como Atual
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Mensagem se a lista estiver vazia -->
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Você ainda não tem livros na prateleira "Lendo".
+            <a href="{% url 'book_search' %}" class="alert-link">Busque livros</a> e adicione-os à sua prateleira para começar a acompanhar seu progresso de leitura.
+        </div>
+        {% endif %}
+</div>
+
+<!-- Modal de Atualização de Progresso (Atualizado) -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Atualizar Progresso de Leitura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateProgressForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="bookId" name="book_id">
+
+                    <div class="mb-3">
+                        <label for="bookTitle" class="form-label">Livro</label>
+                        <input type="text" class="form-control" id="bookTitle" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="currentPage" class="form-label">Página Atual</label>
+                        <input type="number" class="form-control" id="currentPage" name="current_page" min="1" required>
+                        <div class="form-text" id="totalPagesText"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="startedAt" class="form-label">Data de Início</label>
+                        <input type="date" class="form-control" id="startedAt" name="started_at" required>
+                        <div class="form-text">Data em que iniciou a leitura</div>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" id="progressBar"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="markAsFinished" name="mark_as_finished">
+                        <label class="form-check-label" for="markAsFinished">Marcar como concluído</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary save-progress-btn">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/theme-switcher.js' %}"></script>
+<script>
+// Atualizar o script para corrigir o erro de sintaxe
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Script de leituras atuais inicializado');
+
+    // ===== Gerenciamento do modal de progresso =====
+    let progressModal;
+
+    // Inicializar o modal com segurança (verifica se bootstrap está disponível)
+    const updateProgressModalEl = document.getElementById('updateProgressModal');
+    if (updateProgressModalEl) {
+        try {
+            // Verificar se o Bootstrap está disponível e inicializar o modal
+            if (typeof bootstrap !== 'undefined') {
+                progressModal = new bootstrap.Modal(updateProgressModalEl);
+                console.log('Modal inicializado via Bootstrap');
+            } else {
+                console.warn('Bootstrap não detectado, usando fallback manual para modal');
+                // Fallback caso o bootstrap não esteja carregado
+                progressModal = {
+                    show: function() {
+                        updateProgressModalEl.style.display = 'block';
+                        updateProgressModalEl.classList.add('show');
+                        document.body.classList.add('modal-open');
+                        const backdrop = document.createElement('div');
+                        backdrop.className = 'modal-backdrop fade show';
+                        document.body.appendChild(backdrop);
+                    },
+                    hide: function() {
+                        updateProgressModalEl.style.display = 'none';
+                        updateProgressModalEl.classList.remove('show');
+                        document.body.classList.remove('modal-open');
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
+                    }
+                };
+            }
+
+            // Adiciona evento para fechar o modal com o botão de cancelar
+            const cancelButton = updateProgressModalEl.querySelector('.btn-secondary');
+            if (cancelButton) {
+                cancelButton.addEventListener('click', function() {
+                    console.log('Botão cancelar clicado');
+                    if (progressModal) progressModal.hide();
+                });
+            }
+
+            // Adiciona evento para fechar o modal com o "X"
+            const closeButton = updateProgressModalEl.querySelector('.btn-close');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    console.log('Botão fechar clicado');
+                    if (progressModal) progressModal.hide();
+                });
+            }
+
+            // Adicionar evento de fechamento ao clicar fora do modal
+            updateProgressModalEl.addEventListener('click', function(event) {
+                if (event.target === updateProgressModalEl) {
+                    console.log('Clique fora do modal');
+                    if (progressModal) progressModal.hide();
+                }
+            });
+
+            console.log('Modal de progresso inicializado com sucesso');
+        } catch (error) {
+            console.error('Erro ao inicializar modal:', error);
+        }
+    }
+
+    // Atualizar progresso
+    const updateProgressButtons = document.querySelectorAll('.update-progress-btn');
+    updateProgressButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            console.log('Botão de atualizar progresso clicado');
+            const bookId = this.dataset.bookId;
+            const bookTitle = this.dataset.bookTitle;
+            const currentPage = parseInt(this.dataset.currentPage);
+            const totalPages = parseInt(this.dataset.totalPages);
+            const startedAt = this.dataset.startedAt || '';
+
+            console.log(`Atualizando livro: ${bookTitle}, ID: ${bookId}, Página: ${currentPage}/${totalPages}, Início: ${startedAt}`);
+
+            // Preencher modal
+            document.getElementById('bookId').value = bookId;
+            document.getElementById('bookTitle').value = bookTitle;
+            document.getElementById('currentPage').value = currentPage;
+            document.getElementById('currentPage').max = totalPages;
+            document.getElementById('totalPagesText').textContent = `De um total de ${totalPages} páginas`;
+
+            // Definir a data de início
+            if (startedAt) {
+                // Formatar a data para o formato aceito pelo input type=date (YYYY-MM-DD)
+                const startedDate = new Date(startedAt);
+                const formattedDate = startedDate.toISOString().split('T')[0];
+                document.getElementById('startedAt').value = formattedDate;
+            } else {
+                // Usar a data atual como fallback
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('startedAt').value = today;
+            }
+
+            // Atualizar barra de progresso
+            const progressPercent = Math.min(Math.round((currentPage / totalPages) * 100), 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${progressPercent}%`;
+            progressBar.setAttribute('aria-valuenow', progressPercent);
+
+            // Mostrar modal
+            if (progressModal) {
+                console.log('Abrindo modal de progresso');
+                progressModal.show();
+            } else {
+                console.error('Modal não inicializado corretamente');
+            }
+        });
+    });
+
+    // Atualizar barra de progresso em tempo real
+    const currentPageInput = document.getElementById('currentPage');
+    const progressBar = document.getElementById('progressBar');
+    const markAsFinishedCheckbox = document.getElementById('markAsFinished');
+
+    if (currentPageInput && progressBar) {
+        currentPageInput.addEventListener('input', function() {
+            const totalPages = parseInt(this.max);
+            const currentPage = parseInt(this.value) || 0;
+
+            // Calcular porcentagem
+            const progressPercent = Math.min(Math.round((currentPage / totalPages) * 100), 100);
+
+            // Atualizar barra
+            progressBar.style.width = `${progressPercent}%`;
+            progressBar.setAttribute('aria-valuenow', progressPercent);
+
+            // Se for última página, marcar como concluído
+            if (currentPage === totalPages && markAsFinishedCheckbox) {
+                markAsFinishedCheckbox.checked = true;
+            }
+        });
+    }
+
+    // Marcar como concluído define página atual como última
+    if (markAsFinishedCheckbox && currentPageInput) {
+        markAsFinishedCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                const totalPages = parseInt(currentPageInput.max);
+                currentPageInput.value = totalPages;
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                    progressBar.setAttribute('aria-valuenow', 100);
+                }
+            }
+        });
+    }
+
+    // Salvar progresso
+    const saveProgressButton = document.querySelector('.save-progress-btn');
+    if (saveProgressButton) {
+        saveProgressButton.addEventListener('click', async function() {
+            console.log('Botão salvar progresso clicado');
+            const form = document.getElementById('updateProgressForm');
+            const formData = new FormData(form);
+
+            // Verificar página válida
+            const currentPage = parseInt(formData.get('current_page'));
+            if (isNaN(currentPage) || currentPage < 1) {
+                showAlert('Por favor, informe uma página válida.', 'danger');
+                return;
+            }
+
+            // Verificar data válida
+            const startedAt = formData.get('started_at');
+            if (!startedAt) {
+                showAlert('Por favor, informe a data de início da leitura.', 'danger');
+                return;
+            }
+
+            // Desabilitar botão durante o envio
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...';
+
+            try {
+                // Preparar dados
+                const data = {
+                    book_id: formData.get('book_id'),
+                    current_page: currentPage,
+                    started_at: startedAt,
+                    mark_as_finished: formData.get('mark_as_finished') === 'on'
+                };
+
+                console.log('Enviando dados:', data);
+
+                // Enviar requisição
+                const response = await fetch('/profile/update-reading-progress/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('Progresso atualizado com sucesso');
+                    // Fechar modal
+                    if (progressModal) {
+                        progressModal.hide();
+                    }
+
+                    // Mostrar mensagem de sucesso
+                    showAlert('Progresso atualizado com sucesso!', 'success');
+
+                    // Recarregar página após breve delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(result.error || 'Erro ao atualizar progresso');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showAlert(`Erro ao atualizar: ${error.message}`, 'danger');
+            } finally {
+                // Restaurar botão
+                this.disabled = false;
+                this.innerHTML = 'Salvar';
+            }
+        });
+    }
+
+    // Definir como livro atual
+    const setCurrentButtons = document.querySelectorAll('.set-current-btn');
+    setCurrentButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const bookId = this.dataset.bookId;
+            console.log(`Definindo livro ${bookId} como atual`);
+
+            try {
+                // Desabilitar botão
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+                // Enviar requisição
+                const response = await fetch('/profile/current-reading/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ book_id: bookId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Livro definido como atual com sucesso!', 'success');
+
+                    // Recarregar página após breve delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(result.error || 'Erro ao definir livro como atual');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showAlert(`Erro: ${error.message}`, 'danger');
+
+                // Restaurar botão
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-star"></i> Definir como Atual';
+            }
+        });
+    });
+
+    // Função para mostrar alertas
+    function showAlert(message, type = 'info') {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-4`;
+        alertContainer.setAttribute('role', 'alert');
+        alertContainer.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        `;
+
+        document.body.appendChild(alertContainer);
+
+        // Remover após alguns segundos
+        setTimeout(() => {
+            try {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                    const bsAlert = new bootstrap.Alert(alertContainer);
+                    bsAlert.close();
+                } else {
+                    // Fallback manual para fechar o alerta
+                    alertContainer.classList.remove('show');
+                    setTimeout(() => {
+                        alertContainer.remove();
+                    }, 150);
+                }
+            } catch (error) {
+                // Se algo der errado, simplesmente remove o elemento
+                alertContainer.remove();
+            }
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

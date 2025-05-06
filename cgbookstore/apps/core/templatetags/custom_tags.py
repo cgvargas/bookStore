@@ -7,7 +7,7 @@ expandindo as capacidades de renderização de dados.
 
 from django import template
 from decimal import Decimal
-from urllib.parse import urlparse, parse_qs
+from django.utils.safestring import mark_safe
 import re
 
 # Registrador de tags customizadas
@@ -55,39 +55,52 @@ def sub(value, arg):
     except:
         return Decimal('0')
 
+
 @register.filter
 def get_youtube_id(url):
     """
-    Extrai o ID do vídeo de uma URL do YouTube.
-    Suporta formatos:
-    - watch?v=
-    - youtu.be/
-    - shorts/
-    - embed/
+    Extrai o ID do vídeo do YouTube a partir da URL.
+    Detecta vários formatos de URL do YouTube.
     """
+    if not url:
+        return ""
 
-    # Tenta extrair do formato padrão youtube.com/watch?v=
-    parsed_url = urlparse(url)
-    if 'youtube.com' in parsed_url.netloc:
-        if 'watch' in parsed_url.path:
-            return parse_qs(parsed_url.query).get('v', [''])[0]
-        elif 'shorts' in parsed_url.path:
-            # Formato shorts
-            return parsed_url.path.split('/')[-1]
-        elif 'embed' in parsed_url.path:
-            # Formato embed
-            return parsed_url.path.split('/')[-1]
+    # Padrão simplificado para extrair o ID
+    if 'youtu.be/' in url:
+        # Para URLs curtas como youtu.be/VIDEO_ID
+        video_id = url.split('youtu.be/')[-1].split('?')[0].split('&')[0]
+    elif 'youtube.com/watch' in url:
+        # Para URLs padrão com parâmetro v=
+        try:
+            video_id = re.search(r'v=([^&]+)', url).group(1)
+        except:
+            video_id = ""
+    elif 'youtube.com/embed/' in url:
+        # Para URLs de incorporação
+        video_id = url.split('youtube.com/embed/')[-1].split('?')[0].split('&')[0]
+    elif 'youtube.com/shorts/' in url:
+        # Para URLs de shorts
+        video_id = url.split('youtube.com/shorts/')[-1].split('?')[0].split('&')[0]
+    else:
+        video_id = ""
 
-    # Formato youtu.be
-    elif 'youtu.be' in parsed_url.netloc:
-        return parsed_url.path.lstrip('/')
+    # Remove qualquer parâmetro adicional do ID
+    video_id = video_id.split('?')[0].split('&')[0]
 
-    return ''
+    # Valida o ID (geralmente tem 11 caracteres)
+    if video_id and len(video_id) < 5:
+        return ""
+
+    return video_id.strip()
+
 
 @register.filter
 def get_youtube_thumbnail(video_id):
     """
-    Retorna a URL da thumbnail de alta qualidade do YouTube.
-    Se não existir, cai para qualidade menor.
+    Retorna a URL da imagem de thumbnail do YouTube.
     """
-    return f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+    if not video_id:
+        return ""
+
+    # Retorna a versão de alta qualidade do thumbnail
+    return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"

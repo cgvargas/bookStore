@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             UPDATE core_book 
             SET preco = NULL, 
                 preco_promocional = NULL 
-            WHERE preco LIKE '{%' 
-               OR preco = '{}' 
+            WHERE CAST(preco AS TEXT) LIKE '{%' 
+               OR CAST(preco AS TEXT) = '{}' 
                OR preco IS NOT NULL;
             """,
             # SQL de reversão (não faz nada)
