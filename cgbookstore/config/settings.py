@@ -17,8 +17,7 @@ print(f"\nAmbiente de: {DJANGO_ENV}")
 
 # Define qual arquivo .env usar baseado no ambiente
 ENV_FILE = '.env.dev' if DJANGO_ENV == 'development' else '.env.prod'
-environ.Env.read_env(os.path.join(BASE_DIR, ENV_FILE))
-print(f"Arquivo .env: {ENV_FILE}")
+environ.Env.read_env(os.path.join(BASE_DIR.parent, ENV_FILE))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-r%4)z4dffs_qqw8y$8g!om4h_0h$md^_y70+1q=w$xh=foy!uj')
@@ -30,13 +29,13 @@ ALLOWED_HOSTS = ['*']
 
 # Configurações SMTP para SendGrid
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'apikey'  # Isso é fixo para o SendGrid
-EMAIL_HOST_PASSWORD = 'SG.GrZm2LEaSUmLbEwdnQ6eBg._UAWXniDaQWYinXCMS6ILdRlD9oiZgXeI8dUm9NmgXU'
-DEFAULT_FROM_EMAIL = 'cg.bookstore.online@outlook.com'
-SERVER_EMAIL = 'cg.bookstore.online@outlook.com'
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.sendgrid.net')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='apikey')  # Isso é fixo para o SendGrid
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='cg.bookstore.online@outlook.com')
+SERVER_EMAIL = env('SERVER_EMAIL', default='cg.bookstore.online@outlook.com')
 
 # Para debug de email
 if DEBUG:
@@ -98,11 +97,11 @@ WSGI_APPLICATION = 'cgbookstore.config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cgbookstore_db',  # Nome fixo em vez de usar env
-        'USER': 'cgbookstore_user',  # Usuário fixo em vez de usar env
-        'PASSWORD': 'Oa023568910@',  # Senha fixa em vez de usar env
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': env('DB_NAME', default='cgbookstore_db'),
+        'USER': env('DB_USER', default='cgbookstore_user'),
+        'PASSWORD': env('DB_PASSWORD', default=''),
+        'HOST': env('DB_HOST', default='localhost'),
+        'PORT': env('DB_PORT', default='5432'),
         'OPTIONS': {
             'client_encoding': 'LATIN1',
             'connect_timeout': 10,
@@ -220,12 +219,10 @@ GOOGLE_BOOKS_SEARCH_CACHE_TIMEOUT = 60 * 60 * 2  # 2 horas
 GOOGLE_BOOKS_RECOMMENDATIONS_CACHE_TIMEOUT = 60 * 60 * 24  # 24 horas
 
 # API Key do Google Books
-GOOGLE_BOOKS_API_KEY = os.getenv('GOOGLE_BOOKS_API_KEY', 'AIzaSyBF5W5NktgXZRfTnZXe3pVxqB_TCkXGzx0')
+GOOGLE_BOOKS_API_KEY = env('GOOGLE_BOOKS_API_KEY', default='')
 
 # Configuração de variáveis de ambiente sobre o tempo:
-WEATHER_API_KEY = "3178fd672aee4aa393c195919253003"
-logger = logging.getLogger(__name__)
-logger.info(f"WEATHER_API_KEY carregada: {'Sim' if WEATHER_API_KEY else 'Não'}")
+WEATHER_API_KEY = env('WEATHER_API_KEY', default='')
 
 # Configurações de Autenticação
 LOGIN_REDIRECT_URL = 'index'
