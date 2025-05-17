@@ -8,10 +8,11 @@ Agrupa todas as rotas da aplicação, organizadas por categorias:
 - Perfil de usuário
 - Gerenciamento de livros
 - APIs de recomendação
+- Autores
 """
 
 from django.urls import path, include
-from .views import ProfileUpdateView, book
+from .views import ProfileUpdateView, book, image_proxy
 from .views.book_edit import BookEditView
 from .views.profile import (
     ProfileView,
@@ -140,7 +141,11 @@ urlpatterns = [
     path('api/recommendations/book/<str:external_id>/', get_external_book_details, name='external_book_details'),
     path('api/weather/', get_weather, name='weather_api'),
 
+    path('image-proxy/', image_proxy.google_books_image_proxy, name='image_proxy'),
+
     # Página de Ranking de Leitores
     path('ranking-leitores/', ReaderRankingView.as_view(), name='ranking_leitores'),
 
+    # Rotas de Autores - Incluindo o namespace 'authors'
+    path('authors/', include(('cgbookstore.apps.core.urls_author', 'authors'))),
 ]

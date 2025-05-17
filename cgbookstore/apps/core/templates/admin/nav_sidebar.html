@@ -4,6 +4,36 @@
 <nav class="module custom-scrollbar" id="nav-sidebar">
   {% if available_apps %}
     <div class="app-modules">
+      <!-- Módulo Chatbot Literário -->
+      <div class="app-module" id="app-chatbot_literario">
+        <table>
+          <caption>
+            <a href="{% url 'admin:chatbot_literario_training' %}" class="section">Chatbot Literário</a>
+          </caption>
+          <tr class="model-training{% if 'chatbot/treinamento' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:chatbot_literario_training' %}"{% if 'chatbot/treinamento' in request.path %} aria-current="page"{% endif %}>
+                Treinamento
+              </a>
+            </th>
+          </tr>
+          <tr class="model-conversation{% if 'chatbot_literario/conversation' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:chatbot_literario_conversation_changelist' %}"{% if 'chatbot_literario/conversation' in request.path %} aria-current="page"{% endif %}>
+                Conversas
+              </a>
+            </th>
+          </tr>
+          <tr class="model-conversationfeedback{% if 'chatbot_literario/conversationfeedback' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:chatbot_literario_conversationfeedback_changelist' %}"{% if 'chatbot_literario/conversationfeedback' in request.path %} aria-current="page"{% endif %}>
+                Feedbacks
+              </a>
+            </th>
+          </tr>
+        </table>
+      </div>
+
       {% for app in available_apps %}
         <div class="app-module{% if app.active %} active{% endif %}" id="app-{{ app.app_label }}">
           <table>

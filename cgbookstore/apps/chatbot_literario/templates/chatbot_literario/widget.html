@@ -7,7 +7,9 @@
     </div>
 
     <div class="chatbot-body" id="chatbotBody">
+        <!-- Importante: Container de mensagens -->
         <div class="chatbot-messages" id="chatbotMessages">
+            <!-- Mensagem inicial do bot -->
             <div class="message bot-message">
                 <div class="message-content">
                     Olá! Sou o assistente literário da CG.BookStore. Como posso ajudar você hoje?
@@ -17,6 +19,7 @@
                 </div>
             </div>
 
+            <!-- Mensagens carregadas do banco de dados (se houver) -->
             {% for message in messages %}
                 <div class="message {% if message.sender == 'bot' %}bot-message{% else %}user-message{% endif %}">
                     <div class="message-content">
@@ -27,6 +30,13 @@
                     </div>
                 </div>
             {% endfor %}
+
+            <!-- Indicador de digitação -->
+            <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
         </div>
     </div>
 
@@ -52,253 +62,270 @@
     <i class="bi bi-chat-text-fill"></i>
 </button>
 
+<style>
+/* Estilos inline para garantir que eles sejam aplicados */
+.chatbot-messages {
+    min-height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+}
+
+.message {
+    margin-bottom: 10px;
+    max-width: 80%;
+    padding: 10px 12px;
+    border-radius: 15px;
+    word-wrap: break-word;
+    display: block !important;
+}
+
+.user-message {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    align-self: flex-end;
+    margin-left: auto;
+    border-radius: 15px 15px 0 15px;
+}
+
+.bot-message {
+    background-color: #f5f5f5;
+    color: #333;
+    align-self: flex-start;
+    margin-right: auto;
+    border-radius: 15px 15px 15px 0;
+}
+
+.dark-mode .user-message {
+    background-color: #2962ff;
+    color: white;
+}
+
+.dark-mode .bot-message {
+    background-color: #424242;
+    color: #e0e0e0;
+}
+
+.message-content {
+    word-break: break-word;
+}
+
+/* Indicador de digitação */
+.typing-indicator {
+    display: none;
+    margin: 10px 0;
+    padding: 10px 15px;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+    max-width: 70%;
+    align-self: flex-start;
+}
+
+.typing-indicator .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin: 0 2px;
+    background-color: #888;
+    border-radius: 50%;
+    animation: typing-animation 1.4s infinite ease-in-out;
+}
+
+.typing-indicator .dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-indicator .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing-animation {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+}
+</style>
+
+<!-- Script simplificado para chat -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const chatbotWidget = document.getElementById('chatbotWidget');
-        const chatbotToggle = document.getElementById('chatbotToggle');
-        const chatbotClose = document.getElementById('chatbotClose');
-        const widgetChatForm = document.getElementById('widgetChatForm');
-        const widgetUserMessage = document.getElementById('widgetUserMessage');
-        const chatbotMessages = document.getElementById('chatbotMessages');
-        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos DOM
+    const chatbotWidget = document.getElementById('chatbotWidget');
+    const chatbotToggle = document.getElementById('chatbotToggle');
+    const chatbotClose = document.getElementById('chatbotClose');
+    const chatbotMessages = document.getElementById('chatbotMessages');
+    const chatForm = document.getElementById('widgetChatForm');
+    const userMessage = document.getElementById('widgetUserMessage');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const suggestionBtns = document.querySelectorAll('.suggestion-btn');
 
-        // Flag para evitar envios duplicados
-        let isProcessing = false;
+    let isProcessing = false;
 
-        // Detectar tema do sistema
-        function detectTheme() {
-            // Verificar se o site tem uma classe ou variável de tema
-            const htmlElement = document.documentElement;
-            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Funções auxiliares
+    function scrollToBottom() {
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
 
-            // Verificar se o elemento body tem classe dark-mode (ou similar)
-            const bodyHasDarkClass = document.body.classList.contains('dark-mode') ||
-                                    document.body.classList.contains('dark') ||
-                                    document.body.classList.contains('theme-dark');
+    function getCurrentTime() {
+        const now = new Date();
+        return now.getHours().toString().padStart(2, '0') + ':' +
+               now.getMinutes().toString().padStart(2, '0');
+    }
 
-            // Aplicar tema escuro se necessário
-            if (isDarkMode || bodyHasDarkClass) {
-                chatbotWidget.classList.add('dark-mode');
-            } else {
-                chatbotWidget.classList.remove('dark-mode');
-            }
-        }
-
-        // Detectar tema inicial
-        detectTheme();
-
-        // Observar mudanças no tema
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.attributeName === 'class') {
-                    detectTheme();
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
-            });
-        });
+            }
+        }
+        return cookieValue;
+    }
 
-        // Observar mudanças nas classes do body
-        observer.observe(document.body, { attributes: true });
-
-        // Observar alteração na preferência do sistema
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectTheme);
-
-        // Abrir/fechar widget
-        chatbotToggle.addEventListener('click', function() {
-            chatbotWidget.style.display = 'flex';
-            chatbotToggle.style.display = 'none';
+    function showTypingIndicator() {
+        if (typingIndicator) {
+            typingIndicator.style.display = 'flex';
             scrollToBottom();
-        });
-
-        chatbotClose.addEventListener('click', function() {
-            chatbotWidget.style.display = 'none';
-            chatbotToggle.style.display = 'flex';
-        });
-
-        // Rolar para o final do chat
-        function scrollToBottom() {
-            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
+    }
 
-        // Formatação correta de hora
-        function getCurrentTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${hours}:${minutes}`;
+    function hideTypingIndicator() {
+        if (typingIndicator) {
+            typingIndicator.style.display = 'none';
         }
+    }
 
-        function addMessage(content, sender, time, messageId = null) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+    // Abrir/fechar widget
+    chatbotToggle.addEventListener('click', function() {
+        chatbotWidget.style.display = 'flex';
+        chatbotToggle.style.display = 'none';
+        scrollToBottom();
+    });
 
-            // Adicionar ID na mensagem se disponível
-            if (messageId) {
-                messageDiv.dataset.messageId = messageId;
-            }
+    chatbotClose.addEventListener('click', function() {
+        chatbotWidget.style.display = 'none';
+        chatbotToggle.style.display = 'flex';
+    });
 
-            const contentDiv = document.createElement('div');
-            contentDiv.classList.add('message-content');
-            contentDiv.textContent = content;
+    // Adicionar mensagem ao chat
+    function addMessage(content, sender, time = null) {
+        console.log("Adicionando mensagem:", sender, content.substring(0, 30) + "...");
 
-            const timeDiv = document.createElement('div');
-            timeDiv.classList.add('message-time');
-            timeDiv.textContent = time || getCurrentTime();
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
 
-            messageDiv.appendChild(contentDiv);
-            messageDiv.appendChild(timeDiv);
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.textContent = content;
 
-            // Adicionar botões de feedback apenas para mensagens do bot
-            if (sender === 'bot' && messageId) {
-                const feedbackDiv = document.createElement('div');
-                feedbackDiv.classList.add('message-feedback');
-                feedbackDiv.innerHTML = `
-                    <span class="feedback-question">Foi útil?</span>
-                    <button class="feedback-btn feedback-yes" data-message-id="${messageId}" data-helpful="true" title="Sim, foi útil">
-                        <i class="bi bi-hand-thumbs-up"></i>
-                    </button>
-                    <button class="feedback-btn feedback-no" data-message-id="${messageId}" data-helpful="false" title="Não foi útil">
-                        <i class="bi bi-hand-thumbs-down"></i>
-                    </button>
-                `;
-                messageDiv.appendChild(feedbackDiv);
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'message-time';
+        timeDiv.textContent = time || getCurrentTime();
 
-                // Adicionar evento aos botões de feedback
-                setTimeout(() => {
-                    const feedbackBtns = messageDiv.querySelectorAll('.feedback-btn');
-                    feedbackBtns.forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            sendFeedback(this.dataset.messageId, this.dataset.helpful === 'true');
-                            // Destacar botão selecionado
-                            feedbackBtns.forEach(b => b.classList.remove('selected'));
-                            this.classList.add('selected');
-                            // Mostrar mensagem
-                            const feedbackQuestion = messageDiv.querySelector('.feedback-question');
-                            feedbackQuestion.textContent = 'Obrigado pelo feedback!';
-                            setTimeout(() => {
-                                feedbackDiv.style.opacity = '0.5';
-                            }, 2000);
-                        });
-                    });
-                }, 100);
-            }
+        messageDiv.appendChild(contentDiv);
+        messageDiv.appendChild(timeDiv);
 
+        // Inserir antes do indicador de digitação
+        if (typingIndicator && typingIndicator.parentNode === chatbotMessages) {
+            chatbotMessages.insertBefore(messageDiv, typingIndicator);
+        } else {
             chatbotMessages.appendChild(messageDiv);
-            scrollToBottom();
         }
 
-        // Enviar feedback para o servidor
-        async function sendMessage(message) {
-            // Verificar se já está processando uma mensagem
-            if (isProcessing) {
-                console.log("Já existe uma requisição em andamento. Aguarde.");
-                return;
+        // Verificar visibilidade
+        setTimeout(() => {
+            console.log("Visibilidade da mensagem:",
+                window.getComputedStyle(messageDiv).display,
+                window.getComputedStyle(messageDiv).visibility);
+        }, 100);
+
+        scrollToBottom();
+    }
+
+    // Enviar mensagem ao servidor
+    async function sendMessage(message) {
+        if (isProcessing) return;
+        isProcessing = true;
+
+        console.log("Enviando mensagem:", message);
+
+        // Adicionar mensagem do usuário à UI
+        addMessage(message, 'user');
+
+        // Limpar campo de entrada
+        userMessage.value = '';
+
+        // Mostrar indicador de digitação
+        showTypingIndicator();
+
+        try {
+            // Enviar requisição para o backend
+            const response = await fetch('/chatbot/api/message/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            // Esconder indicador de digitação
+            hideTypingIndicator();
+
+            if (!response.ok) {
+                throw new Error(`Erro do servidor: ${response.status}`);
             }
 
-            // Definir flag para bloquear novos envios
-            isProcessing = true;
+            const data = await response.json();
+            console.log("Resposta recebida:", data);
 
-            // Adicionar mensagem do usuário
-            addMessage(message, 'user');
+            // Adicionar resposta do bot à UI
+            addMessage(data.response, 'bot', data.timestamp);
 
-            // Limpar campo de input
-            widgetUserMessage.value = '';
-
-            try {
-                // Adicionar indicador de digitação
-                const typingIndicator = document.createElement('div');
-                typingIndicator.classList.add('message', 'bot-message', 'typing-indicator');
-                typingIndicator.innerHTML = '<div class="message-content">Digitando...</div>';
-                chatbotMessages.appendChild(typingIndicator);
-                scrollToBottom();
-
-                // Enviar requisição para o backend
-                const response = await fetch('{% url "chatbot_literario:api_message" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify({ message: message })
-                });
-
-                // Remover indicador de digitação
-                const indicator = document.querySelector('.typing-indicator');
-                if (indicator) {
-                    chatbotMessages.removeChild(indicator);
-                }
-
-                if (!response.ok) {
-                    throw new Error('Erro na comunicação com o servidor');
-                }
-
-                const data = await response.json();
-
-                // Adicionar resposta do bot com o ID da mensagem se disponível
-                addMessage(data.response, 'bot', data.timestamp, data.message_id);
-
-            } catch (error) {
-                console.error('Erro:', error);
-
-                // Remover indicador de digitação em caso de erro
-                const indicator = document.querySelector('.typing-indicator');
-                if (indicator) {
-                    chatbotMessages.removeChild(indicator);
-                }
-
-                addMessage('Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.', 'bot');
-            } finally {
-                // Sempre resetar a flag ao finalizar o processamento
-                isProcessing = false;
-            }
+        } catch (error) {
+            console.error("Erro ao enviar mensagem:", error);
+            hideTypingIndicator();
+            addMessage("Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.", "bot");
+        } finally {
+            isProcessing = false;
         }
+    }
 
-        // Função para obter o token CSRF
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
+    // Lidar com envio do formulário
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = userMessage.value.trim();
+        if (message) {
+            sendMessage(message);
         }
+    });
 
-        // Remover quaisquer event listeners anteriores
-        widgetChatForm.removeEventListener('submit', handleFormSubmit);
-
-        // Função para manipular o envio do formulário
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            const message = widgetUserMessage.value.trim();
-            if (message) {
+    // Lidar com botões de sugestão
+    suggestionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!isProcessing) {
+                const message = this.textContent.trim();
+                userMessage.value = message;
                 sendMessage(message);
             }
-        }
-
-        // Adicionar o event listener apenas uma vez
-        widgetChatForm.addEventListener('submit', handleFormSubmit);
-
-        // Usar sugestões - com verificação de duplicação
-        suggestionBtns.forEach(btn => {
-            // Remover quaisquer event listeners anteriores
-            btn.replaceWith(btn.cloneNode(true));
-        });
-
-        // Adicionar event listeners novos para os botões clonados
-        document.querySelectorAll('.suggestion-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (!isProcessing) {
-                    const message = this.textContent.trim();
-                    widgetUserMessage.value = message;
-                    sendMessage(message);
-                }
-            });
         });
     });
+
+    // Rolar para o final do chat
+    scrollToBottom();
+
+    // Exibir mensagem no console
+    console.log("Chatbot inicializado com template simplificado");
+});
 </script>

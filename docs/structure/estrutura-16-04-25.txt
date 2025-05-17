@@ -142,6 +142,8 @@ Data de geração: 04/04/2025 08:24:18
 │       │   │   └── css/
 │       │   │       └── chatbot.css
 │       │   ├── templates/
+│       │   │   ├── admin/
+│       │   │   │   └── index.html
 │       │   │   └── chatbot_literario/
 │       │   │       ├── chat.html
 │       │   │       ├── tags/
@@ -150,7 +152,7 @@ Data de geração: 04/04/2025 08:24:18
 │       │   └── templatetags/
 │       │       ├── __init__.py
 │       │       └── chatbot_tags.py
-│       └── core
+│       └── core/
 │           ├── __init__.py
 │           ├── admin.py
 │           ├── apps.py

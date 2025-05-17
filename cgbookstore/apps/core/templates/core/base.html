@@ -15,6 +15,8 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'css/background.css' %}">
+    <link rel="stylesheet" href="{% static 'css/google-books-fix.css' %}">
+    <link rel="stylesheet" href="{% static 'css/book-covers-fix.css' %}">
     <title>{% block title %}CG.BookStore Online{% endblock %}</title>
     <style>
         /* Remove a setinha do dropdown Explorando */
@@ -100,16 +102,10 @@
                         </li>
                     {% endif %}
                     <!-- Início: Seletor de tema -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="themeToggle" title="Alternar tema">
                             <i class="bi bi-circle-half"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
-                            <li><a class="dropdown-item" href="#" id="theme-light"><i class="bi bi-sun-fill"></i> Tema Claro</a></li>
-                            <li><a class="dropdown-item" href="#" id="theme-dark"><i class="bi bi-moon-fill"></i> Tema Escuro</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#" id="theme-auto"><i class="bi bi-circle-half"></i> Padrão do Sistema</a></li>
-                        </ul>
                     </li>
                     <!-- Fim: Seletor de tema -->
                     <li class="nav-item">
@@ -130,18 +126,11 @@
                         </a>
                     </li>
                     <!-- Seletor de tema para usuários não logados -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="themeToggle" title="Alternar tema">
                             <i class="bi bi-circle-half"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
-                            <li><a class="dropdown-item" href="#" id="theme-light"><i class="bi bi-sun-fill"></i> Tema Claro</a></li>
-                            <li><a class="dropdown-item" href="#" id="theme-dark"><i class="bi bi-moon-fill"></i> Tema Escuro</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#" id="theme-auto"><i class="bi bi-circle-half"></i> Padrão do Sistema</a></li>
-                        </ul>
                     </li>
-
                 {% endif %}
             </ul>
         </div>
@@ -512,6 +501,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 </script>
 {% endblock %}
+
+<!-- Scripts para tratamento de imagens e recomendações -->
+<script src="{% static 'js/image-fallback-improved.js' %}"></script>
+<script src="{% static 'js/google-books-image-fix.js' %}"></script>
 
 </body>
 </html>

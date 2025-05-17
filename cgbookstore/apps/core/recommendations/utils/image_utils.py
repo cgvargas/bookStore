@@ -46,6 +46,10 @@ def standardize_google_book_cover(url, size='M'):
             # Adiciona parâmetro para qualidade da imagem
             query_params['img'] = ['1']
 
+            # Adicionar timestamp para evitar cache
+            import time
+            query_params['t'] = [str(int(time.time()))]
+
             # Reconstrói a URL com os parâmetros atualizados
             new_query = urlencode(query_params, doseq=True)
             new_url = urlunparse((
@@ -81,4 +85,9 @@ def ensure_cover_url(url):
     """Garante que sempre haja uma URL de capa, usando fallback se necessário"""
     if not url or url.strip() == '':
         return get_fallback_cover()
+
+    # Se for URL do Google Books, padroniza
+    if 'books.google.com' in url or 'googleusercontent.com' in url:
+        return standardize_google_book_cover(url, 'M')
+
     return url

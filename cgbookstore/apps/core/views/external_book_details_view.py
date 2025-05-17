@@ -7,6 +7,7 @@ from django.http import Http404
 from django.utils.translation import gettext as _
 
 from cgbookstore.apps.core.models.book import Book
+# Importação corrigida para usar o serviço centralizado
 from cgbookstore.apps.core.services.google_books_service import GoogleBooksClient
 
 import logging

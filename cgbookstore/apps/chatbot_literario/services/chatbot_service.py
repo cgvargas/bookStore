@@ -1,250 +1,174 @@
-import torch
 import logging
 import re
-from transformers import AutoModelForCausalLM, AutoTokenizer
+import random
+from django.conf import settings
+from django.utils import timezone
 
-# Importar o serviço de recomendação
-from .recommendation_service import recommendation_service
-from . import training_service
+# Importar o serviço de treinamento
+from .training_service import training_service
 
 logger = logging.getLogger(__name__)
 
 
 class ChatbotService:
-    def __init__(self):
-        self.model_name = "microsoft/DialoGPT-medium"
-        self.tokenizer = None
-        self.model = None
-        self.max_length = 1000
-        self.initialized = False
+    """
+    Serviço principal do chatbot. Responsável por processar mensagens
+    e gerar respostas adequadas utilizando a base de conhecimento.
+    """
 
-        # Padrões de reconhecimento de intents
-        self.patterns = {
-            'recomendacao_genero': r'recomend[ae][rção]?\s+(?:um[as]?\s+)?(?:livros?|obras?)\s+(?:de|sobre)?\s+([a-záàâãéèêíìóòôõúùüç\s]+)',
-            'sinopse': r'sinopse\s+d[eo]\s+(?:livro\s+)?["\']?([^"\']+)["\']?',
-            'autor': r'(?:quem\s+(?:é|foi)|informações\s+sobre)\s+(?:o\s+autor\s+)?["\']?([^"\']+)["\']?',
-            'navegacao': r'onde\s+(?:eu\s+)?(?:posso\s+)?(?:encontr[oa]r?|v[êe]r?|est[áa]o?|fic[ao]m?)\s+(?:os\s+)?([a-záàâãéèêíìóòôõúùüç\s]+)',
-            'saudacao': r'(?:olá|oi|e aí|boa tarde|bom dia|boa noite|hello|hi)',
-            'agradecimento': r'(?:obrigad[oa]|valeu|agradeç[oa]|thanks)',
-            'ajuda': r'(?:ajud[ae]|help|socorro|auxílio|me ajude|pode me ajudar|preciso de ajuda)'
-        }
+    def __init__(self):
+        self.initialized = False
+        self.intent_patterns = self._load_intent_patterns()
 
     def initialize(self):
-        """Carrega o modelo e o tokenizer."""
-        try:
-            logger.info(f"Inicializando chatbot com modelo {self.model_name}")
-            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
-            self.initialized = True
-            logger.info("Chatbot inicializado com sucesso")
-        except Exception as e:
-            logger.error(f"Erro ao inicializar chatbot: {str(e)}")
-            raise
+        """Inicializa o serviço do chatbot."""
+        if self.initialized:
+            return
 
-    def get_response(self, input_text, user=None, conversation_history=None):
-        """Gera uma resposta para o texto de entrada com base no histórico de conversa."""
-        # Verificar se há correspondência na base de conhecimento
-        knowledge_response = self._check_knowledge_base(input_text)
-        if knowledge_response:
-            return knowledge_response, conversation_history
-
-        # Processar o texto para identificar intents
-        intent, entities = self._identify_intent(input_text.lower())
-
-        # Se identificamos uma intent específica, gerar resposta apropriada
-        if intent and hasattr(self, f"_handle_{intent}"):
-            try:
-                handler = getattr(self, f"_handle_{intent}")
-                response = handler(entities, user)
-                if response:
-                    return response, conversation_history
-            except Exception as e:
-                logger.error(f"Erro ao processar intent {intent}: {str(e)}")
-
-        # Se não tiver intent específica ou falhar, usar o modelo DialoGPT
-        if not self.initialized:
-            self.initialize()
-
-        # Preparar histórico de conversa se existir
-        chat_history_ids = conversation_history if conversation_history is not None else []
-
-        try:
-            # Codificar a entrada do usuário
-            new_input_ids = self.tokenizer.encode(input_text + self.tokenizer.eos_token,
-                                                  return_tensors='pt')
-
-            # Concatenar histórico (se existir) com nova entrada
-            if len(chat_history_ids) > 0:
-                bot_input_ids = torch.cat([chat_history_ids, new_input_ids], dim=-1)
-            else:
-                bot_input_ids = new_input_ids
-
-            # Gerar resposta
-            chat_history_ids = self.model.generate(
-                bot_input_ids,
-                max_length=self.max_length,
-                pad_token_id=self.tokenizer.eos_token_id,
-                no_repeat_ngram_size=3,
-                do_sample=True,
-                top_k=50,
-                top_p=0.95,
-                temperature=0.7
-            )
-
-            # Decodificar resposta
-            response = self.tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0],
-                                             skip_special_tokens=True)
-
-            # Adicionar contexto de livros e adaptações para tornar as respostas mais relacionadas a literatura
-            if not response or response.isspace():
-                response = "Desculpe, não consegui formular uma resposta adequada. Posso ajudar com recomendações de livros ou informações sobre autores?"
-
-            # Adaptar respostas para o contexto literário
-            response = self._adapt_response_to_literary_context(input_text, response)
-
-            return response, chat_history_ids
-
-        except Exception as e:
-            logger.error(f"Erro ao gerar resposta: {str(e)}")
-            return "Desculpe, ocorreu um erro ao processar sua mensagem. Poderia tentar novamente?", None
-
-    def _check_knowledge_base(self, input_text):
-        """Verifica se há uma resposta adequada na base de conhecimento."""
+        # Inicializar serviço de treinamento
         if not training_service.initialized:
             training_service.initialize()
 
-        knowledge_results = training_service.search_knowledge_base(input_text)
+        self.initialized = True
+        logger.info("Serviço do chatbot inicializado com sucesso.")
 
-        # Se encontrou resultados com alta relevância, usar a resposta da base de conhecimento
-        if knowledge_results and knowledge_results[0][1] > 0.75:  # Threshold de similaridade
-            return knowledge_results[0][0]['answer']
+    def _load_intent_patterns(self):
+        """Carrega padrões de reconhecimento de intenções (intents)."""
+        return {
+            'saudacao': r'\b(olá|oi|e aí|hey|bom dia|boa tarde|boa noite|hello)\b',
+            'despedida': r'\b(tchau|adeus|até logo|até mais|até a próxima|até breve)\b',
+            'agradecimento': r'\b(obrigad[oa]|valeu|thanks|grat[oa]|agradeç[oa])\b',
+            'livro_busca': r'(encontr[ea]|busc[ae]|procur[ae]|quero).{1,30}livro',
+            'autor_info': r'(quem|informaç[õo]es|sobre).{1,30}autor[a]?',
+            'recomendacao': r'(recomend[ae]|suger[ei]|indic[ae]).{1,30}(livro|leitura)',
+            'ajuda': r'\b(ajuda|socorro|help|como funciona|o que você faz)\b',
+            'navegacao': r'(como|onde|posso).{1,30}(encontr[ao]|v[eê]r|ir|acesso)',
+        }
+
+    def detect_intent(self, message):
+        """
+        Detecta a intenção do usuário com base em padrões regex.
+
+        Args:
+            message (str): Mensagem do usuário
+
+        Returns:
+            str: Nome da intenção detectada ou None
+        """
+        message = message.lower()
+
+        for intent, pattern in self.intent_patterns.items():
+            if re.search(pattern, message, re.IGNORECASE):
+                return intent
 
         return None
 
-    def _identify_intent(self, text):
-        """Identifica a intenção do usuário baseado em padrões."""
-        for intent, pattern in self.patterns.items():
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                # Extrai as entidades encontradas (grupos capturados)
-                entities = match.groups() if match.groups() else []
-                return intent, entities
+    def get_response(self, message, user=None):
+        """
+        Processa a mensagem do usuário e retorna uma resposta.
 
-        return None, []
+        Args:
+            message (str): Mensagem do usuário
+            user (User, opcional): Usuário que enviou a mensagem
 
-    def _handle_recomendacao_genero(self, entities, user):
-        """Manipula pedidos de recomendação por gênero."""
-        if not entities:
-            return "Que tipo de livro você gostaria que eu recomendasse?"
+        Returns:
+            tuple: (resposta, fonte)
+        """
+        if not self.initialized:
+            self.initialize()
 
-        genero = entities[0].strip()
-        books = recommendation_service.get_recommendations_by_genre(genero, limit=3)
+        try:
+            # Detectar intenção
+            intent = self.detect_intent(message)
 
-        if not books or len(books) == 0:
-            return f"Não encontrei livros de {genero} para recomendar. Que tal tentar outro gênero?"
+            # Tratar intenções específicas
+            if intent:
+                intent_response = self._handle_intent(intent, message, user)
+                if intent_response:
+                    return intent_response, "intent"
 
-        response = f"Para quem gosta de {genero}, recomendo:\n\n"
-        for i, book in enumerate(books, 1):
-            response += f"{i}. {book.titulo} - {book.autor}\n"
-            if hasattr(book, 'descricao') and book.descricao:
-                desc = book.descricao[:100] + "..." if len(book.descricao) > 100 else book.descricao
-                response += f"   {desc}\n"
-            response += "\n"
+            # Buscar na base de conhecimento
+            knowledge_results = training_service.search_knowledge_base(message)
 
-        response += "Gostaria de mais informações sobre algum desses livros?"
-        return response
+            if knowledge_results and len(knowledge_results) > 0:
+                # CORREÇÃO: Acessar o objeto KnowledgeItem corretamente
+                # Cada resultado é uma tupla (item, score)
+                best_match = knowledge_results[0]
+                knowledge_item = best_match[0]  # Primeiro elemento é o objeto KnowledgeItem
+                similarity = best_match[1]  # Segundo elemento é o score de similaridade
 
-    def _handle_sinopse(self, entities, user):
-        """Manipula pedidos de sinopse de livros."""
-        if not entities:
-            return "Qual livro você gostaria de saber a sinopse?"
+                logger.debug(f"Melhor correspondência: {knowledge_item.question} (score: {similarity})")
 
-        titulo = entities[0].strip()
-        # Aqui você implementaria a lógica para buscar a sinopse no banco de dados
-        # Por enquanto, retornamos uma resposta genérica
-        return f"A sinopse de '{titulo}' não está disponível no momento. Estou em fase de treinamento para fornecer informações mais detalhadas sobre livros específicos."
+                # Verificar se a similaridade está acima do threshold
+                if similarity >= 0.7:
+                    # Acessar o atributo 'answer' do objeto
+                    return knowledge_item.answer, "knowledge_base"
 
-    def _handle_autor(self, entities, user):
-        """Manipula pedidos de informações sobre autores."""
-        if not entities:
-            return "Sobre qual autor você gostaria de saber mais?"
+            # Resposta padrão se não encontrar nada na base de conhecimento
+            return self._get_fallback_response(intent), "fallback"
 
-        autor = entities[0].strip()
-        # Aqui você implementaria a lógica para buscar informações do autor
-        return f"Ainda estou aprendendo sobre {autor}. Em breve poderei fornecer informações mais detalhadas sobre autores."
+        except Exception as e:
+            logger.error(f"Erro ao processar mensagem: {str(e)}")
+            return "Desculpe, estou enfrentando algumas dificuldades no momento. Poderia tentar novamente mais tarde?", "error"
 
-    def _handle_navegacao(self, entities, user):
-        """Manipula perguntas sobre navegação no site."""
-        if not entities:
-            return "O que você está procurando no site?"
+    def _handle_intent(self, intent, message, user):
+        """
+        Trata intenções específicas com respostas predefinidas.
 
-        busca = entities[0].strip().lower()
+        Args:
+            intent (str): Intenção detectada
+            message (str): Mensagem do usuário
+            user (User): Usuário que enviou a mensagem
 
-        # Mapeamento de termos comuns para páginas no site
-        navegacao = {
-            'favoritos': "Seus livros favoritos podem ser encontrados na sua página de perfil. Basta acessar 'Perfil' no menu superior.",
-            'prateleira': "Suas prateleiras de livros estão na página de perfil, organizadas em 'Favoritos', 'Lendo', 'Quero Ler' e 'Lidos'.",
-            'lendo': "Os livros que você está lendo atualmente estão na prateleira 'Lendo' em seu perfil.",
-            'perfil': "Você pode acessar seu perfil clicando em seu nome/avatar no canto superior direito do site.",
-            'busca': "Para buscar livros, use a barra de pesquisa no topo do site ou acesse 'Livros > Buscar' no menu principal.",
-            'recomendações': "Você pode ver recomendações personalizadas na página inicial ou em 'Livros > Recomendados' no menu principal.",
-            'configurações': "As configurações da sua conta podem ser acessadas através do menu no seu perfil, clicando em 'Editar Perfil'."
+        Returns:
+            str: Resposta para a intenção específica ou None
+        """
+        responses = {
+            'saudacao': [
+                f"Olá! Em que posso ajudar hoje?",
+                f"Oi! Como posso ser útil para você?",
+                f"Olá! Estou aqui para ajudar com suas dúvidas sobre livros e navegação no site."
+            ],
+            'despedida': [
+                "Até mais! Foi um prazer ajudar.",
+                "Tchau! Volte sempre que precisar.",
+                "Até a próxima! Boa leitura!"
+            ],
+            'agradecimento': [
+                "De nada! Estou sempre à disposição.",
+                "Por nada! É um prazer ajudar.",
+                "Disponha! Estou aqui para isso."
+            ],
+            'ajuda': [
+                "Estou aqui para ajudar com suas dúvidas sobre livros, autores e como navegar no site. Você pode me perguntar sobre recomendações de leitura, informações sobre obras ou autores, ou como encontrar funcionalidades específicas no site.",
+                "Posso ajudar com informações sobre livros, autores e navegação no site. Experimente perguntar sobre um livro específico, solicitar recomendações ou pedir ajuda para encontrar algo no site."
+            ]
         }
 
-        # Verificar correspondências parciais
-        for termo, resposta in navegacao.items():
-            if termo in busca or busca in termo:
-                return resposta
+        if intent in responses:
+            return random.choice(responses[intent])
 
-        return f"Não tenho certeza sobre onde encontrar '{busca}'. Você pode tentar usar a barra de pesquisa no topo do site ou navegar pelo menu principal."
+        return None
 
-    def _handle_saudacao(self, entities, user):
-        """Manipula saudações."""
-        if user and hasattr(user, 'first_name') and user.first_name:
-            return f"Olá, {user.first_name}! Sou o assistente literário da CG.BookStore. Como posso ajudar você hoje? Posso recomendar livros, falar sobre autores ou ajudar a navegar no site."
-        else:
-            return "Olá! Sou o assistente literário da CG.BookStore. Como posso ajudar você hoje? Posso recomendar livros, falar sobre autores ou ajudar a navegar no site."
+    def _get_fallback_response(self, intent):
+        """
+        Retorna uma resposta genérica quando não há correspondência na base de conhecimento.
 
-    def _handle_agradecimento(self, entities, user):
-        """Manipula agradecimentos."""
-        return "De nada! Estou sempre à disposição para ajudar com suas necessidades literárias. Mais alguma coisa em que eu possa ajudar?"
+        Args:
+            intent (str): Intenção detectada (se houver)
 
-    def _handle_ajuda(self, entities, user):
-        """Manipula pedidos de ajuda."""
-        return """Posso ajudar você de várias formas:
+        Returns:
+            str: Resposta genérica
+        """
+        fallbacks = [
+            "Não tenho certeza sobre isso. Poderia reformular sua pergunta?",
+            "Hmm, ainda estou aprendendo sobre esse assunto. Poderia perguntar de outra forma?",
+            "Não encontrei uma resposta específica para isso. Posso ajudar com informações sobre livros, autores ou navegação no site.",
+            "Não tenho essa informação no momento. Posso ajudar com algo mais relacionado à literatura ou ao uso do site?"
+        ]
 
-1. Recomendar livros por gênero (ex: "recomende livros de fantasia")
-2. Informar sobre funcionalidades do site (ex: "onde encontro meus favoritos?")
-3. Em breve poderei fornecer sinopses e informações sobre autores
-
-Como posso ajudar você hoje?"""
-
-    def _adapt_response_to_literary_context(self, input_text, response):
-        """Adapta a resposta do modelo para o contexto literário."""
-        # Palavras-chave relacionadas a literatura
-        book_keywords = ['livro', 'autor', 'literatura', 'ler', 'leitura', 'história', 'romance', 'poesia']
-
-        # Verificar se a resposta já está no contexto literário
-        is_already_literary = any(keyword in response.lower() for keyword in book_keywords)
-
-        if not is_already_literary and any(keyword in input_text.lower() for keyword in book_keywords):
-            literary_phrases = [
-                "Como amante de literatura, ",
-                "Falando de livros, ",
-                "No mundo da literatura, ",
-                "Como seu assistente literário, ",
-                "Para quem aprecia bons livros, "
-            ]
-
-            import random
-            prefix = random.choice(literary_phrases)
-            first_letter = response[0].lower()
-            rest = response[1:] if len(response) > 1 else ""
-
-            return prefix + first_letter + rest
-
-        return response
+        return random.choice(fallbacks)
 
 
-# Instância singleton para uso no aplicativo
+# Instância singleton do serviço
 chatbot = ChatbotService()

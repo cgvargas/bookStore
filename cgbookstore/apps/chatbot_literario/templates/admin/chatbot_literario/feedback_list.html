@@ -1,0 +1,105 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+    .feedback-list {
+        margin-top: 20px;
+    }
+    .feedback-item {
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: #1E1E2D;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .feedback-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #2A2A3A;
+    }
+    .feedback-status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+        display: inline-block;
+    }
+    .feedback-positive {
+        background-color: #28a745;
+        color: white;
+    }
+    .feedback-negative {
+        background-color: #dc3545;
+        color: white;
+    }
+    .feedback-date {
+        color: #aaa;
+    }
+    .feedback-comment {
+        padding: 10px;
+        background-color: #121212;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    .message-content {
+        padding: 10px;
+        background-color: #2B2B40;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .empty-list {
+        text-align: center;
+        padding: 30px;
+        color: #aaa;
+    }
+    .title-section {
+        background: linear-gradient(135deg, #1A1A2E, #121212);
+        color: white;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="title-section">
+    <h1>{{ title }}</h1>
+</div>
+
+<div class="feedback-list">
+    {% if feedbacks %}
+        {% for feedback in feedbacks %}
+            <div class="feedback-item">
+                <div class="feedback-header">
+                    <div>
+                        <span class="feedback-status {% if feedback.helpful %}feedback-positive{% else %}feedback-negative{% endif %}">
+                            {% if feedback.helpful %}Útil{% else %}Não útil{% endif %}
+                        </span>
+                    </div>
+                    <div class="feedback-date">
+                        {{ feedback.timestamp|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+                
+                <div class="message-content">
+                    <strong>Mensagem:</strong> {{ feedback.message.content }}
+                </div>
+                
+                {% if feedback.comment %}
+                    <div class="feedback-comment">
+                        <strong>Comentário:</strong> {{ feedback.comment }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-list">
+            <h3>Nenhum feedback encontrado</h3>
+            <p>Não há feedbacks registrados no sistema.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

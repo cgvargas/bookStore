@@ -1948,20 +1948,23 @@ html .book-card .book-author {
 }
 
 .nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background-color: var(--primary-color);
-    transition: all var(--transition-default);
-    transform: translateX(-50%);
+    content: none; /* Alterado de '' para none */
 }
 
 .nav-link:hover::after,
 .nav-link.active::after {
-    width: 100%;
+    width: 0; /* Alterado de 100% para 0 */
+}
+
+/* Garante que os links ativos mantenham a cor laranja */
+.nav-link.active,
+.nav-link:hover {
+    color: var(--primary-color) !important; /* Usa a cor primária (laranja) e sobrescreve outros estilos */
+}
+
+/* Ajuste específico para modo claro */
+.light-mode .navbar-nav .nav-link.active {
+    color: var(--primary-color) !important; /* Garante a cor laranja no modo claro */
 }
 
 /* Linha decorativa

@@ -1,7 +1,5 @@
 {% load static %}
 
-{% load static %}
-
 <section class="author-section bg-light py-5 my-4 rounded shadow-sm">
     <div class="container">
         <div class="section-header mb-4 text-center">
@@ -15,48 +13,25 @@
             </div>
             {% endif %}
         </div>
-
         <div class="row">
             {% for author in authors %}
             <div class="col-md-3 mb-4">
-                <div class="author-card card h-100 border shadow-sm">
-                    <div class="author-image text-center p-3">
-                        {% if author.foto %}
-                        <img src="{{ author.foto.url }}" alt="{{ author.get_nome_completo }}"
-                             class="rounded-circle img-fluid" style="max-width: 150px; height: 150px; object-fit: cover;">
-                        {% else %}
-                        <div class="author-placeholder rounded-circle mx-auto d-flex align-items-center justify-content-center bg-secondary text-white" style="width: 150px; height: 150px;">
-                            <span style="font-size: 3rem;">{{ author.nome|first }}</span>
+                <a href="{% url 'authors:author-detail' author.slug %}" class="text-decoration-none">
+                    <div class="author-card card h-100 border shadow-sm hover-effect">
+                        <div class="author-image text-center p-3">
+                            {% if author.foto %}
+                            <img src="{{ author.foto.url }}" alt="{{ author.get_nome_completo }}"
+                                 class="rounded-circle img-fluid" style="max-width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                            <div class="author-placeholder rounded-circle mx-auto d-flex align-items-center justify-content-center bg-secondary text-white" style="width: 150px; height: 150px;">
+                                <span style="font-size: 3rem;">{{ author.nome|first }}</span>
+                            </div>
+                            {% endif %}
+                            <h5 class="card-title mt-3 text-dark">{{ author.get_nome_completo }}</h5>
+                            <p class="card-text text-muted">{{ author.biografia|truncatechars:100 }}</p>
                         </div>
-                        {% endif %}
-
-                        <!-- Conteúdo movido do card-body para dentro do author-image -->
-                        <h5 class="card-title mt-3">{{ author.get_nome_completo }}</h5>
-                        <p class="card-text text-muted">{{ author.biografia|truncatechars:100 }}</p>
-                        {% if author.twitter or author.instagram or author.facebook %}
-                        <div class="author-social mt-3">
-                            {% if author.twitter %}
-                            <a href="https://twitter.com/{{ author.twitter }}" class="btn btn-sm btn-outline-secondary mx-1" target="_blank">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            {% endif %}
-
-                            {% if author.instagram %}
-                            <a href="https://instagram.com/{{ author.instagram }}" class="btn btn-sm btn-outline-secondary mx-1" target="_blank">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            {% endif %}
-
-                            {% if author.facebook %}
-                            <a href="https://facebook.com/{{ author.facebook }}" class="btn btn-sm btn-outline-secondary mx-1" target="_blank">
-                                <i class="fab fa-facebook"></i>
-                            </a>
-                            {% endif %}
-                        </div>
-                        {% endif %}
                     </div>
-                    <!-- O div card-body foi removido e seu conteúdo movido para dentro do author-image -->
-                </div>
+                </a>
             </div>
             {% empty %}
             <div class="col-12 text-center py-5">
@@ -66,3 +41,12 @@
         </div>
     </div>
 </section>
+<style>
+    .hover-effect {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>

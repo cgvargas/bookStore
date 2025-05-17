@@ -1,0 +1,164 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}{{ author.get_nome_completo }} - Detalhes do Autor{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Informações do autor -->
+        <div class="col-md-4 mb-4">
+            <div class="author-profile card border shadow-sm">
+                <div class="card-body text-center p-4">
+                    {% if author.foto %}
+                    <img src="{{ author.foto.url }}" alt="{{ author.get_nome_completo }}"
+                         class="rounded-circle img-fluid mb-3" style="max-width: 200px; height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="author-placeholder rounded-circle mx-auto d-flex align-items-center justify-content-center bg-secondary text-white mb-3" style="width: 200px; height: 200px;">
+                        <span style="font-size: 4rem;">{{ author.nome|first }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <h1 class="h3 card-title">{{ author.get_nome_completo }}</h1>
+                    
+                    {% if author.nacionalidade %}
+                    <p class="text-muted mb-2">{{ author.nacionalidade }}</p>
+                    {% endif %}
+                    
+                    {% if author.data_nascimento %}
+                    <p class="text-muted mb-3">Nascimento: {{ author.data_nascimento|date:"d/m/Y" }}</p>
+                    {% endif %}
+                    
+                    {% if author.twitter or author.instagram or author.facebook or author.website %}
+                    <div class="author-social mt-3 mb-3 d-flex justify-content-center">
+                        {% if author.website %}
+                        <a href="{{ author.website }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Website do autor" style="width: 32px; height: 32px;">
+                            {% if "wikipedia" in author.website %}
+                                <span class="text-center">W</span>
+                            {% elif "medium" in author.website %}
+                                <span class="text-center">M</span>
+                            {% elif "linkedin" in author.website %}
+                                <span class="text-center">Li</span>
+                            {% elif "github" in author.website %}
+                                <span class="text-center">Git</span>
+                            {% elif "youtube" in author.website or "youtu.be" in author.website %}
+                                <span class="text-center">YT</span>
+                            {% elif "goodreads" in author.website %}
+                                <span class="text-center">GR</span>
+                            {% else %}
+                                <span class="text-center">Web</span>
+                            {% endif %}
+                        </a>
+                        {% endif %}
+
+                        {% if author.twitter %}
+                        <a href="https://twitter.com/{{ author.twitter }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Twitter" style="width: 32px; height: 32px;">
+                            <span class="text-center">T</span>
+                        </a>
+                        {% endif %}
+
+                        {% if author.instagram %}
+                        <a href="https://instagram.com/{{ author.instagram }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Instagram" style="width: 32px; height: 32px;">
+                            <span class="text-center">IG</span>
+                        </a>
+                        {% endif %}
+
+                        {% if author.facebook %}
+                        <a href="https://facebook.com/{{ author.facebook }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Facebook" style="width: 32px; height: 32px;">
+                            <span class="text-center">FB</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="book-count mt-2">
+                        <span class="badge bg-primary">{{ author.get_livros_count }} livro(s)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Biografia e livros -->
+        <div class="col-md-8">
+            <!-- Biografia -->
+            <div class="author-bio card border shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h2 class="h4 mb-0">Biografia</h2>
+                </div>
+                <div class="card-body">
+                    {% if author.biografia %}
+                    <div class="biography">
+                        {{ author.biografia|linebreaks }}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">Biografia não disponível.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Livros do autor -->
+            <div class="author-books card border shadow-sm">
+                <div class="card-header bg-light">
+                    <h2 class="h4 mb-0">Livros de {{ author.nome }}</h2>
+                </div>
+                <div class="card-body">
+                    {% if livros %}
+                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                        {% for livro in livros %}
+                        <div class="col">
+                            <div class="book-card card h-100 border shadow-sm">
+                                <a href="{% url 'core:book-detail' livro.slug %}" class="text-decoration-none">
+                                    <div class="book-cover-container text-center p-2">
+                                        {% if livro.capa %}
+                                        <img src="{{ livro.capa.url }}" alt="{{ livro.titulo }}" class="img-fluid book-cover">
+                                        {% else %}
+                                        <img src="{% static 'images/no-cover.svg' %}" alt="Sem capa" class="img-fluid book-cover">
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title text-truncate">{{ livro.titulo }}</h5>
+                                        {% if livro.ano_publicacao %}
+                                        <p class="card-text text-muted small mb-1">{{ livro.ano_publicacao }}</p>
+                                        {% endif %}
+                                        {% if livro.categorias.all %}
+                                        <div class="categories mt-2">
+                                            {% for categoria in livro.categorias.all|slice:":2" %}
+                                            <span class="badge bg-secondary">{{ categoria.nome }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">Nenhum livro cadastrado para este autor.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botão de voltar -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{% url 'authors:author-list' %}" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center">
+                <i class="fas fa-arrow-left me-2"></i>Lista de autores
+            </a>
+        </div>
+    </div>
+</div>
+<style>
+    .fallback-icon {
+        display: none;
+    }
+    /* Se o ícone não aparecer, mostra o texto alternativo */
+    .fab:empty + .fallback-icon,
+    .fas:empty + .fallback-icon {
+        display: inline;
+    }
+</style>
+{% endblock %}

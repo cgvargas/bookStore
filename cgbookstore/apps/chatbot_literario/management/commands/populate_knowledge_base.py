@@ -49,14 +49,14 @@ class Command(BaseCommand):
         if options['json']:
             self._process_json(options['json'])
 
-        # Salva tudo
-        training_service.save_data()
+        # Remover chamada ao método save_data que não existe
+        # training_service.save_data()
 
         # Exibe estatísticas
         stats = training_service.generate_training_statistics()
         self.stdout.write(self.style.SUCCESS(f"Base de conhecimento populada com sucesso!"))
-        self.stdout.write(f"Total de itens: {stats['total_knowledge_items']}")
-        self.stdout.write(f"Categorias: {stats['knowledge_categories']}")
+        self.stdout.write(f"Total de itens: {stats.get('total_knowledge', 0)}")
+        self.stdout.write(f"Categorias: {', '.join([c.get('category', '') for c in stats.get('categories', [])])}")
 
     def _populate_from_books(self):
         """Popula a base de conhecimento com informações dos livros no sistema."""

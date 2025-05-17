@@ -28,8 +28,10 @@ class GoogleBooksCache:
 
     def __init__(self, namespace="google_books", timeout=None):
         """Inicializa o cache com configurações personalizáveis"""
-        self._cache = caches['default']
+        self._cache = caches['google_books']  # Usar o cache específico
+        # Namespace para isolamento adicional dentro do cache
         self.NAMESPACE = namespace
+        # Timeout padrão para compatibilidade, mas não usado ativamente
         self.DEFAULT_TIMEOUT = timeout or CACHE_TIMEOUT
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
@@ -49,18 +51,15 @@ class GoogleBooksCache:
         return None
 
     def set(self, key: str, data: Any, timeout: int = None) -> None:
-        """Armazena dados no cache"""
-        if timeout is None:
-            timeout = self.DEFAULT_TIMEOUT
-
+        """Armazena dados no cache - timeout ignorado pois já é configurado globalmente"""
         cache_key = self._get_full_key(key)
 
         try:
             if isinstance(data, (dict, list)):
                 data_str = json.dumps(data)
-                self._cache.set(cache_key, data_str, timeout)
+                self._cache.set(cache_key, data_str)  # Timeout gerenciado pela configuração global
             else:
-                self._cache.set(cache_key, data, timeout)
+                self._cache.set(cache_key, data)  # Timeout gerenciado pela configuração global
         except Exception as e:
             logger.error(f"Erro ao armazenar dados no cache: {str(e)}")
 
@@ -70,7 +69,7 @@ class GoogleBooksCache:
         self._cache.delete(cache_key)
 
     def _get_full_key(self, key: str) -> str:
-        """Gera chave completa com namespace"""
+        """Gera chave completa com namespace usando MD5 para maior consistência"""
         # Sanitizar a chave para evitar problemas com caracteres especiais
         safe_key = hashlib.md5(key.encode('utf-8')).hexdigest()
         return f"{self.NAMESPACE}:{safe_key}"
@@ -98,13 +97,16 @@ class GoogleBooksClient:
         self.base_url = "https://www.googleapis.com/books/v1"
         self.api_key = getattr(settings, 'GOOGLE_BOOKS_API_KEY', None)
 
-        # Permitir namespaces diferentes para isolamento de cache entre módulos
-        self.cache = GoogleBooksCache(
-            namespace=cache_namespace or "google_books",
-            timeout=CACHE_TIMEOUT
-        )
+        # Identificar o contexto para usar o cache correto
+        if context == "search":
+            # Para buscas, usar o cache books_search que tem timeout de 2 horas
+            cache_ns = "books_search"
+            self.cache = GoogleBooksCache(namespace=cache_ns)
+        else:
+            # Para recomendações ou contexto geral, usar google_books com timeout maior
+            self.cache = GoogleBooksCache(namespace=cache_namespace or "google_books")
 
-        self.default_timeout = 5  # timeout em segundos
+        self.default_timeout = 5  # timeout em segundos para requisições HTTP
         self.context = context or "general"
         self.max_start_index = 1000  # Limite máximo suportado pela API Google Books
         logger.info(f"GoogleBooksClient inicializado para contexto: {self.context}")
@@ -192,7 +194,7 @@ class GoogleBooksClient:
                     'has_next': False,
                     'error': 'Nenhum livro encontrado para esta busca.'
                 }
-                self.cache.set(cache_key, result, timeout=SEARCH_CACHE_TIMEOUT)
+                self.cache.set(cache_key, result)
                 return result
 
             # Se esta página específica não tem resultados mas total_items > 0

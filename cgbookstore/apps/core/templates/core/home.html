@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{% static 'css/custom_sections.css' %}">
 <link rel="stylesheet" href="{% static 'css/weather_widget.css' %}">
 <link rel="stylesheet" href="{% static 'css/video-section.css' %}">
+<link rel="stylesheet" href="{% static 'css/author-section.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/ranking.css' %}">
@@ -365,6 +366,57 @@ document.addEventListener('DOMContentLoaded', function() {
                     spaceBetween: 30,
                 },
             }
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar efeito hover via JavaScript como fallback
+    const authorCards = document.querySelectorAll('.author-section .author-card, .author-section .card');
+
+    authorCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = 'rgba(80, 80, 80, 0.5)';
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+            this.style.transform = '';
+            this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        });
+    });
+});
+</script>
+
+<script>
+// Garantir comportamento consistente de hover em cards de ranking
+document.addEventListener('DOMContentLoaded', function() {
+    const rankingCards = document.querySelectorAll('.ranking-card, .card.shadow.h-100.border-0.ranking-card, .reader-ranking-section .d-flex.align-items-center.justify-content-between.bg-white');
+
+    rankingCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = 'rgba(80, 80, 80, 0.5)';
+            this.style.transform = this.classList.contains('d-flex') ? 'translateY(-5px)' : 'translateY(-10px)';
+            this.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.3)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            // Verifica se é o primeiro card (destacado)
+            const isFirstCard = this.closest('.col-md-4') && (this.closest('.col-md-4').parentElement.firstElementChild === this.closest('.col-md-4'));
+
+            if (isFirstCard) {
+                this.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+                this.style.transform = 'scale(1.05)';
+            } else {
+                this.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+                this.style.transform = '';
+            }
+
+            this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
         });
     });
 });

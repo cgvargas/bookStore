@@ -32,11 +32,10 @@ from ..forms import UserRegistrationForm
 from django.utils import timezone
 from ..models.banner import Banner
 from ..models.book import Book
-from ..models.home_content import HomeSection, VideoSection, CustomSection, EventItem
+from ..models.home_content import HomeSection, EventItem
 from ..recommendations.engine import RecommendationEngine
 from ..models.home_content import DefaultShelfType
-from ..services.google_books_client import GoogleBooksClient
-from cgbookstore.apps.core.models.book import UserBookShelf
+from ..services.google_books_service import GoogleBooksClient
 
 # Configuração de logger para rastreamento de eventos
 logger = logging.getLogger(__name__)

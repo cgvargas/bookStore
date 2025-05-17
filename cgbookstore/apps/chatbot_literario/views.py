@@ -1,159 +1,174 @@
+import json
+import traceback
+import logging
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-import logging
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.conf import settings
 
-from .models import Conversation, Message
+from .models import Conversation, Message, ConversationFeedback
 from .services.chatbot_service import chatbot
-from .services.training_service import training_service
 
 logger = logging.getLogger(__name__)
+
+# Cache de transações recentes para evitar duplicações
+recent_transactions = {}
 
 
 @login_required
 def chatbot_view(request):
     """Renderiza a página principal do chatbot."""
-    # Obter ou criar uma conversa para o usuário
+    # Obter ou criar conversa para o usuário atual
     conversation, created = Conversation.objects.get_or_create(
         user=request.user,
-        defaults={'user': request.user}
+        defaults={'started_at': timezone.now()}
     )
 
-    # Obter histórico de mensagens
-    messages = conversation.messages.all()
+    # Obter mensagens da conversa
+    messages = Message.objects.filter(conversation=conversation)
 
-    context = {
-        'conversation': conversation,
-        'messages': messages,
-    }
-
-    return render(request, 'chatbot_literario/chat.html', context)
+    return render(request, 'chatbot_literario/chat.html', {
+        'messages': messages
+    })
 
 
-@login_required
 def chatbot_widget(request):
-    """Renderiza apenas o widget do chatbot para inclusão em outras páginas."""
-    # Obter ou criar uma conversa para o usuário
-    conversation, created = Conversation.objects.get_or_create(
-        user=request.user,
-        defaults={'user': request.user}
-    )
+    """Renderiza o widget do chatbot."""
+    # Se o usuário estiver autenticado, obter mensagens da conversa
+    messages = []
+    if request.user.is_authenticated:
+        conversation, created = Conversation.objects.get_or_create(
+            user=request.user,
+            defaults={'started_at': timezone.now()}
+        )
+        messages = Message.objects.filter(conversation=conversation)
 
-    # Obter histórico recente limitado
-    messages = conversation.messages.all()[:10]
-
-    context = {
-        'conversation': conversation,
-        'messages': messages,
-    }
-
-    return render(request, 'chatbot_literario/widget.html', context)
+    return render(request, 'chatbot_literario/widget.html', {
+        'messages': messages
+    })
 
 
-@login_required
 @csrf_exempt
 def chatbot_message(request):
-    """Endpoint para receber e processar mensagens do chatbot."""
+    """
+    Endpoint para processamento de mensagens do chatbot.
+    Recebe mensagem do usuário e retorna resposta.
+    """
     if request.method != 'POST':
         return JsonResponse({'error': 'Método não permitido'}, status=405)
 
     try:
-        # Carregar dados do corpo da requisição
+        # Obter dados da requisição
         data = json.loads(request.body)
-        user_message = data.get('message', '').strip()
+        message_text = data.get('message', '').strip()
+        transaction_id = data.get('transaction_id', '')
 
-        if not user_message:
+        # Verificar se é uma mensagem vazia
+        if not message_text:
             return JsonResponse({'error': 'Mensagem vazia'}, status=400)
 
-        # Obter ou criar conversa para o usuário
-        conversation, created = Conversation.objects.get_or_create(
-            user=request.user,
-            defaults={'user': request.user}
-        )
+        # Verificar por mensagens duplicadas (proteção contra cliques duplos)
+        if transaction_id and transaction_id in recent_transactions:
+            logger.warning(f"Mensagem duplicada detectada: {message_text[:20]}...")
+            return JsonResponse({'error': 'Mensagem duplicada'}, status=409)
 
-        # Salvar mensagem do usuário
-        Message.objects.create(
-            conversation=conversation,
-            sender='user',
-            content=user_message
-        )
+        # Armazenar transação recente
+        if transaction_id:
+            recent_transactions[transaction_id] = True
+            # Limitar tamanho do cache
+            if len(recent_transactions) > 100:
+                # Remover itens mais antigos
+                keys = list(recent_transactions.keys())
+                for key in keys[:50]:
+                    recent_transactions.pop(key, None)
 
-        # Respostas diretas para botões de sugestão
-        if user_message.lower() == "recomende livros":
-            bot_response = "Com base em nosso catálogo, posso recomendar alguns livros populares: 'O Hobbit' para fantasia, '1984' para ficção distópica, 'O Nome do Vento' para fantasia épica, e 'Orgulho e Preconceito' para clássicos. Qual gênero te interessa mais?"
-        elif user_message.lower() == "como funciona?":
-            bot_response = "Sou um assistente literário projetado para ajudar com recomendações de livros, informações sobre autores e navegação no site. Você pode me perguntar sobre gêneros literários, encontrar funcionalidades específicas no site, ou obter sugestões personalizadas."
-        elif user_message.lower() == "meus favoritos":
-            bot_response = "Seus livros favoritos podem ser encontrados na sua página de perfil. Basta clicar em 'Perfil' no menu superior e você verá a seção 'Favoritos' com todos os livros que você marcou."
-        else:
-            # Processar a mensagem do usuário
-            try:
-                # Verificar base de conhecimento primeiro - ABORDAGEM SEGURA SEM VERIFICAR 'initialized'
-                knowledge_results = []
-                try:
-                    # Usar try-except em vez de verificar o atributo
-                    knowledge_results = training_service.search_knowledge_base(user_message)
-                except Exception as e:
-                    logger.error(f"Erro ao buscar na base de conhecimento: {str(e)}")
-                    knowledge_results = []
+        # Obter usuário (autenticado ou anônimo)
+        user = request.user if request.user.is_authenticated else None
 
-                # Se encontrou resultados relevantes na base de conhecimento
-                if knowledge_results and len(knowledge_results) > 0 and knowledge_results[0][1] > 0.7:
-                    bot_response = knowledge_results[0][0]['answer']
-                    logger.info(f"Resposta da base de conhecimento para: {user_message}")
-                else:
-                    # Caso contrário, usar o modelo DialoGPT
-                    bot_response, _ = chatbot.get_response(user_message, user=request.user)
-                    logger.info(f"Resposta do modelo para: {user_message}")
+        # Obter ou criar conversa
+        conversation = None
+        if user:
+            conversation, created = Conversation.objects.get_or_create(
+                user=user,
+                defaults={'started_at': timezone.now()}
+            )
+            # Atualizar timestamp da conversa
+            if not created:
+                conversation.updated_at = timezone.now()
+                conversation.save()
 
-            except Exception as e:
-                logger.error(f"Erro ao processar mensagem: {str(e)}")
-                # Resposta de fallback em caso de erro
-                bot_response = "Desculpe, estou enfrentando algumas dificuldades no momento. Poderia tentar novamente mais tarde?"
+        # Adicionar mensagem do usuário ao banco de dados
+        user_message = None
+        if conversation:
+            user_message = Message.objects.create(
+                conversation=conversation,
+                sender='user',
+                content=message_text
+            )
 
-        # Salvar resposta do chatbot
-        bot_message = Message.objects.create(
-            conversation=conversation,
-            sender='bot',
-            content=bot_response
-        )
+        # ADICIONAR DEBUG AQUI - Print detalhado das estruturas
+        print("\n==== DEBUG: Processamento de Mensagem ====")
+        print(f"Mensagem do usuário: {message_text}")
 
-        # Tentar registrar a conversa para treinamento futuro - ABORDAGEM SEGURA
+        # Obter resposta do chatbot
         try:
-            # Usar try-except em vez de verificar o atributo
-            training_service.add_conversation(user_message, bot_response)
+            response_text, source = chatbot.get_response(message_text, user=user)
+
+            print(f"Resposta obtida do chatbot: {response_text}")
+            print(f"Fonte da resposta: {source}")
+
         except Exception as e:
-            logger.error(f"Erro ao registrar conversa: {str(e)}")
+            print(f"ERRO DETALHADO na chamada do chatbot: {e}")
+            print(f"Traceback: {traceback.format_exc()}")
+            raise
 
-        # Formatar horário corretamente para a resposta
-        formatted_time = bot_message.timestamp.strftime('%H:%M')
+        # Adicionar resposta do bot ao banco de dados
+        bot_message = None
+        if conversation:
+            bot_message = Message.objects.create(
+                conversation=conversation,
+                sender='bot',
+                content=response_text
+            )
 
-        return JsonResponse({
-            'response': bot_response,
-            'timestamp': formatted_time,
-            'message_id': bot_message.id
-        })
+        # Formatar resposta para o frontend
+        response_data = {
+            'response': response_text,
+            'timestamp': timezone.now().strftime('%H:%M')
+        }
 
+        # Adicionar ID da mensagem para feedback (se disponível)
+        if bot_message:
+            response_data['message_id'] = bot_message.id
+
+        return JsonResponse(response_data)
+
+    except json.JSONDecodeError:
+        logger.error("Erro ao decodificar JSON da requisição")
+        return JsonResponse({'error': 'Formato de requisição inválido'}, status=400)
     except Exception as e:
         logger.error(f"Erro ao processar mensagem: {str(e)}")
         return JsonResponse({'error': 'Erro interno do servidor'}, status=500)
 
 
-@login_required
 @csrf_exempt
 def chatbot_feedback(request):
-    """Endpoint para receber feedback sobre respostas do chatbot."""
+    """
+    Endpoint para receber feedback sobre respostas do chatbot.
+    """
     if request.method != 'POST':
         return JsonResponse({'error': 'Método não permitido'}, status=405)
 
     try:
+        # Obter dados da requisição
         data = json.loads(request.body)
         message_id = data.get('message_id')
         helpful = data.get('helpful', False)
         comment = data.get('comment', '')
 
+        # Verificar se message_id foi fornecido
         if not message_id:
             return JsonResponse({'error': 'ID da mensagem não fornecido'}, status=400)
 
@@ -163,43 +178,26 @@ def chatbot_feedback(request):
         except Message.DoesNotExist:
             return JsonResponse({'error': 'Mensagem não encontrada'}, status=404)
 
-        # Verificar se o usuário tem acesso à conversa
-        if message.conversation.user != request.user:
-            return JsonResponse({'error': 'Acesso negado'}, status=403)
-
-        # Obter mensagem anterior do usuário
-        try:
-            user_message = Message.objects.filter(
-                conversation=message.conversation,
-                sender='user',
-                timestamp__lt=message.timestamp
-            ).latest('timestamp')
-
-            # Adicionar feedback ao serviço de treinamento
-            feedback_data = {
+        # Verificar se já existe feedback para esta mensagem
+        feedback, created = ConversationFeedback.objects.get_or_create(
+            message=message,
+            defaults={
                 'helpful': helpful,
                 'comment': comment
             }
+        )
 
-            # Tentar registrar o feedback
-            try:
-                if hasattr(training_service, 'conversation_data'):
-                    # Localizar a conversa nos dados de treinamento
-                    for i, conv in enumerate(training_service.conversation_data):
-                        if (conv.get('user_input') == user_message.content and
-                                conv.get('bot_response') == message.content):
-                            if hasattr(training_service, 'add_feedback'):
-                                training_service.add_feedback(i, feedback_data)
-                            break
-            except Exception as e:
-                logger.error(f"Erro ao salvar feedback: {str(e)}")
+        # Se feedback já existia, atualizar
+        if not created:
+            feedback.helpful = helpful
+            feedback.comment = comment
+            feedback.save()
 
-            return JsonResponse({'success': True})
+        return JsonResponse({'success': True})
 
-        except Exception as e:
-            logger.error(f"Erro ao processar feedback: {str(e)}")
-            return JsonResponse({'error': 'Erro ao processar feedback'}, status=500)
-
+    except json.JSONDecodeError:
+        logger.error("Erro ao decodificar JSON da requisição de feedback")
+        return JsonResponse({'error': 'Formato de requisição inválido'}, status=400)
     except Exception as e:
         logger.error(f"Erro ao processar feedback: {str(e)}")
         return JsonResponse({'error': 'Erro interno do servidor'}, status=500)

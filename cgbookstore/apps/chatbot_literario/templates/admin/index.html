@@ -1,0 +1,269 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}">
+<style>
+    /* Estilos para as seções principais */
+    .custom-section {
+        margin-bottom: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Cabeçalhos de seção */
+    .section-header {
+        background: linear-gradient(135deg, #1A1A2E, #121212);
+        color: white;
+        padding: 15px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Corpo da seção */
+    .section-body {
+        padding: 15px;
+        background-color: #1E1E2D;
+        border: 1px solid #2A2A3A;
+        border-top: none;
+        color: #e0e0e0;
+    }
+
+    /* Lista de modelos */
+    .model-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* Item do modelo */
+    .model-item {
+        padding: 12px 15px;
+        border-bottom: 1px solid #2A2A3A;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .model-item:last-child {
+        border-bottom: none;
+    }
+
+    /* Nome do app */
+    .app-name {
+        font-weight: 600;
+        margin: 10px 0;
+        padding: 10px 15px;
+        background-color: #121212;
+        border-radius: 5px;
+        color: #e0e0e0;
+    }
+
+    /* Link para modelo */
+    .model-link {
+        color: #e0e0e0 !important;
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .model-link:hover {
+        color: #ffffff !important;
+        text-decoration: none;
+    }
+
+    /* Botões de ação */
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Botão Adicionar */
+    .addlink {
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #2B2B40;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .addlink:hover {
+        background-color: #3E3E5A;
+        text-decoration: none;
+    }
+
+    /* Botão Modificar */
+    .changelink {
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #f0ad4e;
+        color: #121212 !important;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .changelink:hover {
+        background-color: #f8c980;
+        text-decoration: none;
+    }
+
+    /* Link do chatbot */
+    .chatbot-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid #2A2A3A;
+    }
+
+    .chatbot-link:last-child {
+        border-bottom: none;
+    }
+
+    .chatbot-link i {
+        margin-right: 10px;
+        font-size: 1.2em;
+        color: #e0e0e0;
+    }
+
+    .chatbot-link a {
+        color: #e0e0e0 !important;
+        font-weight: 500;
+    }
+
+    .chatbot-link a:hover {
+        color: #ffffff !important;
+        text-decoration: none;
+    }
+
+    /* Linhas alternadas */
+    .model-item:nth-child(odd) {
+        background-color: #121212;
+    }
+
+    .model-item:nth-child(even) {
+        background-color: #1E1E2D;
+    }
+</style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <!-- Seção 1: Chatbot Literário -->
+    {% if chatbot_links %}
+    <div class="custom-section chatbot-section">
+        <div class="section-header">
+            CHATBOT LITERÁRIO
+        </div>
+        <div class="section-body">
+            {% for link in chatbot_links %}
+            <div class="chatbot-link">
+                <i class="{{ link.icon }}"></i>
+                <a href="{{ link.url }}">{{ link.name }}</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Seção 2: AUTENTICAÇÃO E AUTORIZAÇÃO -->
+    <div class="custom-section auth-section">
+        <div class="section-header">
+            AUTENTICAÇÃO E AUTORIZAÇÃO
+        </div>
+        <div class="section-body">
+            {% for app in app_list %}
+                {% if app.name == 'Authentication and Authorization' or app.name == 'Autenticação e autorização' or app.app_label == 'auth' %}
+                    <div class="app-name">{{ app.name }}</div>
+                    <ul class="model-list">
+                        {% for model in app.models %}
+                        <li class="model-item">
+                            <a href="{{ model.admin_url }}" class="model-link">{{ model.name }}</a>
+                            <div class="action-buttons">
+                                {% if model.add_url %}
+                                <a href="{{ model.add_url }}" class="addlink">ADICIONAR</a>
+                                {% endif %}
+                                {% if model.admin_url %}
+                                <a href="{{ model.admin_url }}" class="changelink">MODIFICAR</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Seção 3: ORGANIZAÇÃO -->
+    <div class="custom-section org-section">
+        <div class="section-header">
+            ORGANIZAÇÃO
+        </div>
+        <div class="section-body">
+            {% for app in app_list %}
+                {% if app.name == 'Core' or app.name == 'Organizador' %}
+                    <div class="app-name">{{ app.name }}</div>
+                    <ul class="model-list">
+                        {% for model in app.models %}
+                        <li class="model-item">
+                            <a href="{{ model.admin_url }}" class="model-link">{{ model.name }}</a>
+                            <div class="action-buttons">
+                                {% if model.add_url %}
+                                <a href="{{ model.add_url }}" class="addlink">ADICIONAR</a>
+                                {% endif %}
+                                {% if model.admin_url %}
+                                <a href="{{ model.admin_url }}" class="changelink">MODIFICAR</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Outras apps que não se encaixam nas categorias acima -->
+    <div class="custom-section other-section">
+        <div class="section-header">
+            OUTROS MÓDULOS
+        </div>
+        <div class="section-body">
+            {% for app in app_list %}
+                {% if app.name != 'Authentication and Authorization' and app.name != 'Autenticação e autorização' and app.app_label != 'auth' and app.name != 'Core' and app.name != 'Organizador' %}
+                    <div class="app-name">{{ app.name }}</div>
+                    <ul class="model-list">
+                        {% for model in app.models %}
+                        <li class="model-item">
+                            <a href="{{ model.admin_url }}" class="model-link">{{ model.name }}</a>
+                            <div class="action-buttons">
+                                {% if model.add_url %}
+                                <a href="{{ model.add_url }}" class="addlink">ADICIONAR</a>
+                                {% endif %}
+                                {% if model.admin_url %}
+                                <a href="{{ model.admin_url }}" class="changelink">MODIFICAR</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

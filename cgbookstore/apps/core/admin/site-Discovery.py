@@ -877,39 +877,32 @@ class DatabaseAdminSite(admin.AdminSite):
             messages.error(request, f"Erro ao visualizar livros: {str(e)}")
             return redirect('admin:index')
 
-    def chatbot_conversations_view(self, request):
+    def chatbot_management_view(self, request):
         """
-        View para redirecionar para a lista de conversas do chatbot.
+        View para exibir links de gerenciamento do chatbot literário.
         """
-        # Importar o modelo Conversation para obter a lista
-        from cgbookstore.apps.chatbot_literario.models import Conversation
-
-        # Obter todas as conversas ou apresentar uma mensagem se não existir
-        conversations = Conversation.objects.all().order_by('-updated_at')
-
         context = {
-            'title': 'Conversas do Chatbot',
-            'conversations': conversations,
+            'title': 'Gerenciamento do Chatbot Literário',
+            'links': [
+                {
+                    'name': 'Interface de Treinamento',
+                    'url': reverse('admin:chatbot_literario_training'),
+                    'description': 'Treinar o chatbot com novos conhecimentos e testar respostas'
+                },
+                {
+                    'name': 'Conversas',
+                    'url': reverse('admin:core_conversation_changelist'),
+                    'description': 'Visualizar histórico de conversas do chatbot'
+                },
+                {
+                    'name': 'Mensagens',
+                    'url': reverse('admin:core_message_changelist'),
+                    'description': 'Visualizar mensagens individuais trocadas com o chatbot'
+                }
+            ]
         }
 
-        return render(request, 'admin/chatbot_literario/conversation_list.html', context)
-
-    def chatbot_feedbacks_view(self, request):
-        """
-        View para redirecionar para a lista de feedbacks do chatbot.
-        """
-        # Importar o modelo ConversationFeedback para obter a lista
-        from cgbookstore.apps.chatbot_literario.models import ConversationFeedback
-
-        # Obter todos os feedbacks ou apresentar uma mensagem se não existir
-        feedbacks = ConversationFeedback.objects.all().order_by('-timestamp')
-
-        context = {
-            'title': 'Feedbacks do Chatbot',
-            'feedbacks': feedbacks,
-        }
-
-        return render(request, 'admin/chatbot_literario/feedback_list.html', context)
+        return render(request, 'admin/chatbot_management.html', context)
 
     def get_urls(self):
         """
@@ -949,85 +942,6 @@ class DatabaseAdminSite(admin.AdminSite):
                  name='import_knowledge'),
             path('chatbot/treinamento/exportar/', self.admin_view(chatbot_views.export_knowledge),
                  name='export_knowledge'),
-            # Nova URL para atualizar embeddings
-            path('chatbot/treinamento/update-embeddings/', self.admin_view(chatbot_views.update_embeddings),
-                 name='update_embeddings'),
-
-            # Criar URLs diretas para conversas e feedbacks
-            path('chatbot/conversas/',
-                 self.admin_view(self.chatbot_conversations_view),
-                 name='chatbot_conversations'),
-            path('chatbot/feedbacks/',
-                 self.admin_view(self.chatbot_feedbacks_view),
-                 name='chatbot_feedbacks'),
+            path('chatbot-management/', self.admin_view(self.chatbot_management_view), name='chatbot-management'),
         ]
         return custom_urls + urls
-
-    def index(self, request, extra_context=None):
-        """
-        Sobrescreve o método index para adicionar links do Chatbot Literário
-        """
-        if extra_context is None:
-            extra_context = {}
-
-        # URLs personalizadas para as páginas do chatbot
-        chatbot_links = [
-            {
-                'name': 'Treinamento do Chatbot',
-                'url': '/admin/chatbot/treinamento/',
-                'icon': 'bi bi-robot'
-            },
-            {
-                'name': 'Conversas',
-                'url': '/admin/chatbot/conversas/',
-                'icon': 'bi bi-chat-dots'
-            },
-            {
-                'name': 'Feedbacks',
-                'url': '/admin/chatbot/feedbacks/',
-                'icon': 'bi bi-star'
-            }
-        ]
-
-        extra_context['chatbot_links'] = chatbot_links
-
-        # Reordenar as aplicações administrativas
-        # Obter a lista de aplicativos original
-        response = super().index(request, extra_context)
-
-        # Mantenha a estrutura original dos templates
-        # mas apenas reordene as seções
-        context_data = response.context_data
-        if 'app_list' in context_data:
-            app_list = context_data['app_list']
-
-            # Identificar e reordenar as seções por seus nomes
-            app_sections = {}
-            for i, app in enumerate(app_list):
-                app_name = app.get('name', '')
-
-                # Classificar as aplicações em seções
-                if 'Chatbot' in app_name:
-                    section = 'CHATBOT'
-                    order = 1
-                elif 'Auth' in app_name or 'Autenticação' in app_name:
-                    section = 'AUTH'
-                    order = 2
-                elif 'Core' in app_name or 'Organizador' in app_name:
-                    section = 'ORG'
-                    order = 3
-                else:
-                    section = 'OTHER'
-                    order = 4 + i  # Manter a ordem original para outras seções
-
-                # Adicionar ordem e seção ao app
-                app['section'] = section
-                app['order'] = order
-
-            # Reordenar a lista
-            app_list.sort(key=lambda x: x.get('order', 999))
-
-            # Atualizar o contexto
-            context_data['app_list'] = app_list
-
-        return response

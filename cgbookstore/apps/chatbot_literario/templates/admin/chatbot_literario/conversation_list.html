@@ -1,0 +1,105 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+    .conversation-list {
+        margin-top: 20px;
+    }
+    .conversation-item {
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: #1E1E2D;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .conversation-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #2A2A3A;
+    }
+    .conversation-user {
+        font-weight: bold;
+        color: #e0e0e0;
+    }
+    .conversation-date {
+        color: #aaa;
+    }
+    .message-list {
+        margin-left: 15px;
+    }
+    .message-item {
+        margin-bottom: 8px;
+        padding: 8px 12px;
+        border-radius: 5px;
+    }
+    .message-user {
+        background-color: #2B2B40;
+        margin-right: 20%;
+    }
+    .message-bot {
+        background-color: #121212;
+        margin-left: 20%;
+    }
+    .empty-list {
+        text-align: center;
+        padding: 30px;
+        color: #aaa;
+    }
+    .title-section {
+        background: linear-gradient(135deg, #1A1A2E, #121212);
+        color: white;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="title-section">
+    <h1>{{ title }}</h1>
+</div>
+
+<div class="conversation-list">
+    {% if conversations %}
+        {% for conversation in conversations %}
+            <div class="conversation-item">
+                <div class="conversation-header">
+                    <div class="conversation-user">{{ conversation.user.username }}</div>
+                    <div class="conversation-date">
+                        Iniciado: {{ conversation.started_at|date:"d/m/Y H:i" }} | 
+                        Atualizado: {{ conversation.updated_at|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+                
+                <div class="message-list">
+                    {% for message in conversation.messages.all|slice:":10" %}
+                        <div class="message-item {% if message.sender == 'user' %}message-user{% else %}message-bot{% endif %}">
+                            <strong>{{ message.get_sender_display }}:</strong> {{ message.content }}
+                            <small>({{ message.timestamp|date:"H:i" }})</small>
+                        </div>
+                    {% empty %}
+                        <p>Nenhuma mensagem nesta conversa.</p>
+                    {% endfor %}
+                    
+                    {% if conversation.messages.count > 10 %}
+                        <p class="text-center">
+                            <a href="/admin/chatbot_literario/conversation/{{ conversation.id }}/change/">
+                                Ver todas as {{ conversation.messages.count }} mensagens...
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-list">
+            <h3>Nenhuma conversa encontrada</h3>
+            <p>Não há conversas registradas no sistema.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

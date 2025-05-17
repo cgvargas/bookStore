@@ -5,6 +5,45 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+<style>
+    /* Estilos para o indicador de digitação */
+    .typing-indicator {
+        display: none; /* Inicialmente oculto */
+        margin: 10px 0;
+        padding: 10px 15px;
+        background-color: #f0f0f0;
+        border-radius: 15px;
+        max-width: 70%;
+        align-self: flex-start;
+    }
+
+    .typing-indicator .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin: 0 2px;
+        background-color: #888;
+        border-radius: 50%;
+        animation: typing-animation 1.4s infinite ease-in-out;
+    }
+
+    .typing-indicator .dot:nth-child(1) {
+        animation-delay: 0s;
+    }
+
+    .typing-indicator .dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-indicator .dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing-animation {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-5px); }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -41,6 +80,13 @@
                                 </div>
                             </div>
                         {% endif %}
+
+                        <!-- Indicador de digitação -->
+                        <div id="typingIndicator" class="typing-indicator">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -79,43 +125,68 @@
         const userMessageInput = document.getElementById('userMessage');
         const chatMessages = document.getElementById('chatMessages');
         const suggestionBtns = document.querySelectorAll('.suggestion-btn');
-        
+        const typingIndicator = document.getElementById('typingIndicator');
+
         // Rolar para o final do chat
         function scrollToBottom() {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        
+
         scrollToBottom();
-        
+
+        // Mostrar indicador de digitação
+        function showTypingIndicator() {
+            if (typingIndicator) {
+                typingIndicator.style.display = 'block';
+                scrollToBottom();
+            }
+        }
+
+        // Ocultar indicador de digitação
+        function hideTypingIndicator() {
+            if (typingIndicator) {
+                typingIndicator.style.display = 'none';
+            }
+        }
+
         // Adicionar mensagem ao chat
         function addMessage(content, sender, time) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
             messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-            
+
             const contentDiv = document.createElement('div');
             contentDiv.classList.add('message-content');
             contentDiv.textContent = content;
-            
+
             const timeDiv = document.createElement('div');
             timeDiv.classList.add('message-time');
             timeDiv.textContent = time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
+
             messageDiv.appendChild(contentDiv);
             messageDiv.appendChild(timeDiv);
-            
-            chatMessages.appendChild(messageDiv);
+
+            // Adicionar antes do indicador de digitação para que ele fique sempre no final
+            if (typingIndicator && typingIndicator.parentNode === chatMessages) {
+                chatMessages.insertBefore(messageDiv, typingIndicator);
+            } else {
+                chatMessages.appendChild(messageDiv);
+            }
+
             scrollToBottom();
         }
-        
+
         // Enviar mensagem
         async function sendMessage(message) {
             // Adicionar mensagem do usuário
             addMessage(message, 'user');
-            
+
             // Limpar campo de input
             userMessageInput.value = '';
-            
+
+            // Mostrar indicador de digitação
+            showTypingIndicator();
+
             try {
                 // Enviar requisição para o backend
                 const response = await fetch('{% url "chatbot_literario:api_message" %}', {
@@ -126,17 +197,23 @@
                     },
                     body: JSON.stringify({ message: message })
                 });
-                
+
+                // Ocultar indicador de digitação após receber a resposta
+                hideTypingIndicator();
+
                 if (!response.ok) {
                     throw new Error('Erro na comunicação com o servidor');
                 }
-                
+
                 const data = await response.json();
-                
+
                 // Adicionar resposta do bot
                 addMessage(data.response, 'bot', data.timestamp);
-                
+
             } catch (error) {
+                // Garantir que o indicador de digitação seja ocultado em caso de erro
+                hideTypingIndicator();
+
                 console.error('Erro:', error);
                 addMessage('Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.', 'bot');
             }

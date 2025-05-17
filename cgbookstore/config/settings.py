@@ -78,7 +78,12 @@ ROOT_URLCONF = 'cgbookstore.config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [
+            # Templates padrão
+            os.path.join(BASE_DIR, 'templates'),
+            # Templates específicos do chatbot
+            os.path.join(BASE_DIR, 'apps', 'chatbot_literario', 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -161,54 +166,133 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.User'
 
 # Configurações de Cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache',
-        'TIMEOUT': 600,  # 10 minutos
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000,
-            'CULL_FREQUENCY': 2,
-        }
-    },
-    'books_search': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache',
-        'TIMEOUT': 60 * 60 * 2,  # 2 horas
-        'OPTIONS': {
-            'MAX_ENTRIES': 500,
-            'CULL_FREQUENCY': 3,
-        }
-    },
-    'books_recommendations': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache',
-        'TIMEOUT': 60 * 60 * 24,  # 24 horas
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000,
-            'CULL_FREQUENCY': 3,
-        }
-    },
-    'google_books': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache',
-        'TIMEOUT': 60 * 60 * 24,  # 24 horas
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000,
-            'CULL_FREQUENCY': 3,
-        }
-    },
-    'recommendations': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache',
-        'TIMEOUT': 60 * 60,  # 1 hora
-        'OPTIONS': {
-            'MAX_ENTRIES': 500,
-            'CULL_FREQUENCY': 3,
+if DJANGO_ENV == 'production':
+    # Configuração Redis para produção
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379/0',
+            'TIMEOUT': 600,  # 10 minutos
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'MAX_ENTRIES': 1000,
+            }
+        },
+        'books_search': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379/1',
+            'TIMEOUT': 60 * 60 * 2,  # 2 horas
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'MAX_ENTRIES': 500,
+            }
+        },
+        'recommendations': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379/2',
+            'TIMEOUT': 60 * 60 * 6,  # 6 horas (unificado)
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'MAX_ENTRIES': 1000,
+            }
+        },
+        'books_recommendations': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379/2',  # Mesmo DB do recommendations
+            'TIMEOUT': 60 * 60 * 6,  # 6 horas (unificado)
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'MAX_ENTRIES': 1000,
+            }
+        },
+        'google_books': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379/3',
+            'TIMEOUT': 60 * 60 * 24 * 7,  # 7 dias
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'MAX_ENTRIES': 2000,
+            }
+        },
+        'image_proxy': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379/4',
+            'TIMEOUT': 60 * 60 * 24 * 14,  # 14 dias
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'MAX_ENTRIES': 5000,
+                'COMPRESS_MIN_LEN': 10,  # Comprimir dados maiores que 10 bytes
+                'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',  # Compressão para imagens
+            }
         }
     }
-}
 
+    # Configurar Redis como backend de sessão para produção
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+    SESSION_CACHE_ALIAS = "default"
+
+else:
+    # Manter a configuração atual de DatabaseCache para desenvolvimento
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'django_cache',
+            'TIMEOUT': 600,  # 10 minutos
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000,
+                'CULL_FREQUENCY': 2,
+            }
+        },
+        'books_search': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'django_cache',
+            'TIMEOUT': 60 * 60 * 2,  # 2 horas
+            'OPTIONS': {
+                'MAX_ENTRIES': 500,
+                'CULL_FREQUENCY': 3,
+            }
+        },
+        'books_recommendations': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'django_cache',
+            'TIMEOUT': 60 * 60 * 24,  # 24 horas
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000,
+                'CULL_FREQUENCY': 3,
+            }
+        },
+        'google_books': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'django_cache',
+            'TIMEOUT': 60 * 60 * 24,  # 24 horas
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000,
+                'CULL_FREQUENCY': 3,
+            }
+        },
+        'recommendations': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'django_cache',
+            'TIMEOUT': 60 * 60,  # 1 hora
+            'OPTIONS': {
+                'MAX_ENTRIES': 500,
+                'CULL_FREQUENCY': 3,
+            }
+        },
+        'image_proxy': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'django_cache',
+            'TIMEOUT': 60 * 60 * 24 * 7,  # 7 dias
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000,
+                'CULL_FREQUENCY': 3,
+            }
+        }
+    }
+
+    # Manter configuração atual para desenvolvimento
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+    SESSION_CACHE_ALIAS = 'default'
 
 # Configurações da API Google Books
 GOOGLE_BOOKS_CACHE_TIMEOUT = 60 * 60 * 24  # 24 horas em segundos
@@ -271,10 +355,6 @@ if not DEBUG:
                     'django.template.loaders.app_directories.Loader',
                 ]),
             ]
-
-# Configuração de sessão para usar cache
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-SESSION_CACHE_ALIAS = 'default'
 
 # Usar ETag para habilitar cache no navegador
 USE_ETAGS = True
