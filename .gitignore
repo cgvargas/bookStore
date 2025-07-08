@@ -56,6 +56,7 @@ coverage.xml
 
 # Misc
 *.bak
+*.dump
 *.tmp
 .env.local
 .env.development.local
