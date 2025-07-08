@@ -421,4 +421,48 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<script>
+// Script para forçar transparência em todas as seções
+document.addEventListener('DOMContentLoaded', function() {
+    function forcarTransparencia() {
+        const elementos = document.querySelectorAll('.author-section, .video-section, .reader-ranking-section, .author-section *, .video-section *, .reader-ranking-section *, [class*="card"], .bg-light, .bg-white');
+
+        elementos.forEach(function(elemento) {
+            elemento.style.backgroundColor = 'transparent';
+            elemento.style.background = 'transparent';
+            elemento.style.backdropFilter = 'none';
+            elemento.style.webkitBackdropFilter = 'none';
+            elemento.style.boxShadow = 'none';
+            elemento.style.border = 'none';
+
+            // Remover classes que possam estar aplicando fundos
+            if (elemento.classList.contains('bg-light')) {
+                elemento.classList.remove('bg-light');
+            }
+            if (elemento.classList.contains('bg-white')) {
+                elemento.classList.remove('bg-white');
+            }
+        });
+
+        // Garantir legibilidade de texto
+        const textos = document.querySelectorAll('.author-section h1, .author-section h2, .author-section h3, .author-section p, .video-section h1, .video-section h2, .video-section h3, .video-section p, .reader-ranking-section h1, .reader-ranking-section h2, .reader-ranking-section h3, .reader-ranking-section p, .card-title, .card-text');
+
+        textos.forEach(function(texto) {
+            texto.style.color = 'white';
+            texto.style.textShadow = '0 0 4px black, 0 0 6px black, 1px 1px 2px black, -1px -1px 2px black';
+        });
+    }
+
+    // Executar imediatamente
+    forcarTransparencia();
+
+    // Repetir após um breve atraso
+    setTimeout(forcarTransparencia, 500);
+
+    // Observar mudanças no DOM
+    const observer = new MutationObserver(forcarTransparencia);
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
 {% endblock %}

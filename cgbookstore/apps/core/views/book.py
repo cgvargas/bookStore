@@ -11,18 +11,19 @@ Principais funcionalidades:
 import decimal
 import json
 import logging
-from decimal import Decimal
-
 import requests
+from decimal import Decimal
+from django.conf import settings
+
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView, DetailView
-from django.http import JsonResponse, HttpResponse, Http404
+from django.http import JsonResponse, Http404
 from django.core.files.storage import default_storage
 from PIL import Image
 from io import BytesIO
@@ -1075,104 +1076,151 @@ def add_external_to_shelf(request):
 @login_required
 def external_book_details_view(request, external_id):
     """
-    View para exibir detalhes de um livro externo (Google Books).
-    Cria uma entrada temporária no banco de dados para exibição.
+    View para exibir detalhes de livros externos (Google Books API)
 
-    Principais funcionalidades:
-        - Pesquisa de livros via Google Books API
-        - Gerenciamento de prateleiras de usuário
-        - Processamento de capas de livros
-        - Adição e remoção de livros
+    Args:
+        request: HttpRequest
+        external_id: ID interno do livro no banco de dados
+
+    Returns:
+        HttpResponse com os detalhes do livro ou página de erro
     """
-    if not external_id:
-        raise Http404("ID do livro externo não fornecido")
-
     try:
-        # Verificar se já existe um livro com este ID externo
-        existing_book = Book.objects.filter(external_id=external_id).first()
+        # Log de debug para rastreamento
+        print(f"[external_book_details_view] Processando livro ID interno: {external_id}")
 
-        if existing_book:
-            # Se o livro já existe, simplesmente redireciona para a página de detalhes
-            return redirect('book_detail', pk=existing_book.id)
+        # Buscar o livro no banco de dados pelo ID interno
+        try:
+            book = Book.objects.get(id=external_id)
+            print(f"[external_book_details_view] Livro encontrado: {book.titulo}")
+        except Book.DoesNotExist:
+            print(f"[external_book_details_view] Livro com ID {external_id} não encontrado no banco")
+            raise Http404("Livro não encontrado")
 
-        # Buscar detalhes do livro externo
-        client = GoogleBooksClient(context="recommendations")
-        external_data = client.get_book_by_id(external_id)
+        # Verificar se o livro tem external_id
+        if not book.external_id:
+            print(f"[external_book_details_view] Livro {book.titulo} não possui external_id")
+            return render(request, 'core/error.html', {
+                'error_message': "Este livro não possui informações externas disponíveis."
+            })
 
-        if not external_data:
-            raise Http404("Livro externo não encontrado")
+        google_books_id = book.external_id
+        print(f"[external_book_details_view] Usando Google Books ID: {google_books_id}")
 
-        # Processar os dados para criar um livro temporário
-        volume_info = external_data.get('volumeInfo', {})
+        # Buscar informações detalhadas na API do Google Books
+        try:
+            google_books_service = GoogleBooksService()
+            book_details = google_books_service.get_book_details(google_books_id)
 
-        # Extrair campos do formato volumeInfo
-        titulo = volume_info.get('title', 'Título desconhecido')
+            if not book_details:
+                print(f"[external_book_details_view] Detalhes não encontrados para ID: {google_books_id}")
+                raise Http404("Detalhes do livro não encontrados")
 
-        if 'authors' in volume_info:
-            if isinstance(volume_info['authors'], list):
-                autor = ', '.join(volume_info['authors'])
-            else:
-                autor = str(volume_info['authors'])
-        else:
-            autor = 'Autor desconhecido'
+            print(f"[external_book_details_view] Detalhes obtidos com sucesso da API")
 
-        editora = volume_info.get('publisher', '')
-        data_publicacao_str = volume_info.get('publishedDate', '')
-        descricao = volume_info.get('description', '')
-        numero_paginas = volume_info.get('pageCount', 0)
+        except Exception as api_error:
+            print(f"[external_book_details_view] Erro na API do Google Books: {str(api_error)}")
+            return render(request, 'core/error.html', {
+                'error_message': "Não foi possível obter informações atualizadas do livro. Tente novamente mais tarde."
+            })
 
-        if 'categories' in volume_info:
-            if isinstance(volume_info['categories'], list):
-                genero = volume_info['categories'][0] if volume_info['categories'] else ''
-            else:
-                genero = str(volume_info['categories'])
-        else:
-            genero = ''
-
-        idioma = volume_info.get('language', 'pt')
-        capa_url = volume_info.get('imageLinks', {}).get('thumbnail', '')
-
-        # Processar data de publicação
-        data_publicacao = None
-        if data_publicacao_str:
+        # Verificar se o usuário já tem este livro em suas prateleiras
+        user_book_shelf = None
+        if request.user.is_authenticated:
             try:
-                # Tenta converter para data
-                if len(data_publicacao_str) >= 10:  # Formato completo YYYY-MM-DD
-                    data_publicacao = datetime.strptime(data_publicacao_str[:10], '%Y-%m-%d').date()
-                elif len(data_publicacao_str) >= 7:  # Formato YYYY-MM
-                    data_publicacao = datetime.strptime(data_publicacao_str[:7], '%Y-%m').date()
-                elif len(data_publicacao_str) >= 4:  # Apenas ano YYYY
-                    data_publicacao = datetime.strptime(f"{data_publicacao_str[:4]}-01-01", '%Y-%m-%d').date()
-            except ValueError:
-                # Se falhar na conversão, mantém como None
-                data_publicacao = None
+                user_book_shelf = UserBookShelf.objects.get(
+                    user=request.user,
+                    book=book
+                ).shelf_type
+            except UserBookShelf.DoesNotExist:
+                pass
 
-        # Criar livro temporário no banco de dados
-        temp_book = Book.objects.create(
-            titulo=titulo,
-            autor=autor,
-            editora=editora,
-            data_publicacao=data_publicacao,
-            descricao=descricao,
-            numero_paginas=numero_paginas if isinstance(numero_paginas, int) else 0,
-            genero=genero,
-            idioma=idioma,
-            capa_url=capa_url,
-            external_id=external_id,
-            is_temporary=True,
-            external_data=json.dumps(external_data),
-            origem='Google Books'
-        )
+        # Buscar livros relacionados/recomendados
+        related_books = []
+        if book_details.get('categories'):
+            try:
+                categories = book_details['categories']
+                related_books = Book.objects.filter(
+                    categoria__in=categories
+                ).exclude(id=external_id)[:6]
+            except Exception as related_error:
+                print(f"[external_book_details_view] Erro ao buscar livros relacionados: {str(related_error)}")
 
-        # Redirecionar para a página de detalhes do livro
-        return redirect('book_detail', pk=temp_book.id)
+        # Preparar contexto para o template
+        context = {
+            'book': book,
+            'book_details': book_details,
+            'user_book_shelf': user_book_shelf,
+            'related_books': related_books,
+            'google_books_id': google_books_id,
+        }
+
+        print(f"[external_book_details_view] Renderizando template com sucesso")
+        return render(request, 'core/external_book_details.html', context)
+
+    except Http404:
+        # Re-raise Http404 para manter o comportamento esperado
+        raise
 
     except Exception as e:
-        logger.error(f"Erro ao processar livro externo: {str(e)}")
-        # Trate o erro e exiba uma mensagem para o usuário
+        # Log do erro completo
+        import traceback
+        print(f"[external_book_details_view] Erro inesperado: {str(e)}")
+        print(f"[external_book_details_view] Traceback: {traceback.format_exc()}")
+
+        # Retornar página de erro amigável
         return render(request, 'core/error.html', {
-            'error_message': "Não foi possível carregar os detalhes do livro externo. Por favor, tente novamente mais tarde."
+            'error_message': "Ocorreu um erro inesperado ao carregar os detalhes do livro. Por favor, tente novamente."
         })
+
+class GoogleBooksService:
+    """
+    Serviço para interagir com a API do Google Books
+    """
+
+    def __init__(self):
+        self.api_key = getattr(settings, 'GOOGLE_BOOKS_API_KEY', None)
+        self.base_url = 'https://www.googleapis.com/books/v1/volumes'
+
+    def get_book_details(self, google_books_id):
+        """
+        Busca detalhes de um livro específico pelo Google Books ID
+
+        Args:
+            google_books_id: ID do livro no Google Books
+
+        Returns:
+            dict: Dados do livro ou None se não encontrado
+        """
+        try:
+            import requests
+
+            url = f"{self.base_url}/{google_books_id}"
+            params = {}
+
+            if self.api_key:
+                params['key'] = self.api_key
+
+            print(f"[GoogleBooksService] Fazendo requisição para: {url}")
+
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()
+
+            data = response.json()
+
+            # Verificar se os dados são válidos
+            if 'volumeInfo' not in data:
+                print(f"[GoogleBooksService] Resposta inválida da API: {data}")
+                return None
+
+            return data['volumeInfo']
+
+        except requests.exceptions.RequestException as e:
+            print(f"[GoogleBooksService] Erro na requisição: {str(e)}")
+            raise
+        except Exception as e:
+            print(f"[GoogleBooksService] Erro inesperado: {str(e)}")
+            raise
 
 
 class CatalogueView(TemplateView):

@@ -15,7 +15,6 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'css/background.css' %}">
-    <link rel="stylesheet" href="{% static 'css/google-books-fix.css' %}">
     <link rel="stylesheet" href="{% static 'css/book-covers-fix.css' %}">
     <title>{% block title %}CG.BookStore Online{% endblock %}</title>
     <style>
@@ -504,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Scripts para tratamento de imagens e recomendações -->
 <script src="{% static 'js/image-fallback-improved.js' %}"></script>
-<script src="{% static 'js/google-books-image-fix.js' %}"></script>
+<script src="{% static 'js/book-recommendation-fix.js' %}"></script>
 
 </body>
 </html>

@@ -23,6 +23,7 @@ O **CG.BookStore.Online** é um projeto de livraria online inovador que visa pro
 - **Personalização do Perfil:** Customização com foto e preferências visuais.
 - **Sistema de Banners:** Exibição de promoções e novidades na página inicial.
 - **Gerenciamento de Banners:** Ferramenta administrativa para controle de banners, incluindo agendamento e segmentação.
+- **Chatbot literário:** Ferramenta voltada a esclarecer dúvidas do usuário em relação à aplicação e literatura.
 
 ![Livros Animados](https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif)
 
@@ -32,14 +33,17 @@ O **CG.BookStore.Online** é um projeto de livraria online inovador que visa pro
 - **Framework Web:** Django
 - **Banco de Dados:** PostgreSQL (compatível com SQLite para desenvolvimento)
 - **Processamento de Imagens:** Pillow
-- **Gerenciamento de Cache:** Sistema de cache customizado
+- **Gerenciamento de Cache:** Sistema de cache customizado - Redis via Docker
 - **Bibliotecas:**
   - Django REST Framework (preparo para futuras APIs)
   - Swiper.js (carrossel de livros e banners)
   - Bootstrap 5
   - Outras bibliotecas listadas no arquivo [`LEIAME.md`](./LEIAME.md)
+  - Redis
+  - Docker
+  - Ollama
 
-## Futuros Parceiros
+## Potenciais Parceiros
 
 - 📦 **Editoras e distribuidoras de livros**  
 - 💳 **Plataformas de pagamento online**  
@@ -75,8 +79,9 @@ A monetização do aplicativo será realizada por meio de diversas estratégias,
 
 ## Informações Adicionais
 
-- 📂 **Estrutura do Projeto:** Detalhes disponíveis no arquivo [`structure-07-02-2025.txt`](./structure-07-02-2025.txt).
+- 📂 **Estrutura do Projeto:** Detalhes disponíveis no arquivo [`estrutura.txt`](./structure-07-02-2025.txt).
 - 📊 **Documentação do Dashboard:** Informações sobre o sistema de analytics estão disponíveis no arquivo [`chat_padronizado_03_02_2025.md`](./chat_padronizado_03_02_2025.md).
+- :) **Em andamanto:** Melhorias no sistema de chatbot literário - contexto.
 
 ## Licença
 

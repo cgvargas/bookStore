@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_tags %}
 
 <!-- Prateleira de Recomendações Personalizada -->
 <section class="book-shelf recommendation-shelf">
@@ -17,7 +18,12 @@
                                 {% if livro.capa %}
                                     <img src="{{ livro.get_preview_url }}" alt="{{ livro.titulo }}" class="book-cover" loading="lazy">
                                 {% elif livro.capa_url %}
-                                    <img src="{{ livro.capa_url }}" alt="{{ livro.titulo }}" class="book-cover" loading="lazy" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                                    <img src="{% url 'image_proxy' %}?url={{ livro.capa_url|urlencode }}"
+                                         alt="{{ livro.titulo }}"
+                                         class="book-cover google-books-image"
+                                         loading="lazy"
+                                         onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
+                                         data-original-src="{{ livro.capa_url }}">
                                 {% else %}
                                     <div class="no-cover">
                                         <i class="bi bi-book"></i>
@@ -41,8 +47,13 @@
                         <div class="book-card">
                             <a href="/books/external/{{ book.id }}/details/" class="book-card-link">
                                 <div class="book-cover-container">
-                                    {% if book.volumeInfo.imageLinks.thumbnail %}
-                                        <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" alt="{{ book.volumeInfo.title }}" class="book-cover" loading="lazy" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                                    {% if book|get_thumbnail %}
+                                        <img src="{% url 'image_proxy' %}?url={{ book|get_thumbnail|urlencode }}"
+                                             alt="{{ book|get_book_title }}"
+                                             class="book-cover google-books-image"
+                                             loading="lazy"
+                                             onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
+                                             data-original-src="{{ book|get_thumbnail }}">
                                     {% else %}
                                         <div class="no-cover">
                                             <i class="bi bi-book"></i>
@@ -52,14 +63,8 @@
                                 </div>
                             </a>
                             <div class="book-details text-center mt-2">
-                                <h3 class="book-title">{{ book.volumeInfo.title }}</h3>
-                                <p class="book-author">
-                                    {% if book.volumeInfo.authors.0 %}
-                                        {{ book.volumeInfo.authors.0 }}
-                                    {% else %}
-                                        Autor desconhecido
-                                    {% endif %}
-                                </p>
+                                <h3 class="book-title">{{ book|get_book_title }}</h3>
+                                <p class="book-author">{{ book|get_book_authors }}</p>
                             </div>
                         </div>
                     </div>

@@ -1,257 +1,327 @@
-{% extends "core/base.html" %}
+<!-- templates/chatbot_literario/chat.html -->
 {% load static %}
-
-{% block title %}Chatbot Literário - CG.BookStore{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
-<style>
-    /* Estilos para o indicador de digitação */
-    .typing-indicator {
-        display: none; /* Inicialmente oculto */
-        margin: 10px 0;
-        padding: 10px 15px;
-        background-color: #f0f0f0;
-        border-radius: 15px;
-        max-width: 70%;
-        align-self: flex-start;
-    }
-
-    .typing-indicator .dot {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        margin: 0 2px;
-        background-color: #888;
-        border-radius: 50%;
-        animation: typing-animation 1.4s infinite ease-in-out;
-    }
-
-    .typing-indicator .dot:nth-child(1) {
-        animation-delay: 0s;
-    }
-
-    .typing-indicator .dot:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-
-    .typing-indicator .dot:nth-child(3) {
-        animation-delay: 0.4s;
-    }
-
-    @keyframes typing-animation {
-        0%, 60%, 100% { transform: translateY(0); }
-        30% { transform: translateY(-5px); }
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="container my-5">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-robot me-2"></i>Assistente Literário
-                    </h5>
-                </div>
-
-                <div class="card-body">
-                    <div class="chat-container" id="chatMessages">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="message {% if message.sender == 'bot' %}bot-message{% else %}user-message{% endif %}">
-                                    <div class="message-content">
-                                        {{ message.content }}
-                                    </div>
-                                    <div class="message-time">
-                                        {{ message.timestamp|time:"H:i" }}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="message bot-message">
-                                <div class="message-content">
-                                    Olá! Sou o assistente literário da CG.BookStore. Como posso ajudar você hoje? Posso recomendar livros, falar sobre autores ou ajudar a navegar no site.
-                                </div>
-                                <div class="message-time">
-                                    Agora
-                                </div>
-                            </div>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Literário - CG.BookStore.Online</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Chatbot Enhanced CSS -->
+    <link rel="stylesheet" href="{% static 'css/chatbot-enhanced.css' %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 900px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1>🤖 Assistente Literário</h1>
+                <p>Seu guia personalizado na CG.BookStore.Online</p>
+                
+                {% if user.is_authenticated %}
+                    <div class="user-info">
+                        <i class="bi bi-person-circle"></i>
+                        <strong>{{ personalization.user_name }}</strong>
+                        {% if personalization.reading_level %}
+                            | Nível: {{ personalization.reading_level|title }}
                         {% endif %}
-
-                        <!-- Indicador de digitação -->
-                        <div id="typingIndicator" class="typing-indicator">
-                            <div class="dot"></div>
-                            <div class="dot"></div>
-                            <div class="dot"></div>
-                        </div>
+                        {% if personalization.engagement_score %}
+                            | Engajamento: {{ personalization.engagement_score }}/100
+                        {% endif %}
                     </div>
-                </div>
-
-                <div class="card-footer">
-                    <form id="chatForm" class="d-flex">
-                        <input type="text" id="userMessage" class="form-control me-2" placeholder="Digite sua mensagem..." required>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-send-fill"></i>
-                        </button>
-                    </form>
-                </div>
+                {% endif %}
             </div>
 
-            <div class="card mt-4 shadow-sm">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0">Sugestões de perguntas</h6>
+            <!-- Chatbot Container -->
+            <div id="chatbot-container" class="p-4">
+                
+                <!-- Indicador de Personalização será criado pelo JS -->
+                
+                <!-- Área de Mensagens -->
+                <div id="chat-messages" class="mb-3">
+                    {% for message in messages %}
+                        <div class="message {{ message.sender }}-message show">
+                            <div class="message-content">
+                                <div class="message-text">{{ message.content|linebreaks }}</div>
+                                <div class="message-meta">
+                                    <span class="timestamp">{{ message.timestamp|time:"H:i" }}</span>
+                                    {% if message.sender == 'bot' %}
+                                        <div class="feedback-buttons ms-2">
+                                            <button class="btn btn-sm btn-outline-success" onclick="chatbot.sendFeedback('{{ message.id }}', true)">
+                                                👍
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="chatbot.sendFeedback('{{ message.id }}', false)">
+                                                👎
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-                <div class="card-body">
-                    <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-sm btn-outline-secondary suggestion-btn">Recomende livros de fantasia</button>
-                        <button class="btn btn-sm btn-outline-secondary suggestion-btn">Quem é o autor de 1984?</button>
-                        <button class="btn btn-sm btn-outline-secondary suggestion-btn">Como encontro meus favoritos?</button>
-                        <button class="btn btn-sm btn-outline-secondary suggestion-btn">Quais são os livros mais populares?</button>
+
+                <!-- Input Area -->
+                <div class="chat-input-area">
+                    <textarea 
+                        id="chat-input" 
+                        class="form-control" 
+                        placeholder="Digite sua pergunta sobre livros, autores ou nossa loja..."
+                        rows="1"
+                        maxlength="1000"
+                    ></textarea>
+                    <button id="chat-send" class="btn btn-primary" title="Enviar mensagem">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+
+                <!-- Contador de caracteres -->
+                <div class="text-end">
+                    <small class="text-muted">
+                        <span id="char-count">0</span>/1000 caracteres
+                    </small>
+                </div>
+
+                <!-- Ações Rápidas (serão criadas pelo JS) -->
+                
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center p-3 border-top">
+                <small class="text-muted">
+                    💡 <strong>Dica:</strong> Quanto mais você usar seu perfil de leitor, mais personalizadas serão as respostas!
+                    <br>
+                    <a href="#" id="help-link" class="text-decoration-none">❓ Como funciona?</a> |
+                    <a href="{% url 'admin:index' %}" class="text-decoration-none">⚙️ Administração</a>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ajuda -->
+    <div class="modal fade" id="help-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-question-circle"></i>
+                        Como Funciona o Chatbot Personalizado?
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-person-gear text-primary"></i> Personalização</h6>
+                            <ul class="list-unstyled">
+                                <li>✅ Usa seu perfil completo</li>
+                                <li>✅ Analisa seus livros lidos</li>
+                                <li>✅ Considera suas preferências</li>
+                                <li>✅ Adapta o nível de linguagem</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-cpu text-success"></i> Inteligência Híbrida</h6>
+                            <ul class="list-unstyled">
+                                <li>🔍 Base de conhecimento específica</li>
+                                <li>🤖 IA conversacional (Ollama)</li>
+                                <li>🔄 Backup contextual</li>
+                                <li>📊 Aprendizado contínuo</li>
+                            </ul>
+                        </div>
                     </div>
+                    
+                    <hr>
+                    
+                    <h6><i class="bi bi-lightning text-warning"></i> Ações Rápidas</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-primary">
+                                <div class="card-body text-center p-2">
+                                    <h6 class="card-title">📚 Favoritos</h6>
+                                    <small>Mostra seus livros favoritos</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-success">
+                                <div class="card-body text-center p-2">
+                                    <h6 class="card-title">⭐ Recomendações</h6>
+                                    <small>Sugestões personalizadas</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-info">
+                                <div class="card-body text-center p-2">
+                                    <h6 class="card-title">📊 Progresso</h6>
+                                    <small>Estatísticas de leitura</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Dica:</strong> Complete seu perfil e adicione livros à sua estante para obter respostas ainda mais personalizadas!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendi!</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const chatForm = document.getElementById('chatForm');
-        const userMessageInput = document.getElementById('userMessage');
-        const chatMessages = document.getElementById('chatMessages');
-        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
-        const typingIndicator = document.getElementById('typingIndicator');
+    <!-- Scripts -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chatbot Enhanced JS -->
+    <script src="{% static 'js/chatbot-enhanced.js' %}"></script>
 
-        // Rolar para o final do chat
-        function scrollToBottom() {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        scrollToBottom();
-
-        // Mostrar indicador de digitação
-        function showTypingIndicator() {
-            if (typingIndicator) {
-                typingIndicator.style.display = 'block';
-                scrollToBottom();
-            }
-        }
-
-        // Ocultar indicador de digitação
-        function hideTypingIndicator() {
-            if (typingIndicator) {
-                typingIndicator.style.display = 'none';
-            }
-        }
-
-        // Adicionar mensagem ao chat
-        function addMessage(content, sender, time) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-
-            const contentDiv = document.createElement('div');
-            contentDiv.classList.add('message-content');
-            contentDiv.textContent = content;
-
-            const timeDiv = document.createElement('div');
-            timeDiv.classList.add('message-time');
-            timeDiv.textContent = time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-            messageDiv.appendChild(contentDiv);
-            messageDiv.appendChild(timeDiv);
-
-            // Adicionar antes do indicador de digitação para que ele fique sempre no final
-            if (typingIndicator && typingIndicator.parentNode === chatMessages) {
-                chatMessages.insertBefore(messageDiv, typingIndicator);
-            } else {
-                chatMessages.appendChild(messageDiv);
+    <script>
+        // Configurações específicas do Django
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar dados iniciais do usuário
+            if (typeof chatbot !== 'undefined') {
+                {% if personalization.personalization_enabled %}
+                    chatbot.userSettings = {
+                        personalization_enabled: true,
+                        user_profile: {
+                            name: '{{ personalization.user_name|escapejs }}',
+                            reading_level: '{{ personalization.reading_level|escapejs }}',
+                            total_books: {{ personalization.books_reading|default:0 }},
+                            favorite_genre: '{{ personalization.favorite_genre|escapejs }}'
+                        },
+                        engagement_metrics: {
+                            score: {{ personalization.engagement_score|default:0 }},
+                            level: '{{ personalization.engagement_score|default:0|yesno:"high,medium,low" }}'
+                        }
+                    };
+                {% endif %}
+                
+                // Carregar configurações do servidor
+                chatbot.loadUserSettings();
             }
 
-            scrollToBottom();
-        }
-
-        // Enviar mensagem
-        async function sendMessage(message) {
-            // Adicionar mensagem do usuário
-            addMessage(message, 'user');
-
-            // Limpar campo de input
-            userMessageInput.value = '';
-
-            // Mostrar indicador de digitação
-            showTypingIndicator();
-
-            try {
-                // Enviar requisição para o backend
-                const response = await fetch('{% url "chatbot_literario:api_message" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify({ message: message })
-                });
-
-                // Ocultar indicador de digitação após receber a resposta
-                hideTypingIndicator();
-
-                if (!response.ok) {
-                    throw new Error('Erro na comunicação com o servidor');
-                }
-
-                const data = await response.json();
-
-                // Adicionar resposta do bot
-                addMessage(data.response, 'bot', data.timestamp);
-
-            } catch (error) {
-                // Garantir que o indicador de digitação seja ocultado em caso de erro
-                hideTypingIndicator();
-
-                console.error('Erro:', error);
-                addMessage('Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.', 'bot');
-            }
-        }
-        
-        // Enviar formulário
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const message = userMessageInput.value.trim();
-            if (message) {
-                sendMessage(message);
-            }
-        });
-        
-        // Usar sugestões
-        suggestionBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const message = this.textContent.trim();
-                userMessageInput.value = message;
-                sendMessage(message);
-            });
-        });
-        
-        // Função para obter o token CSRF
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+            // Contador de caracteres
+            const input = document.getElementById('chat-input');
+            const counter = document.getElementById('char-count');
+            
+            if (input && counter) {
+                input.addEventListener('input', function() {
+                    counter.textContent = this.value.length;
+                    
+                    // Mudar cor quando próximo do limite
+                    if (this.value.length > 800) {
+                        counter.className = 'text-warning';
+                    } else if (this.value.length > 950) {
+                        counter.className = 'text-danger';
+                    } else {
+                        counter.className = 'text-muted';
                     }
-                }
+                });
             }
-            return cookieValue;
+
+            // Modal de ajuda
+            const helpLink = document.getElementById('help-link');
+            if (helpLink) {
+                helpLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const helpModal = new bootstrap.Modal(document.getElementById('help-modal'));
+                    helpModal.show();
+                });
+            }
+
+            // Debug mode
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('debug') === 'true') {
+                console.log('🐛 Modo DEBUG ativado');
+                document.body.classList.add('debug-mode');
+                
+                // Adicionar botão de teste
+                const debugBtn = document.createElement('button');
+                debugBtn.className = 'btn btn-warning btn-sm position-fixed';
+                debugBtn.style.cssText = 'bottom: 20px; left: 20px; z-index: 9999;';
+                debugBtn.innerHTML = '🧪 Teste';
+                debugBtn.onclick = () => chatbot?.testPersonalization();
+                document.body.appendChild(debugBtn);
+            }
+        });
+
+        // Função global para feedback (compatibilidade)
+        function sendFeedback(messageId, helpful) {
+            if (typeof chatbot !== 'undefined') {
+                chatbot.sendFeedback(messageId, helpful);
+            }
         }
-    });
-</script>
-{% endblock %}
+
+        // Service Worker para notificações (opcional)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{% static "js/chatbot-sw.js" %}')
+                .then(registration => console.log('SW registrado'))
+                .catch(error => console.log('SW falhou'));
+        }
+    </script>
+
+    <!-- Analytics ou outros scripts -->
+    {% if not debug %}
+    <!-- Google Analytics, Hotjar, etc. -->
+    {% endif %}
+</body>
+</html>

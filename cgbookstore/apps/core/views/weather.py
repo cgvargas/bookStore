@@ -4,7 +4,7 @@ import requests
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-from django.core.cache import cache
+from django.core.cache import cache, caches
 
 # Tente importar a configuração alternativa
 try:
@@ -24,6 +24,9 @@ def get_weather(request):
     View para obter dados meteorológicos de uma API externa.
     Aceita o parâmetro 'location' via query string.
     """
+    # Usar o cache específico para dados meteorológicos
+    weather_cache = caches['weather']
+
     location = request.GET.get('location', 'São Paulo')
 
     try:
@@ -38,7 +41,7 @@ def get_weather(request):
 
         # Verificar se temos dados em cache para esta localização
         cache_key = f'weather_data_{location.lower().replace(" ", "_")}'
-        cached_data = cache.get(cache_key)
+        cached_data = weather_cache.get(cache_key)
 
         if cached_data:
             return JsonResponse(cached_data)
@@ -48,7 +51,7 @@ def get_weather(request):
 
         if weather_data:
             # Armazenar em cache para futuras requisições
-            cache.set(cache_key, weather_data, CACHE_TIMEOUT)
+            weather_cache.set(cache_key, weather_data, CACHE_TIMEOUT)
             return JsonResponse(weather_data)
         else:
             return JsonResponse({

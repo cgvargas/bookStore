@@ -16,20 +16,12 @@
         {% with title=book.volumeInfo.title %}
         {% with thumbnail=book.volumeInfo.imageLinks.thumbnail|default:'' %}
             {% if thumbnail and thumbnail != '' %}
-                {% if 'books.google.com' in thumbnail or 'googleusercontent.com' in thumbnail %}
-                    <img src="{% url 'image_proxy' %}?url={{ thumbnail|urlencode }}"
-                         alt="{{ title }}"
-                         class="book-cover-image google-books-image"
-                         loading="lazy"
-                         onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
-                         data-original-src="{{ thumbnail }}">
-                {% else %}
-                    <img src="{{ thumbnail }}"
-                         alt="{{ title }}"
-                         class="book-cover-image"
-                         loading="lazy"
-                         onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';">
-                {% endif %}
+                <img src="{% url 'image_proxy' %}?url={{ thumbnail|urlencode }}"
+                     alt="{{ title }}"
+                     class="book-cover-image google-books-image"
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
+                     data-original-src="{{ thumbnail }}">
             {% else %}
                 <img src="{% static 'images/no-cover.svg' %}"
                      alt="{{ title }}"
@@ -41,20 +33,12 @@
     {% else %}
         {# Formato de livro interno do banco de dados #}
         {% if book.capa_url and book.capa_url != '' %}
-            {% if 'books.google.com' in book.capa_url or 'googleusercontent.com' in book.capa_url %}
-                <img src="{% url 'image_proxy' %}?url={{ book.capa_url|urlencode }}"
-                     alt="{{ book.titulo }}"
-                     class="book-cover-image google-books-image"
-                     loading="lazy"
-                     onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
-                     data-original-src="{{ book.capa_url }}">
-            {% else %}
-                <img src="{{ book.capa_url }}"
-                     alt="{{ book.titulo }}"
-                     class="book-cover-image"
-                     loading="lazy"
-                     onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';">
-            {% endif %}
+            <img src="{% url 'image_proxy' %}?url={{ book.capa_url|urlencode }}"
+                 alt="{{ book.titulo }}"
+                 class="book-cover-image google-books-image"
+                 loading="lazy"
+                 onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
+                 data-original-src="{{ book.capa_url }}">
         {% else %}
             <img src="{% static 'images/no-cover.svg' %}"
                  alt="{{ book.titulo }}"

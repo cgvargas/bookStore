@@ -1,6 +1,6 @@
 {% load static %}
 
-<section class="author-section bg-light py-5 my-4 rounded shadow-sm">
+<section class="author-section py-5 my-4">
     <div class="container">
         <div class="section-header mb-4 text-center">
             <h2 class="section-title">{{ section.section.titulo }}</h2>
@@ -17,7 +17,7 @@
             {% for author in authors %}
             <div class="col-md-3 mb-4">
                 <a href="{% url 'authors:author-detail' author.slug %}" class="text-decoration-none">
-                    <div class="author-card card h-100 border shadow-sm hover-effect">
+                    <div class="author-card card h-100 hover-effect">
                         <div class="author-image text-center p-3">
                             {% if author.foto %}
                             <img src="{{ author.foto.url }}" alt="{{ author.get_nome_completo }}"
@@ -42,6 +42,52 @@
     </div>
 </section>
 <style>
+    .author-section {
+        background-color: transparent !important;
+        backdrop-filter: none !important;
+    }
+
+    .author-section .section-title {
+        color: #ffffff !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7) !important;
+        font-weight: bold !important;
+    }
+
+    .author-section .section-subtitle,
+    .author-section .section-description {
+        color: #ffffff !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7) !important;
+    }
+
+    .author-section .text-muted {
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .author-card {
+        background-color: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .author-card:hover {
+        background-color: rgba(80, 80, 80, 0.5) !important;
+        transform: translateY(-5px) !important;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .author-card .card-title {
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+        font-weight: bold !important;
+    }
+
+    .author-card .card-text {
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+    }
+
     .hover-effect {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }

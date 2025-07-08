@@ -104,3 +104,102 @@ def get_youtube_thumbnail(video_id):
 
     # Retorna a versão de alta qualidade do thumbnail
     return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+
+
+@register.filter
+def get_thumbnail(book_data):
+    """
+    Extrai URL da thumbnail de livros do Google Books.
+
+    Acessa dados aninhados de forma segura: book.volumeInfo.imageLinks.thumbnail
+
+    Args:
+        book_data (dict): Dados do livro do Google Books
+
+    Returns:
+        str: URL da thumbnail ou URL da imagem padrão
+    """
+    try:
+        if isinstance(book_data, dict):
+            volume_info = book_data.get('volumeInfo', {})
+            image_links = volume_info.get('imageLinks', {})
+            thumbnail = image_links.get('thumbnail', '')
+
+            # Converter HTTP para HTTPS se necessário
+            if thumbnail and thumbnail.startswith('http://'):
+                thumbnail = thumbnail.replace('http://', 'https://')
+
+            return thumbnail
+    except (AttributeError, TypeError):
+        pass
+
+    return ''
+
+
+@register.filter
+def get_book_title(book_data):
+    """
+    Extrai título de livros do Google Books de forma segura.
+
+    Args:
+        book_data (dict): Dados do livro do Google Books
+
+    Returns:
+        str: Título do livro ou "Título desconhecido"
+    """
+    try:
+        if isinstance(book_data, dict):
+            volume_info = book_data.get('volumeInfo', {})
+            return volume_info.get('title', 'Título desconhecido')
+    except (AttributeError, TypeError):
+        pass
+
+    return 'Título desconhecido'
+
+
+@register.filter
+def get_book_authors(book_data):
+    """
+    Extrai autores de livros do Google Books de forma segura.
+
+    Args:
+        book_data (dict): Dados do livro do Google Books
+
+    Returns:
+        str: Nome do primeiro autor ou "Autor desconhecido"
+    """
+    try:
+        if isinstance(book_data, dict):
+            volume_info = book_data.get('volumeInfo', {})
+            authors = volume_info.get('authors', [])
+
+            if authors and len(authors) > 0:
+                return authors[0]
+    except (AttributeError, TypeError):
+        pass
+
+    return 'Autor desconhecido'
+
+
+@register.filter
+def get_book_categories(book_data):
+    """
+    Extrai categorias de livros do Google Books de forma segura.
+
+    Args:
+        book_data (dict): Dados do livro do Google Books
+
+    Returns:
+        str: Primeira categoria ou string vazia
+    """
+    try:
+        if isinstance(book_data, dict):
+            volume_info = book_data.get('volumeInfo', {})
+            categories = volume_info.get('categories', [])
+
+            if categories and len(categories) > 0:
+                return categories[0]
+    except (AttributeError, TypeError):
+        pass
+
+    return ''

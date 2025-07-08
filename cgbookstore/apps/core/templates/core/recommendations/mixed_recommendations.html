@@ -35,7 +35,12 @@
             {% if book.capa %}
             <img src="{{ book.capa.url }}" class="card-img-top" alt="{{ book.titulo }}" onerror="this.src='{% static 'images/no-cover.svg' %}'; this.onerror=null;">
             {% elif book.capa_url %}
-            <img src="{{ book.capa_url }}" class="card-img-top" alt="{{ book.titulo }}" onerror="this.src='{% static 'images/no-cover.svg' %}'; this.onerror=null;">
+            <img src="{% url 'image_proxy' %}?url={{ book.capa_url|urlencode }}"
+                 class="card-img-top google-books-image"
+                 alt="{{ book.titulo }}"
+                 loading="lazy"
+                 onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
+                 data-original-src="{{ book.capa_url }}">
             {% else %}
             <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
               <i class="bi bi-book fs-1 text-muted"></i>
@@ -63,40 +68,32 @@
     <!-- External Book Card -->
     <div class="col">
       <div class="card h-100 shadow-sm border-0 hover-scale book-card">
-        <a href="#" class="text-decoration-none text-dark view-book-btn external-book" data-book-external-id="{{ book.id }}" data-book-type="external">
+        <a href="#" class="text-decoration-none text-dark view-book-btn external-book"
+           data-book-id="{{ book.id }}"
+           data-book-external-id="{{ book.google_books_id|default:book.id }}"
+           data-book-type="external">
           <div class="position-relative">
-            {% if book.volumeInfo.imageLinks.thumbnail %}
-            <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" class="card-img-top" alt="{{ book.volumeInfo.title|default:'Título desconhecido' }}"
-                 onerror="this.src='{% static 'images/no-cover.svg' %}'; this.onerror=null;">
-            {% else %}
-            <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
-              <i class="bi bi-book fs-1 text-muted"></i>
-            </div>
-            {% endif %}
+            <img src="{% load custom_tags %}{% if book|get_thumbnail %}{% url 'image_proxy' %}?url={{ book|get_thumbnail|urlencode }}{% else %}{% static 'images/no-cover.svg' %}{% endif %}"
+               class="card-img-top google-books-image"
+               alt="{{ book.volumeInfo.title|default:'Título desconhecido' }}"
+               loading="lazy"
+               onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
+               data-original-src="{% if book|get_thumbnail %}{{ book|get_thumbnail }}{% endif %}">
           </div>
           <div class="card-body">
-            <h5 class="card-title mb-1 book-title">{{ book.volumeInfo.title|default:"Título desconhecido" }}</h5>
+            <h5 class="card-title mb-1 book-title">{{ book|get_book_title }}</h5>
             <p class="text-muted small mb-2 book-author">
-              {% if book.volumeInfo.authors %}
-                {% if book.volumeInfo.authors.0 %}
-                  {{ book.volumeInfo.authors.0 }}
-                {% else %}
-                  Autor desconhecido
-                {% endif %}
-              {% else %}
-                Autor desconhecido
-              {% endif %}
+              {{ book|get_book_authors }}
             </p>
-            {% if book.volumeInfo.categories %}
-              {% if book.volumeInfo.categories.0 %}
-                <span class="badge rounded-pill bg-light text-dark border book-genre">{{ book.volumeInfo.categories.0 }}</span>
-              {% endif %}
+            {% if book|get_book_categories %}
+              <span class="badge rounded-pill bg-light text-dark border book-genre">{{ book|get_book_categories }}</span>
             {% endif %}
           </div>
         </a>
         <div class="card-footer bg-transparent border-0">
           <button class="btn btn-primary w-100 btn-sm external-details-btn"
-                  data-book-external-id="{{ book.id }}"
+                  data-book-id="{{ book.id }}"
+                  data-book-external-id="{{ book.google_books_id|default:book.id }}"
                   data-book-type="external"
                   data-book-title="{{ book.volumeInfo.title|default:'Título desconhecido' }}"
                   data-book-author="{% if book.volumeInfo.authors %}{% if book.volumeInfo.authors.0 %}{{ book.volumeInfo.authors.0 }}{% else %}Autor desconhecido{% endif %}{% else %}Autor desconhecido{% endif %}"
@@ -148,11 +145,19 @@ document.addEventListener('DOMContentLoaded', function() {
   externalDetailsBtns.forEach(button => {
     button.addEventListener('click', function(e) {
       e.preventDefault();
-      const externalId = this.dataset.bookExternalId;
-      if (externalId) {
+
+      // CORREÇÃO: Usar o ID interno do banco em vez do Google Books ID
+      const bookId = this.dataset.bookId;
+
+      if (bookId) {
+        console.log(`[DEBUG] Acessando detalhes do livro ID interno: ${bookId}`);
         showLoading();
-        // Redirecionar para um endpoint que importará temporariamente o livro e mostrará os detalhes
-        window.location.href = `/books/external/${externalId}/details/`;
+
+        // URL corrigida: usa o ID interno do banco de dados
+        window.location.href = `/books/external/${bookId}/details/`;
+      } else {
+        console.error('[ERROR] ID do livro não encontrado');
+        alert('Erro: Não foi possível carregar os detalhes deste livro.');
       }
     });
   });
@@ -162,11 +167,19 @@ document.addEventListener('DOMContentLoaded', function() {
   externalBookLinks.forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();
-      const externalId = this.dataset.bookExternalId;
-      if (externalId) {
+
+      // CORREÇÃO: Usar o ID interno do banco em vez do Google Books ID
+      const bookId = this.dataset.bookId;
+
+      if (bookId) {
+        console.log(`[DEBUG] Acessando livro via link - ID interno: ${bookId}`);
         showLoading();
-        // Redirecionar para um endpoint que importará temporariamente o livro e mostrará os detalhes
-        window.location.href = `/books/external/${externalId}/details/`;
+
+        // URL corrigida: usa o ID interno do banco de dados
+        window.location.href = `/books/external/${bookId}/details/`;
+      } else {
+        console.error('[ERROR] ID do livro não encontrado no link');
+        alert('Erro: Não foi possível carregar os detalhes deste livro.');
       }
     });
   });
@@ -195,6 +208,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     return cookieValue;
   }
+
+  // LOG de debug para verificar os dados dos livros
+  console.log('[DEBUG] Livros externos carregados:');
+  externalDetailsBtns.forEach((btn, index) => {
+    console.log(`Livro ${index + 1}:`, {
+      bookId: btn.dataset.bookId,
+      externalId: btn.dataset.bookExternalId,
+      title: btn.dataset.bookTitle
+    });
+  });
 });
 </script>
 {% endblock %}

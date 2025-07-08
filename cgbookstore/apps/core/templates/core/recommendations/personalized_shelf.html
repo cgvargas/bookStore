@@ -34,7 +34,13 @@
                 <a href="#" class="text-decoration-none text-dark external-book" data-bs-toggle="modal" data-bs-target="#externalBookModal" data-book-external-id="{{ book.id }}">
                   <div class="position-relative">
                     {% if book.volumeInfo.imageLinks.thumbnail %}
-                      <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" class="card-img-top" alt="{{ book.volumeInfo.title }}" style="height: 300px; object-fit: cover;" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                      <img src="{% url 'image_proxy' %}?url={{ book.volumeInfo.imageLinks.thumbnail|urlencode }}"
+                           class="card-img-top google-books-image"
+                           alt="{{ book.volumeInfo.title }}"
+                           style="height: 300px; object-fit: cover;"
+                           loading="lazy"
+                           onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
+                           data-original-src="{{ book.volumeInfo.imageLinks.thumbnail }}">
                     {% else %}
                       <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
                         <i class="bi bi-book fs-1 text-muted"></i>
@@ -79,7 +85,13 @@
                     {% if book.capa %}
                       <img src="{{ book.capa.url }}" class="card-img-top" alt="{{ book.titulo }}" style="height: 300px; object-fit: cover;" onerror="this.src='{% static 'images/no-cover.svg' %}'">
                     {% elif book.capa_url %}
-                      <img src="{{ book.capa_url }}" class="card-img-top" alt="{{ book.titulo }}" style="height: 300px; object-fit: cover;" onerror="this.src='{% static 'images/no-cover.svg' %}'">
+                      <img src="{% url 'image_proxy' %}?url={{ book.capa_url|urlencode }}"
+                           class="card-img-top google-books-image"
+                           alt="{{ book.titulo }}"
+                           style="height: 300px; object-fit: cover;"
+                           loading="lazy"
+                           onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';"
+                           data-original-src="{{ book.capa_url }}">
                     {% else %}
                       <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
                         <i class="bi bi-book fs-1 text-muted"></i>

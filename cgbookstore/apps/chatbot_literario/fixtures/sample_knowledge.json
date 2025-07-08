@@ -1,0 +1,182 @@
+[
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 1,
+    "fields": {
+      "question": "Quem escreveu O Senhor dos Anéis?",
+      "answer": "J.R.R. Tolkien é o autor da trilogia O Senhor dos Anéis, uma das obras mais importantes da literatura fantástica.",
+      "category": "autor",
+      "keywords": "senhor anéis tolkien autor escreveu",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 2,
+    "fields": {
+      "question": "Quando foi publicado O Senhor dos Anéis?",
+      "answer": "O Senhor dos Anéis foi publicado originalmente em três volumes entre 1954 e 1955.",
+      "category": "publicacao",
+      "keywords": "senhor anéis publicado lançado ano 1954 1955",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 3,
+    "fields": {
+      "question": "Quem é o autor de O Hobbit?",
+      "answer": "O Hobbit foi escrito por J.R.R. Tolkien e publicado em 1937. É o prelúdio de O Senhor dos Anéis.",
+      "category": "autor",
+      "keywords": "hobbit tolkien autor escreveu 1937",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 4,
+    "fields": {
+      "question": "Quem escreveu 1984?",
+      "answer": "George Orwell é o autor de 1984, um dos romances distópicos mais influentes do século XX.",
+      "category": "autor",
+      "keywords": "1984 george orwell autor escreveu distopia",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 5,
+    "fields": {
+      "question": "Quando foi publicado 1984?",
+      "answer": "1984 foi publicado em 1949 por George Orwell, tornando-se uma das obras mais importantes sobre totalitarismo.",
+      "category": "publicacao",
+      "keywords": "1984 publicado ano 1949 orwell",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 6,
+    "fields": {
+      "question": "Quem escreveu A Revolução dos Bichos?",
+      "answer": "A Revolução dos Bichos foi escrita por George Orwell e publicada em 1945. É uma fábula satírica sobre o totalitarismo.",
+      "category": "autor",
+      "keywords": "revolução bichos animal farm george orwell autor",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 7,
+    "fields": {
+      "question": "Quais são os principais livros de George Orwell?",
+      "answer": "Os principais livros de George Orwell incluem 1984 (1949), A Revolução dos Bichos (1945), Homenagem à Catalunha (1938) e Na Pior em Paris e Londres (1933).",
+      "category": "obras",
+      "keywords": "george orwell livros obras bibliografia 1984 revolução bichos",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 8,
+    "fields": {
+      "question": "Pode me recomendar livros de fantasia?",
+      "answer": "Algumas excelentes recomendações de fantasia incluem: O Senhor dos Anéis de J.R.R. Tolkien, As Crônicas de Nárnia de C.S. Lewis, A Roda do Tempo de Robert Jordan, e O Nome do Vento de Patrick Rothfuss.",
+      "category": "recomendacao",
+      "keywords": "recomendação fantasia livros sugestão indicação",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 9,
+    "fields": {
+      "question": "Como encontrar livros no site?",
+      "answer": "Você pode encontrar livros no site usando a barra de busca no topo da página, navegando pelas categorias no menu principal, ou explorando as seções de 'Mais Vendidos' e 'Lançamentos' na página inicial.",
+      "category": "navegacao",
+      "keywords": "encontrar buscar procurar livros site navegação",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 10,
+    "fields": {
+      "question": "Onde vejo meus favoritos?",
+      "answer": "Seus livros favoritos podem ser acessados clicando no ícone de coração no menu superior ou acessando 'Minha Conta' > 'Favoritos'. Lá você encontrará todos os livros que marcou como favoritos.",
+      "category": "navegacao",
+      "keywords": "favoritos ver acessar onde minha conta",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 11,
+    "fields": {
+      "question": "Quem escreveu Dom Casmurro?",
+      "answer": "Dom Casmurro foi escrito por Machado de Assis e publicado em 1899. É considerado uma das obras-primas da literatura brasileira.",
+      "category": "autor",
+      "keywords": "dom casmurro machado assis autor brasileiro",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 12,
+    "fields": {
+      "question": "Quem é Clarice Lispector?",
+      "answer": "Clarice Lispector foi uma das mais importantes escritoras brasileiras do século XX. Nascida na Ucrânia em 1920, naturalizou-se brasileira. Suas principais obras incluem A Hora da Estrela, A Paixão Segundo G.H. e Perto do Coração Selvagem.",
+      "category": "autor",
+      "keywords": "clarice lispector autora brasileira escritora",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 13,
+    "fields": {
+      "question": "Como adicionar um livro ao carrinho?",
+      "answer": "Para adicionar um livro ao carrinho, clique no botão 'Adicionar ao Carrinho' na página do produto. Você também pode adicionar livros diretamente da lista de resultados clicando no ícone do carrinho.",
+      "category": "navegacao",
+      "keywords": "adicionar carrinho comprar como botão",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 14,
+    "fields": {
+      "question": "Quais são os benefícios de criar uma conta?",
+      "answer": "Ao criar uma conta você tem acesso a: histórico de compras, lista de favoritos, recomendações personalizadas, avaliações de livros, participação em promoções exclusivas e acompanhamento de pedidos.",
+      "category": "conta",
+      "keywords": "conta benefícios criar cadastro vantagens",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "chatbot_literario.knowledgebase",
+    "pk": 15,
+    "fields": {
+      "question": "Como faço para avaliar um livro?",
+      "answer": "Para avaliar um livro, acesse a página do produto e clique nas estrelas de avaliação. Você também pode deixar um comentário detalhado sobre sua experiência de leitura. É necessário estar logado para avaliar.",
+      "category": "funcionalidade",
+      "keywords": "avaliar livro estrelas comentário review",
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
+    }
+  }
+]
