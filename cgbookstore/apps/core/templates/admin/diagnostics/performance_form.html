@@ -1,0 +1,236 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block title %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .performance-form {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .form-card {
+        background: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        background: var(--bg-element);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-sm);
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(54, 153, 255, 0.2);
+    }
+
+    .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: var(--bg-element);
+        border-radius: var(--border-radius-sm);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .radio-option:hover {
+        background: var(--bg-hover);
+    }
+
+    .radio-option input[type="radio"] {
+        margin-right: 10px;
+    }
+
+    .radio-option label {
+        cursor: pointer;
+        margin: 0;
+        font-weight: normal;
+    }
+
+    .radio-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 14px 28px;
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-align: center;
+        font-size: 14px !important;
+        color: white !important;
+        min-width: 180px;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+    }
+
+    .btn-primary {
+        background: var(--primary-color) !important;
+        color: white !important;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover) !important;
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+    .btn-secondary {
+        background: var(--bg-element) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-color) !important;
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-hover) !important;
+        color: var(--text-primary) !important;
+        text-decoration: none !important;
+    }
+
+    /* Força texto dos botões */
+    .btn-group .btn {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        white-space: nowrap !important;
+    }
+
+    .warning-box {
+        background: var(--warning-bg);
+        border: 1px solid var(--warning-color);
+        border-radius: var(--border-radius-sm);
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .warning-box .warning-icon {
+        color: var(--warning-color);
+        margin-right: 10px;
+    }
+
+    .warning-box p {
+        margin: 0;
+        color: var(--text-primary);
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:diagnostics_dashboard' %}">Diagnósticos</a>
+    &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="performance-form">
+    <div class="module">
+        <div class="app-header">
+            <h1 class="section">🚀 {{ title }}</h1>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="warning-box">
+            <span class="warning-icon">⚠️</span>
+            <p>O diagnóstico de performance pode demorar alguns minutos para ser concluído. A página será redirecionada automaticamente quando finalizado.</p>
+        </div>
+
+        <form method="post" action="{{ form_action }}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Tipo de Teste</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="quick" name="test_type" value="quick" checked>
+                        <div>
+                            <label for="quick">⚡ Teste Rápido</label>
+                            <div class="radio-description">Análise básica (< 30 segundos)</div>
+                        </div>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="deep" name="test_type" value="deep">
+                        <div>
+                            <label for="deep">🔬 Análise Profunda</label>
+                            <div class="radio-description">Análise completa (pode demorar vários minutos)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="output_format">Formato de Saída</label>
+                <select id="output_format" name="output_format" class="form-control">
+                    <option value="console">Console (Texto)</option>
+                    <option value="json">JSON</option>
+                    <option value="html">HTML</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="save_report" name="save_report" value="1">
+                    <label for="save_report">💾 Salvar relatório em arquivo</label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">
+                    🚀 Executar Diagnóstico
+                </button>
+                <a href="{% url 'admin:diagnostics_dashboard' %}" class="btn btn-secondary">
+                    ← Voltar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

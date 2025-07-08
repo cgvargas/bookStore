@@ -410,7 +410,13 @@ def cache_management_view(request):
             cache.delete(cache_key)
             messages.success(request, f"Cache '{cache_key}' limpo com sucesso.")
 
-        return redirect('admin:cache-management')
+        # CORREÇÃO: Verifica o referer para decidir o redirecionamento correto
+        referer = request.META.get('HTTP_REFERER', '')
+        if 'diagnostics' in referer:
+            return redirect('admin:diagnostics_dashboard')
+        else:
+            # Para outras páginas, redireciona de volta para onde veio ou para admin index
+            return redirect('admin:index')
 
     # Lista de caches conhecidos
     known_caches = [

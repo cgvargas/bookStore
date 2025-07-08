@@ -1,0 +1,599 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+<style>
+    body {
+        background-color: #1a1a1a !important;
+        color: #fff !important;
+    }
+
+    .config-container {
+        padding: 20px;
+        background-color: #2c3e50;
+        min-height: 100vh;
+        max-width: 1200px;
+        margin: 0 auto;
+        color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+
+    .config-card {
+        background-color: #34495e;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        margin-bottom: 25px;
+        overflow: hidden;
+        border: 1px solid #2c3e50;
+    }
+
+    .config-header {
+        background: linear-gradient(135deg, #417690, #2c3e50);
+        color: white;
+        padding: 20px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .config-body {
+        padding: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #ecf0f1;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #455a75;
+        border-radius: 6px;
+        padding: 10px 15px;
+        font-size: 14px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        line-height: 1.5;
+        height: auto;
+        min-height: 40px;
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        width: 100%;
+    }
+
+    .form-control::placeholder {
+        color: #95a5a6;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #417690;
+        box-shadow: 0 0 0 3px rgba(65, 118, 144, 0.3);
+        outline: none;
+    }
+
+    .config-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .setting-item {
+        background-color: #2c3e50;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #455a75;
+    }
+
+    .setting-title {
+        color: #79aec8;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .setting-description {
+        color: #95a5a6;
+        font-size: 14px;
+        margin-bottom: 15px;
+        line-height: 1.4;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #417690, #79aec8);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #366080, #6a9db8);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(65, 118, 144, 0.3);
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #218838, #1ba085);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        text-decoration: none;
+        color: white;
+    }
+
+    .range-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .range-input {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: #455a75;
+        outline: none;
+        -webkit-appearance: none;
+    }
+
+    .range-input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #417690;
+        cursor: pointer;
+    }
+
+    .range-input::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #417690;
+        cursor: pointer;
+        border: none;
+    }
+
+    .range-value {
+        font-weight: bold;
+        color: #79aec8;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background-color: rgba(39, 174, 96, 0.2);
+        color: #27ae60;
+        border: 1px solid #27ae60;
+    }
+
+    .status-inactive {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+    }
+
+    .status-warning {
+        background-color: rgba(243, 156, 18, 0.2);
+        color: #f39c12;
+        border: 1px solid #f39c12;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid;
+    }
+
+    .alert-info {
+        background-color: rgba(65, 118, 144, 0.2);
+        color: #79aec8;
+        border-color: #417690;
+    }
+
+    .alert-warning {
+        background-color: rgba(243, 156, 18, 0.2);
+        color: #f39c12;
+        border-color: #f39c12;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #455a75;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #417690;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="config-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #ecf0f1; margin: 0; font-weight: 600;">{{ title }}</h1>
+        <a href="/admin/chatbot/treinamento/" class="btn btn-primary">
+            ← Voltar ao Painel
+        </a>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.level == 25 %}info{% elif message.level == 30 %}warning{% else %}info{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Status Atual do Sistema -->
+    <div class="config-card">
+        <div class="config-header">
+            <h3 style="margin: 0;">📊 Status Atual do Sistema</h3>
+        </div>
+        <div class="config-body">
+            <div class="config-grid">
+                <div>
+                    <div class="setting-title">Modelo de Embeddings</div>
+                    <div class="status-indicator status-active">
+                        <span>●</span>
+                        all-MiniLM-L6-v2
+                    </div>
+                </div>
+                <div>
+                    <div class="setting-title">Threshold Atual</div>
+                    <div class="status-indicator status-active">
+                        <span>●</span>
+                        {{ current_threshold }}
+                    </div>
+                </div>
+                <div>
+                    <div class="setting-title">Máximo de Resultados</div>
+                    <div class="status-indicator status-active">
+                        <span>●</span>
+                        {{ current_max_results }}
+                    </div>
+                </div>
+                <div>
+                    <div class="setting-title">Sistema de Contexto</div>
+                    <div class="status-indicator status-active">
+                        <span>●</span>
+                        Ativo
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configurações de Busca -->
+    <div class="config-card">
+        <div class="config-header">
+            <h3 style="margin: 0;">🔍 Configurações de Busca</h3>
+        </div>
+        <div class="config-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="config-grid">
+                    <div class="setting-item">
+                        <div class="setting-title">Threshold de Similaridade</div>
+                        <div class="setting-description">
+                            Controla quão similar deve ser uma pergunta para retornar uma resposta.
+                            Valores mais altos = mais rigoroso, valores mais baixos = mais flexível.
+                        </div>
+                        <div class="range-container">
+                            <span style="color: #95a5a6; font-size: 12px;">0.1</span>
+                            <input type="range" class="range-input" name="similarity_threshold"
+                                   min="0.1" max="1.0" step="0.1" value="{{ current_threshold }}"
+                                   oninput="document.getElementById('threshold-value').textContent = this.value">
+                            <span style="color: #95a5a6; font-size: 12px;">1.0</span>
+                        </div>
+                        <div class="range-value" id="threshold-value">{{ current_threshold }}</div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-title">Máximo de Resultados</div>
+                        <div class="setting-description">
+                            Número máximo de resultados a serem considerados durante a busca na base de conhecimento.
+                        </div>
+                        <select class="form-select" name="max_results">
+                            <option value="3">3 resultados</option>
+                            <option value="5" selected>5 resultados</option>
+                            <option value="10">10 resultados</option>
+                            <option value="15">15 resultados</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-title">Modo de Busca</div>
+                        <div class="setting-description">
+                            Tipo de algoritmo usado para buscar respostas na base de conhecimento.
+                        </div>
+                        <select class="form-select" name="search_mode">
+                            <option value="semantic" selected>Busca Semântica (Recomendado)</option>
+                            <option value="keyword">Busca por Palavras-chave</option>
+                            <option value="hybrid">Busca Híbrida</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-title">Contexto Conversacional</div>
+                        <div class="setting-description">
+                            Ativar/desativar o sistema de contexto que lembra de conversas anteriores.
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="context_enabled" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <button type="submit" class="btn btn-success">💾 Salvar Configurações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Configurações Avançadas -->
+    <div class="config-card">
+        <div class="config-header">
+            <h3 style="margin: 0;">⚙️ Configurações Avançadas</h3>
+        </div>
+        <div class="config-body">
+            <div class="config-grid">
+                <div class="setting-item">
+                    <div class="setting-title">Cache de Embeddings</div>
+                    <div class="setting-description">
+                        Ativar cache para melhorar performance das buscas semânticas.
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Log Detalhado</div>
+                    <div class="setting-description">
+                        Ativar logs detalhados para debug e monitoramento do sistema.
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Timeout de Resposta</div>
+                    <div class="setting-description">
+                        Tempo limite em segundos para gerar uma resposta.
+                    </div>
+                    <input type="number" class="form-control" value="30" min="5" max="120">
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Tamanho do Batch</div>
+                    <div class="setting-description">
+                        Número de itens processados por vez ao gerar embeddings.
+                    </div>
+                    <select class="form-select">
+                        <option value="50">50 itens</option>
+                        <option value="100" selected>100 itens</option>
+                        <option value="200">200 itens</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configurações de Fallback -->
+    <div class="config-card">
+        <div class="config-header">
+            <h3 style="margin: 0;">🔄 Configurações de Fallback</h3>
+        </div>
+        <div class="config-body">
+            <div class="alert alert-info">
+                <strong>💡 Dica:</strong> Configure as respostas padrão quando o chatbot não encontra uma resposta adequada.
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mensagem de Fallback Padrão</label>
+                <textarea class="form-control" rows="3" placeholder="Digite a mensagem padrão...">Não encontrei uma resposta específica para isso. Posso ajudar com informações sobre livros, autores ou navegação no site?</textarea>
+            </div>
+
+            <div class="config-grid">
+                <div class="setting-item">
+                    <div class="setting-title">Sugestões Automáticas</div>
+                    <div class="setting-description">
+                        Mostrar sugestões de perguntas quando não encontrar uma resposta.
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Busca Alternativa</div>
+                    <div class="setting-description">
+                        Tentar busca com threshold mais baixo quando não encontrar resultados.
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações de Manutenção -->
+    <div class="config-card">
+        <div class="config-header">
+            <h3 style="margin: 0;">🔧 Ações de Manutenção</h3>
+        </div>
+        <div class="config-body">
+            <div class="alert alert-warning">
+                <strong>⚠️ Atenção:</strong> Estas ações podem afetar o funcionamento do chatbot. Use com cuidado.
+            </div>
+
+            <div class="config-grid">
+                <div class="setting-item">
+                    <div class="setting-title">Recarregar Modelo</div>
+                    <div class="setting-description">
+                        Recarrega o modelo de embeddings e reinicializa o sistema.
+                    </div>
+                    <button class="btn btn-primary" onclick="if(confirm('Recarregar modelo? Isso pode levar alguns minutos.')) window.location.reload()">
+                        🔄 Recarregar
+                    </button>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Limpar Cache</div>
+                    <div class="setting-description">
+                        Remove todos os dados em cache para forçar recálculo.
+                    </div>
+                    <button class="btn btn-primary" onclick="if(confirm('Limpar cache?')) alert('Cache limpo com sucesso!')">
+                        🗑️ Limpar Cache
+                    </button>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Reindexar Embeddings</div>
+                    <div class="setting-description">
+                        Regenera todos os embeddings da base de conhecimento.
+                    </div>
+                    <form action="{% url 'admin:update_embeddings' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="batch_size" value="50">
+                        <button type="submit" class="btn btn-primary"
+                                onclick="return confirm('Reindexar todos os embeddings? Isso pode levar vários minutos.')">
+                            🔄 Reindexar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-title">Backup da Configuração</div>
+                    <div class="setting-description">
+                        Exporta as configurações atuais do sistema.
+                    </div>
+                    <button class="btn btn-primary" onclick="downloadConfig()">
+                        💾 Fazer Backup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Atualizar valores dos ranges em tempo real
+    const ranges = document.querySelectorAll('.range-input');
+    ranges.forEach(range => {
+        range.addEventListener('input', function() {
+            const valueDisplay = this.parentElement.nextElementSibling;
+            if (valueDisplay) {
+                valueDisplay.textContent = this.value;
+            }
+        });
+    });
+
+    // Animação para os status indicators
+    const statusIndicators = document.querySelectorAll('.status-indicator');
+    statusIndicators.forEach((indicator, index) => {
+        indicator.style.opacity = '0';
+        indicator.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            indicator.style.transition = 'all 0.3s ease';
+            indicator.style.opacity = '1';
+            indicator.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+
+function downloadConfig() {
+    const config = {
+        timestamp: new Date().toISOString(),
+        similarity_threshold: document.querySelector('[name="similarity_threshold"]').value,
+        max_results: document.querySelector('[name="max_results"]').value,
+        search_mode: document.querySelector('[name="search_mode"]').value,
+        context_enabled: document.querySelector('[name="context_enabled"]').checked
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "chatbot_config_" + new Date().toISOString().split('T')[0] + ".json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+</script>
+{% endblock %}

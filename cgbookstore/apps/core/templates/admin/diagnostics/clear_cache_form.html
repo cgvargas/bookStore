@@ -1,0 +1,260 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block title %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .cache-form {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .cache-card {
+        background: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 30px;
+    }
+
+    .warning-box {
+        background: var(--warning-bg);
+        border: 1px solid var(--warning-color);
+        border-radius: var(--border-radius-sm);
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .warning-box .warning-icon {
+        color: var(--warning-color);
+        margin-right: 10px;
+    }
+
+    .warning-box p {
+        margin: 0;
+        color: var(--text-primary);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .cache-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .cache-option {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: var(--bg-element);
+        border-radius: var(--border-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid var(--border-color);
+    }
+
+    .cache-option:hover {
+        background: var(--bg-hover);
+        border-color: var(--primary-color);
+    }
+
+    .cache-option.all {
+        border-left: 4px solid var(--danger-color);
+    }
+
+    .cache-option.default {
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .cache-option.recommendations {
+        border-left: 4px solid var(--warning-color);
+    }
+
+    .cache-option.google_books {
+        border-left: 4px solid #0BB783;
+    }
+
+    .cache-option.image_proxy {
+        border-left: 4px solid var(--secondary-color);
+    }
+
+    .cache-option input[type="radio"] {
+        margin-right: 15px;
+        transform: scale(1.2);
+    }
+
+    .cache-option-content {
+        flex: 1;
+    }
+
+    .cache-option-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 5px;
+    }
+
+    .cache-option-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .cache-icon {
+        font-size: 1.5rem;
+        margin-right: 15px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 14px 28px;
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-align: center;
+        font-size: 14px !important;
+        color: white !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        white-space: nowrap !important;
+        min-width: 140px;
+    }
+
+    .btn-danger {
+        background: var(--danger-color) !important;
+        color: white !important;
+    }
+
+    .btn-danger:hover {
+        background: #e83e4e !important;
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+    .btn-secondary {
+        background: var(--bg-element) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-color) !important;
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-hover) !important;
+        color: var(--text-primary) !important;
+        text-decoration: none !important;
+    }
+
+    /* Força texto dos botões */
+    .btn-group .btn {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:diagnostics_dashboard' %}">Diagnósticos</a>
+    &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="cache-form">
+    <div class="module">
+        <div class="app-header">
+            <h1 class="section">🧹 {{ title }}</h1>
+        </div>
+    </div>
+
+    <div class="cache-card">
+        <div class="warning-box">
+            <span class="warning-icon">⚠️</span>
+            <p>A limpeza do cache pode afetar temporariamente a performance do sistema. Esta ação é irreversível.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Selecione o cache a ser limpo:</label>
+                <div class="cache-options">
+                    {% for option in cache_options %}
+                    <div class="cache-option {{ option.value }}">
+                        <input type="radio" id="{{ option.value }}" name="cache_type" value="{{ option.value }}" 
+                               {% if option.value == 'all' %}checked{% endif %}>
+                        <div class="cache-icon">
+                            {% if option.value == 'all' %}🗑️
+                            {% elif option.value == 'default' %}💾
+                            {% elif option.value == 'recommendations' %}🎯
+                            {% elif option.value == 'google_books' %}📚
+                            {% elif option.value == 'image_proxy' %}🖼️
+                            {% endif %}
+                        </div>
+                        <div class="cache-option-content">
+                            <div class="cache-option-title">
+                                <label for="{{ option.value }}">{{ option.label }}</label>
+                            </div>
+                            <div class="cache-option-description">
+                                {% if option.value == 'all' %}
+                                    Remove todos os dados de cache do sistema
+                                {% elif option.value == 'default' %}
+                                    Cache principal do Django
+                                {% elif option.value == 'recommendations' %}
+                                    Cache do sistema de recomendações
+                                {% elif option.value == 'google_books' %}
+                                    Cache da API do Google Books
+                                {% elif option.value == 'image_proxy' %}
+                                    Cache de imagens de capas
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-danger" 
+                        onclick="return confirm('Tem certeza que deseja limpar o cache selecionado?')">
+                    🧹 Limpar Cache
+                </button>
+                <a href="{% url 'admin:diagnostics_dashboard' %}" class="btn btn-secondary">
+                    ← Voltar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar click handler para os divs de opção
+    document.querySelectorAll('.cache-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+        });
+    });
+});
+</script>
+{% endblock %}

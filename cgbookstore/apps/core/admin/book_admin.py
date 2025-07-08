@@ -63,7 +63,8 @@ class BookAdmin(LoggingAdminMixin, OptimizedQuerysetMixin, admin.ModelAdmin):
                        'created_at', 'updated_at')
     list_editable = ('e_destaque',)
     inlines = [BookAuthorInline]  # Adicionamos o inline para autores
-    actions = ['mark_as_featured', 'remove_featured', 'mark_as_movie_adaptation',
+    # CORREÇÃO: Adicionada a ação delete_selected para habilitar deleção em massa
+    actions = ['delete_selected', 'mark_as_featured', 'remove_featured', 'mark_as_movie_adaptation',
                'remove_movie_adaptation', 'mark_as_new_release', 'remove_new_release']
 
     # Otimizações de consulta

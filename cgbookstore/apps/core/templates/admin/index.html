@@ -364,6 +364,111 @@
                             </ul>
                         </div>
                     </div>
+                    <div class="app-section">
+                        <div class="section-header">
+                            <h3>🛠️ Diagnósticos e Manutenção</h3>
+                        </div>
+                        <div class="section-content">
+                            <ul class="model-list">
+                                <li class="model-item">
+                                    <div class="model-info">
+                                        <a href="{% url 'admin:diagnostics_dashboard' %}" class="model-link">
+                                            🚀 Dashboard de Diagnósticos
+                                        </a>
+                                    </div>
+                                    <div class="model-actions">
+                                        <a href="{% url 'admin:diagnostics_dashboard' %}" class="action-link viewlink">
+                                            Acessar
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="model-item">
+                                    <div class="model-info">
+                                        <a href="{% url 'admin:performance_diagnostics' %}" class="model-link">
+                                            ⚡ Diagnóstico de Performance
+                                        </a>
+                                    </div>
+                                    <div class="model-actions">
+                                        <a href="{% url 'admin:performance_diagnostics' %}" class="action-link addlink">
+                                            Executar
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="model-item">
+                                    <div class="model-info">
+                                        <a href="{% url 'admin:redis_info' %}" class="model-link">
+                                            💾 Informações do Redis
+                                        </a>
+                                    </div>
+                                    <div class="model-actions">
+                                        <a href="{% url 'admin:redis_info' %}" class="action-link viewlink">
+                                            Visualizar
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="model-item">
+                                    <div class="model-info">
+                                        <a href="{% url 'admin:clear_cache' %}" class="model-link">
+                                            🧹 Limpar Cache
+                                        </a>
+                                    </div>
+                                    <div class="model-actions">
+                                        <a href="{% url 'admin:clear_cache' %}" class="action-link changelink">
+                                            Limpar
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="model-item">
+                                    <div class="model-info">
+                                        <a href="{% url 'admin:system_health_check' %}" class="model-link">
+                                            💚 Health Check do Sistema
+                                        </a>
+                                    </div>
+                                    <div class="model-actions">
+                                        <a href="{% url 'admin:system_health_check' %}" class="action-link viewlink">
+                                            Verificar
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="model-item">
+                                    <div class="model-info">
+                                        <a href="{% url 'admin:fix_corrupted_covers' %}" class="model-link">
+                                            🖼️ Corrigir Capas Corrompidas
+                                        </a>
+                                    </div>
+                                    <div class="model-actions">
+                                        <a href="{% url 'admin:fix_corrupted_covers' %}" class="action-link changelink">
+                                            Corrigir
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="model-item">
+                                    <div class="model-info">
+                                        <a href="{% url 'admin:debug_book_images' %}" class="model-link">
+                                            🔍 Debug de Imagens
+                                        </a>
+                                    </div>
+                                    <div class="model-actions">
+                                        <a href="{% url 'admin:debug_book_images' %}" class="action-link viewlink">
+                                            Analisar
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="model-item">
+                                    <div class="model-info">
+                                        <a href="{% url 'admin:debug_recommendations' %}" class="model-link">
+                                            🎯 Debug de Recomendações
+                                        </a>
+                                    </div>
+                                    <div class="model-actions">
+                                        <a href="{% url 'admin:debug_recommendations' %}" class="action-link viewlink">
+                                            Analisar
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

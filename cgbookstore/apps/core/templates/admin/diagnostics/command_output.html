@@ -1,0 +1,268 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block title %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .command-output {
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .output-card {
+        background: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+
+    .output-header {
+        background: var(--bg-element);
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .output-header h2 {
+        margin: 0;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-success {
+        color: #0BB783;
+    }
+
+    .status-error {
+        color: var(--danger-color);
+    }
+
+    .output-body {
+        padding: 20px;
+    }
+
+    .output-content {
+        background: #0d1117;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-sm);
+        padding: 20px;
+        overflow-x: auto;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .output-text {
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.4;
+        color: #f0f6fc;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0;
+    }
+
+    .error-message {
+        background: var(--danger-bg);
+        border: 1px solid var(--danger-color);
+        border-radius: var(--border-radius-sm);
+        padding: 15px;
+        color: var(--danger-color);
+        margin-bottom: 20px;
+    }
+
+    .success-message {
+        background: var(--success-bg);
+        border: 1px solid #0BB783;
+        border-radius: var(--border-radius-sm);
+        padding: 15px;
+        color: #0BB783;
+        margin-bottom: 20px;
+    }
+
+    .actions {
+        padding: 20px;
+        border-top: 1px solid var(--border-color);
+        background: var(--bg-element);
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        margin-right: 10px;
+        font-size: 14px !important;
+        color: white !important;
+        text-align: center;
+        min-width: 150px;
+    }
+
+    .btn-primary {
+        background: var(--primary-color) !important;
+        color: white !important;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-hover) !important;
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+    .btn-secondary {
+        background: var(--bg-hover) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-color) !important;
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-element) !important;
+        color: var(--text-primary) !important;
+        text-decoration: none !important;
+    }
+
+    /* Força o texto dos botões a aparecer */
+    .actions .btn {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+    }
+
+    .copy-button {
+        float: right;
+        background: var(--warning-color);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: var(--border-radius-sm);
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .copy-button:hover {
+        background: #e09600;
+    }
+
+    .scrollbar-custom {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+        border-radius: 4px;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+        background-color: var(--border-active);
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:diagnostics_dashboard' %}">Diagnósticos</a>
+    &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="command-output">
+    <div class="output-card">
+        <div class="output-header">
+            <h2>
+                {% if success %}
+                    <span class="status-success">✅</span>
+                {% else %}
+                    <span class="status-error">❌</span>
+                {% endif %}
+                {{ title }}
+            </h2>
+        </div>
+
+        <div class="output-body">
+            {% if success %}
+                {% if output %}
+                <div class="success-message">
+                    ✅ Comando executado com sucesso!
+                </div>
+                <div class="output-content scrollbar-custom">
+                    <button class="copy-button" onclick="copyOutput()">📋 Copiar</button>
+                    <pre class="output-text" id="output-text">{{ output }}</pre>
+                </div>
+                {% else %}
+                <div class="success-message">
+                    ✅ Operação concluída com sucesso!
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="error-message">
+                    ❌ Erro ao executar comando: {{ error }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="actions">
+            <a href="{% url 'admin:diagnostics_dashboard' %}" class="btn btn-primary">
+                ← Voltar aos Diagnósticos
+            </a>
+            {% if success and output %}
+            <button class="btn btn-secondary" onclick="downloadOutput()">
+                💾 Baixar Output
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function copyOutput() {
+    const output = document.getElementById('output-text');
+    const text = output.textContent;
+    
+    navigator.clipboard.writeText(text).then(function() {
+        const button = document.querySelector('.copy-button');
+        const originalText = button.textContent;
+        button.textContent = '✅ Copiado!';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Erro ao copiar: ', err);
+        alert('Erro ao copiar texto');
+    });
+}
+
+function downloadOutput() {
+    const output = document.getElementById('output-text');
+    const text = output.textContent;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '{{ title|slugify }}_output_{{ "now"|date:"Y-m-d_H-i-s" }}.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

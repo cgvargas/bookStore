@@ -4,30 +4,95 @@
 <nav class="module custom-scrollbar" id="nav-sidebar">
   {% if available_apps %}
     <div class="app-modules">
-      <!-- Módulo Chatbot Literário -->
+      <!-- 🛠️ MÓDULO DE DIAGNÓSTICOS -->
+      <div class="app-module" id="app-diagnostics">
+        <table>
+          <caption>
+            <a href="{% url 'admin:diagnostics_dashboard' %}" class="section">🛠️ Diagnósticos</a>
+          </caption>
+          <tr class="model-dashboard{% if 'diagnostics/' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:diagnostics_dashboard' %}"{% if 'diagnostics/' in request.path and 'diagnostics/performance' not in request.path and 'diagnostics/redis' not in request.path %} aria-current="page"{% endif %}>
+                🚀 Dashboard
+              </a>
+            </th>
+          </tr>
+          <tr class="model-performance{% if 'diagnostics/performance' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:performance_diagnostics' %}"{% if 'diagnostics/performance' in request.path %} aria-current="page"{% endif %}>
+                ⚡ Performance
+              </a>
+            </th>
+          </tr>
+          <tr class="model-redis{% if 'diagnostics/redis-info' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:redis_info' %}"{% if 'diagnostics/redis-info' in request.path %} aria-current="page"{% endif %}>
+                💾 Redis Info
+              </a>
+            </th>
+          </tr>
+          <tr class="model-cache{% if 'diagnostics/clear-cache' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:clear_cache' %}"{% if 'diagnostics/clear-cache' in request.path %} aria-current="page"{% endif %}>
+                🧹 Limpar Cache
+              </a>
+            </th>
+          </tr>
+          <tr class="model-health{% if 'diagnostics/system-health' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:system_health_check' %}"{% if 'diagnostics/system-health' in request.path %} aria-current="page"{% endif %}>
+                💚 Health Check
+              </a>
+            </th>
+          </tr>
+          <tr class="model-debug{% if 'diagnostics/debug' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:debug_book_images' %}"{% if 'diagnostics/debug-books' in request.path %} aria-current="page"{% endif %}>
+                🔍 Debug Imagens
+              </a>
+            </th>
+          </tr>
+          <tr class="model-recommendations{% if 'diagnostics/debug-recommendations' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:debug_recommendations' %}"{% if 'diagnostics/debug-recommendations' in request.path %} aria-current="page"{% endif %}>
+                🎯 Debug Recomendações
+              </a>
+            </th>
+          </tr>
+          <tr class="model-covers{% if 'diagnostics/fix-covers' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{% url 'admin:fix_corrupted_covers' %}"{% if 'diagnostics/fix-covers' in request.path %} aria-current="page"{% endif %}>
+                🖼️ Corrigir Capas
+              </a>
+            </th>
+          </tr>
+        </table>
+      </div>
+
+      <!-- 🤖 MÓDULO CHATBOT LITERÁRIO -->
       <div class="app-module" id="app-chatbot_literario">
         <table>
           <caption>
-            <a href="{% url 'admin:chatbot_literario_training' %}" class="section">Chatbot Literário</a>
+            <a href="{% url 'admin:chatbot_literario_training' %}" class="section">🤖 Chatbot Literário</a>
           </caption>
           <tr class="model-training{% if 'chatbot/treinamento' in request.path %} current-model{% endif %}">
             <th scope="row">
               <a href="{% url 'admin:chatbot_literario_training' %}"{% if 'chatbot/treinamento' in request.path %} aria-current="page"{% endif %}>
-                Treinamento
+                🎓 Treinamento
               </a>
             </th>
           </tr>
           <tr class="model-conversation{% if 'chatbot_literario/conversation' in request.path %} current-model{% endif %}">
             <th scope="row">
               <a href="{% url 'admin:chatbot_literario_conversation_changelist' %}"{% if 'chatbot_literario/conversation' in request.path %} aria-current="page"{% endif %}>
-                Conversas
+                💬 Conversas
               </a>
             </th>
           </tr>
           <tr class="model-conversationfeedback{% if 'chatbot_literario/conversationfeedback' in request.path %} current-model{% endif %}">
             <th scope="row">
               <a href="{% url 'admin:chatbot_literario_conversationfeedback_changelist' %}"{% if 'chatbot_literario/conversationfeedback' in request.path %} aria-current="page"{% endif %}>
-                Feedbacks
+                ⭐ Feedbacks
               </a>
             </th>
           </tr>
@@ -35,30 +100,54 @@
       </div>
 
       {% for app in available_apps %}
-        <div class="app-module{% if app.active %} active{% endif %}" id="app-{{ app.app_label }}">
-          <table>
-            <caption>
-              {% if app.name == "Autenticação e autorização" or app.name == "Authentication and Authorization" %}
-                <a href="{{ app.app_url }}" class="section">Autenticação</a>
-              {% else %}
-                <a href="{{ app.app_url }}" class="section">{{ app.name }}</a>
-              {% endif %}
-            </caption>
-            {% for model in app.models %}
-              <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current-model{% endif %}">
-                <th scope="row">
-                  {% if model.admin_url %}
-                    <a href="{{ model.admin_url }}"{% if model.admin_url in request.path %} aria-current="page"{% endif %}>
-                      {{ model.name }}
-                    </a>
-                  {% else %}
-                    {{ model.name }}
-                  {% endif %}
-                </th>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
+        {% if app.app_label != 'chatbot_literario' %}
+          <div class="app-module{% if app.active %} active{% endif %}" id="app-{{ app.app_label }}">
+            <table>
+              <caption>
+                {% if app.name == "Autenticação e autorização" or app.name == "Authentication and Authorization" %}
+                  <a href="{{ app.app_url }}" class="section">🔐 Autenticação</a>
+                {% elif app.name == "Core" %}
+                  <a href="{{ app.app_url }}" class="section">📚 Organizador</a>
+                {% else %}
+                  <a href="{{ app.app_url }}" class="section">{{ app.name }}</a>
+                {% endif %}
+              </caption>
+              {% for model in app.models %}
+                <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current-model{% endif %}">
+                  <th scope="row">
+                    {% if model.admin_url %}
+                      <a href="{{ model.admin_url }}"{% if model.admin_url in request.path %} aria-current="page"{% endif %}>
+                        {% if model.object_name == 'User' %}👤 {{ model.name }}
+                        {% elif model.object_name == 'Group' %}👥 {{ model.name }}
+                        {% elif model.object_name == 'Book' %}📖 {{ model.name }}
+                        {% elif model.object_name == 'Author' %}✍️ {{ model.name }}
+                        {% elif model.object_name == 'Profile' %}🎭 {{ model.name }}
+                        {% elif model.object_name == 'Banner' %}🖼️ {{ model.name }}
+                        {% elif model.object_name == 'Advertisement' %}📢 {{ model.name }}
+                        {% elif model.object_name == 'HomeSection' %}🏠 {{ model.name }}
+                        {% elif model.object_name == 'DefaultShelfType' %}📚 {{ model.name }}
+                        {% elif model.object_name == 'BookShelfSection' %}📋 {{ model.name }}
+                        {% elif model.object_name == 'BookShelfItem' %}📄 {{ model.name }}
+                        {% elif model.object_name == 'UserBookShelf' %}👤📚 {{ model.name }}
+                        {% elif model.object_name == 'VideoSection' %}🎥 {{ model.name }}
+                        {% elif model.object_name == 'VideoItem' %}📹 {{ model.name }}
+                        {% elif model.object_name == 'CustomSection' %}⚙️ {{ model.name }}
+                        {% elif model.object_name == 'CustomSectionType' %}🔧 {{ model.name }}
+                        {% elif model.object_name == 'CustomSectionLayout' %}🎨 {{ model.name }}
+                        {% elif model.object_name == 'EventItem' %}📅 {{ model.name }}
+                        {% elif model.object_name == 'LinkGridItem' %}🔗 {{ model.name }}
+                        {% else %}📋 {{ model.name }}
+                        {% endif %}
+                      </a>
+                    {% else %}
+                      📋 {{ model.name }}
+                    {% endif %}
+                  </th>
+                </tr>
+              {% endfor %}
+            </table>
+          </div>
+        {% endif %}
       {% endfor %}
     </div>
   {% endif %}

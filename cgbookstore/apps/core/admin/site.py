@@ -916,6 +916,10 @@ class DatabaseAdminSite(admin.AdminSite):
         Adiciona URLs personalizadas ao admin.
         """
         urls = super().get_urls()
+
+        # Importa as ferramentas de diagnóstico
+        from .diagnostics_admin import diagnostics_admin
+
         custom_urls = [
             # URLs existentes...
             path('view-database/', self.admin_view(self.view_database), name='view-database'),
@@ -928,7 +932,7 @@ class DatabaseAdminSite(admin.AdminSite):
                  name='clear-structure-folder'),
             path('book-category-config/', self.admin_view(self.book_category_config_view), name='book-category-config'),
 
-            # Novas URLs para gerenciamento de prateleiras
+            # URLs para gerenciamento de prateleiras
             path('shelf-management/', self.admin_view(views.shelf_management_statistics), name='shelf-management'),
             path('shelf-management-stats/', self.admin_view(views.shelf_management_statistics),
                  name='shelf-management-stats'),
@@ -936,7 +940,7 @@ class DatabaseAdminSite(admin.AdminSite):
             path('quick-shelf-creation/', self.admin_view(self.quick_shelf_creation_view), name='quick-shelf-creation'),
             path('visual-shelf-manager/', self.admin_view(self.visual_shelf_manager), name='visual-shelf-manager'),
 
-            # Novas URLs para o treinamento do chatbot
+            # URLs para o treinamento do chatbot
             path('chatbot/treinamento/', self.admin_view(chatbot_views.training_interface),
                  name='chatbot_literario_training'),
             path('chatbot/treinamento/testar/', self.admin_view(chatbot_views.test_chatbot),
@@ -949,17 +953,46 @@ class DatabaseAdminSite(admin.AdminSite):
                  name='import_knowledge'),
             path('chatbot/treinamento/exportar/', self.admin_view(chatbot_views.export_knowledge),
                  name='export_knowledge'),
-            # Nova URL para atualizar embeddings
             path('chatbot/treinamento/update-embeddings/', self.admin_view(chatbot_views.update_embeddings),
                  name='update_embeddings'),
 
-            # Criar URLs diretas para conversas e feedbacks
+            # ✅ NOVAS URLs DAS FERRAMENTAS (ADICIONAR APÓS AS URLs EXISTENTES)
+            path('chatbot/treinamento/add-specific-dates/', self.admin_view(chatbot_views.run_add_specific_dates),
+                 name='run_add_specific_dates'),
+            path('chatbot/treinamento/debug-chatbot/', self.admin_view(chatbot_views.run_debug_chatbot),
+                 name='run_debug_chatbot'),
+            path('chatbot/treinamento/clean-knowledge/', self.admin_view(chatbot_views.clean_knowledge_base),
+                 name='clean_knowledge_base'),
+            path('chatbot/treinamento/statistics/', self.admin_view(chatbot_views.system_statistics),
+                 name='system_statistics'),
+            path('chatbot/treinamento/config/', self.admin_view(chatbot_views.system_config),
+                 name='system_config'),
+
+            # URLs diretas para conversas e feedbacks
             path('chatbot/conversas/',
                  self.admin_view(self.chatbot_conversations_view),
                  name='chatbot_conversations'),
             path('chatbot/feedbacks/',
                  self.admin_view(self.chatbot_feedbacks_view),
                  name='chatbot_feedbacks'),
+
+            # 🚀 NOVAS URLs DE DIAGNÓSTICOS
+            path('diagnostics/', self.admin_view(diagnostics_admin.diagnostics_dashboard),
+                 name='diagnostics_dashboard'),
+            path('diagnostics/performance/', self.admin_view(diagnostics_admin.performance_diagnostics),
+                 name='performance_diagnostics'),
+            path('diagnostics/redis-info/', self.admin_view(diagnostics_admin.redis_info), name='redis_info'),
+            path('diagnostics/fix-covers/', self.admin_view(diagnostics_admin.fix_corrupted_covers),
+                 name='fix_corrupted_covers'),
+            path('diagnostics/debug-books/', self.admin_view(diagnostics_admin.debug_book_images),
+                 name='debug_book_images'),
+            path('diagnostics/debug-recommendations/', self.admin_view(diagnostics_admin.debug_recommendations),
+                 name='debug_recommendations'),
+            path('diagnostics/system-health/', self.admin_view(diagnostics_admin.system_health_check),
+                 name='system_health_check'),
+            path('diagnostics/clear-cache/', self.admin_view(diagnostics_admin.clear_cache), name='clear_cache'),
+            path('diagnostics/task-status/<str:task_id>/', self.admin_view(diagnostics_admin.task_status),
+                 name='task_status'),
         ]
         return custom_urls + urls
 
