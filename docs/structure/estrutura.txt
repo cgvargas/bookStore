@@ -1,11 +1,17 @@
-# Estrutura do Projeto
+# Estrutura do Projeto CG.BookStore Online - 2025
 
 Data de geração: 04/04/2025 08:24:18
-============================================================
+=======================================================================
 .
 ├── .env.dev
+├── .env.example
 ├── .env.prod
 ├── .gitignore
+├── backup_knowledge_items.json
+├── cgbookstore_backup.dump
+├── desktop.ini
+├── find_and_update_imports.py
+├── find_template_usage.ps1
 ├── LICENSE
 ├── README.md
 ├── cgbookstore_backup.dump
@@ -13,6 +19,7 @@ Data de geração: 04/04/2025 08:24:18
 ├── manage.py
 ├── pytest.ini
 ├── requirements.txt
+├── verificar_redis.py
 ├── .idea
 │   ├── .gitignore
 │   ├── bookstore.iml
@@ -60,6 +67,7 @@ Data de geração: 04/04/2025 08:24:18
 │   │   │   │   ├── changelists.css
 │   │   │   │   ├── custom_admin.css
 │   │   │   │   ├── dashboard.css
+│   │   │   │   ├── layout_fixes.css
 │   │   │   │   └── nav_sidebar.css
 │   │   │   ├── js
 │   │   │   │   ├── admin_base.js
@@ -69,23 +77,35 @@ Data de geração: 04/04/2025 08:24:18
 │   │   │   ├── author-section.css
 │   │   │   ├── background.css
 │   │   │   ├── book-cards-shared.css
+│   │   │   ├── book-cover-fix.css
 │   │   │   ├── book-covers.css
+│   │   │   ├── book-covers-fix.css
 │   │   │   ├── book-details.css
 │   │   │   ├── book-details-background.css
 │   │   │   ├── book-details-fixes.css
 │   │   │   ├── book-details-modal.css
 │   │   │   ├── book-edit.css
+│   │   │   ├── book-edit-dark-theme-fix.css
 │   │   │   ├── book-search.css
 │   │   │   ├── catalogue.css
+│   │   │   ├── chatbot-enhanced.css
+│   │   │   ├── chatbot_page.css
+│   │   │   ├── chatbot_widget.css
 │   │   │   ├── contato.css
 │   │   │   ├── custom_sections.css
 │   │   │   ├── metrics.css
 │   │   │   ├── personalized_shelf.css
 │   │   │   ├── profile.css
+│   │   │   ├── profile-card-achievements.css
+│   │   │   ├── profile-card-quote.css
+│   │   │   ├── profile-card-reading-status.css
+│   │   │   ├── profile-card-stats.css
+│   │   │   ├── profile-card-themes.css
 │   │   │   ├── ranking.css
 │   │   │   ├── recommendations.css
 │   │   │   ├── styles.css
 │   │   │   ├── swiper-custom.css
+│   │   │   ├── theme-compatibility.css
 │   │   │   ├── video-section.css
 │   │   │   └── weather_widget.css
 │   │   ├── images
@@ -97,18 +117,36 @@ Data de geração: 04/04/2025 08:24:18
 │   │   └── js
 │   │       ├── book-details.js
 │   │       ├── book-details-init.js
+│   │       ├── book-details-modal.js
 │   │       ├── book-edit.js
+│   │       ├── book-recommendation-fix.js
 │   │       ├── book-search.js
+│   │       ├── chatbot-enhanced.js
+│   │       ├── chatbot-sw.js
+│   │       ├── chatbot_core.js
+│   │       ├── chatbot_page.js
+│   │       ├── chatbot_widget.js
 │   │       ├── csrf-setup.js
+│   │       ├── fix-customize-button.js
+│   │       ├── image-fallback-improved.js
 │   │       ├── metrics.js
 │   │       ├── personalized_shelf.js
 │   │       ├── profile.js
+│   │       ├── profile-card-achievements.js
+│   │       ├── profile-card-integration.js
+│   │       ├── profile-card-quote.js
+│   │       ├── profile-card-reading-status.js
+│   │       ├── profile-card-stats.js
+│   │       ├── profile-card-themes.js
 │   │       ├── profile-customization.js
 │   │       ├── profile-interaction.js
+│   │       ├── profile-stats.js
 │   │       ├── recommendations.js
 │   │       ├── shelf_manager.js
+│   │       ├── suggestion-buttons-fix.js
 │   │       ├── swiper-config.js
 │   │       ├── theme-switcher.js
+│   │       ├── timezone-fix.js
 │   │       ├── video-section.js
 │   │       └── weather_widget.js
 │   └── apps
@@ -118,40 +156,83 @@ Data de geração: 04/04/2025 08:24:18
 │       │   ├── admin.py
 │       │   ├── admin_views.py
 │       │   ├── apps.py
-│       │   ├── forms.py
 │       │   ├── models.py
-│       │   ├── signals.py
 │       │   ├── tests.py
 │       │   ├── urls.py
 │       │   ├── views.py
 │       │   ├── data/
 │       │   │   ├── conversations.json
-│       │   │   └── knowledge_base.json
+│       │   │   ├── knowledge_base.json
+│       │   │   ├── perguntas_respostas_livros.csv
+│       │   │   └── perguntas_respostas_livros.json
+│       │   ├── fixtures/
+│       │   │   ├── __init__.py
+│       │   │   └── sample_knowledge.json
 │       │   ├── management/
 │       │   │   └── commands/
 │       │   │       ├── __init__.py
+│       │   │       ├── add_help_knowledge.py
+│       │   │       ├── add_specific_dates.py
+│       │   │       ├── advanced_import.py
+│       │   │       ├── clean_contaminated_data.py
+│       │   │       ├── comprehensive_chatbot_fix.py
+│       │   │       ├── debug_admin_error.py
+│       │   │       ├── debug_chatbot.py
+│       │   │       ├── diagnose_chatbot.py
 │       │   │       ├── export_chatbot_data.py
-│       │   │       └── populate_knowledge_base.py
+│       │   │       ├── fix_knowledge_base.py
+│       │   │       ├── migrate_embeddings.py
+│       │   │       ├── normalize_categories.py
+│       │   │       ├── ollama.py
+│       │   │       ├── populate_knowledge_base.py
+│       │   │       ├── rebuild_knowledge_base.py
+│       │   │       ├── test_chatbot.py
+│       │   │       ├── test_urls.py
+│       │   │       ├── test_view_direct.py
+│       │   │       ├── update_embeddings.py
+│       │   │       └── verify_chatbot_version.py
 │       │   ├── migrations/
+│       │   │       ├── 0001_initial.py
+│       │   │       ├── 0002_conversationfeedback_knowledgeitem.py
+│       │   │       ├── 0003_conversation_context_data.py
+│       │   │       ├── 0004_chatanalytics_alter_conversation_options_and_more.py
+│       │   │       ├── 0005_add_training_session.py
+│       │   │       ├── 0006_knowledgeitem_confidence.py
+│       │   │       └── __init__.py
 │       │   ├── services/
 │       │   │   ├── __init__.py
-│       │   │   ├── chatbot_service.py
+│       │   │   ├── ai_service.py
+│       │   │   ├── chatbot_service.py.backup
+│       │   │   ├── chatbot_service_backup.py
+│       │   │   ├── chatbot_types.py
+│       │   │   ├── embeddings.py
+│       │   │   ├── functional_chatbot.py
 │       │   │   ├── recommendation_service.py
-│       │   │   └── training_service.py
-│       │   ├── static/
-│       │   │   └── css/
-│       │   │       └── chatbot.css
+│       │   │   ├── training_service.py
+│       │   │   └── training_service.py.bak
 │       │   ├── templates/
 │       │   │   ├── admin/
-│       │   │   │   └── index.html
+│       │   │   │   ├── index.html
+│       │   │   │   └── chatbot_literario/
+│       │   │   │       ├── conversation_list.html
+│       │   │   │       ├── debug_results.html
+│       │   │   │       ├── feedback_list.html
+│       │   │   │       ├── system_config.html
+│       │   │   │       └── system_statistics.html
 │       │   │   └── chatbot_literario/
-│       │   │       ├── chat.html
 │       │   │       ├── tags/
+│       │   │       │   ├── base_chatbot.html
 │       │   │       │   └── botao_chatbot.html
+│       │   │       ├── training/
+│       │   │       │   └── training.html
+│       │   │       ├── chat.html
 │       │   │       └── widget.html
-│       │   └── templatetags/
+│       │   ├── templatetags/
+│       │   │   ├── __init__.py
+│       │   │   └── chatbot_tags.py
+│       │   └── tests/
 │       │       ├── __init__.py
-│       │       └── chatbot_tags.py
+│       │       └── test_chat_conversation.py
 │       └── core/
 │           ├── __init__.py
 │           ├── admin.py
@@ -201,6 +282,7 @@ Data de geração: 04/04/2025 08:24:18
 │           ├── recommendations
 │           │   ├── __init__.py
 │           │   ├── engine.py
+│           │   ├── signals.py
 │           │   ├── urls.py
 │           │   ├── analytics
 │           │   │   ├── __init__.py
@@ -261,14 +343,20 @@ Data de geração: 04/04/2025 08:24:18
 │           │   ├── tests
 │           │   │   ├── __init__.py
 │           │   │   ├── conftest.py
+│           │   │   ├── test_adaptive_engine.py
 │           │   │   ├── test_api.py
 │           │   │   ├── test_cache.py
+│           │   │   ├── test_cache_system.py
 │           │   │   ├── test_category.py
 │           │   │   ├── test_engine.py
 │           │   │   ├── test_exclusions.py
+│           │   │   ├── test_helpers.py
 │           │   │   ├── test_history_temporal.py
+│           │   │   ├── test_integration.py
+│           │   │   ├── test_language_provider.py
 │           │   │   ├── test_load.py
 │           │   │   ├── test_logging.py
+│           │   │   ├── test_performance.py
 │           │   │   ├── test_processors.py
 │           │   │   ├── test_providers.py
 │           │   │   ├── test_recommendation_cache.py
@@ -402,7 +490,7 @@ Data de geração: 04/04/2025 08:24:18
     ├── update_settings.py
     └── verify_postgres.py
 
-=========================================================================
+=========================================================================================
 Explicação:
 Raiz do Projeto: Todos os arquivos e diretórios principais estão listados no topo.
 

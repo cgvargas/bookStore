@@ -1,0 +1,7 @@
+# Opção 1: Comando Completo
+(Pode ser executado de qualquer local no PowerShell) #
+rclone sync "C:\Users\claud\OneDrive_CGVargas\OneDrive\projectDjango\bookstore" "meu_gdrive:bookstore" --progress --exclude "/.idea/**" --exclude "/.git/**" --exclude "/.venv/**" --exclude "/venv/**" --exclude "/env/**" --exclude "/__pycache__/**" --exclude "*.pyc" --exclude "db.sqlite3"
+
+# Opção 2: Comando Curto
+(Para usar no terminal do PyCharm, com o projeto bookstore aberto) #
+rclone sync . "meu_gdrive:bookstore" --progress --exclude "/.idea/**" --exclude "/.git/**" --exclude "/.venv/**" --exclude "/venv/**" --exclude "/env/**" --exclude "/__pycache__/**" --exclude "*.pyc" --exclude "db.sqlite3"

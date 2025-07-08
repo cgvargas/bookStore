@@ -1,0 +1,482 @@
+# Estrutura do Projeto CG.BookStore Online - 2025
+
+Data de geração: 04/04/2025 08:24:18
+=======================================================================
+.
+├── .env.dev
+├── .env.prod
+├── .gitignore
+├── LICENSE
+├── README.md
+├── cgbookstore_backup.dump
+├── core_userbookshelf.csv
+├── manage.py
+├── pytest.ini
+├── requirements.txt
+├── .idea
+│   ├── .gitignore
+│   ├── bookstore.iml
+│   ├── misc.xml
+│   ├── modules.xml
+│   ├── vcs.xml
+│   ├── workspace-Discovery.xml
+│   ├── workspace-Enterprise.xml
+│   ├── workspace.xml
+│   └── inspectionProfiles
+│       ├── Project_Default.xml
+│       └── profiles_settings.xml
+├── .pytest_cache
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   ├── README.md
+│   └── v
+│       └── cache
+│           ├── lastfailed
+│           ├── nodeids
+│           └── stepwise
+├── .venv1
+│   ├── pyvenv.cfg
+│   └── Lib
+│       └── site-packages
+├── backups
+│   ├── data_dump.json
+│   └── sqlite
+│       └── db_backup_20250321_110100.sqlite3
+├── cgbookstore
+│   ├── __init__.py
+│   ├── db.sqlite3
+│   ├── debug.log
+│   ├── config
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── settings.py
+│   │   ├── settings.py.bak
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── static
+│   │   ├── admin
+│   │   │   ├── css
+│   │   │   │   ├── admin_table_fix.css
+│   │   │   │   ├── changelists.css
+│   │   │   │   ├── custom_admin.css
+│   │   │   │   ├── dashboard.css
+│   │   │   │   ├── layout_fixes.css
+│   │   │   │   └── nav_sidebar.css
+│   │   │   ├── js
+│   │   │   │   ├── admin_base.js
+│   │   │   │   ├── dashboard.js
+│   │   │   │   └── nav_sidebar.js
+│   │   ├── css
+│   │   │   ├── author-section.css
+│   │   │   ├── background.css
+│   │   │   ├── book-cards-shared.css
+│   │   │   ├── book-cover-fix.css
+│   │   │   ├── book-covers.css
+│   │   │   ├── book-covers-fix.css
+│   │   │   ├── book-details.css
+│   │   │   ├── book-details-background.css
+│   │   │   ├── book-details-fixes.css
+│   │   │   ├── book-details-modal.css
+│   │   │   ├── book-edit.css
+│   │   │   ├── book-edit-dark-theme-fix.css
+│   │   │   ├── book-search.css
+│   │   │   ├── catalogue.css
+│   │   │   ├── chatbot_page.css
+│   │   │   ├── chatbot_widget.css
+│   │   │   ├── contato.css
+│   │   │   ├── custom_sections.css
+│   │   │   ├── metrics.css
+│   │   │   ├── personalized_shelf.css
+│   │   │   ├── profile.css
+│   │   │   ├── profile-card-achievements.css
+│   │   │   ├── profile-card-quote.css
+│   │   │   ├── profile-card-reading-status.css
+│   │   │   ├── profile-card-stats.css
+│   │   │   ├── profile-card-themes.css
+│   │   │   ├── ranking.css
+│   │   │   ├── recommendations.css
+│   │   │   ├── styles.css
+│   │   │   ├── swiper-custom.css
+│   │   │   ├── theme-compatibility.css
+│   │   │   ├── video-section.css
+│   │   │   └── weather_widget.css
+│   │   ├── images
+│   │   │   ├── favicon.svg
+│   │   │   ├── logo.png
+│   │   │   ├── no-cover.svg
+│   │   │   ├── placeholder-prateleira.jpg
+│   │   │   └── placeholder-recomendacao.jpg
+│   │   └── js
+│   │       ├── book-details.js
+│   │       ├── book-details-init.js
+│   │       ├── book-details-modal.js
+│   │       ├── book-edit.js
+│   │       ├── book-recommendation-fix.js
+│   │       ├── book-search.js
+│   │       ├── chatbot.js
+│   │       ├── chatbot-fix.js
+│   │       ├── chatbot_page.js
+│   │       ├── chatbot_widget.js
+│   │       ├── csrf-setup.js
+│   │       ├── fix-customize-button.js
+│   │       ├── image-fallback-improved.js
+│   │       ├── metrics.js
+│   │       ├── personalized_shelf.js
+│   │       ├── profile.js
+│   │       ├── profile-card-achievements.js
+│   │       ├── profile-card-integration.js
+│   │       ├── profile-card-quote.js
+│   │       ├── profile-card-reading-status.js
+│   │       ├── profile-card-stats.js
+│   │       ├── profile-card-themes.js
+│   │       ├── profile-customization.js
+│   │       ├── profile-interaction.js
+│   │       ├── profile-stats.js
+│   │       ├── recommendations.js
+│   │       ├── shelf_manager.js
+│   │       ├── suggestion-buttons-fix.js
+│   │       ├── swiper-config.js
+│   │       ├── theme-switcher.js
+│   │       ├── timezone-fix.js
+│   │       ├── video-section.js
+│   │       └── weather_widget.js
+│   └── apps
+│       ├── __init__.py
+│       ├── chatbot_literario
+│       │   ├── __init__.py
+│       │   ├── admin.py
+│       │   ├── admin_views.py
+│       │   ├── apps.py
+│       │   ├── models.py
+│       │   ├── tests.py
+│       │   ├── urls.py
+│       │   ├── views.py
+│       │   ├── data/
+│       │   │   ├── conversations.json
+│       │   │   ├── knowledge_base.json
+│       │   │   ├── perguntas_respostas_livros.csv
+│       │   │   └── perguntas_respostas_livros.json
+│       │   ├── fixtures/
+│       │   │   ├── __init__.py
+│       │   │   └── sample_knowledge.json
+│       │   ├── management/
+│       │   │   └── commands/
+│       │   │       ├── __init__.py
+│       │   │       ├── add_help_knowledge.py
+│       │   │       ├── add_specific_dates.py
+│       │   │       ├── advanced_import.py
+│       │   │       ├── clean_contaminated_data.py
+│       │   │       ├── comprehensive_chatbot_fix.py
+│       │   │       ├── debug_admin_error.py
+│       │   │       ├── debug_chatbot.py
+│       │   │       ├── export_chatbot_data.py
+│       │   │       ├── fix_knowledge_base.py
+│       │   │       ├── ollama.py
+│       │   │       ├── populate_knowledge_base.py
+│       │   │       ├── rebuild_knowledge_base.py
+│       │   │       ├── test_chatbot.py
+│       │   │       ├── test_urls.py
+│       │   │       ├── test_view_direct.py
+│       │   │       ├── update_embeddings.py
+│       │   │       └── verify_chatbot_version.py
+│       │   ├── migrations/
+│       │   │       ├── 0001_initial.py
+│       │   │       ├── 0002_conversationfeedback_knowledgeitem.py
+│       │   │       └── __init__.py
+│       │   ├── services/
+│       │   │   ├── __init__.py
+│       │   │   ├──
+│       │   │   ├── chatbot_service.py.backup
+│       │   │   ├── chatbot_service_backup.py
+│       │   │   ├── 
+│       │   │   ├── functional_chatbot.py
+│       │   │   ├── recommendation_service.py
+│       │   │   ├── training_service.py
+│       │   │   └── training_service.py.bak
+│       │   ├── templates/
+│       │   │   ├── admin/
+│       │   │   │   ├── index.html
+│       │   │   │   └── chatbot_literario/
+│       │   │   │       ├── conversation_list.html
+│       │   │   │       ├── feedback_list.html
+│       │   │   │       ├── system_config.html
+│       │   │   │       └── system_statistics.html
+│       │   │   └── chatbot_literario/
+│       │   │       ├── tags/
+│       │   │       │   ├── base_chatbot.html
+│       │   │       │   └── botao_chatbot.html
+│       │   │       ├── training/
+│       │   │       │   └── training.html
+│       │   │       ├── chat.html
+│       │   │       └── widget.html
+│       │   ├── templatetags/
+│       │   │   ├── __init__.py
+│       │   │   └── chatbot_tags.py
+│       │   └── tests/
+│       │       ├── __init__.py
+│       │       └── test_chat_conversation.py
+│       └── core/
+│           ├── __init__.py
+│           ├── admin.py
+│           ├── apps.py
+│           ├── forms.py
+│           ├── signals.py
+│           ├── tests.py
+│           ├── urls.py
+│           ├── urls_author.py
+│           ├── weather_config.py
+│           ├── admin
+│           │   ├── README.md
+│           │   ├── __init__.py
+│           │   ├── author_admin.py
+│           │   ├── book_admin.py
+│           │   ├── content_admin.py
+│           │   ├── custom_section_admin.py
+│           │   ├── forms.py
+│           │   ├── mixins.py
+│           │   ├── shelf_admin.py
+│           │   ├── site.py
+│           │   ├── urls.py
+│           │   ├── user_admin.py
+│           │   └── views.py
+│           ├── management
+│           │   ├── __init__.py
+│           │   ├── utils
+│           │   │   ├── __init__.py
+│           │   │   └── table_visualizer.py
+│           │   └── commands
+│           │       ├── __init__.py
+│           │       ├── create_default_shelves.py
+│           │       ├── create_profiles.py
+│           │       ├── generate_project_structure.py
+│           │       └── generate_tables.py
+│           ├── managers
+│           │   ├── __init__.py
+│           │   └── book_managers.py
+│           ├── models
+│           │   ├── __init__.py
+│           │   ├── author.py
+│           │   ├── banner.py
+│           │   ├── book.py
+│           │   ├── home_content.py
+│           │   ├── profile.py
+│           │   └── user.py
+│           ├── recommendations
+│           │   ├── __init__.py
+│           │   ├── engine.py
+│           │   ├── signals.py
+│           │   ├── urls.py
+│           │   ├── analytics
+│           │   │   ├── __init__.py
+│           │   │   ├── apps.py
+│           │   │   ├── endpoints.py
+│           │   │   ├── models.py
+│           │   │   ├── serializers.py
+│           │   │   ├── tracker.py
+│           │   │   ├── urls.py
+│           │   │   ├── admin_dashboard
+│           │   │   │   ├── __init__.py
+│           │   │   │   ├── urls.py
+│           │   │   │   ├── utils.py
+│           │   │   │   ├── views.py
+│           │   │   │   └── templatetags
+│           │   │   │       ├── __init__.py
+│           │   │   │       └── dashboard_filters.py
+│           │   │   ├── management
+│           │   │   │   ├── __init__.py
+│           │   │   │   └── commands
+│           │   │   │       ├── __init__.py
+│           │   │   │       ├── clean_test_data.py
+│           │   │   │       └── generate_test_data.py
+│           │   │   ├── migrations
+│           │   │   │   ├── __init__.py
+│           │   │   │   ├── 0001_create_recommendation_interaction.py
+│           │   │   │   └── 0002_rename_analytics_r_user_id_99fba4_idx_core_analyt_user_id_df7e22_idx_and_more.py
+│           │   │   ├── tests
+│           │   │   │   ├── __init__.py
+│           │   │   │   └── generate_test_data.py
+│           │   │   └── utils
+│           │   │       ├── __init__.py
+│           │   │       └── processors.py
+│           │   ├── api
+│           │   │   ├── README.md
+│           │   │   ├── __init__.py
+│           │   │   ├── endpoints.py
+│           │   │   ├── performance.py
+│           │   │   ├── serializers.py
+│           │   │   └── urls.py
+│           │   ├── management
+│           │   │   ├── __init__.py
+│           │   │   └── commands
+│           │   │       ├── __init__.py
+│           │   │       └── benchmark_recommendations.py
+│           │   ├── providers
+│           │   │   ├── __init__.py
+│           │   │   ├── category.py
+│           │   │   ├── exclusion.py
+│           │   │   ├── external_api.py
+│           │   │   ├── history.py
+│           │   │   ├── mapping.py
+│           │   │   ├── similarity.py
+│           │   │   └── temporal.py
+│           │   ├── services
+│           │   │   ├── __init__.py
+│           │   │   └── calculator.py
+│           │   ├── tests
+│           │   │   ├── __init__.py
+│           │   │   ├── conftest.py
+│           │   │   ├── test_adaptive_engine.py
+│           │   │   ├── test_api.py
+│           │   │   ├── test_cache.py
+│           │   │   ├── test_cache_system.py
+│           │   │   ├── test_category.py
+│           │   │   ├── test_engine.py
+│           │   │   ├── test_exclusions.py
+│           │   │   ├── test_helpers.py
+│           │   │   ├── test_history_temporal.py
+│           │   │   ├── test_integration.py
+│           │   │   ├── test_language_provider.py
+│           │   │   ├── test_load.py
+│           │   │   ├── test_logging.py
+│           │   │   ├── test_performance.py
+│           │   │   ├── test_processors.py
+│           │   │   ├── test_providers.py
+│           │   │   ├── test_recommendation_cache.py
+│           │   │   ├── test_recommendation_system.py
+│           │   │   ├── test_search_tracking.py
+│           │   │   └── test_similarity_provider.py
+│           │   └── utils
+│           │       ├── __init__.py
+│           │       ├── cache_manager.py
+│           │       ├── google_books_cache.py.bak
+│           │       ├── image_utils.py
+│           │       ├── processors.py
+│           │       └── search_tracker.py
+│           ├── serializers
+│           │   ├── __init__.py
+│           │   └── user_serializer.py
+│           ├── services
+│           │   ├── __init__.py
+│           │   ├── google_books_client.py
+│           │   └── google_books_service.py
+│           ├── templates
+│           │   ├── admin
+│           │   │   └── core
+│           │   │   │    └── bookshelfsection
+│           │   │   │        └── change_form.html
+│           │   │   ├── base.html
+│           │   │   ├── book_edit.html
+│           │   │   ├── base_site.html
+│           │   │   ├── book_category_config.html
+│           │   │   ├── change_list.html
+│           │   │   ├── database_overview.html
+│           │   │   ├── database_table_view.html
+│           │   │   ├── index.html
+│           │   │   ├── nav_sidebar.html
+│           │   │   ├── quick_shelf_creation.html
+│           │   │   ├── shelf_management.html
+│           │   │   └── visual_shelf_manager.html
+│           │   ├── core
+│           │   │   ├── __init__.py
+│           │   │   ├── base.html
+│           │   │   ├── contato.html
+│           │   │   ├── home.html
+│           │   │   ├── login.html
+│           │   │   ├── politica_privacidade.html
+│           │   │   ├── planos.html
+│           │   │   ├── ranking_leitores.html
+│           │   │   ├── register.html
+│           │   │   ├── sobre.html
+│           │   │   ├── termos_uso.html
+│           │   │   ├── admin_dashboard
+│           │   │   │   ├── book_categories_metrics.html
+│           │   │   │   ├── dashboard.html
+│           │   │   │   └── metrics.html
+│           │   │   ├── book
+│           │   │   │   ├── book_details.html
+│           │   │   │   ├── search.html
+│           │   │   │   ├── book_list.html
+│           │   │   │   ├── catalogue.html
+│           │   │   │   └── recommended.html
+│           │   │   ├── components
+│           │   │   │   ├── author_section.html
+│           │   │   │   ├── book_cover.html
+│           │   │   │   ├── modal_prateleiras.html
+│           │   │   │   ├── modal_recomendacoes.html
+│           │   │   │   ├── personalized_shelf_widget.html
+│           │   │   │   ├── recommendation_widget.html
+│           │   │   │   └── weather_widget.html
+│           │   │   ├── email
+│           │   │   │   ├── contato_confirmacao.html
+│           │   │   │   ├── contato_email.html
+│           │   │   │   └── email_verification.html
+│           │   │   ├── includes
+│           │   │   │   └── book_card.html
+│           │   │   ├── layouts
+│           │   │   │   ├── eventos_agenda.html
+│           │   │   │   ├── eventos_cards.html
+│           │   │   │   └── eventos_destaque.html
+│           │   │   ├── password
+│           │   │   │   ├── password_reset_complete.html
+│           │   │   │   ├── password_reset_confirm.html
+│           │   │   │   ├── password_reset_done.html
+│           │   │   │   ├── password_reset_email.html
+│           │   │   │   ├── password_reset_form.html
+│           │   │   │   └── password_reset_subject.txt
+│           │   │   ├── profile
+│           │   │   │   ├── profile.html
+│           │   │   │   └── profile_form.html
+│           │   │   └── recommendations
+│           │   │       ├── mixed_recommendations.html
+│           │   │       └── personalized_shelf.html
+│           ├── templatetags
+│           │   ├── __init__.py
+│           │   └── custom_tags.py
+│           ├── utils
+│           │   ├── __init__.py
+│           │   ├── google_books_cache.py
+│           │   ├── google_books_cache.py.bak
+│           │   └── processor.py
+│           └── views
+│               ├── __init__.py
+│               ├── auth.py
+│               ├── author_views.py
+│               ├── book.py
+│               ├── external_book_details_view.py
+│               ├── general.py
+│               ├── profile.py
+│               ├── recommendation_views.py
+│               └── weather.py
+├── dados
+│   └── data
+└── tests
+    ├── .coverage
+    ├── backup_sqlite.py
+    ├── categorize_books.py
+    ├── check_database.py
+    ├── check_project_paths.py
+    ├── check_sendgrid_config.py
+    ├── check_table_names.py
+    ├── create_content_types.py
+    ├── create_env_files.py
+    ├── direct_export.py
+    ├── fix_data_for_import.py
+    ├── fix_price_migration_additional.py
+    ├── listar_tabelas.py
+    ├── pg_import.py
+    ├── script_name.py
+    ├── sendgrid_email_test.py
+    ├── test_env.py
+    ├── test_performance.py
+    ├── test_sendgrid.py
+    ├── update_settings.py
+    └── verify_postgres.py
+
+=========================================================================================
+Explicação:
+Raiz do Projeto: Todos os arquivos e diretórios principais estão listados no topo.
+
+Subdiretórios: Cada subdiretório é aninhado dentro do diretório pai, com uma indentação
+para indicar a hierarquia.
+
+Arquivos: Os arquivos são listados dentro de seus respectivos diretórios.
