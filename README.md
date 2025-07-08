@@ -1,99 +1,142 @@
-# CG.BookStore.Online: Projeto de Livraria Online com foco em Personalização e Descoberta
+# 📚 CG.BookStore Online - Sua Estante Virtual Inteligente
 
-![CG.BookStore.Online](https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif)
+![Status do Projeto](https://img.shields.io/badge/status-em%20desenvolvimento-yellowgreen)
+![Linguagem](https://img.shields.io/badge/Python-3.11+-blue.svg)
+![Framework](https://img.shields.io/badge/Django-4.2+-green.svg)
+![Licença](https://img.shields.io/badge/Licen%C3%A7a-MIT-blue)
 
-## Visão Geral
+CG.BookStore Online é uma plataforma web robusta e moderna para amantes de livros, construída com Django. Mais do que um simples catálogo, o projeto se destaca por ser uma ferramenta de engajamento para leitores, oferecendo uma experiência rica e personalizada através de funcionalidades avançadas como um sistema de recomendações adaptativo e um chatbot literário alimentado por Inteligência Artificial.
 
-O **CG.BookStore.Online** é um projeto de livraria online inovador que visa proporcionar uma experiência de compra personalizada e intuitiva para leitores ávidos. Utilizando o modelo de **micro SaaS**, foca na descoberta de novos títulos e na criação de uma comunidade engajada. A plataforma oferece uma ampla gama de recursos, como **prateleiras personalizadas**, **recomendações inteligentes**, **gerenciamento de ações na leitura** (favoritos, lendo, lidos), **busca integrada ao Google Books**, **detalhamento de livros** com vídeos do YouTube e **duas modalidades de precificação**: freemium (com funcionalidades limitadas) e premium (mensal ou anual via cartão de crédito).
+---
 
-## Público-Alvo
+## ✨ Principais Funcionalidades
 
-- 📚 **Leitores ávidos** de todos os gêneros
-- 🔍 **Usuários que buscam uma experiência de compra personalizada**
-- 📖 **Pessoas interessadas em descobrir novos livros e autores**
-- 💬 **Grupos de leitura e clubes de livros online**
+-   **📚 Gestão de Estantes Virtuais:** Crie e gerencie estantes personalizadas como "Lendo", "Quero Ler", "Lidos" e "Abandonados".
+-   **🤖 Chatbot Literário com IA:** Converse com um assistente inteligente que conhece os livros do catálogo, responde a perguntas contextuais e ajuda a descobrir novas obras. Integração com **Ollama** para processamento de linguagem natural local.
+-   **🧠 Sistema de Recomendações Adaptativo:** Receba sugestões de leitura personalizadas com base no seu histórico, livros favoritos e interações na plataforma.
+-   **👤 Perfis de Leitor Personalizáveis:** Customize seu perfil com temas, estatísticas de leitura, conquistas e citações favoritas.
+-   **⚙️ Painel de Administração Avançado:** Um painel de controle poderoso que vai além do Django Admin padrão, incluindo uma interface de treinamento para o chatbot e um dashboard de diagnósticos do sistema.
+-   **🔍 Busca Inteligente:** Encontre livros e autores de forma rápida e eficiente, com suporte a Full-Text Search para resultados mais relevantes (em PostgreSQL).
+-   **⚡ Cache Otimizado com Redis:** Performance aprimorada através do uso de Redis para cache de recomendações, sessões e outras consultas frequentes.
 
-## Funcionalidades Principais
+---
 
-- **Catálogo Abrangente:** Acesso a uma vasta coleção de livros de diversos gêneros e formatos.
-- **Prateleiras Personalizadas:** Organização de livros em categorias como "Lendo", "Lidos" e "Quero Ler".
-- **Recomendações Inteligentes:** Sugestões baseadas no histórico de leitura e preferências do usuário.
-- **Busca Avançada:** Pesquisa por título, autor, ISBN, gênero e outros filtros.
-- **Carrossel de Destaques:** Apresentação dinâmica de livros em destaque, lançamentos e promoções.
-- **Personalização do Perfil:** Customização com foto e preferências visuais.
-- **Sistema de Banners:** Exibição de promoções e novidades na página inicial.
-- **Gerenciamento de Banners:** Ferramenta administrativa para controle de banners, incluindo agendamento e segmentação.
-- **Chatbot literário:** Ferramenta voltada a esclarecer dúvidas do usuário em relação à aplicação e literatura.
+## 📸 Screenshots
 
-![Livros Animados](https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif)
+*(Recomendação: Substitua os links abaixo por screenshots reais do seu projeto para um grande impacto visual!)*
 
-## Tecnologias Utilizadas
+| Tela Principal                                       | Perfil do Leitor                                   | Chatbot em Ação                                     |
+| ------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------------- |
+| ![Tela Principal](https://via.placeholder.com/400x250) | ![Perfil](https://via.placeholder.com/400x250)     | ![Chatbot](https://via.placeholder.com/400x250)     |
 
-- **Linguagem de Programação:** Python 3.13
-- **Framework Web:** Django
-- **Banco de Dados:** PostgreSQL (compatível com SQLite para desenvolvimento)
-- **Processamento de Imagens:** Pillow
-- **Gerenciamento de Cache:** Sistema de cache customizado - Redis via Docker
-- **Bibliotecas:**
-  - Django REST Framework (preparo para futuras APIs)
-  - Swiper.js (carrossel de livros e banners)
-  - Bootstrap 5
-  - Outras bibliotecas listadas no arquivo [`LEIAME.md`](./LEIAME.md)
-  - Redis
-  - Docker
-  - Ollama
+---
 
-## Potenciais Parceiros
+## 🛠️ Tecnologias Utilizadas
 
-- 📦 **Editoras e distribuidoras de livros**  
-- 💳 **Plataformas de pagamento online**  
-- 🚚 **Serviços de entrega**  
-- 📢 **Influenciadores literários e booktubers**  
-- 📖 **Comunidades online de leitores**  
+Este projeto foi construído com as seguintes tecnologias:
 
-## Expansões Futuras
+-   **Backend:** Python, Django
+-   **Banco de Dados:** PostgreSQL (produção) / SQLite3 (desenvolvimento)
+-   **Inteligência Artificial:** Ollama (para o Chatbot)
+-   **Cache:** Redis
+-   **Frontend:** HTML5, CSS3, JavaScript
+-   **Testes:** Pytest
 
-- **Sistema de Avaliação e Resenhas:** Permitir que usuários avaliem e escrevam resenhas de livros.
-- **Comunidade Online:** Criar fóruns de discussão, clubes de leitura e recursos de interação social.
-- **Integração com Redes Sociais:** Compartilhamento de livros e atividades de leitura em redes sociais.
-- **Loja de eBooks:** Expandir o catálogo para incluir eBooks e audiobooks.
-- **Programa de Fidelidade:** Recompensar clientes frequentes com descontos e ofertas exclusivas.
-- **Eventos Online:** Organizar eventos como lançamentos de livros e bate-papos com autores.
-- **API Pública:** Disponibilizar uma API para desenvolvedores criarem aplicativos e integrações.
+---
 
-## Potencial de Receita Recorrente
+## 🚀 Como Começar
 
-A monetização do aplicativo será realizada por meio de diversas estratégias, incluindo:
+Siga os passos abaixo para configurar e rodar o projeto em seu ambiente local.
 
-- **Assinaturas Premium:** Planos mensais ou anuais com recursos exclusivos como organização personalizada e recomendações avançadas.
-- **Programa de Afiliados:** Parceria com sites de compra de livros para gerar comissões sobre vendas realizadas.
-- **Anúncios:** Exibição de publicidade de editoras e livrarias dentro do aplicativo.
+### Pré-requisitos
 
-![Leitura Engajante](https://media.giphy.com/media/3o7bu8sRnYpTOG1p8k/giphy.gif)
+-   Python 3.11+
+-   Git
+-   Ollama instalado e rodando (para a funcionalidade completa do chatbot)
+-   Redis instalado e rodando (para cache)
 
-## Observações
+### Instalação
 
-- 📌 O projeto **CG.BookStore.Online** está em **constante desenvolvimento**, com novas funcionalidades e melhorias sendo adicionadas regularmente.
-- 📑 A documentação do código está sendo mantida **atualizada** para facilitar a colaboração e manutenção.
-- 🔒 A equipe está comprometida em fornecer uma plataforma **segura, confiável e agradável** para todos os usuários.
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/cgvargas/bookStore.git
+    cd bookStore
+    ```
 
-## Informações Adicionais
+2.  **Crie e ative um ambiente virtual:**
+    ```bash
+    python -m venv .venv
+    # No Windows
+    .\.venv\Scripts\activate
+    # No macOS/Linux
+    source .venv/bin/activate
+    ```
 
-- 📂 **Estrutura do Projeto:** Detalhes disponíveis no arquivo [`estrutura.txt`](./structure-07-02-2025.txt).
-- 📊 **Documentação do Dashboard:** Informações sobre o sistema de analytics estão disponíveis no arquivo [`chat_padronizado_03_02_2025.md`](./chat_padronizado_03_02_2025.md).
-- :) **Em andamanto:** Melhorias no sistema de chatbot literário - contexto.
+3.  **Instale as dependências:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Licença
+4.  **Configure as variáveis de ambiente:**
+    -   Copie o arquivo de exemplo: `cp .env.example .env.dev`
+    -   Abra o arquivo `.env.dev` e preencha as variáveis necessárias (chave secreta, configurações de banco de dados, Redis, etc.).
 
-Este projeto está licenciado sob a **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**. Isso significa que você pode compartilhar e modificar o código, desde que:
+5.  **Aplique as migrações do banco de dados:**
+    ```bash
+    python manage.py migrate
+    ```
 
-- **Dê crédito ao autor original.**
-- **Não utilize para fins comerciais.**
+6.  **Crie um superusuário para acessar o painel de administração:**
+    ```bash
+    python manage.py createsuperuser
+    ```
 
-Para mais detalhes, consulte o arquivo [`LICENSE`](./LICENSE) ou leia sobre a licença [neste link](https://creativecommons.org/licenses/by-nc/4.0/).
+7.  **Inicie o servidor de desenvolvimento:**
+    ```bash
+    python manage.py runserver
+    ```
 
-## Contato
+Acesse `http://127.0.0.1:8000/` em seu navegador para ver o projeto em ação!
 
-- **Desenvolvedor:** CGVargas Informática Team  
-- **Email:** [cg.bookstore.online@gmail.com](mailto:cg.bookstore.online@gmail.com)
+---
 
+## 📂 Estrutura do Projeto
+
+O projeto segue uma estrutura modular para facilitar a manutenção e escalabilidade.
+Use code with caution.
+Markdown
+.
+├── cgbookstore/ # Configurações centrais do projeto Django
+│ ├── apps/ # Contêiner para todas as aplicações do projeto
+│ │ ├── core/ # App principal (modelos de Livro, Autor, Perfil, etc.)
+│ │ └── chatbot_literario/ # App autocontido para toda a lógica do chatbot
+│ ├── config/ # Arquivos de settings, urls e wsgi do projeto
+│ └── static/ # Arquivos estáticos globais (CSS, JS, Imagens)
+├── docs/ # Documentação do projeto (relatórios, diagramas)
+├── tests/ # Scripts de diagnóstico e testes standalone
+├── manage.py # Utilitário de linha de comando do Django
+└── requirements.txt # Dependências do projeto
+Generated code
+---
+
+## 🤝 Como Contribuir
+
+Contribuições são o que tornam a comunidade de código aberto um lugar incrível para aprender, inspirar e criar. Qualquer contribuição que você fizer será **muito bem-vinda**.
+
+1.  Faça um **Fork** do projeto.
+2.  Crie uma **Branch** para sua Feature (`git checkout -b feature/AmazingFeature`).
+3.  Faça o **Commit** de suas mudanças (`git commit -m 'feat: Add some AmazingFeature'`).
+4.  Faça o **Push** para a Branch (`git push origin feature/AmazingFeature`).
+5.  Abra um **Pull Request**.
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+<div align="center">
+    Feito com ❤️ por <a href="https://github.com/cgvargas">C.G. Vargas</a>
+</div>
