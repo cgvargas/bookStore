@@ -52,7 +52,7 @@ class Command(BaseCommand):
 
         # Arquivos a verificar
         files_to_check = [
-            os.path.join(chatbot_app_dir, 'services', 'chatbot_service.py'),
+            os.path.join(chatbot_app_dir, 'services', 'functional_chatbot.py'),
             os.path.join(chatbot_app_dir, 'services', 'training_service.py'),
             os.path.join(chatbot_app_dir, 'views.py'),
         ]

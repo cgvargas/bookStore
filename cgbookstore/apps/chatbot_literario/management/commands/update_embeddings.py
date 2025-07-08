@@ -32,7 +32,15 @@ class Command(BaseCommand):
             return
 
         # Atualizar embeddings
-        updated_count = training_service.update_embeddings(batch_size=batch_size)
+        update_stats = training_service.update_embeddings(batch_size=batch_size)
+
+        # Verificar se ocorreu um erro retornado pelo serviço
+        if 'error' in update_stats:
+            self.stdout.write(self.style.ERROR(f"Ocorreu um erro: {update_stats['error']}"))
+            return
+
+        updated_count = update_stats.get('updated', 0)
+        error_count = update_stats.get('errors', 0)
 
         if updated_count > 0:
             self.stdout.write(self.style.SUCCESS(
@@ -43,9 +51,17 @@ class Command(BaseCommand):
                 "Nenhum item precisava de atualização de embeddings."
             ))
 
-        # Exibir estatísticas
+        if error_count > 0:
+            self.stdout.write(self.style.WARNING(
+                f"{error_count} erro(s) ocorreram. Verifique os logs do sistema."
+            ))
+
+        # Exibir estatísticas gerais
         stats = training_service.generate_training_statistics()
+        knowledge_stats = stats.get('knowledge_base', {})
+        embedding_stats = stats.get('embeddings', {})
+
         self.stdout.write("\nEstatísticas da base de conhecimento:")
-        self.stdout.write(f"  - Total de itens: {stats.get('total_knowledge', 0)}")
-        self.stdout.write(f"  - Itens com embeddings: {stats.get('with_embeddings', 0)}")
-        self.stdout.write(f"  - Itens sem embeddings: {stats.get('without_embeddings', 0)}")
+        self.stdout.write(f"  - Total de itens: {knowledge_stats.get('total', 0)}")
+        self.stdout.write(f"  - Itens com embeddings: {embedding_stats.get('with_embeddings', 0)}")
+        self.stdout.write(f"  - Itens sem embeddings: {embedding_stats.get('without_embeddings', 0)}")
