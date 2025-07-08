@@ -3,15 +3,17 @@ from cgbookstore.apps.core.models import Book
 
 
 class BookRecommendationSerializer(serializers.ModelSerializer):
+    """Serializer para livros locais"""
     capa_url = serializers.SerializerMethodField()
     preco_formatado = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
         fields = [
-            'id', 'titulo', 'autor', 'editora', 'categoria',
-            'capa_url', 'preco_formatado', 'e_lancamento',
-            'preco_promocional'
+            'id', 'titulo', 'autor', 'editora', 'isbn',
+            'categoria', 'genero', 'descricao', 'capa_url',
+            'preco', 'preco_promocional', 'preco_formatado',  # <--- Adicionado aqui
+            'e_destaque', 'quantidade_vendida', 'quantidade_acessos'
         ]
 
     def get_capa_url(self, obj):
@@ -20,8 +22,18 @@ class BookRecommendationSerializer(serializers.ModelSerializer):
     def get_preco_formatado(self, obj):
         return obj.get_formatted_price()
 
+class ExternalBookSerializer(serializers.Serializer):
+    """Serializer para livros externos da API"""
+    id = serializers.CharField()
+    volumeInfo = serializers.DictField()
 
 class PersonalizedShelfSerializer(serializers.Serializer):
-    based_on_history = BookRecommendationSerializer(many=True)
-    based_on_categories = BookRecommendationSerializer(many=True)
-    you_might_like = BookRecommendationSerializer(many=True)
+    """Serializer para prateleira personalizada"""
+    destaques = serializers.ListField(child=serializers.DictField(), required=False)
+    seu_idioma = serializers.ListField(child=serializers.DictField(), required=False)
+    por_genero = serializers.DictField(required=False)
+    por_autor = serializers.DictField(required=False)
+    descobertas = serializers.ListField(child=serializers.DictField(), required=False)
+    has_external = serializers.BooleanField()
+    total = serializers.IntegerField()
+    language_preference = serializers.FloatField(required=False)

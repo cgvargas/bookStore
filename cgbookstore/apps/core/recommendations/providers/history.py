@@ -138,4 +138,9 @@ class HistoryBasedProvider:
     def get_reading_patterns(self, user: User) -> Dict:
         """Retorna padrões de leitura para análise externa"""
         reading_history = self._get_reading_history(user)
-        return self._analyze_reading_patterns(reading_history)
+        patterns = self._analyze_reading_patterns(reading_history)
+
+        # Adiciona total de livros no histórico
+        patterns['total_books'] = len(reading_history)
+
+        return patterns

@@ -6,74 +6,38 @@ logger = logging.getLogger(__name__)
 
 
 def standardize_google_book_cover(url, size='M'):
-    """ Padroniza o tamanho das capas de livros do Google Books.
-    Parâmetros:
-    - url: URL original da imagem
-    - size: Tamanho desejado ('S' para pequeno, 'M' para médio, 'L' para grande)
-
-    Tamanhos aproximados:
-    - S: ~128px
-    - M: ~256px
-    - L: ~512px
+    """
+    Padroniza URLs de capas do Google Books para melhor qualidade.
+    Adiciona tratamento especial para URLs problemáticas.
     """
     if not url:
         return ''
 
-    try:
-        # Verifica se é uma URL do Google Books
-        if 'books.google.com' in url or 'googleusercontent.com' in url:
-            # Parse da URL para manipular parâmetros
-            parsed_url = urlparse(url)
-            query_params = parse_qs(parsed_url.query)
+    # Verificar se é uma URL do Google Books
+    if 'books.google.com' in url or 'googleusercontent.com' in url:
+        # Extrair o ID do livro
+        id_match = re.search(r'[?&]id=([^&]+)', url)
+        if id_match:
+            book_id = id_match.group(1)
 
-            # Remove parâmetros de zoom existentes, mas preserva outros parâmetros
-            if 'zoom' in query_params:
-                del query_params['zoom']
+            # Tratamento especial para IDs problemáticos conhecidos
+            problematic_ids = ['5y04AwAAQBAJ', 'rC2eswEACAAJ']  # Adicionar outros IDs problemáticos aqui
 
-            # Remove edge=curl se presente
-            if 'edge' in query_params:
-                del query_params['edge']
+            if book_id in problematic_ids:
+                # Usar URL alternativa para estes IDs
+                return f"/image-proxy/?url=https://books.google.com/books/publisher/content/images/frontcover/{book_id}?fife=w600-h900"
 
-            # Define o parâmetro de zoom baseado no tamanho desejado
-            zoom_level = {
-                'S': '1',  # Pequeno
-                'M': '2',  # Médio
-                'L': '3'  # Grande
-            }.get(size.upper(), '2')  # Médio é o padrão
+            # Processar normalmente se não for um ID problemático
+            size_param = 'zoom=1'
+            if size == 'L':
+                size_param = 'zoom=2'
+            elif size == 'XL':
+                size_param = 'zoom=3'
 
-            query_params['zoom'] = [zoom_level]
+            return f"/image-proxy/?url=https://books.google.com/books/content?id={book_id}&printsec=frontcover&img=1&{size_param}&source=gbs_api"
 
-            # Adiciona parâmetro para qualidade da imagem
-            query_params['img'] = ['1']
-
-            # Adicionar timestamp para evitar cache
-            import time
-            query_params['t'] = [str(int(time.time()))]
-
-            # Reconstrói a URL com os parâmetros atualizados
-            new_query = urlencode(query_params, doseq=True)
-            new_url = urlunparse((
-                parsed_url.scheme,
-                parsed_url.netloc,
-                parsed_url.path,
-                parsed_url.params,
-                new_query,
-                parsed_url.fragment
-            ))
-
-            return new_url
-
-        # Se não for uma URL do Google Books, verifica se é uma URL genérica
-        elif url.startswith(('http://', 'https://')):
-            # Retorna a URL original para outras fontes de imagem
-            return url
-        else:
-            # Se não for uma URL válida, retorna vazio
-            logger.warning(f"URL de capa inválida: {url}")
-            return ''
-    except Exception as e:
-        logger.error(f"Erro ao padronizar URL da capa: {str(e)}")
-        return url or ''
+    # Se não for uma URL do Google Books, retornar como está
+    return url
 
 
 def get_fallback_cover():

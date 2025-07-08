@@ -456,7 +456,41 @@ class CategoryBasedProvider:
 
     def get_category_affinity(self, user: User) -> dict:
         """Retorna afinidade do usuário com diferentes categorias"""
-        preferences = self._analyze_user_preferences(user)
+        preferences = {
+            'genres': Counter(),
+            'categories': Counter(),
+            'themes': Counter()
+        }
+
+        shelves = UserBookShelf.objects.filter(user=user).select_related('book')
+
+        for shelf in shelves:
+            weight = self.SHELF_WEIGHTS.get(shelf.shelf_type, 0.5)
+            book = shelf.book
+
+            # Processa gênero mantendo formato original para afinidade
+            if book.genero:
+                genres = [g.strip() for g in book.genero.split(',')]
+                for genre in genres:
+                    # Mantém o formato original para retorno de afinidade
+                    preferences['genres'][genre] += weight
+
+            # Processa categoria mantendo formato original para afinidade
+            if book.categoria:
+                categories = [c.strip() for c in book.categoria.split(',')]
+                for category in categories:
+                    # Remove colchetes e aspas se presentes, mas mantém capitalização
+                    clean_category = category.replace('[', '').replace(']', '').replace('"', '').replace("'", '').strip()
+                    if clean_category:
+                        preferences['categories'][clean_category] += weight
+
+            # Processa temas
+            if book.temas:
+                themes = [t.strip().lower() for t in book.temas.split(',')]
+                for theme in themes:
+                    if theme:
+                        preferences['themes'][theme] += weight
+
         return {
             'genres': dict(preferences['genres']),
             'categories': dict(preferences['categories']),

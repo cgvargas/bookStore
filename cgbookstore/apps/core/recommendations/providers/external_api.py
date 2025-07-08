@@ -43,7 +43,8 @@ class ExternalApiProvider:
         """
         try:
             # Verificar se já temos recomendações em cache para este usuário
-            user_cache_key = f"ext_recommendations:{user.id}"
+            user_id = user.id if user else 'anonymous'
+            user_cache_key = f"ext_recommendations:{user_id}"
             if user_cache_key in self._results_cache:
                 cached_results = self._results_cache[user_cache_key]
                 logger.info(f"Usando cache de recomendações externas para usuário {user.id}")
@@ -101,6 +102,10 @@ class ExternalApiProvider:
         weights = {'favorito': 3, 'lido': 2, 'lendo': 2, 'vou_ler': 1}
 
         try:
+            if not user:
+                # Se não há usuário, retorna categorias padrão
+                return ['fiction', 'fantasy', 'thriller', 'romance'][:self.max_patterns]
+
             # Consulta otimizada para prateleiras do usuário
             shelves = UserBookShelf.objects.filter(
                 user=user,
@@ -287,7 +292,11 @@ class ExternalApiProvider:
         user_books = set()
 
         try:
-            user_shelves = UserBookShelf.objects.filter(user=user).select_related('book')
+            if user:
+                user_shelves = UserBookShelf.objects.filter(user=user).select_related('book')
+            else:
+                user_shelves = UserBookShelf.objects.none()
+
             for shelf in user_shelves:
                 try:
                     if hasattr(shelf, 'book') and shelf.book:
