@@ -1,203 +1,272 @@
+# cgbookstore/apps/chatbot_literario/views.py
+
 import json
-import traceback
 import logging
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
 from django.utils import timezone
-from django.conf import settings
 
 from .models import Conversation, Message, ConversationFeedback
-from .services.chatbot_service import chatbot
+#Importa a instância do chatbot criada no __init__.py
+from .services import functional_chatbot
 
 logger = logging.getLogger(__name__)
 
-# Cache de transações recentes para evitar duplicações
-recent_transactions = {}
+
+# =============================================================================
+# Funções Auxiliares
+# =============================================================================
+
+def get_user_favorites(user):
+    """Obtém livros favoritos do usuário"""
+    try:
+        from cgbookstore.apps.core.models import UserBookShelf
+        favorites = UserBookShelf.objects.filter(user=user, shelf_type='favorito').select_related('book')[:5]
+        return [{'titulo': shelf.book.titulo, 'autor': shelf.book.autor, 'capa_url': shelf.book.get_capa_url()} for
+                shelf in favorites]
+    except Exception:
+        return []
 
 
-@login_required
-def chatbot_view(request):
-    """Renderiza a página principal do chatbot."""
-    # Obter ou criar conversa para o usuário atual
-    conversation, created = Conversation.objects.get_or_create(
-        user=request.user,
-        defaults={'started_at': timezone.now()}
-    )
+def get_user_reading_history(user):
+    """Obtém histórico de leitura do usuário"""
+    try:
+        from cgbookstore.apps.core.models import UserBookShelf
+        history = UserBookShelf.objects.filter(user=user, shelf_type__in=['lido', 'lendo']).select_related(
+            'book').order_by('-added_at')[:10]
+        return [{'titulo': shelf.book.titulo, 'autor': shelf.book.autor, 'status': shelf.get_shelf_type_display(),
+                 'data': shelf.added_at.strftime('%d/%m/%Y')} for shelf in history]
+    except Exception:
+        return []
 
-    # Obter mensagens da conversa
-    messages = Message.objects.filter(conversation=conversation)
 
-    return render(request, 'chatbot_literario/chat.html', {
-        'messages': messages
-    })
+def get_user_preferences(user):
+    """Obtém preferências literárias do usuário"""
+    try:
+        from cgbookstore.apps.core.models import UserBookShelf
+        user_books = UserBookShelf.objects.filter(user=user, shelf_type__in=['favorito', 'lido']).select_related(
+            'book')[:20]
+        genres = {}
+        for shelf in user_books:
+            if shelf.book.genero:
+                genres[shelf.book.genero] = genres.get(shelf.book.genero, 0) + 1
+        preferred_genres = sorted(genres.items(), key=lambda x: x[1], reverse=True)[:3]
+        return {'generos_preferidos': [g for g, c in preferred_genres]}
+    except Exception:
+        return {}
+
+
+# =============================================================================
+# Views Principais
+# =============================================================================
+
+class ChatbotView(LoginRequiredMixin, TemplateView):
+    """View principal do chatbot literário (página completa)"""
+    template_name = 'chatbot_literario/chat.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # ✅ CORREÇÃO: Busca o histórico de conversas diretamente do banco de dados.
+        recent_conversations = Conversation.objects.filter(user=user).order_by('-updated_at')[:5]
+
+        context.update({
+            'page_title': 'Chatbot Literário',
+            'recent_conversations': recent_conversations,
+            'favorites': get_user_favorites(user),
+            'reading_history': get_user_reading_history(user),
+            'preferences': get_user_preferences(user)
+        })
+        return context
+
+
+chatbot_view = ChatbotView.as_view()
 
 
 def chatbot_widget(request):
-    """Renderiza o widget do chatbot."""
-    # Se o usuário estiver autenticado, obter mensagens da conversa
-    messages = []
-    if request.user.is_authenticated:
-        conversation, created = Conversation.objects.get_or_create(
-            user=request.user,
-            defaults={'started_at': timezone.now()}
-        )
-        messages = Message.objects.filter(conversation=conversation)
-
-    return render(request, 'chatbot_literario/widget.html', {
-        'messages': messages
-    })
+    """Widget embarcado do chatbot"""
+    # Esta view apenas renderiza o template, a lógica é toda via API.
+    return render(request, 'chatbot_literario/widget.html')
 
 
 @csrf_exempt
+@require_http_methods(["POST"])
 def chatbot_message(request):
     """
-    Endpoint para processamento de mensagens do chatbot.
-    Recebe mensagem do usuário e retorna resposta.
+    Processa mensagens do chatbot, agora orquestrando a persistência da conversa.
     """
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Método não permitido'}, status=405)
-
     try:
-        # Obter dados da requisição
         data = json.loads(request.body)
-        message_text = data.get('message', '').strip()
-        transaction_id = data.get('transaction_id', '')
-
-        # Verificar se é uma mensagem vazia
-        if not message_text:
-            return JsonResponse({'error': 'Mensagem vazia'}, status=400)
-
-        # Verificar por mensagens duplicadas (proteção contra cliques duplos)
-        if transaction_id and transaction_id in recent_transactions:
-            logger.warning(f"Mensagem duplicada detectada: {message_text[:20]}...")
-            return JsonResponse({'error': 'Mensagem duplicada'}, status=409)
-
-        # Armazenar transação recente
-        if transaction_id:
-            recent_transactions[transaction_id] = True
-            # Limitar tamanho do cache
-            if len(recent_transactions) > 100:
-                # Remover itens mais antigos
-                keys = list(recent_transactions.keys())
-                for key in keys[:50]:
-                    recent_transactions.pop(key, None)
-
-        # Obter usuário (autenticado ou anônimo)
+        user_message_text = data.get('message', '').strip()
+        conversation_id = data.get('conversation_id')
         user = request.user if request.user.is_authenticated else None
 
-        # Obter ou criar conversa
+        if not user_message_text:
+            return JsonResponse({'success': False, 'error': 'Mensagem não pode estar vazia'}, status=400)
+
+        # Lógica de gestão da conversa centralizada aqui.
         conversation = None
-        if user:
-            conversation, created = Conversation.objects.get_or_create(
+        if user and user.is_authenticated and conversation_id:
+            try:
+                # Carrega a conversa existente
+                conversation = Conversation.objects.get(id=conversation_id, user=user)
+            except Conversation.DoesNotExist:
+                # Se o ID for inválido ou não pertencer ao usuário, cria uma nova.
+                conversation = None
+
+        if conversation is None:
+            # Cria uma nova conversa se não houver uma ou se a anterior for inválida
+            conversation = Conversation.objects.create(
                 user=user,
-                defaults={'started_at': timezone.now()}
-            )
-            # Atualizar timestamp da conversa
-            if not created:
-                conversation.updated_at = timezone.now()
-                conversation.save()
-
-        # Adicionar mensagem do usuário ao banco de dados
-        user_message = None
-        if conversation:
-            user_message = Message.objects.create(
-                conversation=conversation,
-                sender='user',
-                content=message_text
+                title=f"Conversa sobre '{user_message_text[:30]}...'"
             )
 
-        # ADICIONAR DEBUG AQUI - Print detalhado das estruturas
-        print("\n==== DEBUG: Processamento de Mensagem ====")
-        print(f"Mensagem do usuário: {message_text}")
+        # 1. Salva a mensagem do usuário NO CONTEXTO DA CONVERSA CORRETA
+        Message.objects.create(
+            conversation=conversation,
+            content=user_message_text,
+            sender='user'
+        )
 
-        # Obter resposta do chatbot
-        try:
-            response_text, source = chatbot.get_response(message_text, user=user)
+        # 2. Chama o chatbot, passando a mensagem E o objeto da conversa persistida.
+        response_data = functional_chatbot.get_response(
+            user_message=user_message_text,
+            conversation=conversation  # Passando o objeto inteiro
+        )
+        bot_response_text = response_data.get('response', 'Desculpe, não consegui processar sua pergunta.')
 
-            print(f"Resposta obtida do chatbot: {response_text}")
-            print(f"Fonte da resposta: {source}")
+        # 3. Salva a resposta do bot
+        bot_msg_obj = Message.objects.create(
+            conversation=conversation,
+            content=bot_response_text,
+            sender='bot'
+        )
 
-        except Exception as e:
-            print(f"ERRO DETALHADO na chamada do chatbot: {e}")
-            print(f"Traceback: {traceback.format_exc()}")
-            raise
+        # Atualiza o timestamp da conversa para ordenação
+        conversation.save()
 
-        # Adicionar resposta do bot ao banco de dados
-        bot_message = None
-        if conversation:
-            bot_message = Message.objects.create(
-                conversation=conversation,
-                sender='bot',
-                content=response_text
-            )
-
-        # Formatar resposta para o frontend
-        response_data = {
-            'response': response_text,
-            'timestamp': timezone.now().strftime('%H:%M')
-        }
-
-        # Adicionar ID da mensagem para feedback (se disponível)
-        if bot_message:
-            response_data['message_id'] = bot_message.id
-
-        return JsonResponse(response_data)
+        return JsonResponse({
+            'success': True,
+            'response': bot_response_text,
+            'conversation_id': str(conversation.id),  # Retorna o ID da conversa (nova ou existente)
+            'message_id': str(bot_msg_obj.id),
+            'sources': response_data.get('sources', []),
+            'metadata': response_data.get('metadata', {})
+        })
 
     except json.JSONDecodeError:
-        logger.error("Erro ao decodificar JSON da requisição")
-        return JsonResponse({'error': 'Formato de requisição inválido'}, status=400)
+        return JsonResponse({'success': False, 'error': 'Dados JSON inválidos'}, status=400)
     except Exception as e:
-        logger.error(f"Erro ao processar mensagem: {str(e)}")
-        return JsonResponse({'error': 'Erro interno do servidor'}, status=500)
+        logger.error(f"Erro ao processar mensagem do chatbot: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': 'Erro interno do servidor'}, status=500)
 
 
+@login_required
 @csrf_exempt
+@require_http_methods(["POST"])
 def chatbot_feedback(request):
-    """
-    Endpoint para receber feedback sobre respostas do chatbot.
-    """
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Método não permitido'}, status=405)
-
+    """Coleta feedback sobre as respostas do chatbot"""
     try:
-        # Obter dados da requisição
         data = json.loads(request.body)
         message_id = data.get('message_id')
-        helpful = data.get('helpful', False)
+        rating = data.get('rating')
         comment = data.get('comment', '')
 
-        # Verificar se message_id foi fornecido
-        if not message_id:
-            return JsonResponse({'error': 'ID da mensagem não fornecido'}, status=400)
+        if not all([message_id, rating]):
+            return JsonResponse({'success': False, 'error': 'message_id e rating são obrigatórios'}, status=400)
 
-        # Obter mensagem
-        try:
-            message = Message.objects.get(id=message_id, sender='bot')
-        except Message.DoesNotExist:
-            return JsonResponse({'error': 'Mensagem não encontrada'}, status=404)
+        # ✅ CORREÇÃO: Salva o feedback diretamente no banco de dados.
+        message_obj = get_object_or_404(Message, id=message_id)
 
-        # Verificar se já existe feedback para esta mensagem
-        feedback, created = ConversationFeedback.objects.get_or_create(
-            message=message,
+        feedback, created = ConversationFeedback.objects.update_or_create(
+            message=message_obj,
+            user=request.user,
             defaults={
-                'helpful': helpful,
+                'conversation': message_obj.conversation,
+                'rating': rating,
                 'comment': comment
             }
         )
 
-        # Se feedback já existia, atualizar
-        if not created:
-            feedback.helpful = helpful
-            feedback.comment = comment
-            feedback.save()
-
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'message': 'Feedback enviado com sucesso'})
 
     except json.JSONDecodeError:
-        logger.error("Erro ao decodificar JSON da requisição de feedback")
-        return JsonResponse({'error': 'Formato de requisição inválido'}, status=400)
+        return JsonResponse({'success': False, 'error': 'Dados JSON inválidos'}, status=400)
     except Exception as e:
-        logger.error(f"Erro ao processar feedback: {str(e)}")
-        return JsonResponse({'error': 'Erro interno do servidor'}, status=500)
+        logger.error(f"Erro ao processar feedback: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': 'Erro interno do servidor'}, status=500)
+
+
+@login_required
+def conversation_history(request):
+    """Retorna histórico de conversas do usuário (lista de conversas)"""
+    try:
+        # ✅ CORREÇÃO: Busca as conversas do usuário logado diretamente do DB.
+        conversations = Conversation.objects.filter(user=request.user).order_by('-updated_at')
+
+        data = [
+            {
+                'id': str(conv.id),
+                'title': conv.title or f"Conversa de {conv.started_at.strftime('%d/%m/%Y')}",
+                'started_at': conv.started_at.isoformat(),
+                'updated_at': conv.updated_at.isoformat(),
+            }
+            for conv in conversations
+        ]
+
+        return JsonResponse({'success': True, 'conversations': data})
+    except Exception as e:
+        logger.error(f"Erro ao obter histórico de conversas: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': 'Erro ao carregar histórico'}, status=500)
+
+
+@login_required
+def conversation_detail(request, conversation_id):
+    """Retorna detalhes (mensagens) de uma conversa específica"""
+    try:
+        conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+        messages = Message.objects.filter(conversation=conversation).order_by('created_at')
+
+        data = {
+            'id': str(conversation.id),
+            'title': conversation.title,
+            'messages': [
+                {
+                    'id': str(msg.id),
+                    'content': msg.content,
+                    'sender': msg.sender,
+                    'is_user_message': msg.sender == 'user',
+                    'created_at': msg.created_at.isoformat(),
+                }
+                for msg in messages
+            ]
+        }
+        return JsonResponse({'success': True, 'conversation': data})
+    except Exception as e:
+        logger.error(f"Erro ao obter detalhes da conversa: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': 'Erro ao carregar conversa'}, status=500)
+
+
+@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
+def clear_conversation_context(request):
+    """Limpa o contexto da conversa atual no serviço de chatbot."""
+    try:
+        # ✅ CORREÇÃO: Limpa a sessão no serviço em memória.
+        # Uma nova conversa será criada no DB na próxima mensagem.
+        functional_chatbot.clear_session(user_id=str(request.user.id))
+
+        logger.info(f"Contexto em memória limpo para usuário {request.user.id}")
+
+        return JsonResponse({'success': True, 'message': 'Contexto limpo. Uma nova conversa será iniciada.'})
+
+    except Exception as e:
+        logger.error(f"Erro ao limpar contexto: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': 'Erro interno do servidor'}, status=500)

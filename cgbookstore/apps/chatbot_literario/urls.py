@@ -1,20 +1,33 @@
+# chatbot_literario/urls.py - CONFIGURAÇÃO CORRIGIDA (SEM ADMIN URLs)
+
 from django.urls import path
 from . import views
-from . import admin_views
 
 app_name = 'chatbot_literario'
 
 urlpatterns = [
-    path('', views.chatbot_view, name='chat'),
-    path('api/message/', views.chatbot_message, name='api_message'),
-    path('api/feedback/', views.chatbot_feedback, name='api_feedback'),
-    path('widget/', views.chatbot_widget, name='widget'),
+    # ===== VIEWS PRINCIPAIS =====
+    path('', views.chatbot_view, name='chatbot_view'),
+    path('chat/', views.chatbot_view, name='chatbot_chat'),
+    path('widget/', views.chatbot_widget, name='chatbot_widget'),
 
-    # URLs de treinamento - note que os nomes das URLs correspondem aos que são usados no template
-    path('treinamento/', admin_views.training_interface, name='chatbot_literario_training'),
-    path('treinamento/testar/', admin_views.test_chatbot, name='test_chatbot'),
-    path('treinamento/adicionar-conhecimento/', admin_views.add_knowledge_item, name='add_knowledge_item'),
-    path('treinamento/adicionar-da-conversa/', admin_views.add_to_knowledge, name='add_to_knowledge'),
-    path('treinamento/importar/', admin_views.import_knowledge, name='import_knowledge'),
-    path('treinamento/exportar/', admin_views.export_knowledge, name='export_knowledge'),
+    # ===== APIs DO CHATBOT =====
+    # API principal que processa as mensagens do usuário
+    path('api/message/', views.chatbot_message, name='chatbot_message'),
+    path('api/chat/', views.chatbot_message, name='chatbot_chat_api'),  # Alias
+
+    # ===== APIs UTILITÁRIAS =====
+    # API para submeter feedback
+    path('api/feedback/', views.chatbot_feedback, name='chatbot_feedback'),
+    # API para limpar o contexto da conversa
+    path('api/clear-context/', views.clear_conversation_context, name='clear_conversation_context'),
+
+    # As rotas abaixo foram comentadas porque as views correspondentes foram removidas
+    # do arquivo views.py para centralizar a lógica e corrigir erros.
+    # path('api/personalization/settings/', views.personalization_settings, name='personalization_settings'),
+    # path('api/personalization/test/', views.test_personalization, name='test_personalization'),
+    # path('api/get-context/', views.get_conversation_context, name='get_conversation_context'),
 ]
+
+# REMOVIDO: + get_admin_urls()
+# MOTIVO: URLs admin são registradas no site.py para evitar conflitos

@@ -1,0 +1,428 @@
+{
+  "perguntas_respostas": [
+    {
+      "pergunta": "Quem escreveu 'Dom Quixote'?",
+      "resposta": "Miguel de Cervantes."
+    },
+    {
+      "pergunta": "Qual é o livro mais vendido de todos os tempos, sem contar os textos religiosos?",
+      "resposta": "'Dom Quixote', de Miguel de Cervantes."
+    },
+    {
+      "pergunta": "Em que ano foi publicado '1984' de George Orwell?",
+      "resposta": "1949."
+    },
+    {
+      "pergunta": "Quem é o autor de 'O Senhor dos Anéis'?",
+      "resposta": "J.R.R. Tolkien."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista de 'O Apanhador no Campo de Centeio'?",
+      "resposta": "Holden Caulfield."
+    },
+    {
+      "pergunta": "Qual livro de Jane Austen conta a história de Elizabeth Bennet e Sr. Darcy?",
+      "resposta": "'Orgulho e Preconceito'."
+    },
+    {
+      "pergunta": "Quem escreveu 'Cem Anos de Solidão'?",
+      "resposta": "Gabriel García Márquez."
+    },
+    {
+      "pergunta": "Qual é o nome do navio em 'Moby Dick'?",
+      "resposta": "Pequod."
+    },
+    {
+      "pergunta": "Quem é o autor da série 'Harry Potter'?",
+      "resposta": "J.K. Rowling."
+    },
+    {
+      "pergunta": "Em qual cidade se passa a maior parte de 'Ulysses' de James Joyce?",
+      "resposta": "Dublin, Irlanda."
+    },
+    {
+      "pergunta": "Qual é o nome da família protagonista em 'O Poderoso Chefão' de Mario Puzo?",
+      "resposta": "A família Corleone."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Grande Gatsby'?",
+      "resposta": "F. Scott Fitzgerald."
+    },
+    {
+      "pergunta": "Qual é o primeiro livro da série 'As Crônicas de Nárnia' por ordem de publicação?",
+      "resposta": "'O Leão, a Feiticeira e o Guarda-Roupa'."
+    },
+    {
+      "pergunta": "Quem escreveu o romance 'Frankenstein'?",
+      "resposta": "Mary Shelley."
+    },
+    {
+      "pergunta": "Qual o autor de 'A Divina Comédia'?",
+      "resposta": "Dante Alighieri."
+    },
+    {
+      "pergunta": "Quem escreveu 'Memórias Póstumas de Brás Cubas'?",
+      "resposta": "Machado de Assis."
+    },
+    {
+      "pergunta": "Qual é o nome do detetive criado por Agatha Christie?",
+      "resposta": "Hercule Poirot."
+    },
+    {
+      "pergunta": "Qual o livro mais famoso de Victor Hugo?",
+      "resposta": "'Os Miseráveis'."
+    },
+    {
+      "pergunta": "Quem escreveu 'A Metamorfose'?",
+      "resposta": "Franz Kafka."
+    },
+    {
+      "pergunta": "Qual é o nome do robô depressivo em 'O Guia do Mochileiro das Galáxias'?",
+      "resposta": "Marvin."
+    },
+    {
+      "pergunta": "Quem é o autor de 'Guerra e Paz'?",
+      "resposta": "Liev Tolstói."
+    },
+    {
+      "pergunta": "Qual o nome da inteligência artificial no livro '2001: Uma Odisseia no Espaço'?",
+      "resposta": "HAL 9000."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Morro dos Ventos Uivantes'?",
+      "resposta": "Emily Brontë."
+    },
+    {
+      "pergunta": "Qual é o nome do capitão em 'Vinte Mil Léguas Submarinas'?",
+      "resposta": "Capitão Nemo."
+    },
+    {
+      "pergunta": "Quem é o autor de 'O Sol é para Todos'?",
+      "resposta": "Harper Lee."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista de 'Crime e Castigo'?",
+      "resposta": "Raskólnikov."
+    },
+    {
+      "pergunta": "Quem escreveu 'A Revolução dos Bichos'?",
+      "resposta": "George Orwell."
+    },
+    {
+      "pergunta": "Qual é o nome da terra mágica em 'O Mágico de Oz'?",
+      "resposta": "Terra de Oz."
+    },
+    {
+      "pergunta": "Quem escreveu 'Alice no País das Maravilhas'?",
+      "resposta": "Lewis Carroll."
+    },
+    {
+      "pergunta": "Qual é o nome do autor de 'O Nome da Rosa'?",
+      "resposta": "Umberto Eco."
+    },
+    {
+      "pergunta": "Quem é a autora de 'O Conto da Aia'?",
+      "resposta": "Margaret Atwood."
+    },
+    {
+      "pergunta": "Qual é o nome do protagonista em 'A Laranja Mecânica'?",
+      "resposta": "Alex."
+    },
+    {
+      "pergunta": "Quem escreveu 'As Vinhas da Ira'?",
+      "resposta": "John Steinbeck."
+    },
+    {
+      "pergunta": "Qual é o nome da espada de Aragorn em 'O Senhor dos Anéis'?",
+      "resposta": "Andúril."
+    },
+    {
+      "pergunta": "Quem é o autor de 'Drácula'?",
+      "resposta": "Bram Stoker."
+    },
+    {
+      "pergunta": "Qual o nome da casa de Hogwarts para bruxos inteligentes e criativos?",
+      "resposta": "Corvinal (Ravenclaw)."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Retrato de Dorian Gray'?",
+      "resposta": "Oscar Wilde."
+    },
+    {
+      "pergunta": "Qual é o nome do mundo distópico em 'Admirável Mundo Novo'?",
+      "resposta": "Estado Mundial."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Pequeno Príncipe'?",
+      "resposta": "Antoine de Saint-Exupéry."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista de 'Fahrenheit 451'?",
+      "resposta": "Guy Montag."
+    },
+    {
+      "pergunta": "Quem escreveu 'Grande Sertão: Veredas'?",
+      "resposta": "João Guimarães Rosa."
+    },
+    {
+      "pergunta": "Qual o nome do principal vilão em 'Harry Potter'?",
+      "resposta": "Lord Voldemort."
+    },
+    {
+      "pergunta": "Quem escreveu 'A Insustentável Leveza do Ser'?",
+      "resposta": "Milan Kundera."
+    },
+    {
+      "pergunta": "Qual o nome da cidade fictícia onde se passa a maioria das histórias de Stephen King?",
+      "resposta": "Derry ou Castle Rock."
+    },
+    {
+      "pergunta": "Quem escreveu 'Vidas Secas'?",
+      "resposta": "Graciliano Ramos."
+    },
+    {
+      "pergunta": "Qual é o nome do cavalo de Dom Quixote?",
+      "resposta": "Rocinante."
+    },
+    {
+      "pergunta": "Quem é o autor de 'A Menina que Roubava Livros'?",
+      "resposta": "Markus Zusak."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista de 'O Conde de Monte Cristo'?",
+      "resposta": "Edmond Dantès."
+    },
+    {
+      "pergunta": "Quem escreveu 'Lolita'?",
+      "resposta": "Vladimir Nabokov."
+    },
+    {
+      "pergunta": "Qual é o nome da ilha em 'A Ilha do Tesouro'?",
+      "resposta": "Ilha do Esqueleto."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Hobbit'?",
+      "resposta": "J.R.R. Tolkien."
+    },
+    {
+      "pergunta": "Qual é o nome do autor de 'O Processo'?",
+      "resposta": "Franz Kafka."
+    },
+    {
+      "pergunta": "Quem escreveu 'Capitães da Areia'?",
+      "resposta": "Jorge Amado."
+    },
+    {
+      "pergunta": "Qual é o nome do clã de vampiros em 'Crepúsculo'?",
+      "resposta": "Os Cullen."
+    },
+    {
+      "pergunta": "Quem escreveu 'A Cor Púrpura'?",
+      "resposta": "Alice Walker."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista em 'On the Road' de Jack Kerouac?",
+      "resposta": "Sal Paradise."
+    },
+    {
+      "pergunta": "Quem escreveu 'Ensaio sobre a Cegueira'?",
+      "resposta": "José Saramago."
+    },
+    {
+      "pergunta": "Qual o nome do primeiro livro da série 'Jogos Vorazes'?",
+      "resposta": "'Jogos Vorazes'."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Velho e o Mar'?",
+      "resposta": "Ernest Hemingway."
+    },
+    {
+      "pergunta": "Qual o nome do personagem principal em 'A Culpa é das Estrelas'?",
+      "resposta": "Hazel Grace Lancaster."
+    },
+    {
+      "pergunta": "Quem é o autor de 'A Sangue Frio'?",
+      "resposta": "Truman Capote."
+    },
+    {
+      "pergunta": "Qual é o nome do distrito de Katniss Everdeen em 'Jogos Vorazes'?",
+      "resposta": "Distrito 12."
+    },
+    {
+      "pergunta": "Quem escreveu 'Dom Casmurro'?",
+      "resposta": "Machado de Assis."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista de 'O Estrangeiro' de Albert Camus?",
+      "resposta": "Meursault."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Apanhador de Sonhos'?",
+      "resposta": "Stephen King."
+    },
+    {
+      "pergunta": "Qual é a profissão do protagonista de 'O Perfume'?",
+      "resposta": "Perfumista (Jean-Baptiste Grenouille)."
+    },
+    {
+      "pergunta": "Quem escreveu 'Macunaíma'?",
+      "resposta": "Mário de Andrade."
+    },
+    {
+      "pergunta": "Qual é o nome do autor de 'O Código Da Vinci'?",
+      "resposta": "Dan Brown."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Diário de Anne Frank'?",
+      "resposta": "Anne Frank."
+    },
+    {
+      "pergunta": "Qual o nome do dragão em 'O Hobbit'?",
+      "resposta": "Smaug."
+    },
+    {
+      "pergunta": "Quem escreveu 'A Casa dos Espíritos'?",
+      "resposta": "Isabel Allende."
+    },
+    {
+      "pergunta": "Qual é o nome do protagonista de 'Forrest Gump'?",
+      "resposta": "Forrest Gump."
+    },
+    {
+      "pergunta": "Quem é o autor de 'A Sombra do Vento'?",
+      "resposta": "Carlos Ruiz Zafón."
+    },
+    {
+      "pergunta": "Qual o nome da cidade em que se passa 'O Amor nos Tempos do Cólera'?",
+      "resposta": "Uma cidade portuária no Caribe, não nomeada explicitamente, mas inspirada em Cartagena."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Leopardo'?",
+      "resposta": "Giuseppe Tomasi di Lampedusa."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista em 'A Estrada' de Cormac McCarthy?",
+      "resposta": "Os personagens principais são referidos apenas como 'o pai' e 'o filho'."
+    },
+    {
+      "pergunta": "Quem escreveu 'A Vida de Pi'?",
+      "resposta": "Yann Martel."
+    },
+    {
+      "pergunta": "Qual o nome do tigre que acompanha Pi na sua jornada?",
+      "resposta": "Richard Parker."
+    },
+    {
+      "pergunta": "Quem é o autor de 'O Caçador de Pipas'?",
+      "resposta": "Khaled Hosseini."
+    },
+    {
+      "pergunta": "Qual é o lema da casa Stark em 'As Crônicas de Gelo e Fogo'?",
+      "resposta": "'O inverno está chegando' (Winter is Coming)."
+    },
+    {
+      "pergunta": "Quem escreveu 'Duna'?",
+      "resposta": "Frank Herbert."
+    },
+    {
+      "pergunta": "Qual é o nome do planeta deserto em 'Duna'?",
+      "resposta": "Arrakis."
+    },
+    {
+      "pergunta": "Quem escreveu 'Ficções'?",
+      "resposta": "Jorge Luis Borges."
+    },
+    {
+      "pergunta": "Qual o nome do autor de 'A Náusea'?",
+      "resposta": "Jean-Paul Sartre."
+    },
+    {
+      "pergunta": "Quem escreveu 'Iracema'?",
+      "resposta": "José de Alencar."
+    },
+    {
+      "pergunta": "Qual é o nome do protagonista de 'O Jogador' de Dostoiévski?",
+      "resposta": "Alexei Ivanovitch."
+    },
+    {
+      "pergunta": "Quem é o autor de 'As Cidades Invisíveis'?",
+      "resposta": "Italo Calvino."
+    },
+    {
+      "pergunta": "Qual é o nome do narrador de 'Na Estrada'?",
+      "resposta": "Sal Paradise."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Cortiço'?",
+      "resposta": "Aluísio Azevedo."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista de 'Laranja Mecânica'?",
+      "resposta": "Alex DeLarge."
+    },
+    {
+      "pergunta": "Quem escreveu 'O Alquimista'?",
+      "resposta": "Paulo Coelho."
+    },
+    {
+      "pergunta": "Qual é o nome da protagonista de 'A Letra Escarlate'?",
+      "resposta": "Hester Prynne."
+    },
+    {
+      "pergunta": "Quem é o autor de 'Robinson Crusoé'?",
+      "resposta": "Daniel Defoe."
+    },
+    {
+      "pergunta": "Qual é o nome do amigo nativo de Robinson Crusoé?",
+      "resposta": "Sexta-feira."
+    },
+    {
+      "pergunta": "Quem escreveu 'As Viagens de Gulliver'?",
+      "resposta": "Jonathan Swift."
+    },
+    {
+      "pergunta": "Qual o nome da terra dos gigantes em 'As Viagens de Gulliver'?",
+      "resposta": "Brobdingnag."
+    },
+    {
+      "pergunta": "Quem escreveu 'Sentido e Sensibilidade'?",
+      "resposta": "Jane Austen."
+    },
+    {
+      "pergunta": "Qual o nome do protagonista de 'David Copperfield'?",
+      "resposta": "David Copperfield."
+    },
+    {
+      "pergunta": "Quem é o autor de 'Oliver Twist'?",
+      "resposta": "Charles Dickens."
+    },
+    {
+      "pergunta": "Qual é o nome do famoso poema de Edgar Allan Poe sobre um pássaro?",
+      "resposta": "'O Corvo'."
+    },
+    {
+      "pergunta": "Quem escreveu 'A Máquina do Tempo'?",
+      "resposta": "H.G. Wells."
+    },
+    {
+      "pergunta": "Qual o nome das duas raças futuras em 'A Máquina do Tempo'?",
+      "resposta": "Eloi e Morlocks."
+    },
+    {
+      "pergunta": "Quem escreveu 'Neuromancer'?",
+      "resposta": "William Gibson."
+    },
+    {
+      "pergunta": "Qual é o gênero literário popularizado por William Gibson?",
+      "resposta": "Cyberpunk."
+    },
+    {
+      "pergunta": "Quem é o autor de 'Eu, Robô'?",
+      "resposta": "Isaac Asimov."
+    },
+    {
+      "pergunta": "Qual é a primeira das Três Leis da Robótica?",
+      "resposta": "Um robô não pode ferir um ser humano ou, por inação, permitir que um ser humano sofra algum mal."
+    }
+  ]
+}
