@@ -13,7 +13,7 @@
                 {% for livro in local_recommendations %}
                 <div class="swiper-slide">
                     <div class="book-card">
-                        <a href="{% url 'book_detail' livro.id %}" class="book-card-link">
+                        <a href="{% url 'core:book_detail' livro.id %}" class="book-card-link">
                             <div class="book-cover-container">
                                 {% if livro.capa %}
                                     <img src="{{ livro.get_preview_url }}" alt="{{ livro.titulo }}" class="book-cover" loading="lazy">
@@ -48,7 +48,7 @@
                             <a href="/books/external/{{ book.id }}/details/" class="book-card-link">
                                 <div class="book-cover-container">
                                     {% if book|get_thumbnail %}
-                                        <img src="{% url 'image_proxy' %}?url={{ book|get_thumbnail|urlencode }}"
+                                        <img src="{% url 'core:image_proxy' %}?url={{ book|get_thumbnail|urlencode }}"
                                              alt="{{ book|get_book_title }}"
                                              class="book-cover google-books-image"
                                              loading="lazy"
