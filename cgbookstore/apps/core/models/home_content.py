@@ -2,6 +2,9 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
+from django.db.models import Q
+from django.db.models.query import QuerySet
+import logging
 
 # ------------------------------------------------------------------------------
 # Sistema de gerenciamento de conteúdo da página inicial
@@ -89,41 +92,82 @@ class DefaultShelfType(models.Model):
     def __str__(self):
         return self.nome
 
-    def get_livros(self):
-        """Retorna os livros filtrados baseado nas configurações"""
+    def get_livros(self) -> QuerySet:
+        """
+        Retorna os livros filtrados baseado nas configurações.
+        VERSÃO REFINADA E CORRIGIDA para sempre retornar um QuerySet.
+        """
         from .book import Book
-        import logging
-
         logger = logging.getLogger(__name__)
-        logger.info(f"Buscando livros para prateleira: {self.nome} ({self.identificador})")
+
+        logger.info(
+            f"[DIAGNÓSTICO GET_LIVROS] Buscando para prateleira: '{self.nome}' (Campo: '{self.filtro_campo}', Valor: '{self.filtro_valor}')")
+
+        livros = Book.objects.none()  # Começa com um QuerySet vazio
 
         try:
-            # Implementa lógica para diferentes tipos de filtros de livros
-            # Casos especiais tratados individualmente
-            if self.identificador == 'ebooks':
-                return Book.objects.filter(tipo_shelf_especial=self.identificador).order_by('ordem_exibicao')
+            campo = self.filtro_campo
+            valor = self.filtro_valor
 
-            # Para tipos padrão, usa os campos booleanos correspondentes
-            if self.filtro_campo == 'e_lancamento':
-                return Book.objects.filter(e_lancamento=True).order_by('-created_at')
-            elif self.filtro_campo == 'e_destaque':
-                return Book.objects.filter(e_destaque=True).order_by('ordem_exibicao')
-            elif self.filtro_campo == 'quantidade_vendida':
-                return Book.objects.filter(quantidade_vendida__gt=0).order_by('-quantidade_vendida')
-            elif self.filtro_campo == 'adaptado_filme':
-                return Book.objects.filter(adaptado_filme=True).order_by('ordem_exibicao')
-            elif self.filtro_campo == 'e_manga':
-                return Book.objects.filter(e_manga=True).order_by('ordem_exibicao')
-            elif self.filtro_campo == 'tipo_shelf_especial':
-                return Book.objects.filter(tipo_shelf_especial=self.filtro_valor).order_by('ordem_exibicao')
+            # Mapeamento para campos booleanos e casos especiais
+            if campo == 'e_lancamento':
+                livros = Book.objects.filter(e_lancamento=True).order_by('-created_at')
+                if not livros.exists():
+                    logger.warning(f"Fallback para '{self.nome}': não há lançamentos, usando os mais recentes.")
+                    livros = Book.objects.all().order_by('-created_at')
 
-            # Filtragem dinâmica - usado quando nenhum dos casos específicos se aplica
-            return Book.objects.filter(**{self.filtro_campo: self.filtro_valor}).order_by('ordem_exibicao')
+            elif campo == 'e_destaque':
+                livros = Book.objects.filter(e_destaque=True).order_by('ordem_exibicao')
+                if not livros.exists():
+                    logger.warning(f"Fallback para '{self.nome}': não há destaques, usando mais acessados.")
+                    livros = Book.objects.filter(quantidade_acessos__gt=0).order_by('-quantidade_acessos')
+
+            elif campo == 'quantidade_vendida':
+                livros = Book.objects.filter(quantidade_vendida__gt=0).order_by('-quantidade_vendida')
+                if not livros.exists():
+                    logger.warning(f"Fallback para '{self.nome}': não há livros vendidos, usando mais recentes.")
+                    livros = Book.objects.all().order_by('-created_at')
+
+            elif campo == 'adaptado_filme':
+                livros = Book.objects.filter(adaptado_filme=True).order_by('ordem_exibicao')
+                if not livros.exists():
+                    logger.warning(f"Fallback para '{self.nome}': não há filmes, buscando por palavras-chave.")
+                    livros = Book.objects.filter(Q(descricao__icontains='filme') | Q(descricao__icontains='série'))
+
+            elif campo == 'e_manga' or campo == 'mangas':  # Suporta campo antigo e novo
+                livros = Book.objects.filter(e_manga=True).order_by('ordem_exibicao')
+                if not livros.exists():
+                    logger.warning(f"Fallback para '{self.nome}': não há mangas, buscando por categoria.")
+                    livros = Book.objects.filter(Q(categoria__icontains='manga') | Q(genero__icontains='manga'))
+
+            elif campo == 'tipo_shelf_especial':
+                livros = Book.objects.filter(tipo_shelf_especial=valor).order_by('ordem_exibicao')
+
+            else:
+                # Tentativa de filtro dinâmico genérico
+                try:
+                    filtro_dict = {campo: valor}
+                    livros = Book.objects.filter(**filtro_dict).order_by('ordem_exibicao')
+                    logger.info(
+                        f"[DIAGNÓSTICO GET_LIVROS] Filtro dinâmico para '{self.nome}' encontrou {livros.count()} livros.")
+                except Exception as e:
+                    logger.error(f"[DIAGNÓSTICO GET_LIVROS] Erro no filtro dinâmico para '{self.nome}': {e}")
+                    # Mantém o queryset vazio 'livros'
+
+            # Se após todas as tentativas, 'livros' ainda estiver vazio, aplica um fallback final
+            if not livros.exists():
+                logger.warning(
+                    f"[DIAGNÓSTICO GET_LIVROS] Nenhuma regra funcionou para '{self.nome}'. Aplicando fallback de emergência (aleatórios).")
+                livros = Book.objects.all().order_by('?')
+
+            logger.info(f"[DIAGNÓSTICO GET_LIVROS] ✅ Prateleira '{self.nome}' retornando {livros.count()} livros.")
+            return livros
 
         except Exception as e:
-            logger.error(f"Erro ao filtrar: {str(e)}")
-            # Retorna queryset vazio em caso de erro
-            return Book.objects.none()
+            logger.critical(f"[DIAGNÓSTICO GET_LIVROS] ❌ ERRO CRÍTICO ao filtrar prateleira '{self.nome}': {e}",
+                            exc_info=True)
+            # Fallback de emergência definitivo
+            return Book.objects.all().order_by('-created_at')[:8]
 
 
 class BookShelfSection(models.Model):

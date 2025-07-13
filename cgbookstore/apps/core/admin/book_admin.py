@@ -9,7 +9,6 @@ gerenciar livros e suas categorias.
 import logging
 from django.contrib import admin
 from django.utils.html import format_html
-from django.db.models import Count
 
 from ..models.book import Book, BookAuthor
 from .forms import BookAdminForm
@@ -29,21 +28,7 @@ class BookAuthorInline(admin.TabularInline):
     autocomplete_fields = ['author']
 
 
-class BookCategoryAdmin(admin.ModelAdmin):
-    """
-    Configuração administrativa para categorias de livros.
-    """
-    list_display = ('name', 'slug', 'description', 'get_books_count')
-    search_fields = ('name', 'description')
-    prepopulated_fields = {'slug': ('name',)}
-
-    def get_books_count(self, obj):
-        """Retorna o número de livros nesta categoria"""
-        return obj.books.count()
-
-    get_books_count.short_description = 'Livros'
-
-
+@admin.register(Book)
 class BookAdmin(LoggingAdminMixin, OptimizedQuerysetMixin, admin.ModelAdmin):
     """
     Classe administrativa customizada para o modelo Book.
@@ -58,12 +43,22 @@ class BookAdmin(LoggingAdminMixin, OptimizedQuerysetMixin, admin.ModelAdmin):
     list_display = ('titulo', 'autor', 'editora', 'preco_display', 'e_destaque',
                     'quantidade_acessos', 'quantidade_vendida', 'cover_preview')
     list_filter = ('e_lancamento', 'e_destaque', 'adaptado_filme', 'e_manga', 'created_at')
-    search_fields = ('titulo', 'autor', 'subtitulo', 'editora', 'isbn')
+    search_fields = (
+        'titulo',
+        'subtitulo',
+        'editora',
+        'isbn',
+        'authors__nome',
+        'authors__sobrenome'
+    )
+
+    autocomplete_fields = ('authors',)
+
     readonly_fields = ('quantidade_acessos', 'quantidade_vendida', 'cover_preview',
                        'created_at', 'updated_at')
     list_editable = ('e_destaque',)
     inlines = [BookAuthorInline]  # Adicionamos o inline para autores
-    # CORREÇÃO: Adicionada a ação delete_selected para habilitar deleção em massa
+    # Adicionada a ação delete_selected para habilitar deleção em massa
     actions = ['delete_selected', 'mark_as_featured', 'remove_featured', 'mark_as_movie_adaptation',
                'remove_movie_adaptation', 'mark_as_new_release', 'remove_new_release']
 

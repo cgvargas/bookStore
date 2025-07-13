@@ -8,7 +8,6 @@ gerenciar autores e suas seções.
 import logging
 from django.contrib import admin
 from django.utils.html import format_html
-from django.db.models import Count
 
 from ..models.author import Author, AuthorSection, AuthorSectionItem
 from .mixins import LoggingAdminMixin, OptimizedQuerysetMixin
@@ -26,6 +25,7 @@ class AuthorSectionItemInline(admin.TabularInline):
     autocomplete_fields = ['author']
 
 
+@admin.register(AuthorSection)
 class AuthorSectionAdmin(LoggingAdminMixin, admin.ModelAdmin):
     """Configuração administrativa para seções de autores"""
     list_display = ('section', 'titulo_secundario', 'max_autores', 'ordem_exibicao', 'ativo')
@@ -34,6 +34,7 @@ class AuthorSectionAdmin(LoggingAdminMixin, admin.ModelAdmin):
     inlines = [AuthorSectionItemInline]
 
 
+@admin.register(Author)
 class AuthorAdmin(LoggingAdminMixin, OptimizedQuerysetMixin, admin.ModelAdmin):
     """
     Classe administrativa customizada para o modelo Author.

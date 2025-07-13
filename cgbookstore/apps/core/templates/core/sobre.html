@@ -12,7 +12,7 @@
         // Botão para ir para a seção de vídeos
         document.getElementById('btn-assistir-resenhas').addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.href = "{% url 'index' %}#video-section";
+            window.location.href = "{% url 'core:index' %}#video-section";
         });
     });
 </script>
@@ -369,7 +369,7 @@
                         <h4>Acervo Global</h4>
                     </div>
                     <p class="text-muted">Acesso a mais de 2 milhões de títulos através da integração com a Google Books API, garantindo que você encontrará desde bestsellers até obras raras e de nicho.</p>
-                    <a href="{% url 'catalogue' %}" class="btn btn-sm btn-outline-primary mt-2 btn-vertical-center">Explorar catálogo</a>
+                    <a href="{% url 'core:catalogue' %}" class="btn btn-sm btn-outline-primary mt-2 btn-vertical-center">Explorar catálogo</a>
                 </div>
             </div>
         </div>
@@ -397,7 +397,7 @@
                 </div>
                 <p class="text-muted">Escolha entre nossos planos Freemium e Premium, adaptando a experiência às suas necessidades. O plano Premium desbloqueia funcionalidades avançadas como análises de leitura, exportação de dados e muito mais.</p>
                 <div class="text-center">
-                    <a href="{% url 'planos' %}" class="btn btn-sm btn-outline-primary mt-2 btn-vertical-center">Comparar planos</a>
+                    <a href="{% url 'core:planos' %}" class="btn btn-sm btn-outline-primary mt-2 btn-vertical-center">Comparar planos</a>
                 </div>
             </div>
         </div>
@@ -551,7 +551,7 @@
                 <a href="mailto:cg.bookstore.online@gmail.com" class="btn btn-primary btn-lg">
                     <i class="bi bi-envelope me-2"></i>Entre em Contato
                 </a>
-                <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">
+                <a href="{% url 'core:register' %}" class="btn btn-outline-primary btn-lg">
                     <i class="bi bi-person-plus me-2"></i>Criar Conta
                 </a>
             </div>
@@ -584,7 +584,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-        <a href="{% url 'register' %}" class="btn btn-primary">Criar Minha Prateleira</a>
+        <a href="{% url 'core:register' %}" class="btn btn-primary">Criar Minha Prateleira</a>
       </div>
     </div>
   </div>
@@ -611,7 +611,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-        <a href="{% url 'recommended_books' %}" class="btn btn-primary">Ver Minhas Recomendações</a>
+        <a href="{% url 'core:recommended_books' %}" class="btn btn-primary">Ver Minhas Recomendações</a>
       </div>
     </div>
   </div>

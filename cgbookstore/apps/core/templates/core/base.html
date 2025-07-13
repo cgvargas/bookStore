@@ -54,7 +54,7 @@
     {% endif %}
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 1020;">
-        <a class="navbar-brand d-flex align-items-center" href="/">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'core:index' %}">
             <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
             <span class="store-name ml-2">CG.BookStore Online</span>
         </a>
@@ -65,31 +65,31 @@
             <ul class="navbar-nav me-auto">
                 <!-- Links de navegação -->
                 <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'index' %}">Início</a>
+                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'core:index' %}">Início</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/books/' %}active{% endif %}" href="{% url 'book_search' %}">Buscar Livro</a>
+                    <a class="nav-link {% if request.path == '/books/' %}active{% endif %}" href="{% url 'core:book_search' %}">Buscar Livro</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="exploreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Explorando
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="exploreDropdown">
-                        <li><a class="dropdown-item" href="{% url 'catalogue' %}">Catálogo Completo</a></li>
-                        <li><a class="dropdown-item" href="{% url 'new_releases' %}">Novos Lançamentos</a></li>
-                        <li><a class="dropdown-item" href="{% url 'bestsellers' %}">Mais Vendidos</a></li>
-                        <li><a class="dropdown-item" href="{% url 'recommended_books' %}">Recomendados</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:catalogue' %}">Catálogo Completo</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:new_releases' %}">Novos Lançamentos</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:bestsellers' %}">Mais Vendidos</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:recommended_books' %}">Recomendados</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/sobre/' %}active{% endif %}" href="{% url 'sobre' %}">Sobre</a>
+                    <a class="nav-link {% if request.path == '/sobre/' %}active{% endif %}" href="{% url 'core:sobre' %}">Sobre</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/contato/' %}active{% endif %}" href="{% url 'contato' %}">Contato</a>
+                    <a class="nav-link {% if request.path == '/contato/' %}active{% endif %}" href="{% url 'core:contato' %}">Contato</a>
                 </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/profile/' %}active{% endif %}" href="{% url 'profile' %}">Perfil</a>
+                        <a class="nav-link {% if request.path == '/profile/' %}active{% endif %}" href="{% url 'core:profile' %}">Perfil</a>
                     </li>
                     {% if user.is_staff %}
                         <li class="nav-item">
@@ -108,7 +108,7 @@
                     </li>
                     <!-- Fim: Seletor de tema -->
                     <li class="nav-item">
-                        <form method="post" action="{% url 'logout' %}" class="d-inline">
+                        <form method="post" action="{% url 'core:logout' %}" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="nav-link" style="background: none; border: none;">
                                 <i class="bi bi-box-arrow-right"></i> Logout
@@ -117,10 +117,10 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/register/' %}active{% endif %}" href="{% url 'register' %}">Registrar</a>
+                        <a class="nav-link {% if request.path == '/register/' %}active{% endif %}" href="{% url 'core:register' %}">Registrar</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/login/' %}active{% endif %}" href="{% url 'login' %}" title="Entrar">
+                        <a class="nav-link {% if request.path == '/login/' %}active{% endif %}" href="{% url 'core:login' %}" title="Entrar">
                             <i class="bi bi-person" style="font-size: 1.4rem;"></i>
                         </a>
                     </li>
@@ -175,10 +175,10 @@
                 <div class="col-lg-3 col-md-6">
                     <h3 class="footer-heading">Explorando</h3>
                     <ul class="footer-links">
-                        <li><a href="{% url 'catalogue' %}"><i class="bi bi-chevron-right"></i> Catálogo</a></li>
-                        <li><a href="{% url 'new_releases' %}"><i class="bi bi-chevron-right"></i> Novos Lançamentos</a></li>
-                        <li><a href="{% url 'bestsellers' %}"><i class="bi bi-chevron-right"></i> Mais Vendidos</a></li>
-                        <li><a href="{% url 'recommended_books' %}"><i class="bi bi-chevron-right"></i> Recomendados</a></li>
+                        <li><a href="{% url 'core:catalogue' %}"><i class="bi bi-chevron-right"></i> Catálogo</a></li>
+                        <li><a href="{% url 'core:new_releases' %}"><i class="bi bi-chevron-right"></i> Novos Lançamentos</a></li>
+                        <li><a href="{% url 'core:bestsellers' %}"><i class="bi bi-chevron-right"></i> Mais Vendidos</a></li>
+                        <li><a href="{% url 'core:recommended_books' %}"><i class="bi bi-chevron-right"></i> Recomendados</a></li>
                     </ul>
                 </div>
 
@@ -186,11 +186,11 @@
                 <div class="col-lg-3 col-md-6">
                     <h3 class="footer-heading">Links Úteis</h3>
                     <ul class="footer-links">
-                        <li><a href="{% url 'sobre' %}"><i class="bi bi-chevron-right"></i> Sobre Nós</a></li>
-                        <li><a href="{% url 'contato' %}"><i class="bi bi-chevron-right"></i> FAQ</a></li>
-                        <li><a href="{% url 'contato' %}"><i class="bi bi-chevron-right"></i> Contato</a></li>
-                        <li><a href="{% url 'planos' %}"><i class="bi bi-chevron-right"></i> Planos</a></li>
-                        <li><a href="{% url 'index' %}"><i class="bi bi-chevron-right"></i> Blog Literário</a></li>
+                        <li><a href="{% url 'core:sobre' %}"><i class="bi bi-chevron-right"></i> Sobre Nós</a></li>
+                        <li><a href="{% url 'core:contato' %}"><i class="bi bi-chevron-right"></i> FAQ</a></li>
+                        <li><a href="{% url 'core:contato' %}"><i class="bi bi-chevron-right"></i> Contato</a></li>
+                        <li><a href="{% url 'core:planos' %}"><i class="bi bi-chevron-right"></i> Planos</a></li>
+                        <li><a href="{% url 'core:index' %}"><i class="bi bi-chevron-right"></i> Blog Literário</a></li>
                     </ul>
                 </div>
 
@@ -198,9 +198,9 @@
                 <div class="col-lg-2 col-md-6">
                     <h3 class="footer-heading">Legal</h3>
                     <ul class="footer-links">
-                        <li><a href="{% url 'politica_privacidade' %}"><i class="bi bi-chevron-right"></i> Privacidade</a></li>
-                        <li><a href="{% url 'termos_uso' %}"><i class="bi bi-chevron-right"></i> Termos de Uso</a></li>
-                        <li><a href="{% url 'politica_privacidade' %}"><i class="bi bi-chevron-right"></i> Cookies</a></li>
+                        <li><a href="{% url 'core:politica_privacidade' %}"><i class="bi bi-chevron-right"></i> Privacidade</a></li>
+                        <li><a href="{% url 'core:termos_uso' %}"><i class="bi bi-chevron-right"></i> Termos de Uso</a></li>
+                        <li><a href="{% url 'core:politica_privacidade' %}"><i class="bi bi-chevron-right"></i> Cookies</a></li>
                     </ul>
                 </div>
             </div>
@@ -314,7 +314,7 @@
   <div class="container d-flex justify-content-between align-items-center flex-column flex-md-row text-center text-md-start">
     <span>
       Utilizamos cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa
-      <a href="{% url 'politica_privacidade' %}" class="text-warning text-decoration-underline">Política de Privacidade</a>.
+      <a href="{% url 'core:politica_privacidade' %}" class="text-warning text-decoration-underline">Política de Privacidade</a>.
     </span>
     <button id="accept-cookies" class="btn btn-warning mt-3 mt-md-0">Aceitar</button>
   </div>
@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    fetch("{% url 'aceitar_cookies' %}")
+    fetch("{% url 'core:aceitar_cookies' %}")
       .then(response => response.json())
       .then(data => {
         if (!data.cookie_consent) {
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
     document.getElementById("accept-cookies").addEventListener("click", function () {
-      fetch("{% url 'aceitar_cookies' %}", { method: 'GET' })
+      fetch("{% url 'core:aceitar_cookies' %}", { method: 'GET' })
         .then(() => document.getElementById("cookie-banner").classList.add("d-none"));
     });
   });

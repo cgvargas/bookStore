@@ -25,7 +25,7 @@ class ProfileView(LoginRequiredMixin, DetailView):
     """
     model = Profile
     template_name = 'core/profile/profile.html'
-    context_object_name = 'profile'
+    context_object_name = 'core:profile'
 
     def get_object(self, queryset=None):
         """
@@ -242,7 +242,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = Profile
     form_class = UserProfileForm
     template_name = 'core/profile/profile_form.html'
-    success_url = reverse_lazy('profile')
+    success_url = reverse_lazy('core:profile')
 
     def get_object(self, queryset=None):
         """

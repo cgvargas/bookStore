@@ -108,7 +108,7 @@
                         {% for livro in livros %}
                         <div class="col">
                             <div class="book-card card h-100 border shadow-sm">
-                                <a href="{% url 'core:book-detail' livro.slug %}" class="text-decoration-none">
+                                <a href="{% url 'core:book_detail' livro.pk %}" class="text-decoration-none">
                                     <div class="book-cover-container text-center p-2">
                                         {% if livro.capa %}
                                         <img src="{{ livro.capa.url }}" alt="{{ livro.titulo }}" class="img-fluid book-cover">
@@ -145,7 +145,7 @@
     <!-- Botão de voltar -->
     <div class="row mt-4">
         <div class="col-12 text-center">
-            <a href="{% url 'authors:author-list' %}" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center">
+            <a href="{% url 'core:authors:author-list' %}" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center">
                 <i class="fas fa-arrow-left me-2"></i>Lista de autores
             </a>
         </div>

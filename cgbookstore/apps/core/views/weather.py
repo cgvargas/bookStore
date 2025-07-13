@@ -1,118 +1,197 @@
-import json
+# cgbookstore/apps/core/views/weather.py
+"""
+View para API de previsão do tempo.
+Integra com WeatherAPI para fornecer dados climáticos em tempo real.
+"""
+
 import logging
 import requests
-from django.conf import settings
 from django.http import JsonResponse
-from django.views.decorators.http import require_GET
-from django.core.cache import cache, caches
-
-# Tente importar a configuração alternativa
-try:
-    from ..weather_config import WEATHER_API_KEY as ALTERNATE_KEY
-except (ImportError, AttributeError):
-    ALTERNATE_KEY = None
+from django.conf import settings
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 
-# Tempo de cache em segundos (30 minutos)
-CACHE_TIMEOUT = 60 * 30
+
+def get_weather_api_key():
+    """
+    Obtém a chave da API de clima de diferentes fontes.
+    Prioridade: 1. Variável de ambiente, 2. arquivo weather_config.py
+    """
+    # Primeiro, tenta obter da variável de ambiente
+    api_key = getattr(settings, 'WEATHER_API_KEY', None)
+
+    if api_key:
+        return api_key
+
+    # Se não encontrou, tenta importar do arquivo weather_config.py
+    try:
+        from cgbookstore.config import weather_config
+        api_key = getattr(weather_config, 'WEATHER_API_KEY', None)
+        if api_key:
+            logger.info("Usando chave da API de clima de weather_config.py")
+            return api_key
+    except ImportError:
+        logger.warning("Arquivo weather_config.py não encontrado")
+    except Exception as e:
+        logger.error(f"Erro ao importar weather_config.py: {str(e)}")
+
+    return None
 
 
-@require_GET
+@require_http_methods(["GET"])
 def get_weather(request):
     """
-    View para obter dados meteorológicos de uma API externa.
-    Aceita o parâmetro 'location' via query string.
+    Endpoint para obter dados de previsão do tempo.
+
+    Parâmetros:
+        location (str): Nome da cidade
+
+    Retorna:
+        JSON com dados do clima ou erro
     """
-    # Usar o cache específico para dados meteorológicos
-    weather_cache = caches['weather']
-
-    location = request.GET.get('location', 'São Paulo')
-
     try:
-        # Verificar se a chave API está configurada
-        api_key = getattr(settings, 'WEATHER_API_KEY', '')
+        # Obter localização do parâmetro de query
+        location = request.GET.get('location', 'Rio de Janeiro')
+
+        if not location:
+            return JsonResponse({
+                'error': 'Localização não fornecida',
+                'success': False
+            }, status=400)
+
+        # Verificar se a chave da API está configurada
+        api_key = get_weather_api_key()
+
         if not api_key:
-            logger.error("WEATHER_API_KEY não configurada. Verifique o arquivo .env")
+            logger.error("WEATHER_API_KEY não configurada")
             return JsonResponse({
-                'error': 'Chave de API não configurada. Entre em contato com o administrador do sistema.',
-                'config_missing': True
-            }, status=503)  # 503 Service Unavailable
+                'error': 'Chave da API de clima não configurada. Verifique as configurações.',
+                'config_missing': True,
+                'success': False
+            }, status=503)
 
-        # Verificar se temos dados em cache para esta localização
-        cache_key = f'weather_data_{location.lower().replace(" ", "_")}'
-        cached_data = weather_cache.get(cache_key)
+        # URL da API WeatherAPI
+        weather_url = "http://api.weatherapi.com/v1/current.json"
 
-        if cached_data:
-            return JsonResponse(cached_data)
+        # Parâmetros para a requisição
+        params = {
+            'key': api_key,
+            'q': location,
+            'aqi': 'no',
+            'lang': 'pt'
+        }
 
-        # Se não tiver em cache, buscar na API
-        weather_data = fetch_weather_data(location)
+        logger.info(f"Buscando clima para: {location}")
 
-        if weather_data:
-            # Armazenar em cache para futuras requisições
-            weather_cache.set(cache_key, weather_data, CACHE_TIMEOUT)
+        # Fazer requisição para a API
+        response = requests.get(weather_url, params=params, timeout=10)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            # Extrair dados relevantes
+            weather_data = {
+                'success': True,
+                'city': data['location']['name'],
+                'region': data['location']['region'],
+                'country': data['location']['country'],
+                'temperature': data['current']['temp_c'],
+                'description': data['current']['condition']['text'],
+                'humidity': data['current']['humidity'],
+                'wind_speed': data['current']['wind_kph'],
+                'wind_direction': data['current']['wind_dir'],
+                'pressure': data['current']['pressure_mb'],
+                'feels_like': data['current']['feelslike_c'],
+                'uv_index': data['current']['uv'],
+                'visibility': data['current']['vis_km'],
+                'weather_condition': data['current']['condition']['text'].lower(),
+                'is_day': data['current']['is_day'] == 1,
+                'icon_url': f"https:{data['current']['condition']['icon']}",
+                'last_updated': data['current']['last_updated']
+            }
+
+            logger.info(f"Dados do clima obtidos com sucesso para {location}")
             return JsonResponse(weather_data)
-        else:
+
+        elif response.status_code == 400:
+            # Erro de parâmetros (localização não encontrada)
+            error_data = response.json()
             return JsonResponse({
-                'error': 'Não foi possível obter os dados meteorológicos'
-            }, status=500)
+                'error': f'Localização "{location}" não encontrada',
+                'details': error_data.get('error', {}).get('message', 'Erro desconhecido'),
+                'success': False
+            }, status=404)
+
+        elif response.status_code == 401:
+            # Chave da API inválida
+            logger.error("Chave da API de clima inválida")
+            return JsonResponse({
+                'error': 'Chave da API de clima inválida',
+                'config_missing': True,
+                'success': False
+            }, status=401)
+
+        elif response.status_code == 403:
+            # Limite de requisições excedido
+            logger.error("Limite de requisições da API de clima excedido")
+            return JsonResponse({
+                'error': 'Limite de requisições excedido. Tente novamente mais tarde.',
+                'success': False
+            }, status=429)
+
+        else:
+            # Outros erros da API
+            logger.error(f"Erro da API de clima: {response.status_code}")
+            return JsonResponse({
+                'error': 'Serviço de clima temporariamente indisponível',
+                'success': False
+            }, status=503)
+
+    except requests.exceptions.Timeout:
+        logger.error("Timeout na requisição da API de clima")
+        return JsonResponse({
+            'error': 'Tempo limite excedido ao buscar dados do clima',
+            'success': False
+        }, status=504)
+
+    except requests.exceptions.ConnectionError:
+        logger.error("Erro de conexão com a API de clima")
+        return JsonResponse({
+            'error': 'Erro de conexão com o serviço de clima',
+            'success': False
+        }, status=503)
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Erro de requisição da API de clima: {str(e)}")
+        return JsonResponse({
+            'error': 'Erro ao comunicar com o serviço de clima',
+            'success': False
+        }, status=503)
 
     except Exception as e:
-        logger.error(f"Erro ao obter dados meteorológicos: {str(e)}")
+        logger.error(f"Erro inesperado na API de clima: {str(e)}")
         return JsonResponse({
-            'error': 'Erro ao processar a solicitação meteorológica'
+            'error': 'Erro interno do servidor',
+            'success': False
         }, status=500)
 
 
-def fetch_weather_data(location):
+@csrf_exempt
+def test_weather_config(request):
     """
-    Busca dados meteorológicos de uma API externa.
-    Utilizando a API WeatherAPI.com como exemplo.
+    Endpoint para testar a configuração da API de clima.
+    Útil para debugging em desenvolvimento.
     """
-    try:
-        # URL da API (exemplo com WeatherAPI.com)
-        # Você precisará se registrar para obter uma chave API
-        api_key = getattr(settings, 'WEATHER_API_KEY', '')
+    if not settings.DEBUG:
+        return JsonResponse({'error': 'Endpoint disponível apenas em modo debug'}, status=403)
 
-        # Se não houver chave API configurada, retorne um erro explicativo
-        if not api_key:
-            logger.error("Chave da API de clima não configurada no settings.py")
-            return None
+    api_key = get_weather_api_key()
 
-        url = f"https://api.weatherapi.com/v1/current.json?key={api_key}&q={location}&aqi=no"
-
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()  # Lança exceção para respostas de erro HTTP
-
-        data = response.json()
-
-        # Extrair e formatar os dados relevantes
-        current = data.get('current', {})
-        location_data = data.get('location', {})
-
-        weather_data = {
-            'city': location_data.get('name', 'Desconhecido'),
-            'region': location_data.get('region', ''),
-            'country': location_data.get('country', ''),
-            'temperature': current.get('temp_c', 0),
-            'feels_like': current.get('feelslike_c', 0),
-            'humidity': current.get('humidity', 0),
-            'wind_speed': current.get('wind_kph', 0),
-            'wind_direction': current.get('wind_dir', ''),
-            'pressure': current.get('pressure_mb', 0),
-            'precipitation': current.get('precip_mm', 0),
-            'weather_condition': current.get('condition', {}).get('text', 'Desconhecido'),
-            'weather_icon': current.get('condition', {}).get('icon', ''),
-            'is_day': bool(current.get('is_day', 1)),
-            'last_updated': current.get('last_updated', '')
-        }
-
-        return weather_data
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Erro na requisição à API de clima: {str(e)}")
-        return None
-    except (KeyError, ValueError, json.JSONDecodeError) as e:
-        logger.error(f"Erro ao processar dados da API de clima: {str(e)}")
-        return None
+    return JsonResponse({
+        'api_key_configured': bool(api_key),
+        'api_key_source': 'environment' if getattr(settings, 'WEATHER_API_KEY', None) else 'weather_config.py',
+        'api_key_preview': f"{api_key[:8]}..." if api_key else None,
+        'debug_mode': settings.DEBUG
+    })

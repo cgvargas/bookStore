@@ -1,7 +1,7 @@
 {% load static %}
 
 <div class="book-card">
-    <a href="{% url 'book_detail' livro.id %}" class="book-link">
+    <a href="{% url 'core:book_detail' livro.id %}" class="book-link">
         <div class="book-cover">
             {% if livro.capa %}
                 <img src="{{ livro.get_capa_url }}" alt="{{ livro.titulo }}" class="book-image-rounded">

@@ -23,7 +23,7 @@ from ..models.home_content import (
 # Importações de componentes de administração
 from .site import DatabaseAdminSite
 from .user_admin import CustomUserAdmin, ProfileAdmin
-from .book_admin import BookAdmin, BookCategoryAdmin
+from .book_admin import BookAdmin
 from .author_admin import AuthorAdmin, AuthorSectionAdmin
 from .shelf_admin import (
     DefaultShelfTypeAdmin, UserBookShelfAdmin,

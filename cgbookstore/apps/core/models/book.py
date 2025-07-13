@@ -369,3 +369,5 @@ class UserBookShelf(models.Model):
         super().delete(*args, **kwargs)
         # Invalida cache de recomendações do usuário
         RecommendationCache.invalidate_user_cache(user)
+
+

@@ -16,7 +16,7 @@
         <div class="row">
             {% for author in authors %}
             <div class="col-md-3 mb-4">
-                <a href="{% url 'authors:author-detail' author.slug %}" class="text-decoration-none">
+                <a href="{% url 'core:authors:author-detail' author.slug %}" class="text-decoration-none">
                     <div class="author-card card h-100 hover-effect">
                         <div class="author-image text-center p-3">
                             {% if author.foto %}

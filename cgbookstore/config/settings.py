@@ -4,6 +4,7 @@ from pathlib import Path
 import environ
 import logging
 
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -293,7 +294,7 @@ else:
         'image_proxy': {
             'BACKEND': 'django_redis.cache.RedisCache',
             'LOCATION': f'redis://127.0.0.1:6379/4',
-            'TIMEOUT': 60 * 60 * 24 * 14,  # 14 dias (alterado de 7 para 14 dias)
+            'TIMEOUT': 60 * 60 * 24 * 14,
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
                 'MAX_ENTRIES': 5000,
@@ -335,7 +336,7 @@ GOOGLE_BOOKS_API_KEY = env('GOOGLE_BOOKS_API_KEY', default='')
 WEATHER_API_KEY = env('WEATHER_API_KEY', default='')
 
 # Configurações de Autenticação
-LOGIN_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = reverse_lazy('core:index')
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'index'
 
