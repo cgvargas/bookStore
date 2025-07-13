@@ -62,7 +62,10 @@ coverage.xml
 .env.development.local
 .env.test.local
 .env.production.local
+.tmp.driveupload/
 
 # Dependencies
 node_modules/__pycache__/
 *.pyc
+*.json
+desktop.ini
