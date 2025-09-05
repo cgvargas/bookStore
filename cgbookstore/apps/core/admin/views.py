@@ -1,4 +1,6 @@
 # cgbookstore/apps/core/admin/views.py
+
+'''
 """
 Views personalizadas para o módulo administrativo.
 
@@ -801,3 +803,5 @@ def quick_shelf_creation(request):
     }
 
     return render(request, 'admin/quick_shelf_creation.html', context)
+
+    '''
