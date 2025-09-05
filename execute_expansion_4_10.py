@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Execução direta da expansão - Itens 4-10
-Execução: python execute_expansion_4_10.py
+Execução: execute_expansion_4_10.py
 """
 
 import os

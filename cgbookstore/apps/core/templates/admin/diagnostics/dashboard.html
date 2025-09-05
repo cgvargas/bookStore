@@ -191,7 +191,7 @@
             </div>
             <p class="tool-description">{{ tool.description }}</p>
             <div class="tool-actions">
-                <a href="{{ tool.url }}" class="btn btn-primary">
+                <a href="{% url tool.url_name %}" class="btn btn-primary">
                     {% if tool.category == 'performance' %}🚀 Executar
                     {% elif tool.category == 'cache' %}💾 Visualizar
                     {% elif tool.category == 'maintenance' %}🖼️ Corrigir

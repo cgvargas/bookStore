@@ -1,0 +1,262 @@
+/* Modal de Mover Livro - Design Melhorado */
+
+/* Reset e base do modal */
+.modal .modal-content {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Cabeçalho do modal */
+.modal .modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0; /* Remove arredondamento superior que causa o problema */
+}
+
+/* Garantir que o cabeçalho não tenha cantos arredondados que vazam */
+.modal .modal-header {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+/* Forçar o content a não vazar */
+.modal .modal-content {
+    overflow: hidden;
+}
+
+/* Botão de fechar branco para cabeçalhos escuros */
+.modal-header.bg-dark .btn-close,
+.dark-mode .modal .btn-close,
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Título do modal */
+.modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Corpo do modal */
+.modal .modal-body {
+    padding: 2rem;
+}
+
+/* Formulário */
+.modal form .form-label {
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Ícones específicos para cada tipo de modal */
+#moveBookForm .form-label:before {
+    content: "📚";
+    font-size: 1.2rem;
+}
+
+#addToShelfForm .form-label:before {
+    content: "🔖";
+    font-size: 1.2rem;
+}
+
+.modal form .form-select {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.modal form .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.25);
+    border-color: var(--primary-color, #0d6efd);
+}
+
+/* Descrição adicional */
+.modal form .form-text {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: inherit;
+    opacity: 0.7;
+}
+
+/* Rodapé do modal */
+.modal .modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.02);
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* Botões */
+.modal .btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.modal .btn-secondary {
+    background-color: transparent;
+    border: 1px solid #dee2e6;
+    color: inherit;
+}
+
+.modal .btn-secondary:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.modal .btn-primary {
+    background-color: var(--primary-color, #0d6efd);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal .btn-primary:hover {
+    background-color: var(--primary-hover, #0b5ed7);
+    transform: translateY(-1px);
+}
+
+/* Cabeçalho escuro para todos os modais */
+.modal-header.bg-dark {
+    background-color: #343a40 !important;
+    color: white !important;
+    border-bottom: none;
+}
+
+/* Estilos específicos para o modal de visualização de imagem */
+#imageModal .modal-body {
+    padding: 0;
+}
+
+#imageModal img {
+    max-height: 80vh;
+    display: block;
+    margin: 0 auto;
+}
+
+/* TEMA CLARO */
+.light-mode .modal .modal-content,
+.light-theme .modal-content {
+    background-color: #ffffff;
+    color: #333333;
+}
+
+.light-mode .modal .modal-header:not(.bg-dark),
+.light-mode .modal .modal-footer,
+.light-theme .modal-header:not(.bg-dark),
+.light-theme .modal-footer {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .modal .modal-footer,
+.light-theme .modal-footer {
+    background-color: #f8f9fa;
+}
+
+.light-mode .modal .form-select,
+.light-theme .form-select {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    color: #333333;
+}
+
+.light-mode .modal .form-select option,
+.light-theme .form-select option {
+    background-color: #ffffff;
+    color: #333333;
+}
+
+/* TEMA ESCURO */
+.dark-mode .modal .modal-content,
+.dark-theme .modal-content {
+    background-color: #1e1e1e;
+    color: #e2e8f0;
+}
+
+.dark-mode .modal .modal-header:not(.bg-dark),
+.dark-theme .modal-header:not(.bg-dark) {
+    background-color: #1e1e1e; /* Garante que não vaze branco */
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .modal .modal-footer,
+.dark-theme .modal-footer {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .modal .form-select,
+.dark-theme .form-select {
+    background-color: #2d2d2d;
+    border: 1px solid #444444;
+    color: #e2e8f0;
+}
+
+.dark-mode .modal .form-select:focus,
+.dark-theme .form-select:focus {
+    border-color: var(--primary-color, #0d6efd);
+    background-color: #2d2d2d;
+}
+
+.dark-mode .modal .form-select option,
+.dark-theme .form-select option {
+    background-color: #2d2d2d;
+    color: #e2e8f0;
+}
+
+.dark-mode .modal .btn-secondary,
+.dark-theme .btn-secondary {
+    border-color: #444444;
+    color: #e2e8f0;
+}
+
+.dark-mode .modal .btn-secondary:hover,
+.dark-theme .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Animações */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-dialog {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+    .modal .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    .modal .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal .btn {
+        padding: 0.5rem 1rem;
+    }
+}

@@ -1,0 +1,470 @@
+/* ==========================================================================
+   WIDGET DE EVENTOS - VERSÃO CORRIGIDA E OTIMIZADA
+   ========================================================================== */
+
+/* 1. CONTAINER PRINCIPAL */
+.event-widget-wrapper {
+    position: sticky;
+    top: 80px;
+    z-index: 100;
+    margin-bottom: 2rem;
+}
+
+.event-widget {
+    background: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--radius-md);
+    box-shadow: var(--sombra-card);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.event-widget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+/* 2. HEADER DO WIDGET */
+.event-widget-header {
+    background: linear-gradient(135deg, var(--cor-acao-secundaria), var(--cor-acao-secundaria-hover));
+    color: var(--cor-texto-invertido);
+    padding: var(--spacing-md);
+    text-align: center;
+}
+
+.event-widget-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 3. CARROSSEL SWIPER */
+.event-swiper {
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+}
+
+.event-swiper .swiper-slide {
+    height: auto;
+}
+
+/* 4. CORPO DO EVENTO */
+.event-widget-body {
+    display: block;
+    padding: var(--spacing-md);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.3s ease;
+}
+
+.event-widget-body:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    color: inherit;
+    text-decoration: none;
+}
+
+html[data-theme='dark'] .event-widget-body:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 5. ELEMENTOS DO EVENTO */
+.event-widget .event-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+    transition: transform 0.3s ease;
+}
+
+.event-widget .event-image:hover {
+    transform: scale(1.02);
+}
+
+.event-widget .event-title {
+    font-size: 1.1rem;
+    color: var(--cor-texto-primario);
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.event-widget .event-info p {
+    margin: 0.5rem 0;
+    color: var(--cor-texto-secundario);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.event-widget .event-info i {
+    color: var(--cor-acao-secundaria);
+    font-size: 1rem;
+    min-width: 16px;
+}
+
+/* 6. FOOTER COM BOTÃO */
+.event-widget-footer {
+    border-top: 1px solid var(--cor-borda);
+    padding: 0;
+    margin: 0;
+    height: 50px;
+    overflow: hidden;
+    background-color: var(--cor-fundo-secundario);
+}
+
+/* 7. BOTÃO PRINCIPAL - DESIGN MODERNO E FUNCIONAL */
+.btn-view-all {
+    /* Layout e dimensões */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 50px !important;
+    margin: 0 !important;
+    padding: 0 1rem !important;
+
+    /* Tipografia */
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+
+    /* Visual */
+    border: none !important;
+    border-radius: 0 !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+
+    /* Transições suaves */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 8. TEMA CLARO - Botão laranja vibrante */
+html[data-theme='light'] .btn-view-all {
+    background: linear-gradient(135deg, var(--cor-acao-secundaria) 0%, var(--cor-acao-secundaria-hover) 100%) !important;
+    color: var(--cor-texto-invertido) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+html[data-theme='light'] .btn-view-all:hover {
+    background: linear-gradient(135deg, var(--cor-acao-secundaria-hover) 0%, #d45500 100%) !important;
+    color: var(--cor-texto-invertido) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3) !important;
+}
+
+html[data-theme='light'] .btn-view-all:active {
+    transform: translateY(0) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 9. TEMA ESCURO - Botão com estilo moderno */
+html[data-theme='dark'] .btn-view-all {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%) !important;
+    color: var(--cor-texto-primario) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme='dark'] .btn-view-all:hover {
+    background: linear-gradient(135deg, var(--cor-acao-secundaria) 0%, var(--cor-acao-secundaria-hover) 100%) !important;
+    color: var(--cor-texto-invertido) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4) !important;
+}
+
+html[data-theme='dark'] .btn-view-all:active {
+    transform: translateY(0) !important;
+}
+
+/* 10. EFEITO RIPPLE AO CLICAR */
+.btn-view-all::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.5) !important;
+    transform: translate(-50%, -50%) !important;
+    transition: width 0.6s, height 0.6s !important;
+}
+
+.btn-view-all:active::before {
+    width: 300px !important;
+    height: 300px !important;
+}
+
+/* 11. ÍCONE NO BOTÃO */
+.btn-view-all i {
+    margin-left: 8px !important;
+    font-size: 1rem !important;
+    transition: transform 0.3s ease !important;
+}
+
+.btn-view-all:hover i {
+    transform: translateX(2px) !important;
+}
+
+/* 12. REMOVER TODOS OS ESTILOS DE LINK */
+.btn-view-all:link,
+.btn-view-all:visited,
+.btn-view-all:hover,
+.btn-view-all:active,
+.btn-view-all:focus {
+    text-decoration: none !important;
+    outline: none !important;
+}
+
+/* 13. NAVEGAÇÃO DO SWIPER */
+.event-swiper .swiper-button-next,
+.event-swiper .swiper-button-prev {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    color: var(--cor-acao-secundaria);
+    margin-top: -16px;
+    transition: all 0.3s ease;
+}
+
+.event-swiper .swiper-button-next:hover,
+.event-swiper .swiper-button-prev:hover {
+    background: var(--cor-acao-secundaria);
+    color: white;
+    transform: scale(1.1);
+}
+
+.event-swiper .swiper-button-next::after,
+.event-swiper .swiper-button-prev::after {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Tema escuro para botões de navegação */
+html[data-theme='dark'] .event-swiper .swiper-button-next,
+html[data-theme='dark'] .event-swiper .swiper-button-prev {
+    background: rgba(43, 48, 53, 0.9);
+    color: var(--cor-texto-primario);
+}
+
+html[data-theme='dark'] .event-swiper .swiper-button-next:hover,
+html[data-theme='dark'] .event-swiper .swiper-button-prev:hover {
+    background: var(--cor-acao-secundaria);
+    color: var(--cor-texto-invertido);
+}
+
+/* 14. PAGINAÇÃO DO SWIPER */
+.event-swiper .swiper-pagination-bullet {
+    background: var(--cor-acao-secundaria);
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+}
+
+.event-swiper .swiper-pagination-bullet-active {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* 15. RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .event-widget-wrapper {
+        top: 70px;
+        margin-bottom: 1.5rem;
+    }
+
+    .event-widget-footer,
+    .btn-view-all {
+        height: 48px !important;
+    }
+
+    .btn-view-all {
+        font-size: 0.9rem !important;
+    }
+
+    .event-swiper .swiper-button-next,
+    .event-swiper .swiper-button-prev {
+        display: none;
+    }
+
+    .event-widget .event-image {
+        height: 120px;
+    }
+}
+
+@media (max-width: 576px) {
+    .event-widget {
+        margin-bottom: 1rem;
+    }
+
+    .event-widget-header {
+        padding: 0.75rem;
+    }
+
+    .event-widget-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .event-widget-body {
+        padding: 0.75rem;
+    }
+}
+
+/* 16. ESTADOS DE ACESSIBILIDADE */
+.btn-view-all:focus-visible {
+    outline: 2px solid var(--cor-acao-secundaria) !important;
+    outline-offset: 2px !important;
+}
+
+/* 17. CORREÇÕES ESPECÍFICAS PARA DIFERENTES NAVEGADORES */
+
+/* Safari */
+@supports (-webkit-appearance: none) {
+    .btn-view-all {
+        -webkit-appearance: none !important;
+    }
+}
+
+/* Firefox */
+@-moz-document url-prefix() {
+    .btn-view-all {
+        -moz-appearance: none !important;
+    }
+}
+
+/* 18. ANIMAÇÕES SUAVES */
+@keyframes buttonPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 102, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 102, 0, 0);
+    }
+}
+
+.btn-view-all:focus:not(:hover) {
+    animation: buttonPulse 2s infinite;
+}
+
+/* 19. MELHORIAS DE PERFORMANCE */
+.event-widget,
+.event-widget-body,
+.btn-view-all,
+.event-image {
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* 20. PREVENÇÃO DE CONFLITOS COM OUTROS ESTILOS */
+.event-widget-wrapper * {
+    box-sizing: border-box;
+}
+
+.event-widget a.btn-view-all {
+    color: inherit !important;
+}
+
+.event-widget a.btn-view-all:hover {
+    color: inherit !important;
+}
+
+/* Garantir que o botão não seja afetado por estilos globais de links */
+.event-widget-footer a[class*="btn"] {
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+.event-widget-footer a[class*="btn"]:hover {
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+/* 21. ESTILOS PARA CARREGAMENTO */
+.event-widget.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.event-widget.loading .btn-view-all {
+    cursor: wait !important;
+}
+
+/* 22. CORREÇÕES PARA SWIPER */
+.event-swiper .swiper-wrapper {
+    align-items: stretch;
+}
+
+.event-swiper .swiper-slide {
+    display: flex;
+    flex-direction: column;
+}
+
+.event-swiper .swiper-slide .event-widget {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-swiper .swiper-slide .event-widget-body {
+    flex: 1;
+}
+
+/* 23. MELHORIAS VISUAIS FINAIS */
+.event-widget-header {
+    position: relative;
+}
+
+.event-widget-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent
+    );
+}
+
+/* Sombra interna sutil no footer */
+.event-widget-footer {
+    position: relative;
+}
+
+.event-widget-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 0, 0, 0.1) 50%,
+        transparent
+    );
+}
+
+html[data-theme='dark'] .event-widget-footer::before {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent
+    );
+}

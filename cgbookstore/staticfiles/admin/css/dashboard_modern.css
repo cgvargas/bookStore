@@ -1,0 +1,287 @@
+/* static/admin/css/dashboard_modern.css */
+
+/* Reset e base para o dashboard moderno */
+.dashboard-modern {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-dark) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Sobrescrever estilos padrão do Django Admin */
+.dashboard-modern .module {
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+.dashboard-modern h1,
+.dashboard-modern h2,
+.dashboard-modern h3 {
+    color: var(--text-primary) !important;
+}
+
+/* Animações suaves */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dashboard-modern .module-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.dashboard-modern .module-card:nth-child(1) { animation-delay: 0.1s; }
+.dashboard-modern .module-card:nth-child(2) { animation-delay: 0.2s; }
+.dashboard-modern .module-card:nth-child(3) { animation-delay: 0.3s; }
+.dashboard-modern .module-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Efeitos de hover aprimorados */
+.dashboard-modern .model-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(54, 153, 255, 0.1), rgba(109, 40, 217, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 12px;
+    pointer-events: none;
+}
+
+.dashboard-modern .model-item:hover::before {
+    opacity: 1;
+}
+
+.dashboard-modern .model-item {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Melhorias de acessibilidade */
+.dashboard-modern .action-btn:focus,
+.dashboard-modern .btn:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Indicador de carregamento */
+.dashboard-modern .loading-indicator {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 2px solid var(--primary-color);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilos para temas claro/escuro */
+@media (prefers-color-scheme: light) {
+    .dashboard-modern {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    }
+
+    .dashboard-modern .module-card {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
+        color: #333 !important;
+    }
+
+    .dashboard-modern .dashboard-title,
+    .dashboard-modern .header-info h2,
+    .dashboard-modern .section-title,
+    .dashboard-modern .model-name {
+        color: #333 !important;
+    }
+
+    .dashboard-modern .dashboard-subtitle,
+    .dashboard-modern .module-description,
+    .dashboard-modern .model-desc {
+        color: #666 !important;
+    }
+}
+
+/* Melhorias para impressão */
+@media print {
+    .dashboard-modern {
+        background: white !important;
+        color: black !important;
+    }
+
+    .dashboard-modern .module-card {
+        border: 1px solid #ccc !important;
+        break-inside: avoid;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-modern .model-actions,
+    .dashboard-modern .header-actions {
+        display: none !important;
+    }
+}
+
+/* Customizações para devices touch */
+@media (hover: none) and (pointer: coarse) {
+    .dashboard-modern .model-item {
+        padding: 24px;
+    }
+
+    .dashboard-modern .action-btn {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .dashboard-modern .stat-card {
+        padding: 20px;
+    }
+}
+
+/* Estados de erro e sucesso */
+.dashboard-modern .status-error {
+    border-left: 4px solid var(--danger-color);
+    background: var(--danger-bg);
+}
+
+.dashboard-modern .status-success {
+    border-left: 4px solid #0BB783;
+    background: rgba(11, 183, 131, 0.1);
+}
+
+.dashboard-modern .status-warning {
+    border-left: 4px solid var(--warning-color);
+    background: var(--warning-bg);
+}
+
+.dashboard-modern .status-info {
+    border-left: 4px solid var(--primary-color);
+    background: var(--info-bg);
+}
+
+/* Tooltips personalizados */
+.dashboard-modern [data-tooltip] {
+    position: relative;
+}
+
+.dashboard-modern [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.dashboard-modern [data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+}
+
+/* Adaptações para sidebar colapsada */
+.dashboard-modern.sidebar-collapsed {
+    margin-left: 60px;
+}
+
+.dashboard-modern.sidebar-collapsed .dashboard-grid {
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+}
+
+/* Micro interações */
+.dashboard-modern .model-icon {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-modern .model-item:hover .model-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.dashboard-modern .stat-card {
+    transition: all 0.3s ease;
+}
+
+.dashboard-modern .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Performance otimizations */
+.dashboard-modern * {
+    box-sizing: border-box;
+}
+
+.dashboard-modern .module-card {
+    contain: layout style paint;
+}
+
+/* Scrollbar personalizada */
+.dashboard-modern ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.dashboard-modern ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.dashboard-modern ::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+.dashboard-modern ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+}
+
+/* Ajustes finais de responsividade */
+@media (max-width: 480px) {
+    .dashboard-modern .dashboard-header {
+        padding: 16px;
+    }
+
+    .dashboard-modern .header-stats {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .dashboard-modern .stat-card {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .dashboard-modern .card-header,
+    .dashboard-modern .card-content {
+        padding: 16px;
+    }
+
+    .dashboard-modern .dashboard-title {
+        font-size: 1.5rem;
+    }
+}

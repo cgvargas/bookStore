@@ -16,6 +16,35 @@
     backface-visibility: hidden;
 }
 
+/* Modo Escuro
+   ========================================================================== */
+.dark-mode .swiper-button-next,
+.dark-mode .swiper-button-prev {
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+}
+
+.dark-mode .swiper-button-next:hover,
+.dark-mode .swiper-button-prev:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.dark-mode .swiper-pagination-bullet {
+    background-color: var(--text-light);
+}
+
+/* Ajuste adicional para botões de navegação */
+.dark-mode .swiper-button-next::after,
+.dark-mode .swiper-button-prev::after {
+    color: var(--text-light);
+}
+
+.dark-mode .swiper-button-next:hover::after,
+.dark-mode .swiper-button-prev:hover::after {
+    color: var(--white);
+}
+
 /* Slides
    ========================================================================== */
 .swiper-slide {

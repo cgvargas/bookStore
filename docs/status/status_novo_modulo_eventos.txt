@@ -1,0 +1,47 @@
+16. ATUALIZAÇÕES DE FUNCIONALIDADES (CHANGELOG)
+Esta seção documenta as principais alterações, adições e remoções de funcionalidades no sistema CG.BookStore Online.
+16.1 Módulo de Eventos Literários (Substituição do Widget de Clima)
+Data da Implementação: Agosto de 2025
+Versão Afetada: 2.5.0
+Status: ✅ Concluído
+Visão Geral e Justificativa
+Em uma decisão estratégica para focar em funcionalidades de alto valor para o público literário, o widget de previsão do tempo foi descontinuado. Em seu lugar, foi desenvolvido um novo módulo para a divulgação de Eventos Literários. Este sistema consiste em um widget na página inicial que destaca o próximo evento e uma página dedicada que lista todos os eventos e propagandas relevantes.
+Etapa 1: Implementação do Backend
+O backend foi preparado para gerenciar e servir os novos dados de eventos.
+Gestão de Conteúdo no Painel Administrativo:
+O modelo EventItem foi registrado no painel de administração (/admin/core/eventitem/).
+Foi criada uma interface em cgbookstore/apps/core/admin/custom_section_admin.py para permitir o CRUD (Criar, Ler, Atualizar, Deletar) de eventos, incluindo a capacidade de marcá-los como "Em Destaque".
+Criação da View da Página de Eventos:
+Uma nova view baseada em classe, EventosView, foi adicionada ao arquivo cgbookstore/apps/core/views/general.py.
+Esta view é responsável por buscar todos os eventos e propagandas ativas no banco de dados e renderizar a página principal de eventos.
+Atualização da View da Página Inicial:
+A view IndexView (em views/general.py) foi modificada para buscar o evento mais recente marcado como "Em Destaque" (featured_event).
+Este objeto de evento é então passado ao contexto do template da página inicial para alimentar o novo widget.
+Atualização do Roteamento (URLs):
+Uma nova rota, /eventos/, foi adicionada ao arquivo cgbookstore/apps/core/urls.py, apontando para a EventosView.
+A antiga rota /api/weather/ foi removida de todos os arquivos de URL (apps/core/urls.py e config/urls.py) para garantir a limpeza do sistema.
+Etapa 2: Desenvolvimento do Frontend
+A interface do usuário foi criada para exibir os eventos de forma intuitiva.
+Criação do Widget de Evento:
+Um novo template snippet, _event_widget.html, foi criado em templates/core/.
+Este template renderiza um card "sticky" na página inicial, exibindo as informações do featured_event (título, data, local) e um link para a página principal de eventos.
+Desenvolvimento da Página de Eventos:
+Um novo template, eventos.html, foi criado para listar todos os eventos.
+O layout da página foi projetado com uma coluna principal para a lista de eventos e uma barra lateral para exibir propagandas (Advertisement), criando uma nova oportunidade de monetização.
+Estilização (CSS):
+Um novo arquivo CSS, static/css/events.css, foi criado para conter todos os estilos do widget e da página de eventos, garantindo consistência com o tema visual do site.
+Integração no Template Principal:
+No template da página inicial (index.html), a chamada ao antigo widget de clima foi substituída por {% include 'core/_event_widget.html' %}, integrando o novo componente de forma modular.
+Etapa 3: Limpeza e Erradicação do Módulo de Clima (Deprecation)
+Para garantir que nenhum resquício do antigo sistema permanecesse, foi realizada uma limpeza completa no projeto.
+Arquivos Removidos do Projeto:
+cgbookstore/apps/core/views/weather.py (Lógica da API)
+cgbookstore/config/weather_config.py (Arquivo de configuração da chave)
+static/js/weather_widget.js (Lógica do frontend)
+static/css/weather_widget.css (Estilos)
+Chaves de API e Configurações Removidas:
+Arquivo .env: A variável de ambiente WEATHER_API_KEY foi removida.
+Arquivo settings.py: Qualquer referência à WEATHER_API_KEY foi eliminada.
+Atualização da Documentação:
+A seção 9.1 APIs Externas Integradas foi atualizada para remover a menção à "Weather API".
+A seção 13.1 Comunidade foi atualizada para incluir a nova funcionalidade de "Eventos".

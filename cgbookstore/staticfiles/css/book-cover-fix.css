@@ -1,0 +1,50 @@
+/**
+ * Correções finais para renderização de capas de livros
+ * Data: 18/05/2025
+ */
+
+/* Garantir dimensões mínimas para todas as capas */
+.book-card img,
+.card-img-top,
+img[src*="books.google.com"],
+[class*="book"] img {
+    min-height: 160px !important;
+    min-width: 120px !important;
+    height: auto !important;
+    object-fit: cover !important;
+    background-color: #f8f8f8 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+    display: block !important;
+}
+
+/* Aplicar estilo para imagens de fallback */
+img[src*="no-cover.svg"] {
+    padding: 15px !important;
+    object-fit: contain !important;
+}
+
+/* Corrigir posicionamento de imagens em cards */
+.book-card .position-relative,
+.recommendation-card .position-relative {
+    height: 230px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+}
+
+/* Remover espaço reservado quando não há imagem */
+.card-img-top.bg-light {
+    display: none !important;
+}
+
+/* Tema escuro */
+body.dark-theme .book-card img,
+body.dark-theme .card-img-top,
+body.dark-theme img[src*="books.google.com"],
+body.dark-theme [class*="book"] img {
+    background-color: #333 !important;
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05) !important;
+}

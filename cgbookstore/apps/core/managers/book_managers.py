@@ -4,6 +4,13 @@ from django.db import models
 
 
 class BookQuerySet(models.QuerySet):
+    def public(self):
+        """Retorna apenas os livros com visibilidade PÚBLICA e que estão ativos."""
+        # Acessa a enumeração 'Visibility' através do modelo.
+        # A importação local evita importações circulares.
+        from ..models.book import Book
+        return self.filter(visibility=Book.Visibility.PUBLIC, ativo=True)
+
     def with_related(self):
         """Carrega os relacionamentos comuns para evitar consultas N+1"""
         return self.select_related(
@@ -56,6 +63,10 @@ class BookQuerySet(models.QuerySet):
 class BookManager(models.Manager):
     def get_queryset(self):
         return BookQuerySet(self.model, using=self._db)
+
+    def public(self):
+        """Método de atalho para acessar o filtro de livros públicos."""
+        return self.get_queryset().public()
 
     def with_related(self):
         return self.get_queryset().with_related()

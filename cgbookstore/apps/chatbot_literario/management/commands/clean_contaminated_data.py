@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from cgbookstore.apps.chatbot_literario.models import KnowledgeItem
-from cgbookstore.apps.chatbot_literario.services.training_service import training_service
+from cgbookstore.apps.chatbot_literario.services import training_service
 from django.db import transaction
 import re
 

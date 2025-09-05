@@ -72,7 +72,7 @@
         }
     }
 
-    /* Animação para o card */
+    /* AnimaÃ§Ã£o para o card */
     .customizable-card.animated {
         animation: fadeInLeft 0.6s ease-out forwards;
     }
@@ -88,10 +88,33 @@
         }
     }
 
-    /* Estilo para hover nas estatísticas */
+    /* Estilo para hover nas estatÃ­sticas */
     .stat-hover {
         background-color: rgba(13, 110, 253, 0.05);
         border-radius: 8px;
+    }
+
+    /* EstatÃ­stica de Pontos clicÃ¡vel */
+    .stat-item-v2.clickable-stat {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        padding: 0.5rem;
+        margin: -0.5rem;
+        cursor: pointer;
+    }
+
+    .stat-item-v2.clickable-stat:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-item-v2.clickable-stat:hover .stat-value {
+        color: #0d6efd;
+    }
+
+    .stat-item-v2.clickable-stat:hover .stat-label {
+        color: #0d6efd;
     }
 </style>
 {% endblock %}
@@ -101,50 +124,65 @@
 {% block content %}
 <div class="container-fluid mt-4 profile-container">
     <div class="row g-4">
-        <!-- Sidebar usuário (ajustado para ficar colado à esquerda) -->
+        <!-- Sidebar usuÃ¡rio (ajustado para ficar colado Ã  esquerda) -->
         <div class="col-md-3">
             <div class="profile-sidebar">
-                <div class="card customizable-card">
-                    <div class="card-body text-center">
-                        <div class="profile-image mb-3">
-                            {% if user.foto %}
-                                <img src="{{ user.foto.url }}" alt="Foto de perfil" class="rounded-circle img-fluid" style="width: 150px; height: 150px; object-fit: cover;">
+                <!-- NOVO CARD DE PERFIL - v2.0 -->
+                <div class="card profile-card-v2 customizable-card" id="profileCardV2">
+                    <!-- 1. HEADER COM IMAGEM DE CAPA -->
+                    <div class="profile-card-header">
+                        <img src="{% static 'images/placeholder-prateleira.jpg' %}" alt="Imagem de capa do perfil" class="profile-cover-image">
+                        <!-- BotÃ£o para trocar a capa (funcionalidade futura) -->
+                        <button class="btn btn-sm btn-light cover-edit-btn"><i class="bi bi-camera"></i></button>
+                    </div>
+
+                    <!-- 2. CORPO PRINCIPAL COM AVATAR SOBREPOSTO -->
+                    <div class="card-body profile-card-body">
+                        <div class="profile-avatar-container">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" alt="Foto de perfil" class="profile-avatar-image">
                             {% else %}
-                                <div class="avatar-placeholder">
-                                    <i class="bi bi-person-circle" style="font-size: 6rem;"></i>
-                                </div>
+                                <div class="avatar-placeholder-v2"><i class="bi bi-person-fill"></i></div>
                             {% endif %}
-                            <form id="avatarForm" class="mt-2">
+                            <!-- BotÃ£o para trocar avatar -->
+                            <button class="btn btn-sm btn-primary avatar-edit-btn"><i class="bi bi-pencil"></i></button>
+                            <form id="avatarForm" class="d-none">
                                 {% csrf_token %}
-                                <input type="file" id="avatarInput" name="profile_photo" style="display: none;" accept="image/jpeg,image/png,image/gif">
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('avatarInput').click()">
-                                    <i class="bi bi-camera"></i> Alterar foto
-                                </button>
+                                <input type="file" id="avatarInput" name="profile_photo" accept="image/*">
                             </form>
                         </div>
 
-                        <h4 class="card-title">{{ user.get_full_name|default:user.username }}</h4>
-                        <p class="text-muted">@{{ user.username }}</p>
-                        <p class="text-muted"><small>Membro desde {{ user.date_joined|date:"F Y" }}</small></p>
+                        <!-- 3. INFORMAÃ‡Ã•ES DO USUÃRIO -->
+                        <div class="profile-info text-center">
+                            <h4 class="profile-name">{{ user.get_full_name|default:user.username }}</h4>
+                            <p class="profile-username text-muted">@{{ user.username }}</p>
+                        </div>
 
-                        <div class="profile-stats">
-                            <div class="stat-item">
-                                <i class="bi bi-book"></i>
+                        <!-- 4. ESTATÃSTICAS EM DESTAQUE -->
+                        <div class="profile-stats-v2">
+                            <div class="stat-item-v2">
                                 <span class="stat-value">{{ total_livros }}</span>
-                                <span class="stat-label">livros</span>
+                                <span class="stat-label">Livros</span>
                             </div>
-
-                            <!-- Nova estatística: pontos de conquistas -->
-                            <div class="stat-item">
-                                <i class="bi bi-trophy"></i>
+                            <div class="stat-separator"></div>
+                            <div class="stat-item-v2" id="pointsStatItem">
                                 <span class="stat-value">{{ total_points }}</span>
-                                <span class="stat-label">pontos</span>
+                                <span class="stat-label">Pontos</span>
                             </div>
                         </div>
 
-                        <div class="mt-3">
-                            <a href="{% url 'core:profile_update' %}" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center">
-                                <i class="bi bi-pencil"></i> <span class="ms-1">Editar Perfil</span>
+                        <!-- 5. WIDGETS DINÃ‚MICOS (CitaÃ§Ã£o e Leitura Atual) -->
+                        <!-- Estes containers serÃ£o preenchidos pelo JavaScript -->
+                        <div id="quoteWidgetContainer"></div>
+                        <div id="readingStatusWidgetContainer"></div>
+
+                        <!-- 6. BOTÃ•ES DE AÃ‡ÃƒO -->
+                        <div class="profile-actions">
+                            <a href="#" class="btn btn-outline-secondary btn-sm stats-modal-btn">
+                                <i class="bi bi-bar-chart-line"></i> Ver EstatÃ­sticas
+                            </a>
+                            <a href="{% url 'core:profile_update' %}" class="btn btn-primary btn-sm edit-profile-btn">
+                                <i class="bi bi-person-gear"></i> Editar Perfil
                             </a>
                         </div>
                     </div>
@@ -152,9 +190,9 @@
             </div>
         </div>
 
-        <!-- Conteúdo principal -->
+        <!-- ConteÃºdo principal -->
         <div class="col-md-9">
-            <!-- TÍTULO DA SEÇÃO DE PRATELEIRAS -->
+            <!-- TÃTULO DA SEÃ‡ÃƒO DE PRATELEIRAS -->
             <h2 class="display-5 mb-4 mt-2 border-bottom pb-2 text-primary">Minhas Prateleiras</h2>
 
             <!-- Favoritos -->
@@ -186,7 +224,7 @@
                     {% else %}
                         <div class="empty-shelf">
                             <i class="bi bi-heart text-muted"></i>
-                            <p>Você ainda não tem livros favoritos.</p>
+                            <p>VocÃª ainda nÃ£o tem livros favoritos.</p>
                             <button class="btn btn-outline-primary btn-sm" onclick="openNewBookModal('favorito')">
                                 <i class="bi bi-plus-circle"></i> Adicionar Livro
                             </button>
@@ -224,7 +262,7 @@
                     {% else %}
                         <div class="empty-shelf">
                             <i class="bi bi-heart text-muted"></i>
-                            <p>Você ainda não tem livros na prateleira.</p>
+                            <p>VocÃª ainda nÃ£o tem livros na prateleira.</p>
                             <button class="btn btn-outline-primary btn-sm" onclick="openNewBookModal('lendo')">
                                 <i class="bi bi-plus-circle"></i> Adicionar Livro
                             </button>
@@ -262,7 +300,7 @@
                     {% else %}
                         <div class="empty-shelf">
                             <i class="bi bi-heart text-muted"></i>
-                            <p>Você ainda não tem livros na prateleira.</p>
+                            <p>VocÃª ainda nÃ£o tem livros na prateleira.</p>
                             <button class="btn btn-outline-primary btn-sm" onclick="openNewBookModal('vou_ler')">
                                 <i class="bi bi-plus-circle"></i> Adicionar Livro
                             </button>
@@ -300,7 +338,7 @@
                     {% else %}
                         <div class="empty-shelf">
                             <i class="bi bi-heart text-muted"></i>
-                            <p>Você ainda não tem livros na prateleira.</p>
+                            <p>VocÃª ainda nÃ£o tem livros na prateleira.</p>
                             <button class="btn btn-outline-primary btn-sm" onclick="openNewBookModal('lido')">
                                 <i class="bi bi-plus-circle"></i> Adicionar Livro
                             </button>
@@ -308,134 +346,10 @@
                     {% endif %}
                 </div>
             </div>
-
-            <!-- TÍTULO DA SEÇÃO DE ESTATÍSTICAS -->
-            <h2 class="display-5 mb-4 mt-5 border-bottom pb-2 text-primary">Minhas Estatísticas</h2>
-
-            <!-- Seção expandida de estatísticas -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-bar-chart-fill text-primary"></i> Estatísticas de Leitura
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row stats-row">
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="stats-card">
-                                <div class="stats-icon bg-primary-soft">
-                                    <i class="bi bi-book text-primary"></i>
-                                </div>
-                                <div class="stats-info">
-                                    <h5>{{ stats.total_lidos }}</h5>
-                                    <span>Livros Lidos</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="stats-card">
-                                <div class="stats-icon bg-success-soft">
-                                    <i class="bi bi-file-text text-success"></i>
-                                </div>
-                                <div class="stats-info">
-                                    <h5>{{ stats.total_paginas }}</h5>
-                                    <span>Páginas Lidas</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="stats-card">
-                                <div class="stats-icon bg-info-soft">
-                                    <i class="bi bi-calendar-check text-info"></i>
-                                </div>
-                                <div class="stats-info">
-                                    <h5>{{ stats.sequencia_atual }}</h5>
-                                    <span>Sequência Atual</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <div class="stats-card">
-                                <div class="stats-icon bg-warning-soft">
-                                    <i class="bi bi-tags text-warning"></i>
-                                </div>
-                                <div class="stats-info">
-                                    <h5>{{ stats.genero_favorito }}</h5>
-                                    <span>Gênero Favorito</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Gráfico de leitura mensal -->
-                    <div class="chart-container mt-4" style="height: 300px;">
-                        <h6 class="text-muted mb-3">Livros lidos por mês</h6>
-                        <canvas id="readingChart" height="200" data-books="{{ stats.livros_por_mes|safe }}"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Nova seção de conquistas -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-trophy-fill text-warning"></i> Conquistas
-                    </h5>
-                    <span class="badge bg-warning text-dark">{{ achievements.total }} desbloqueada{{ achievements.total|pluralize }}</span>
-                </div>
-                <div class="card-body">
-                    {% if achievements.unlocked %}
-                        <div class="row achievement-grid">
-                            {% for achievement in achievements.unlocked %}
-                                <div class="col-md-4 col-sm-6 mb-3">
-                                    <div class="achievement-card" data-achievement-id="{{ achievement.achievement_id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ achievement.achievement__description }}">
-                                        <div class="achievement-icon tier-{{ achievement.achievement__tier }}">
-                                            <i class="bi {{ achievement.achievement__icon }}"></i>
-                                        </div>
-                                        <div class="achievement-info">
-                                            <h6>{{ achievement.achievement__name }}</h6>
-                                            <span class="achievement-date">{{ achievement.achieved_at|date:"d/m/Y" }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                        {% if achievements.in_progress %}
-                            <h6 class="text-muted mt-4 mb-3">Em progresso</h6>
-                            <div class="row">
-                                {% for progress in achievements.in_progress %}
-                                    <div class="col-md-4 mb-3">
-                                        <div class="achievement-progress-card">
-                                            <div class="achievement-icon tier-{{ progress.tier }} locked">
-                                                <i class="bi {{ progress.icon }}"></i>
-                                            </div>
-                                            <div class="achievement-info">
-                                                <h6>{{ progress.name }}</h6>
-                                                <p class="achievement-description small">{{ progress.description }}</p>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ progress.progress }}%;" aria-valuenow="{{ progress.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                                <small class="text-muted">{{ progress.progress }}% concluído</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    {% else %}
-                        <div class="empty-achievements text-center py-4">
-                            <i class="bi bi-trophy text-muted display-1"></i>
-                            <h6 class="mt-3">Nenhuma conquista desbloqueada ainda</h6>
-                            <p class="text-muted">Continue lendo e interagindo com a plataforma para ganhar conquistas!</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- Modal para detalhes da conquista -->
+    <!-- Modal para detalhes da conquista (MANTIDO DO ORIGINAL) -->
     <div class="modal fade" id="achievementDetailsModal" tabindex="-1" aria-labelledby="achievementModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -472,7 +386,7 @@
                 <div class="modal-body">
                     <div class="d-grid gap-2">
                         <button class="btn btn-primary" id="editBookBtn">
-                            <i class="bi bi-pencil"></i> Atualizar Informações
+                            <i class="bi bi-pencil"></i> Atualizar InformaÃ§Ãµes
                         </button>
                         <button class="btn btn-info" id="moveBookBtn">
                             <i class="bi bi-arrows-move"></i> Transferir para Outra Prateleira
@@ -501,7 +415,7 @@
                         <i class="bi bi-plus-circle"></i> Adicionar Novo Livro
                     </button>
                     <button class="btn btn-warning" onclick="openBulkMoveModal()">
-                        <i class="bi bi-arrows-move"></i> Transferência em Lote
+                        <i class="bi bi-arrows-move"></i> TransferÃªncia em Lote
                     </button>
                 </div>
             </div>
@@ -509,7 +423,7 @@
     </div>
 </div>
 
-<!-- Modal de Edição do Livro -->
+<!-- Modal de EdiÃ§Ã£o do Livro -->
 <div class="modal fade" id="editBookModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -520,11 +434,10 @@
             <div class="modal-body">
                 <form id="editBookForm">
                     {% csrf_token %}
-                    <!-- Certifique-se de que este campo existe e está corretamente definido -->
                     <input type="hidden" id="editBookId" name="id">
 
                     <div class="mb-3">
-                        <label for="editTitle" class="form-label">Título</label>
+                        <label for="editTitle" class="form-label">TÃ­tulo</label>
                         <input type="text" class="form-control" id="editTitle" name="titulo" required>
                     </div>
                     <div class="mb-3">
@@ -532,7 +445,7 @@
                         <input type="text" class="form-control" id="editAuthor" name="autor" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editDescription" class="form-label">Descrição</label>
+                        <label for="editDescription" class="form-label">DescriÃ§Ã£o</label>
                         <textarea class="form-control" id="editDescription" name="descricao" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
@@ -557,7 +470,7 @@
     </div>
 </div>
 
-<!-- Modal de Transferência de Livro -->
+<!-- Modal de TransferÃªncia de Livro -->
 <div class="modal fade" id="moveBookModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -601,7 +514,7 @@
                     {% csrf_token %}
                     <input type="hidden" id="newBookShelfType">
                     <div class="mb-3">
-                        <label for="newTitle" class="form-label">Título</label>
+                        <label for="newTitle" class="form-label">TÃ­tulo</label>
                         <input type="text" class="form-control" id="newTitle" required>
                     </div>
                     <div class="mb-3">
@@ -609,7 +522,7 @@
                         <input type="text" class="form-control" id="newAuthor" required>
                     </div>
                     <div class="mb-3">
-                        <label for="newDescription" class="form-label">Descrição</label>
+                        <label for="newDescription" class="form-label">DescriÃ§Ã£o</label>
                         <textarea class="form-control" id="newDescription" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
@@ -634,148 +547,87 @@
     </div>
 </div>
 
-<!-- Modal de Customização do Card -->
-<div class="modal fade" id="customizeCardModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Personalizar Card do Perfil</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="cardCustomizationForm">
-                    <div class="mb-3">
-                        <label class="form-label">Temas Predefinidos</label>
-                        <select class="form-select" id="style_preset">
-                            <option value="custom">Personalizado</option>
-                            <option value="classic">Clássico</option>
-                            <option value="dark">Escuro</option>
-                            <option value="minimalist">Minimalista</option>
-                            <option value="vibrant">Vibrante</option>
-                        </select>
-                    </div>
-
-                    <hr class="my-3">
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Cor de Fundo</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-palette"></i></span>
-                                <input type="color" class="form-control form-control-color" id="style_background_color">
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Cor do Texto</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-type"></i></span>
-                                <input type="color" class="form-control form-control-color" id="style_text_color">
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Cor da Borda</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-border"></i></span>
-                                <input type="color" class="form-control form-control-color" id="style_border_color">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Estilo da Imagem</label>
-                            <select class="form-select" id="style_image_style">
-                                <option value="circle">Circular</option>
-                                <option value="square">Quadrado</option>
-                                <option value="hexagon">Hexágono</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Efeito Hover</label>
-                            <select class="form-select" id="style_hover_effect">
-                                <option value="translate">Elevação</option>
-                                <option value="scale">Escala</option>
-                                <option value="glow">Brilho</option>
-                                <option value="none">Nenhum</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">
-                                <label class="form-label">Estilo dos Ícones</label>
-                            <select class="form-select" id="style_icon_style">
-                                <option value="default">Padrão</option>
-                                <option value="filled">Preenchido</option>
-                                <option value="outline">Contorno</option>
-                                <option value="minimal">Minimalista</option>
-                            </select>
-                            </label>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Raio da Borda</label>
-                            <select class="form-select" id="style_border_radius">
-                                <option value="0">Sem arredondamento</option>
-                                <option value="0.25rem">Suave</option>
-                                <option value="0.5rem">Médio</option>
-                                <option value="1rem">Grande</option>
-                                <option value="2rem">Extra Grande</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Estilo da Sombra</label>
-                            <select class="form-select" id="style_shadow_style">
-                                <option value="none">Nenhuma</option>
-                                <option value="light">Suave</option>
-                                <option value="medium">Média</option>
-                                <option value="dark">Forte</option>
-                                <option value="colored">Colorida</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" id="cancelCustomizationBtn" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="saveCardCustomization()">Salvar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 {% include 'chatbot_literario/widget.html' %}
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
+
+<!-- Modal de EstatÃ­sticas Detalhadas -->
+<div class="modal fade" id="profileStatsModal" tabindex="-1" aria-labelledby="profileStatsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileStatsModalLabel">
+                    <i class="bi bi-bar-chart-line me-2"></i>Suas EstatÃ­sticas de Leitura
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="stats-modal-body">
+                    <!-- ConteÃºdo serÃ¡ carregado dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Conquistas do UsuÃ¡rio -->
+<div class="modal fade" id="userAchievementsModal" tabindex="-1" aria-labelledby="userAchievementsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userAchievementsModalLabel">
+                    <i class="bi bi-trophy me-2"></i>Minhas Conquistas
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="user-achievements-modal-body">
+                    <!-- ConteÃºdo serÃ¡ carregado dinamicamente -->
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <div class="d-flex justify-content-center w-100">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts Essenciais para a PÃ¡gina de Perfil -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-<script src="{% static 'js/profile.js' %}"></script>
-<script src="{% static 'js/profile-customization.js' %}"></script>
-<script src="{% static 'js/profile-interaction.js' %}"></script>
 <script src="{% static 'js/profile-stats.js' %}"></script>
-<script src="{% static 'js/profile-card-stats.js' %}"></script>
-<script src="{% static 'js/profile-card-themes.js' %}"></script>
+<script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/profile-interaction.js' %}"></script>
+
+<!-- Scripts para os Novos Componentes do Card V2 -->
 <script src="{% static 'js/profile-card-quote.js' %}"></script>
 <script src="{% static 'js/profile-card-reading-status.js' %}"></script>
-<script src="{% static 'js/fix-customize-button.js' %}"></script>
-<script src="{% static 'js/profile-card-integration.js' %}"></script>
+<script src="{% static 'js/profile-stats-modal.js' %}"></script>
+<script src="{% static 'js/profile-achievements-modal.js' %}"></script>
 
+<!-- Script de AnimaÃ§Ã£o e ConfiguraÃ§Ãµes -->
 <script>
-    // Script adicional para animar o card de perfil
     document.addEventListener('DOMContentLoaded', function() {
-        // Animação de entrada para o card de perfil
-        const profileCard = document.querySelector('.customizable-card');
-        setTimeout(() => {
-            profileCard.classList.add('animated');
-        }, 300);
+        // Verificar se Bootstrap estÃ¡ disponÃ­vel
+        if (typeof bootstrap === 'undefined') {
+            console.error('Bootstrap nÃ£o carregado - sistema pode nÃ£o funcionar corretamente');
+            return;
+        }
 
-        // Efeito de paralaxe suave ao rolar a página
+        // AnimaÃ§Ã£o de entrada para o card de perfil
+        const profileCard = document.querySelector('.customizable-card');
+        if (profileCard) {
+            setTimeout(() => {
+                profileCard.classList.add('animated');
+            }, 300);
+        }
+
+        // Efeito de paralaxe suave ao rolar a pÃ¡gina
         window.addEventListener('scroll', function() {
             const scrollY = window.scrollY;
             const sidebar = document.querySelector('.profile-sidebar');
@@ -784,7 +636,7 @@
             }
         });
 
-        // Adicionar classe aos itens de estatísticas para animar ao passar o mouse
+        // Adicionar classe aos itens de estatÃ­sticas para animar ao passar o mouse
         const statItems = document.querySelectorAll('.stat-item');
         statItems.forEach(item => {
             item.addEventListener('mouseenter', function() {
@@ -794,6 +646,196 @@
                 this.classList.remove('stat-hover');
             });
         });
+
+        console.log('AnimaÃ§Ãµes do perfil inicializadas');
     });
 </script>
+
+<!-- Estilos especÃ­ficos dos modais -->
+<style>
+    /* Modal de estatÃ­sticas */
+    .stats-modal-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: flex-start;
+    }
+
+    .stats-list-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .stat-card-v2 {
+        background-color: var(--cor-fundo-hover, #f8f9fa);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card-v2:hover {
+        transform: translateY(-3px);
+        border-color: var(--cor-acao-primaria, #0d6efd);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card-v2 .stat-icon {
+        font-size: 1.75rem;
+        color: var(--cor-acao-primaria, #0d6efd);
+        background-color: rgba(13, 110, 253, 0.1);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-card-v2 .stat-info .stat-title {
+        font-size: 0.85rem;
+        color: var(--cor-texto-secundario, #6c757d);
+        margin-bottom: 0.2rem;
+    }
+
+    .stat-card-v2 .stat-info .stat-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--cor-texto-primario, #212529);
+    }
+
+    .chart-container-v2 {
+        padding-left: 1rem;
+        border-left: 1px solid var(--cor-borda, #dee2e6);
+    }
+
+    .stats-chart-container {
+        position: relative;
+        height: 300px;
+        max-height: 300px;
+        overflow: hidden;
+    }
+
+    /* Modal de conquistas */
+    #userAchievementsModal .modal-dialog {
+        max-width: 90vw;
+    }
+
+    .achievements-section-title {
+        font-weight: 600;
+        color: var(--cor-texto-primario, #212529);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(13, 110, 253, 0.1);
+    }
+
+    .achievements-grid-v2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .achievement-card-v2 {
+        background-color: var(--cor-fundo-card, #ffffff);
+        border: 1px solid var(--cor-borda, #dee2e6);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .achievement-card-v2:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: rgba(13, 110, 253, 0.3);
+    }
+
+    .achievement-card-v2 .ach-icon {
+        font-size: 2rem;
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: white;
+    }
+
+    .achievement-card-v2 .ach-info .ach-title {
+        font-weight: 600;
+        color: var(--cor-texto-primario, #212529);
+        margin-bottom: 0.25rem;
+        font-size: 1.1rem;
+    }
+
+    .achievement-card-v2 .ach-info .ach-description {
+        font-size: 0.9rem;
+        color: var(--cor-texto-secundario, #6c757d);
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .achievement-card-v2 .ach-info .ach-date {
+        font-size: 0.8rem;
+        color: var(--cor-texto-secundario, #6c757d);
+        font-style: italic;
+    }
+
+    .achievement-card-v2.in-progress {
+        opacity: 0.8;
+        background: linear-gradient(135deg, var(--cor-fundo-card, #ffffff), rgba(13, 110, 253, 0.02));
+    }
+
+    .achievement-card-v2.in-progress .ach-icon {
+        filter: grayscale(50%) brightness(0.9);
+    }
+
+    /* Cores por tier */
+    .ach-icon.tier-bronze { background: linear-gradient(135deg, #cd7f32, #b8860b); }
+    .ach-icon.tier-silver { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); }
+    .ach-icon.tier-gold { background: linear-gradient(135deg, #ffd700, #ffb347); }
+    .ach-icon.tier-platinum { background: linear-gradient(135deg, #e5e4e2, #d3d3d3); }
+
+    /* Estados vazios */
+    .empty-achievements, .loading-achievements, .error-achievements {
+        padding: 3rem 1rem;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        #userAchievementsModal .modal-dialog {
+            max-width: 95vw;
+            margin: 0.5rem;
+        }
+
+        .achievements-grid-v2 {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .stats-modal-body {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-container-v2 {
+            border-left: none;
+            padding-left: 0;
+            border-top: 1px solid var(--cor-borda, #dee2e6);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+    }
+</style>
 {% endblock %}

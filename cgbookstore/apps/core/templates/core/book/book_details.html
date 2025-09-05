@@ -6,9 +6,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/book-details.css' %}">
-<link rel="stylesheet" href="{% static 'css/book-details-fixes.css' %}">
 <link rel="stylesheet" href="{% static 'css/book-details-background.css' %}">
-<link rel="stylesheet" href="{% static 'css/book-details-modal.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -33,7 +31,9 @@
                          alt="Capa do livro {{ book.titulo }}"
                          class="book-cover img-fluid"
                          data-full-image="{{ book.get_capa_url }}"
-                         onclick="showFullImage(this)">
+                         onclick="showFullImage(this)"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='{% static 'images/no-cover.svg' %}';">
                 </div>
                 <div class="card-body">
                     <div class="book-price text-center mb-3">
@@ -57,50 +57,54 @@
                     </div>
                 </div>
 
-                {% if shelf %}
-                <!-- Livro já está em uma prateleira do usuário -->
-                <div class="card-body">
-                    <div class="shelf-badge mb-3">
-                        <span class="badge bg-success">{{ shelf_display }}</span>
-                    </div>
-                    <div class="d-grid gap-2">
-                        {% if can_move %}
-                        <button class="btn btn-outline-primary" onclick="window.openMoveModal && window.openMoveModal()">
-                            <i class="bi bi-arrows-move"></i> Mover para Outra Prateleira
-                        </button>
-                        {% endif %}
-
-                        {% if can_edit %}
-                        <a href="{% url 'core:book_edit' book.pk %}" class="btn btn-outline-secondary d-flex justify-content-center align-items-center">
-                            <i class="bi bi-pencil"></i> Editar Livro
-                        </a>
-                        {% endif %}
-
-                        {% if can_remove %}
-                        <button class="btn btn-outline-danger" onclick="window.confirmRemove && window.confirmRemove()">
-                            <i class="bi bi-trash"></i> Remover da Prateleira
-                        </button>
-                        {% endif %}
-                    </div>
-                </div>
+                {% if book.id %}
+                    {% comment %} Este bloco só aparece se o livro EXISTE no nosso banco de dados {% endcomment %}
+                    {% if shelf %}
+                        <!-- Livro já está em uma prateleira do usuário -->
+                        <div class="card-body">
+                            <div class="shelf-badge mb-3">
+                                <span class="badge bg-success">{{ shelf_display }}</span>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" onclick="window.openMoveModal && window.openMoveModal()">
+                                    <i class="bi bi-arrows-move"></i> Mover
+                                </button>
+                                <a href="{% url 'core:book_edit' book.id %}" class="btn btn-outline-secondary d-flex justify-content-center align-items-center">
+                                    <i class="bi bi-pencil"></i> Editar Livro
+                                </a>
+                                <button class="btn btn-outline-danger" onclick="window.confirmRemove && window.confirmRemove()">
+                                    <i class="bi bi-trash"></i> Remover
+                                </button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Livro existe no banco mas não está na prateleira do usuário -->
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" onclick="window.openShelfModal && window.openShelfModal()">
+                                    <i class="bi bi-bookmark-plus"></i> Adicionar à Prateleira
+                                </button>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% else %}
-                <!-- Livro não está em nenhuma prateleira do usuário -->
-                <div class="card-body">
-                    <div class="shelf-badge mb-3">
-                        <span class="badge bg-secondary">Não está em uma prateleira</span>
+                    {% comment %} Este bloco aparece se for um livro externo, ainda não adicionado {% endcomment %}
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="window.openShelfModal && window.openShelfModal()">
+                                <i class="bi bi-bookmark-plus"></i> Adicionar à Minha Estante
+                            </button>
+                        </div>
                     </div>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-primary" onclick="window.openShelfModal && window.openShelfModal()">
-                            <i class="bi bi-bookmark-plus"></i> Adicionar à Prateleira
-                        </button>
-                    </div>
-                </div>
                 {% endif %}
             </div>
         </div>
 
         <div class="col-md-8">
-            <div class="book-details" data-book-id="{{ book.id }}" data-current-shelf="{{ shelf }}">
+            <div class="book-details"
+                 data-book-id="{{ book.id }}"
+                 data-external-id="{{ book.external_id }}"
+                 data-current-shelf="{{ shelf }}">
                 <ul class="nav nav-tabs" id="bookTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic" type="button">
@@ -371,103 +375,6 @@
     </div>
 </div>
 
-<!-- Modal de Mover Livro -->
-<div class="modal fade" id="moveBookModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0">
-            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
-                <h5 class="modal-title">Mover para Outra Prateleira</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="moveBookForm">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Selecione a Nova Prateleira</label>
-                        <select class="form-select" name="new_shelf">
-                            <option value="favorito" {% if shelf == 'favorito' %}disabled{% endif %}>
-                                ⭐ Favoritos
-                            </option>
-                            <option value="lendo" {% if shelf == 'lendo' %}disabled{% endif %}>
-                                📖 Lendo
-                            </option>
-                            <option value="vou_ler" {% if shelf == 'vou_ler' %}disabled{% endif %}>
-                                📚 Quero Ler
-                            </option>
-                            <option value="lido" {% if shelf == 'lido' %}disabled{% endif %}>
-                                ✅ Lido
-                            </option>
-                        </select>
-                        <small class="form-text">
-                            Escolha a prateleira para onde deseja mover este livro.
-                        </small>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer border-top-0">
-                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal" id="cancelMoveButton">
-                    Cancelar
-                </button>
-                <button type="button" class="btn btn-primary" onclick="moveBook()">
-                    <i class="bi bi-arrow-right-circle"></i> Mover
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para visualização da imagem completa -->
-<div id="imageModal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0">
-            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
-                <h5 class="modal-title">Visualizar Imagem</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0 d-flex justify-content-center align-items-center">
-                <img src="" id="modalImage" alt="Capa em tamanho completo" class="img-fluid">
-            </div>
-            <div class="modal-footer border-top-0 justify-content-center">
-                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal">
-                    Fechar
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para adicionar à prateleira -->
-<div class="modal fade" id="addToShelfModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0">
-            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
-                <h5 class="modal-title">Adicionar à Prateleira</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addToShelfForm">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Selecione a Prateleira</label>
-                        <select class="form-select" name="shelf_type">
-                            <option value="favorito">Favoritos</option>
-                            <option value="lendo">Lendo</option>
-                            <option value="vou_ler">Quero Ler</option>
-                            <option value="lido">Lido</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer border-top-0">
-                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal" id="cancelShelfButton">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="window.addToShelf && window.addToShelf()">
-                   <i class="bi bi-bookmark-plus"></i> Adicionar à Prateleira
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Script para manipulação do modal de imagem -->
 <script>
 function showFullImage(previewImg) {
@@ -492,63 +399,390 @@ console.log('Book ID no template:', '{{ book.id }}');
 console.log('Shelf:', '{{ shelf }}');
 </script>
 
-<!-- Script para correção dos problemas nos modais -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Configuração dos modais com opções corretas
-    const modalOptions = {
-        backdrop: 'static',
-        keyboard: true,
-        focus: true
-    };
+/**
+ * Garante que o tema seja aplicado corretamente em todos os elementos
+ */
 
-    // Inicializa os modais com as opções corretas
-    const addToShelfModal = new bootstrap.Modal(document.getElementById('addToShelfModal'), modalOptions);
-    const moveBookModal = new bootstrap.Modal(document.getElementById('moveBookModal'), modalOptions);
+(function() {
+    'use strict';
 
-    // Correção para o botão cancelar do modal de adicionar à prateleira
-    document.getElementById('cancelShelfButton')?.addEventListener('click', function() {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addToShelfModal'));
-        if (modal) {
-            modal.hide();
+    /**
+     * Classe para gerenciamento de tema na página de detalhes
+     */
+    class BookDetailsThemeManager {
+        constructor() {
+            this.currentTheme = null;
+            this.observer = null;
+            this.init();
         }
-    });
 
-    // Correção para o botão cancelar do modal de mover livro
-    document.getElementById('cancelMoveButton')?.addEventListener('click', function() {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('moveBookModal'));
-        if (modal) {
-            modal.hide();
-        }
-    });
+        /**
+         * Inicializa o gerenciador de tema
+         */
+        init() {
+            console.log('Inicializando BookDetailsThemeManager');
 
-    // Tratamento para o botão fechar (X) dos modais
-    document.querySelectorAll('.btn-close').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const modalElement = this.closest('.modal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-                modal.hide();
+            // Aplica tema inicial
+            this.applyInitialTheme();
+
+            // Configura observadores
+            this.setupThemeObserver();
+
+            // Força aplicação após DOM carregado
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    this.forceThemeApplication();
+                });
+            } else {
+                this.forceThemeApplication();
             }
+
+            // Aplica tema periodicamente para garantir consistência
+            setTimeout(() => this.forceThemeApplication(), 500);
+            setTimeout(() => this.forceThemeApplication(), 1000);
+        }
+
+        /**
+         * Aplica o tema inicial baseado no localStorage ou preferência do sistema
+         */
+        applyInitialTheme() {
+            try {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+                console.log('Aplicando tema inicial:', theme);
+                this.setTheme(theme);
+            } catch (error) {
+                console.warn('Erro ao aplicar tema inicial:', error);
+                this.setTheme('light');
+            }
+        }
+
+        /**
+         * Define o tema atual
+         */
+        setTheme(theme) {
+            if (theme === this.currentTheme) return;
+
+            console.log('Mudando tema para:', theme);
+            this.currentTheme = theme;
+
+            // Remove classes antigas
+            document.documentElement.classList.remove('light-mode', 'dark-mode');
+            document.body.classList.remove('light-mode', 'dark-mode');
+
+            // Remove atributos antigos
+            document.documentElement.removeAttribute('data-bs-theme');
+            document.documentElement.removeAttribute('data-theme');
+
+            // Aplica novo tema
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.classList.add(`${theme}-mode`);
+            document.body.classList.add(`${theme}-mode`);
+
+            // Para compatibilidade com Bootstrap
+            document.documentElement.setAttribute('data-bs-theme', theme);
+
+            // Força atualização de estilos
+            this.forceStyleUpdate();
+
+            // Salva preferência
+            try {
+                localStorage.setItem('theme', theme);
+            } catch (error) {
+                console.warn('Erro ao salvar tema:', error);
+            }
+        }
+
+        /**
+         * Força atualização de estilos em elementos específicos
+         */
+        forceStyleUpdate() {
+            // Lista de seletores para forçar atualização
+            const selectors = [
+                '.card',
+                '.book-cover-container',
+                '.book-details',
+                '.info-item',
+                '.content-section',
+                '.extra-section',
+                '.nav-tabs .nav-link',
+                '.modal-content',
+                '.form-control',
+                '.form-select'
+            ];
+
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(element => {
+                    // Força repaint
+                    element.style.display = 'none';
+                    element.offsetHeight; // trigger reflow
+                    element.style.display = '';
+                });
+            });
+        }
+
+        /**
+         * Força aplicação completa do tema
+         */
+        forceThemeApplication() {
+            console.log('Forçando aplicação do tema:', this.currentTheme);
+
+            // Força aplicação em elementos específicos problemáticos
+            this.fixSpecificElements();
+
+            // Corrige modais
+            this.fixModals();
+
+            // Corrige formulários
+            this.fixForms();
+
+            // Emite evento personalizado
+            this.dispatchThemeEvent();
+        }
+
+        /**
+         * Corrige elementos específicos que podem ter problemas de tema
+         */
+        fixSpecificElements() {
+            // Cards
+            const cards = document.querySelectorAll('.card, .book-cover-container');
+            cards.forEach(card => {
+                if (this.currentTheme === 'dark') {
+                    card.style.backgroundColor = 'rgba(43, 48, 53, 0.95)';
+                    card.style.color = '#f8f9fa';
+                    card.style.borderColor = '#495057';
+                } else {
+                    card.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+                    card.style.color = '#212529';
+                    card.style.borderColor = '#dee2e6';
+                }
+            });
+
+            // Títulos
+            const titles = document.querySelectorAll('.book-title, h1, h2, h3, h4, h5, h6');
+            titles.forEach(title => {
+                title.style.color = this.currentTheme === 'dark' ? '#f8f9fa' : '#212529';
+            });
+
+            // Textos secundários
+            const secondaryTexts = document.querySelectorAll('.book-subtitle, .text-muted');
+            secondaryTexts.forEach(text => {
+                text.style.color = this.currentTheme === 'dark' ? '#adb5bd' : '#6c757d';
+            });
+
+            // Info items
+            const infoItems = document.querySelectorAll('.info-item');
+            infoItems.forEach(item => {
+                if (this.currentTheme === 'dark') {
+                    item.style.backgroundColor = 'rgba(30, 30, 30, 0.95)';
+                    item.style.color = '#f8f9fa';
+                } else {
+                    item.style.backgroundColor = 'rgba(248, 249, 250, 0.7)';
+                    item.style.color = '#212529';
+                }
+            });
+        }
+
+        /**
+         * Corrige modais para o tema atual
+         */
+        fixModals() {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.classList.remove('light-theme', 'dark-theme');
+                modal.classList.add(`${this.currentTheme}-theme`);
+            });
+        }
+
+        /**
+         * Corrige formulários para o tema atual
+         */
+        fixForms() {
+            const formControls = document.querySelectorAll('.form-control, .form-select');
+            formControls.forEach(control => {
+                if (this.currentTheme === 'dark') {
+                    control.style.backgroundColor = 'rgba(43, 48, 53, 0.95)';
+                    control.style.color = '#f8f9fa';
+                    control.style.borderColor = '#495057';
+                } else {
+                    control.style.backgroundColor = '#ffffff';
+                    control.style.color = '#212529';
+                    control.style.borderColor = '#dee2e6';
+                }
+            });
+        }
+
+        /**
+         * Configura observador para mudanças de tema
+         */
+        setupThemeObserver() {
+            // Observa mudanças no atributo data-theme
+            this.observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' &&
+                        (mutation.attributeName === 'data-theme' ||
+                         mutation.attributeName === 'class')) {
+
+                        const newTheme = document.documentElement.getAttribute('data-theme');
+                        if (newTheme && newTheme !== this.currentTheme) {
+                            console.log('Tema detectado via observador:', newTheme);
+                            this.currentTheme = newTheme;
+                            this.forceThemeApplication();
+                        }
+                    }
+                });
+            });
+
+            this.observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['data-theme', 'class']
+            });
+
+            // Observa mudanças no localStorage
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'theme') {
+                    console.log('Tema alterado via storage:', e.newValue);
+                    this.setTheme(e.newValue);
+                }
+            });
+        }
+
+        /**
+         * Emite evento personalizado quando tema muda
+         */
+        dispatchThemeEvent() {
+            const event = new CustomEvent('bookDetailsThemeChanged', {
+                detail: { theme: this.currentTheme }
+            });
+            document.dispatchEvent(event);
+        }
+
+        /**
+         * Destrói o gerenciador
+         */
+        destroy() {
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+        }
+
+        /**
+         * Método público para alternar tema
+         */
+        toggleTheme() {
+            const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+            this.setTheme(newTheme);
+        }
+
+        /**
+         * Método público para obter tema atual
+         */
+        getCurrentTheme() {
+            return this.currentTheme;
+        }
+    }
+
+    /**
+     * Função de utilidade para aplicar correções de emergência
+     */
+    function emergencyThemeFix() {
+        const theme = document.documentElement.getAttribute('data-theme') || 'light';
+
+        // Força fundo do body
+        document.body.style.backgroundColor = theme === 'dark' ? '#121212' : '#ffffff';
+        document.body.style.color = theme === 'dark' ? '#f8f9fa' : '#212529';
+
+        // Força cards
+        const cards = document.querySelectorAll('.card, .book-cover-container');
+        cards.forEach(card => {
+            card.style.backgroundColor = theme === 'dark' ?
+                'rgba(43, 48, 53, 0.95)' : 'rgba(255, 255, 255, 0.85)';
+            card.style.color = theme === 'dark' ? '#f8f9fa' : '#212529';
         });
+
+        console.log('Correção de emergência aplicada para tema:', theme);
+    }
+
+    let themeManager = null;
+
+    function initializeThemeManager() {
+        if (!themeManager) {
+            themeManager = new BookDetailsThemeManager();
+
+            // Disponibiliza globalmente para debug
+            window.bookDetailsThemeManager = themeManager;
+            window.emergencyThemeFix = emergencyThemeFix;
+
+            console.log('BookDetailsThemeManager inicializado e disponível globalmente');
+        }
+        return themeManager;
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeThemeManager);
+    } else {
+        initializeThemeManager();
+    }
+
+    setTimeout(() => {
+        if (!themeManager) {
+            console.warn('ThemeManager não inicializado, aplicando correção de emergência');
+            emergencyThemeFix();
+            initializeThemeManager();
+        }
+    }, 2000);
+
+    document.addEventListener('themeChanged', function(e) {
+        if (themeManager && e.detail && e.detail.theme) {
+            console.log('Tema alterado via evento global:', e.detail.theme);
+            themeManager.setTheme(e.detail.theme);
+        }
     });
 
-    // Redefine a função de abertura do modal de prateleira
-    window.openShelfModal = function() {
-        addToShelfModal.show();
-    };
-
-    // Redefine a função de abertura do modal de mover
-    window.openMoveModal = function() {
-        moveBookModal.show();
-    };
-});
+})();
 </script>
+
 {% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'js/book-details-init.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-<script src="{% static 'js/book-details-modal.js' %}"></script>
-<script src="{% static 'js/book-details.js' %}"></script>
+{{% block extra_js %}
+    {{ block.super }}
+
+    <!-- SCRIPT CORRIGIDO PARA DADOS DO LIVRO -->
+    <script id="book-data" type="application/json">
+    {% if book_json %}
+        {{ book_json|safe }}
+    {% else %}
+        {
+            "id": {% if book.id %}"{{ book.id }}"{% else %}null{% endif %},
+            "titulo": "{{ book.titulo|escapejs }}",
+            "autor": "{{ book.autor|escapejs }}",
+            "external_id": {% if book.external_id %}"{{ book.external_id }}"{% else %}null{% endif %},
+            "current_shelf": {% if shelf %}"{{ shelf }}"{% else %}null{% endif %},
+            "capa_url": "{{ book.get_preview_url|escapejs }}",
+            "descricao": "{{ book.descricao|escapejs|truncatewords:50 }}"
+        }
+    {% endif %}
+    </script>
+
+    <!-- DADOS ALTERNATIVOS PARA JAVASCRIPT -->
+    <script>
+        window.bookId = {% if book.id %}"{{ book.id }}"{% else %}null{% endif %};
+        window.bookShelf = {% if shelf %}"{{ shelf }}"{% else %}null{% endif %};
+        window.bookExternalId = {% if book.external_id %}"{{ book.external_id }}"{% else %}null{% endif %};
+    </script>
+
+    <!-- SCRIPT PRINCIPAL E ÚNICO PARA A LÓGICA DOS MODAIS -->
+    <script src="{% static 'js/book-details.js' %}"></script>
+
+    <script>
+        function handleBuyBook() {
+            alert('Funcionalidade de compra em desenvolvimento!');
+        }
+    </script>
+
 {% endblock %}

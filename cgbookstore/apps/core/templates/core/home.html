@@ -1,5 +1,8 @@
 {% extends 'core/base.html' %}
 {% load static %}
+
+{% block body_class %}page-home{% endblock %}
+
 {% load custom_tags %}
 
 {% block title %}Página Inicial{% endblock %}
@@ -8,7 +11,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
 <link rel="stylesheet" href="{% static 'css/swiper-custom.css' %}">
 <link rel="stylesheet" href="{% static 'css/custom_sections.css' %}">
-<link rel="stylesheet" href="{% static 'css/weather_widget.css' %}">
 <link rel="stylesheet" href="{% static 'css/video-section.css' %}">
 <link rel="stylesheet" href="{% static 'css/author-section.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -18,9 +20,9 @@
 
 {% block content %}
 <div class="row">
-    <!-- Coluna lateral para o widget de previsão do tempo -->
+    <!-- Coluna lateral para eventos -->
     <div class="col-lg-2 mb-4">
-        {% include 'core/components/weather_widget.html' %}
+        {% include 'core/_event_widget.html' %}
     </div>
 
     <!-- Conteúdo principal -->
@@ -67,21 +69,16 @@
 
         <!-- Seções da Home -->
         {% for section in shelves %}
-            {% if section.tipo == 'shelf' and section.livros and section.id != 'recomendados' %}
+            {% if section.tipo == 'shelf' and section.livros %}
             <!-- Prateleira de Livros -->
-            <section class="book-shelf" :id="`section-${sectionIndex}`">
+            <section class="book-shelf">
                 <div class="container">
-                    <h2 class="section-title animate-fade-in">
-                        {{ section.titulo }}
-                        {% if section.id == 'recomendados' and not user.is_authenticated %}
-                        <small class="text-muted">(Faça login para ver recomendações personalizadas)</small>
-                        {% endif %}
-                    </h2>
+                    <h2 class="section-title animate-fade-in">{{ section.titulo }}</h2>
                     <div class="swiper bookSwiper">
                         <div class="swiper-wrapper">
                             {% for livro in section.livros %}
                             <div class="swiper-slide">
-                                {% include 'core/includes/book_card.html' with livro=livro %}
+                                {% include 'core/includes/book_card.html' with livro=livro opcoes_prateleiras=opcoes_prateleiras %}
                             </div>
                             {% endfor %}
                         </div>
@@ -92,13 +89,12 @@
             </section>
             {% endif %}
 
-            {% if section.tipo == 'video' %}
+            {% if section.tipo == 'video' and section.videos %}
             <!-- Seção de Vídeo -->
-            <section class="video-section {% if section.css_class %}{{ section.css_class }}{% endif %}" id="{{ section.id }}">
+            <section class="video-section {% if section.css_class %}{{ section.css_class }}{% endif %}" id="section-{{ section.id }}">
                 <div class="container">
                     <h2 class="section-title">{{ section.titulo }}</h2>
-                    {% if section.videos %}
-                    <div class="videoSwiper">
+                    <div class="swiper videoSwiper">
                         <div class="swiper-wrapper">
                             {% for video_item in section.videos %}
                             <div class="swiper-slide">
@@ -106,15 +102,8 @@
                                     <div class="video-cover">
                                         {% if 'youtube.com' in video_item.url or 'youtu.be' in video_item.url %}
                                             {% with video_id=video_item.url|get_youtube_id %}
-                                            <a href="https://www.youtube.com/watch?v={{ video_id }}"
-                                               class="video-link"
-                                               data-video-id="{{ video_id }}"
-                                               target="_blank">
-                                                <img src="https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg"
-                                                     alt="{{ video_item.titulo|default:'Vídeo YouTube' }}"
-                                                     class="video-thumbnail"
-                                                     loading="lazy"
-                                                     onerror="this.onerror=null; this.src='https://img.youtube.com/vi/{{ video_id }}/default.jpg';">
+                                            <a href="https://www.youtube.com/watch?v={{ video_id }}" class="video-link" data-video-id="{{ video_id }}" target="_blank">
+                                                <img src="https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg" alt="{{ video_item.titulo|default:'Vídeo YouTube' }}" class="video-thumbnail" loading="lazy" onerror="this.onerror=null; this.src='https://img.youtube.com/vi/{{ video_id }}/default.jpg';">
                                                 <div class="play-overlay">
                                                     <span class="play-icon">▶</span>
                                                 </div>
@@ -132,16 +121,53 @@
                         <div class="swiper-button-next"></div>
                         <div class="swiper-button-prev"></div>
                     </div>
-                    {% endif %}
                 </div>
+                <!-- ANOTAÇÃO: A estrutura do modal foi movida para fora do loop 'for' -->
+            </section>
+            {% endif %}
 
-                <!-- Modal para reprodução do vídeo -->
-                <div id="videoModal" class="video-modal">
-                    <div class="modal-content">
-                        <span class="close-modal">&times;</span>
-                        <div class="video-container">
-                            <div id="modalVideoPlayer"></div>
+            {% if section.tipo == 'author' and section.authors %}
+            <!-- Seção de Autores (AGORA COM CARROSSEL) -->
+            <section class="author-section {% if section.css_class %}{{ section.css_class }}{% endif %}" id="section-{{ section.id }}">
+                <div class="container">
+                    <h2 class="section-title">{{ section.titulo }}</h2>
+                    {% if section.author_section.titulo_secundario %}
+                    <p class="section-subtitle">{{ section.author_section.titulo_secundario }}</p>
+                    {% endif %}
+                    {% if section.author_section.descricao %}
+                    <p class="section-description">{{ section.author_section.descricao }}</p>
+                    {% endif %}
+
+                    <!-- Estrutura do Swiper -->
+                    <div class="swiper authorSwiper">
+                        <div class="swiper-wrapper">
+                            {% for author in section.authors %}
+                            <!-- Cada autor agora é um swiper-slide -->
+                            <div class="swiper-slide">
+                                <a href="{% url 'core:authors:author-detail' author.slug %}" class="text-decoration-none d-block h-100">
+                                    <div class="author-card">
+                                        {% if author.foto %}
+                                        <div class="author-photo">
+                                            <img src="{{ author.foto.url }}" alt="{{ author.get_nome_completo }}" loading="lazy">
+                                        </div>
+                                        {% endif %}
+                                        <div class="author-info">
+                                            <h3 class="author-name">{{ author.get_nome_completo }}</h3>
+                                            {% if author.nacionalidade %}
+                                            <p class="author-nationality">{{ author.nacionalidade }}</p>
+                                            {% endif %}
+                                            {% if section.author_section.mostrar_biografia and author.biografia %}
+                                            <p class="author-bio">{{ author.biografia|truncatewords:20 }}</p> {# Truncado um pouco para caber melhor no card #}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            {% endfor %}
                         </div>
+                        <!-- Botões de Navegação -->
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
                     </div>
                 </div>
             </section>
@@ -149,13 +175,10 @@
 
             {% if section.tipo == 'ad' and section.advertisement %}
             <!-- Área de Propaganda -->
-            <section class="ad-section {% if section.css_class %}{{ section.css_class }}{% endif %}" :id="`section-${sectionIndex}`">
+            <section class="ad-section {% if section.css_class %}{{ section.css_class }}{% endif %}">
                 <div class="container">
                     <a href="{{ section.advertisement.url }}" target="_blank" class="ad-link">
-                        <img src="{{ section.advertisement.imagem.url }}"
-                             alt="{{ section.titulo }}"
-                             class="ad-image"
-                             loading="lazy">
+                        <img src="{{ section.advertisement.imagem.url }}" alt="{{ section.titulo }}" class="ad-image" loading="lazy">
                     </a>
                 </div>
             </section>
@@ -177,29 +200,6 @@
                 </div>
             </section>
             {% endif %}
-
-            {% if section.tipo == 'custom' %}
-                <!-- Seção Personalizada -->
-                <section class="custom-section {% if section.css_class %}{{ section.css_class }}{% endif %}" id="section-{{ section.tipo }}-{{ section.id }}">
-                    {% if section.template and section.data %}
-                        {% include section.template with section=section events=section.data.events eventos_destaque=section.data.eventos_destaque eventos_secundarios=section.data.eventos_secundarios %}
-                    {% elif section.author_section and section.authors %}
-                        <!-- Nova condição para renderizar seção de autores -->
-                        {% include 'core/components/author_section.html' with section=section.author_section authors=section.authors %}
-                    {% else %}
-                        <div class="container">
-                            <h2 class="section-title">{{ section.titulo }}</h2>
-                            {% if section.subtitulo %}<p class="section-subtitle">{{ section.subtitulo }}</p>{% endif %}
-
-                            {% if section.botao_texto and section.botao_url %}
-                                <div class="text-center mt-4">
-                                    <a href="{{ section.botao_url }}" class="btn btn-primary">{{ section.botao_texto }}</a>
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </section>
-            {% endif %}
         {% endfor %}
 
         <!-- Seção: Ranking de Leitores -->
@@ -214,66 +214,56 @@
                         <p class="text-muted">Nossos leitores mais dedicados deste mês</p>
                     </div>
                 </div>
-
                 <div class="row justify-content-center">
                     {% for usuario in ranking_usuarios %}
-                    <div class="col-md-4 mb-4">  <!-- Alterado para col-md-4 para ter 3 colunas iguais -->
+                    <div class="col-md-4 mb-4">
                         <div class="card shadow h-100 border-0 ranking-card position-relative text-center">
                             {% if forloop.counter <= 3 %}
                             <div class="position-absolute top-0 start-50 translate-middle">
-                                <span class="badge rounded-pill
-                                    {% if forloop.counter == 1 %}bg-warning text-dark{% endif %}
-                                    {% if forloop.counter == 2 %}bg-secondary text-white{% endif %}
-                                    {% if forloop.counter == 3 %}bg-danger text-white{% endif %}
-                                    px-3 py-2 shadow">
-                                    <i class="bi bi-trophy-fill me-1"></i>
-                                    #{{ forloop.counter }}
+                                <span class="badge rounded-pill {% if forloop.counter == 1 %}bg-warning text-dark{% elif forloop.counter == 2 %}bg-secondary text-white{% else %}bg-danger text-white{% endif %} px-3 py-2 shadow">
+                                    <i class="bi bi-trophy-fill me-1"></i>#{{ forloop.counter }}
                                 </span>
                             </div>
                             {% endif %}
-
                             <div class="card-body text-center pt-5">
-                                {% if usuario.avatar_url %}
-                                    <img src="{{ usuario.avatar_url }}" class="rounded-circle mb-3 border shadow-sm" width="90" height="90" alt="{{ usuario.nome }}">
+                                {% if usuario.profile and usuario.profile.avatar %}
+                                    <img src="{{ usuario.profile.avatar.url }}" class="rounded-circle mb-3 border shadow-sm" width="90" height="90" style="object-fit: cover;" alt="Avatar de {{ usuario.get_full_name|default:usuario.username }}">
                                 {% else %}
-                                    <img src="{% static 'images/default-avatar.png' %}" class="rounded-circle mb-3 border shadow-sm" width="90" height="90" alt="{{ usuario.nome }}">
+                                    <img src="{% static 'images/default-avatar.png' %}" class="rounded-circle mb-3 border shadow-sm" width="90" height="90" alt="Avatar padrão">
                                 {% endif %}
-
-                                <h5 class="card-title fw-bold mb-1">{{ usuario.nome }}</h5>
+                                <h5 class="card-title fw-bold mb-1">{{ usuario.get_full_name|default:usuario.username }}</h5>
                                 <div class="d-flex justify-content-center align-items-center">
                                     <span class="badge bg-primary rounded-pill px-3 py-2 mt-2">
                                         <i class="bi bi-book me-1"></i>
                                         {{ usuario.livros_lidos }} livro{{ usuario.livros_lidos|pluralize }}
                                     </span>
                                 </div>
-
                                 <div class="progress mt-3" style="height: 8px;">
-                                    <div class="progress-bar bg-success" role="progressbar"
-                                        style="width: {% widthratio usuario.livros_lidos 20 100 %}%;"
-                                        aria-valuenow="{{ usuario.livros_lidos }}"
-                                        aria-valuemin="0"
-                                        aria-valuemax="20">
-                                    </div>
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio usuario.livros_lidos 20 100 %}%;" aria-valuenow="{{ usuario.livros_lidos }}" aria-valuemin="0" aria-valuemax="20"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
-                </div>
 
-                {% if user.is_authenticated %}
-                <div class="text-center mt-3">
-                    <a href="{% url 'core:ranking_leitores' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-trophy me-1"></i>Ver mais
-                    </a>
+                    <!-- Modal de Vídeo (fora do loop) -->
+                    <div id="videoModal" class="video-modal">
+                        <div class="modal-content">
+                            <!-- ANOTAÇÃO: O 'x' foi trocado por '&times;' para melhor visualização -->
+                            <span class="close-modal">&times;</span>
+                            <div class="video-container">
+                                <div id="modalVideoPlayer"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                {% else %}
                 <div class="text-center mt-3">
-                    <a href="{% url 'core:login' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-box-arrow-in-right me-1"></i>Entrar para participar
-                    </a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'core:ranking_leitores' %}" class="btn btn-outline-primary"><i class="bi bi-trophy me-1"></i>Ver mais</a>
+                    {% else %}
+                    <a href="{% url 'core:login' %}" class="btn btn-outline-primary"><i class="bi bi-box-arrow-in-right me-1"></i>Entrar para participar</a>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
         </section>
         {% endif %}
@@ -283,68 +273,32 @@
 
 {% block extra_js %}
 {{ block.super }}
-
 <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 <script src="{% static 'js/video-section.js' %}"></script>
-<script src="{% static 'js/weather_widget.js' %}"></script>
-
-<!-- Script adicional para corrigir os thumbnails dos vídeos -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Função para tratar imagens de thumbnails que não carregam
     function fixYoutubeThumbnails() {
-        const thumbnails = document.querySelectorAll('.video-thumbnail');
-
-        thumbnails.forEach(function(img) {
-            // Verificar se a imagem está quebrada
-            if (img.complete && (img.naturalWidth === 0 || img.naturalHeight === 0)) {
-                const videoId = img.closest('.video-link').getAttribute('data-video-id');
-                if (videoId) {
-                    // Tentar versão de menor qualidade
-                    img.src = `https://img.youtube.com/vi/${videoId}/default.jpg`;
-                    console.log('Thumbnail substituído para:', videoId);
-                }
-            }
-
-            // Adicionar listener para erros
+        document.querySelectorAll('.video-thumbnail').forEach(function(img) {
             img.addEventListener('error', function() {
                 const videoId = this.closest('.video-link').getAttribute('data-video-id');
                 if (videoId) {
-                    // Tentar versão de menor qualidade
                     this.src = `https://img.youtube.com/vi/${videoId}/default.jpg`;
-                    console.log('Erro ao carregar thumbnail:', videoId);
                 }
             });
         });
     }
-
-    // Executar a função após um pequeno atraso para garantir que todas as imagens foram processadas
     setTimeout(fixYoutubeThumbnails, 500);
 
-    // Banner Swiper
     new Swiper('.bannerSwiper', {
         loop: true,
-        autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-        },
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-        },
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
+        autoplay: { delay: 5000, disableOnInteraction: false },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
         effect: 'fade',
-        fadeEffect: {
-            crossFade: true
-        }
+        fadeEffect: { crossFade: true }
     });
 
-    // Books Swiper
-    const bookSwipers = document.querySelectorAll('.bookSwiper');
-    bookSwipers.forEach(function(element) {
+    document.querySelectorAll('.bookSwiper').forEach(function(element) {
         new Swiper(element, {
             slidesPerView: 2,
             spaceBetween: 20,
@@ -353,116 +307,86 @@ document.addEventListener('DOMContentLoaded', function() {
                 prevEl: element.querySelector('.swiper-button-prev'),
             },
             breakpoints: {
-                640: {
-                    slidesPerView: 3,
-                    spaceBetween: 20,
-                },
-                768: {
-                    slidesPerView: 4,
-                    spaceBetween: 30,
-                },
-                1024: {
-                    slidesPerView: 5,
-                    spaceBetween: 30,
-                },
+                640: { slidesPerView: 3, spaceBetween: 20 },
+                768: { slidesPerView: 4, spaceBetween: 30 },
+                1024: { slidesPerView: 5, spaceBetween: 30 },
             }
         });
+    });
+
+    // Adicionado o Swiper para a seção de vídeos
+    new Swiper('.videoSwiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        navigation: {
+            nextEl: '.videoSwiper .swiper-button-next',
+            prevEl: '.videoSwiper .swiper-button-prev',
+        },
+        breakpoints: {
+            576: { slidesPerView: 2, spaceBetween: 20 },
+            768: { slidesPerView: 3, spaceBetween: 30 },
+            992: { slidesPerView: 4, spaceBetween: 30 },
+        }
+    });
+
+    // ===== CARROSSEL DE AUTORES =====
+    new Swiper('.authorSwiper', {
+        slidesPerView: 1, // Começa com 1 slide em telas pequenas
+        spaceBetween: 20,
+        navigation: {
+            nextEl: '.authorSwiper .swiper-button-next',
+            prevEl: '.authorSwiper .swiper-button-prev',
+        },
+        breakpoints: {
+            576: { slidesPerView: 2, spaceBetween: 20 },
+            768: { slidesPerView: 3, spaceBetween: 30 },
+            992: { slidesPerView: 4, spaceBetween: 30 }, // 4 autores em telas maiores
+        }
+    });
+
+    document.body.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-add-to-shelf')) {
+            const button = e.target.closest('.btn-add-to-shelf');
+            const select = button.previousElementSibling;
+            const bookId = select.dataset.bookId;
+            const shelfType = select.value;
+
+            if (!shelfType || shelfType === 'Adicionar à...') {
+                alert('Por favor, selecione uma prateleira.');
+                return;
+            }
+
+            // Você já tem uma função para adicionar à prateleira em book.py
+            // que responde a uma requisição POST.
+            // Aqui fazemos a chamada AJAX para essa URL.
+            fetch(`/add-to-shelf/`, { // Verifique se esta é a URL correta
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}', // Django CSRF Token
+                },
+                body: JSON.stringify({
+                    book_id: bookId,
+                    shelf_type: shelfType
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostre uma notificação de sucesso para o usuário
+                    alert(data.message);
+                } else {
+                    // Mostre uma notificação de erro
+                    alert('Erro: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+                alert('Ocorreu um erro de comunicação com o servidor.');
+            });
+        }
     });
 });
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Adicionar efeito hover via JavaScript como fallback
-    const authorCards = document.querySelectorAll('.author-section .author-card, .author-section .card');
-
-    authorCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.backgroundColor = 'rgba(80, 80, 80, 0.5)';
-            this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-            this.style.transform = '';
-            this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-        });
-    });
-});
-</script>
-
-<script>
-// Garantir comportamento consistente de hover em cards de ranking
-document.addEventListener('DOMContentLoaded', function() {
-    const rankingCards = document.querySelectorAll('.ranking-card, .card.shadow.h-100.border-0.ranking-card, .reader-ranking-section .d-flex.align-items-center.justify-content-between.bg-white');
-
-    rankingCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.backgroundColor = 'rgba(80, 80, 80, 0.5)';
-            this.style.transform = this.classList.contains('d-flex') ? 'translateY(-5px)' : 'translateY(-10px)';
-            this.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.3)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            // Verifica se é o primeiro card (destacado)
-            const isFirstCard = this.closest('.col-md-4') && (this.closest('.col-md-4').parentElement.firstElementChild === this.closest('.col-md-4'));
-
-            if (isFirstCard) {
-                this.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-                this.style.transform = 'scale(1.05)';
-            } else {
-                this.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-                this.style.transform = '';
-            }
-
-            this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-        });
-    });
-});
-</script>
-
-<script>
-// Script para forçar transparência em todas as seções
-document.addEventListener('DOMContentLoaded', function() {
-    function forcarTransparencia() {
-        const elementos = document.querySelectorAll('.author-section, .video-section, .reader-ranking-section, .author-section *, .video-section *, .reader-ranking-section *, [class*="card"], .bg-light, .bg-white');
-
-        elementos.forEach(function(elemento) {
-            elemento.style.backgroundColor = 'transparent';
-            elemento.style.background = 'transparent';
-            elemento.style.backdropFilter = 'none';
-            elemento.style.webkitBackdropFilter = 'none';
-            elemento.style.boxShadow = 'none';
-            elemento.style.border = 'none';
-
-            // Remover classes que possam estar aplicando fundos
-            if (elemento.classList.contains('bg-light')) {
-                elemento.classList.remove('bg-light');
-            }
-            if (elemento.classList.contains('bg-white')) {
-                elemento.classList.remove('bg-white');
-            }
-        });
-
-        // Garantir legibilidade de texto
-        const textos = document.querySelectorAll('.author-section h1, .author-section h2, .author-section h3, .author-section p, .video-section h1, .video-section h2, .video-section h3, .video-section p, .reader-ranking-section h1, .reader-ranking-section h2, .reader-ranking-section h3, .reader-ranking-section p, .card-title, .card-text');
-
-        textos.forEach(function(texto) {
-            texto.style.color = 'white';
-            texto.style.textShadow = '0 0 4px black, 0 0 6px black, 1px 1px 2px black, -1px -1px 2px black';
-        });
-    }
-
-    // Executar imediatamente
-    forcarTransparencia();
-
-    // Repetir após um breve atraso
-    setTimeout(forcarTransparencia, 500);
-
-    // Observar mudanças no DOM
-    const observer = new MutationObserver(forcarTransparencia);
-    observer.observe(document.body, { childList: true, subtree: true });
-});
-</script>
 {% endblock %}

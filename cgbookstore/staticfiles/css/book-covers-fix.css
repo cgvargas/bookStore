@@ -1,0 +1,84 @@
+/**
+ * Correções avançadas para capas de livros
+ * Este arquivo complementa book-covers.css com melhorias específicas
+ * para resolver problemas de exibição e duplicidade
+ */
+
+/* Garantir que todas as imagens de capa tenham dimensões mínimas consistentes */
+.book-cover-container img,
+.book-card img,
+.external-book img,
+img.book-cover-image {
+    min-height: 160px !important;
+    min-width: 120px !important;
+    object-fit: cover;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    display: block !important;
+}
+
+/* Melhorar a aparência das imagens ao passar o mouse */
+.book-cover-container:hover img,
+.book-card:hover img {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos específicos para imagens SVG de fallback */
+img[src*="no-cover.svg"] {
+    background-color: #f0f0f0;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Melhorar o comportamento de carga de imagens */
+.book-cover-image {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.book-cover-image.loading {
+    opacity: 0.6;
+}
+
+/* Correções para a seção de recomendações na página inicial */
+.recommendations-section .book-card,
+[id*="recommendations"] .book-card,
+.recommendations-section .book-cover-container,
+[id*="recommendations"] .book-cover-container {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+/* Prevenir sobreposição */
+.recommendations-section,
+[id*="recommendations"] {
+    overflow: visible !important;
+}
+
+/* Corrigir duplicidades */
+.recommendations-section .book-card[style*="display: none"],
+[id*="recommendations"] .book-card[style*="display: none"] {
+    display: none !important;
+}
+
+/* Melhorar títulos de livros */
+.book-card .book-title,
+.book-cover-container .book-title {
+    margin-top: 8px;
+    font-weight: 500;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Melhorar exibição em dispositivos móveis */
+@media (max-width: 768px) {
+    .book-cover-container img,
+    .book-card img {
+        min-height: 140px !important;
+        min-width: 100px !important;
+    }
+}

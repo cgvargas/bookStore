@@ -135,68 +135,6 @@
         </div>
     </div>
 </div>
-
-<style>
-
-    /* Seletor mais específico para sobrescrever o Bootstrap */
-    html body .register-card,
-    .container .register-card {
-        max-width: 400px;
-        width: 100%;
-        background-color: #ffffff !important;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08) !important;
-        border-radius: 15px;
-        border: 1px solid #f1f1f1 !important;
-        transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Usando seletor mais específico para o hover */
-    html body .register-card:hover,
-    .container .register-card:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
-        z-index: 2;
-    }
-
-    /* Mantendo os estilos do dark mode */
-    .dark-mode .register-card {
-        background-color: #2c2c2c !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-        border-color: #444 !important;
-    }
-
-    .dark-mode .register-card h2,
-    .dark-mode .register-card label {
-        color: #e2e8f0 !important;
-    }
-
-    .dark-mode .register-card .text-muted {
-        color: #a0aec0 !important;
-    }
-
-    .dark-mode .register-card .form-control {
-        background-color: #3a3a3a !important;
-        border-color: #4a4a4a !important;
-        color: #e2e8f0 !important;
-    }
-
-    .dark-mode .register-card a {
-        color: #ff6600 !important;
-    }
-
-    .dark-mode .register-card .btn-primary {
-        background-color: #ff6600 !important;
-        border-color: #ff6600 !important;
-    }
-
-    .dark-mode .register-card .btn-primary:hover {
-        background-color: #ff4500 !important;
-        border-color: #ff4500 !important;
-    }
-</style>
-
 {% endblock %}
 
 {% block extra_js %}

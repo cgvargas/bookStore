@@ -42,6 +42,7 @@ html {
 /* ==========================================================================
    3. Perfil do Usuário
    ========================================================================== */
+
 /* Imagem do Perfil */
 .profile-image {
     position: relative;
@@ -64,6 +65,19 @@ html {
 .avatar-placeholder i {
     font-size: 4rem;
     color: #999;
+}
+
+/* Ajusta o overlay para o formato da imagem */
+.profile-image-circle .profile-image-overlay {
+    border-radius: 50%;
+}
+
+.profile-image-square .profile-image-overlay {
+    border-radius: 0.5rem;
+}
+
+.profile-image-hexagon .profile-image-overlay {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
 /* Estatísticas do Perfil */
@@ -159,6 +173,64 @@ html {
 
 .customizable-card:hover .customize-button {
     opacity: 1;
+}
+
+/* Adicionar ao arquivo cgbookstore/static/css/profile.css */
+
+/* Estilos para Estatísticas */
+.stats-card {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.stats-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+}
+
+.bg-primary-soft {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.bg-success-soft {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.stats-info h5 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.stats-info span {
+    font-size: 0.875rem;
+    color: #6c757d;
+    display: block;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    max-height: 300px;
+    overflow: hidden;
 }
 
 /* ==========================================================================
@@ -433,3 +505,1847 @@ html {
         animation: none;
     }
 }
+
+/* Adições ao profile.css - Adicione no final do arquivo */
+
+/* Estilos adicionais para o card de perfil */
+.profile-image-hexagon img,
+.profile-image-hexagon .avatar-placeholder {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    margin: 0 auto;
+}
+
+/* Melhorias nos efeitos de hover */
+.hover-effect-translate {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hover-effect-scale {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hover-effect-glow {
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.hover-effect-translate:hover {
+    transform: translateY(-10px);
+}
+
+.hover-effect-scale:hover {
+    transform: scale(1.03);
+}
+
+.hover-effect-glow:hover {
+    box-shadow: 0 0 20px rgba(13, 110, 253, 0.25);
+    transform: translateY(-5px);
+}
+
+/* Botão de customização aprimorado */
+.customize-button {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
+    opacity: 0;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.customizable-card:hover .customize-button {
+    opacity: 1;
+    transform: rotate(15deg);
+}
+
+.customize-button:hover {
+    transform: rotate(45deg) !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Melhorias nas prateleiras de livros */
+.book-item {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.2, 1, 0.3, 1);
+    border-radius: 0.5rem;
+}
+
+.book-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.6) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    border-radius: 0.5rem;
+}
+
+.book-item:hover::after {
+    opacity: 1;
+}
+
+.book-cover {
+    transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.3s ease;
+    will-change: transform, box-shadow;
+}
+
+.book-item:hover .book-cover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Indicadores de ação nos livros */
+.book-actions {
+    position: absolute;
+    bottom: -40px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    transition: bottom 0.3s ease;
+    z-index: 5;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+.book-item:hover .book-actions {
+    bottom: 0;
+}
+
+.book-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: #333;
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.book-action-btn:hover {
+    transform: scale(1.1);
+    background-color: #f8f9fa;
+}
+
+/* Melhorias nos botões dentro dos modais */
+.modal .btn {
+    transition: all 0.2s ease;
+}
+
+.modal .btn:hover {
+    transform: translateY(-2px);
+}
+
+.modal .btn:active {
+    transform: translateY(0);
+}
+
+/* Melhorias nas animações dos swiper */
+.swiper-button-next,
+.swiper-button-prev {
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    transform: scale(1.15);
+    opacity: 1;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Feedback de carregamento */
+.loading-indicator {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+/* Melhoria na aparência dos cards das prateleiras */
+.card-header {
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.card-header:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.card-header i {
+    transition: transform 0.3s ease;
+}
+
+.card-header:hover i {
+    transform: scale(1.2);
+}
+
+/* Feedback visual para elementos carregando */
+.is-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.is-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.is-loading::before {
+    content: '';
+    position: absolute;
+    top: calc(50% - 20px);
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(13, 110, 253, 0.3);
+    border-top-color: #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 11;
+}
+
+/* Estados de foco aprimorados para acessibilidade */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus,
+.btn:focus,
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    outline: none;
+}
+
+/* Botões de ação principais com feedback aprimorado */
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+    z-index: 0;
+}
+
+.btn-primary:hover::after {
+    width: 300%;
+    height: 300%;
+}
+
+.btn-primary > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Melhoria nos tooltips */
+.tooltip {
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(5px);
+}
+
+.tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tooltip-inner {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Melhorias na responsividade */
+@media (max-width: 768px) {
+    .book-container {
+        padding: 0.75rem 1.5rem;
+    }
+
+    .book-item {
+        width: 120px;
+    }
+
+    .book-cover {
+        width: 120px;
+        height: 170px;
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+        width: 30px;
+        height: 30px;
+    }
+
+    .swiper-button-next:after,
+    .swiper-button-prev:after {
+        font-size: 1rem;
+    }
+
+    .card-header h5 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Animações para elementos da página */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.profile-container .card {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.profile-container .card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.profile-container .card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.profile-container .card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.profile-container .card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.profile-container .card:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+/* Indicator de scroll horizontal em mobile */
+@media (max-width: 576px) {
+    .book-container:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 8px;
+        width: 40px;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 100%);
+        pointer-events: none;
+        z-index: 5;
+    }
+}
+
+.alert:not(.modal-content .alert) .btn-close {
+    display: none !important;
+}
+
+/* Melhorias para o Card de Perfil */
+.profile-card-modern {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+}
+
+.profile-card-modern:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(13, 110, 253, 0.15);
+}
+
+.profile-card-modern .card-body {
+    padding: 2rem 1.5rem;
+}
+
+.profile-card-header {
+    position: relative;
+    background: linear-gradient(45deg, #0d6efd, #6610f2);
+    height: 80px;
+    border-radius: 15px 15px 0 0;
+    margin: -1px;
+}
+
+.profile-image-modern {
+    position: relative;
+    margin-top: -50px;
+    margin-bottom: 1rem;
+    z-index: 1;
+}
+
+.profile-image-modern img,
+.profile-image-modern .avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    border: 4px solid #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.profile-image-modern:hover img,
+.profile-image-modern:hover .avatar-placeholder {
+    transform: scale(1.05);
+}
+
+.profile-name {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+}
+
+.profile-username {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.profile-edit-btn {
+    background: linear-gradient(45deg, #0d6efd, #6610f2);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.profile-edit-btn:hover {
+    background: linear-gradient(45deg, #0a58ca, #5209cf);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+}
+
+.profile-edit-btn i {
+    margin-right: 0.5rem;
+}
+
+.profile-stats-modern {
+    background: rgba(13, 110, 253, 0.05);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+}
+
+.profile-stats-modern .stat-item {
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.profile-stats-modern .stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+.profile-stats-modern .stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-stats-modern .stat-item i {
+    font-size: 1.2rem;
+    color: #0d6efd;
+    margin-bottom: 0.3rem;
+}
+
+/* Melhorias para o Modal de Edição de Perfil */
+.form-card-modern {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.form-card-modern .card-header {
+    background: linear-gradient(45deg, #0d6efd, #6610f2);
+    color: white;
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.form-card-modern .card-header h4 {
+    font-weight: 600;
+    margin: 0;
+}
+
+.form-card-modern .card-body {
+    padding: 2rem;
+}
+
+.form-card-modern .form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-card-modern .form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.form-card-modern .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.form-card-modern .btn-primary {
+    background: linear-gradient(45deg, #0d6efd, #6610f2);
+    border: none;
+    border-radius: 50px;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-card-modern .btn-primary:hover {
+    background: linear-gradient(45deg, #0a58ca, #5209cf);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+}
+
+.form-card-modern .text-end {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.input-group-modern {
+    position: relative;
+}
+
+.input-group-modern .form-control {
+    padding-left: 40px;
+}
+
+.input-group-modern i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 10;
+}
+
+.form-card-modern .form-section {
+    position: relative;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.form-card-modern .form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-card-modern .form-section-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.form-card-modern .btn-cancel {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    margin-right: 1rem;
+    border-radius: 50px;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-card-modern .btn-cancel:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+/* ==========================================================================
+   10. Sistema de Conquistas
+   ========================================================================== */
+
+/* Container de Conquistas */
+.achievements-container {
+    padding: 1rem 0;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Conquista Individual */
+.achievement-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.25rem 0.75rem;
+    border-radius: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+
+.achievement-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Fita de destaque para conquistas novas */
+.achievement-item.new::before {
+    content: 'Novo!';
+    position: absolute;
+    top: 10px;
+    right: -25px;
+    background: #0d6efd;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.15rem 1.5rem;
+    transform: rotate(45deg);
+    z-index: 10;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Ícone da Conquista */
+.achievement-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    transition: all 0.3s ease;
+}
+
+.achievement-item:hover .achievement-icon {
+    transform: scale(1.1);
+    background-color: rgba(13, 110, 253, 0.2);
+}
+
+/* Título da Conquista */
+.achievement-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+    color: #212529;
+}
+
+/* Descrição da Conquista */
+.achievement-description {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 0.75rem;
+}
+
+/* Estados da Conquista */
+.achievement-locked .achievement-icon {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.achievement-locked {
+    opacity: 0.7;
+    filter: grayscale(0.8);
+}
+
+.achievement-locked:hover {
+    opacity: 0.9;
+    filter: grayscale(0.5);
+}
+
+/* Progresso da Conquista */
+.achievement-progress {
+    width: 100%;
+    height: 5px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.achievement-progress-bar {
+    height: 100%;
+    background-color: #0d6efd;
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+.achievement-progress-text {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Distintivo para Conquistas Concluídas */
+.achievement-complete .achievement-icon {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.achievement-complete::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 20px;
+    height: 20px;
+    background-color: #198754;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Animações para Conquistas */
+@keyframes unlockAchievement {
+    0% { transform: scale(0.5); opacity: 0; }
+    25% { transform: scale(1.2); opacity: 1; }
+    50% { transform: scale(0.9); }
+    75% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.achievement-unlocked {
+    animation: unlockAchievement 1s ease forwards;
+}
+
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(13, 110, 253, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+}
+
+.achievement-item.glow {
+    animation: glowPulse 2s infinite;
+}
+
+/* Categorias de Conquistas */
+.achievements-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    padding-bottom: 1px;
+}
+
+.achievement-tab {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: #6c757d;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.achievement-tab:hover {
+    color: #495057;
+    border-bottom-color: #ced4da;
+}
+
+.achievement-tab.active {
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+}
+
+/* Badge de Contagem de Conquistas */
+.achievement-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: white;
+    margin-left: 0.5rem;
+    font-weight: 600;
+}
+
+.achievement-tab.active .achievement-badge {
+    background-color: #0d6efd;
+}
+
+/* Modal de Detalhes da Conquista */
+.achievement-modal .modal-content {
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.achievement-modal .modal-header {
+    border-bottom: none;
+    padding: 1.5rem 1.5rem 0;
+}
+
+.achievement-modal .modal-body {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.achievement-modal .modal-footer {
+    border-top: none;
+    padding: 0 1.5rem 1.5rem;
+    justify-content: center;
+}
+
+.achievement-modal-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 3rem;
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    transition: all 0.3s ease;
+}
+
+.achievement-modal-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #212529;
+}
+
+.achievement-modal-description {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.achievement-date {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+/* Conquistas Responsivas */
+@media (max-width: 768px) {
+    .achievements-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+
+    .achievements-tabs {
+        justify-content: flex-start;
+        padding-left: 0;
+    }
+
+    .achievement-tab {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .achievement-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .achievement-title {
+        font-size: 0.85rem;
+    }
+
+    .achievement-description {
+        font-size: 0.75rem;
+    }
+}
+
+/* ==========================================================================
+   11. Sistema de Estatísticas Avançadas
+   ========================================================================== */
+
+/* Cards de Estatísticas */
+.stats-card-large {
+    border-radius: 1rem;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.stats-card-large:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card-header {
+    background: linear-gradient(45deg, #0d6efd, #0a58ca);
+    color: white;
+    padding: 1.25rem;
+    border-bottom: none;
+}
+
+.stats-card-header h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.stats-card-body {
+    padding: 1.5rem;
+    background-color: white;
+}
+
+/* Gráficos de Estatísticas */
+.stats-chart-container {
+    position: relative;
+    height: 300px;
+    max-height: 300px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Lista de Estatísticas */
+.stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.stats-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stats-list-item:last-child {
+    border-bottom: none;
+}
+
+.stats-list-label {
+    display: flex;
+    align-items: center;
+    color: #495057;
+    font-weight: 500;
+}
+
+.stats-list-label i {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.stats-list-value {
+    font-weight: 600;
+    color: #212529;
+}
+
+/* Indicadores de Estatísticas */
+.stat-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.stat-indicator:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+}
+
+.stat-indicator-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-indicator:hover .stat-indicator-icon {
+    transform: scale(1.1);
+    background-color: rgba(13, 110, 253, 0.2);
+}
+
+.stat-indicator-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.stat-indicator-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.stat-indicator-trend {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.trend-up {
+    color: #198754;
+}
+
+.trend-down {
+    color: #dc3545;
+}
+
+.trend-neutral {
+    color: #6c757d;
+}
+
+/* Radares de Progresso */
+.progress-radar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.radar-chart-container {
+    width: 100%;
+    height: 250px;
+    margin-bottom: 1rem;
+}
+
+.radar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.radar-legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.radar-legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+/* Animações para Estatísticas */
+@keyframes countUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.count-animation {
+    animation: countUp 0.8s ease forwards;
+}
+
+@keyframes chartGrow {
+    0% { opacity: 0; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.chart-animation {
+    animation: chartGrow 1s ease forwards;
+}
+
+/* Responsividade para Estatísticas */
+@media (max-width: 992px) {
+    .stats-chart-container {
+        height: 250px;
+    }
+
+    .stat-indicator {
+        padding: 1.25rem;
+    }
+
+    .stat-indicator-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .stat-indicator-value {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-chart-container {
+        height: 200px;
+    }
+
+    .stats-card-header h5 {
+        font-size: 1.1rem;
+    }
+
+    .stat-indicator {
+        padding: 1rem;
+    }
+
+    .stat-indicator-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-indicator-label {
+        font-size: 0.8rem;
+    }
+
+    .radar-chart-container {
+        height: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-chart-container {
+        height: 180px;
+    }
+}
+
+/* ==========================================================================
+   12. Títulos de Seção
+   ========================================================================== */
+
+.section-title {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.section-title h2 {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.section-title h2 i {
+    margin-right: 0.75rem;
+    font-size: 1.75rem;
+}
+
+.section-title hr {
+    opacity: 0.5;
+    margin-top: 0.5rem;
+    height: 3px;
+    border-radius: 3px;
+}
+
+/* Efeito de animação ao scrollar para a seção */
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.section-title h2 {
+    animation: fadeInLeft 0.5s ease-out forwards;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .section-title h2 {
+        font-size: 1.75rem;
+    }
+
+    .section-title h2 i {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .section-title h2 {
+        font-size: 1.5rem;
+    }
+
+    .section-title h2 i {
+        font-size: 1.25rem;
+    }
+}
+
+/* ==========================================================================
+   13. ESTILOS PARA A PÁGINA DE LEITURAS ATUAIS (current_readings.html)
+   ========================================================================== */
+
+/* Usamos a classe do body para garantir que estes estilos SÓ se apliquem a essa página */
+.page-current-readings .reading-card {
+    transition: all 0.3s ease;
+    border: 1px solid var(--cor-borda);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    height: 100%;
+    background-color: var(--cor-fundo-card);
+    position: relative;
+}
+
+.page-current-readings .reading-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px var(--sombra-card);
+}
+
+.page-current-readings .book-cover-container {
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--cor-fundo-hover);
+}
+
+.page-current-readings .book-cover {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.page-current-readings .book-info {
+    padding: 1rem;
+}
+
+.page-current-readings .book-title {
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.4em;
+}
+
+.page-current-readings .book-author {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    color: var(--cor-texto-secundario);
+}
+
+.page-current-readings .active-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(25, 135, 84, 0.9);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+}
+
+html[data-theme='dark'] .page-current-readings .active-indicator {
+    background-color: rgba(32, 201, 151, 0.9);
+}
+
+.page-current-readings .reading-statistics {
+    padding: 1rem;
+    border-top: 1px solid var(--cor-borda);
+    background-color: var(--cor-fundo-hover);
+}
+
+.page-current-readings .reading-actions {
+    padding: 1rem;
+    border-top: 1px solid var(--cor-borda);
+}
+
+.page-current-readings .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--cor-texto-secundario);
+    margin-top: 0.25rem;
+}
+
+.page-current-readings .reading-card.last-read {
+    border: 2px solid var(--cor-acao-secundaria);
+}
+
+/* Estatísticas dentro dos cards */
+.page-current-readings .stat {
+    transition: all 0.3s ease;
+}
+
+.page-current-readings .stat:hover {
+    transform: translateY(-3px);
+}
+
+.page-current-readings .stat-value {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.page-current-readings .stat-label {
+    font-size: 0.75rem;
+    color: var(--cor-texto-secundario);
+}
+
+/* ==========================================================================
+   14. CORREÇÃO DE COR DO TEXTO PARA LEITURAS ATUAIS (TEMA ESCURO)
+   ========================================================================== */
+
+html[data-theme='dark'] .page-current-readings .stat-value {
+    color: var(--cor-texto-primario);
+}
+
+html[data-theme='dark'] .page-current-readings .book-author.text-muted {
+    color: var(--cor-texto-secundario) !important;
+}
+
+html[data-theme='dark'] .page-current-readings .stat-label {
+    color: var(--cor-texto-secundario);
+}
+
+/* ==========================================================================
+   15. REDESENHO DO CARD DE PERFIL (PROFILE CARD V2)
+   ========================================================================== */
+
+.profile-card-v2 {
+    border: none;
+    border-radius: 1rem; /* Bordas mais arredondadas */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    overflow: visible; /* Permitir que o avatar "vaze" para fora */
+    background-color: var(--cor-fundo-card);
+}
+
+/* 1. Header com Imagem de Capa */
+.profile-card-header {
+    position: relative;
+    height: 120px;
+    background-color: var(--cor-fundo-hover);
+    border-radius: 1rem 1rem 0 0;
+}
+
+.profile-cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.cover-edit-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    border-radius: 50%;
+    opacity: 0.8;
+}
+
+/* 2. Corpo e Avatar Sobreposto */
+.profile-card-body {
+    padding-top: 0;
+}
+
+.profile-avatar-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: -50px auto 1rem auto; /* Puxa o avatar para cima */
+    border: 4px solid var(--cor-fundo-card);
+    border-radius: 50%;
+    background-color: var(--cor-fundo-card);
+}
+
+.profile-avatar-image, .avatar-placeholder-v2 {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-placeholder-v2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--cor-texto-secundario);
+    background-color: var(--cor-fundo-hover);
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border-radius: 50%;
+    line-height: 1;
+    padding: 0.4rem;
+}
+
+/* 3. Informações do Usuário */
+.profile-info .profile-name {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--cor-texto-primario);
+    margin-bottom: 0.1rem;
+}
+
+.profile-info .profile-username {
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+}
+
+/* 4. Estatísticas em Destaque */
+.profile-stats-v2 {
+    display: flex;
+    justify-content: space-around;
+    padding: 0.75rem 0;
+    margin: 1rem 0;
+    border-top: 1px solid var(--cor-borda);
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.stat-item-v2 {
+    text-align: center;
+}
+
+.stat-item-v2 .stat-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--cor-texto-primario);
+}
+
+.stat-item-v2 .stat-label {
+    font-size: 0.75rem;
+    color: var(--cor-texto-secundario);
+    text-transform: uppercase;
+}
+
+.stat-separator {
+    width: 1px;
+    background-color: var(--cor-borda);
+}
+
+/* 6. Botões de Ação */
+.profile-actions {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.profile-actions .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+}
+
+/* ==========================================================================
+   16. ESTILOS PARA WIDGETS DO PROFILE CARD V2
+   ========================================================================== */
+
+/* Widget de Citação (V2) */
+.quote-widget-v2 {
+    padding: 1rem;
+    margin-top: 1rem;
+    background-color: var(--cor-fundo-hover);
+    border-radius: 0.75rem;
+}
+
+.quote-widget-v2.empty {
+    text-align: center;
+}
+
+.quote-widget-v2 .quote-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.quote-widget-v2 .quote-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--cor-texto-secundario);
+    margin: 0;
+}
+
+.quote-widget-v2 .blockquote {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+    border-left: 3px solid var(--cor-borda);
+    padding-left: 1rem;
+}
+
+.quote-widget-v2 .blockquote-footer {
+    font-size: 0.8rem;
+}
+
+/* Widget de Status de Leitura (V2) */
+.reading-status-widget-v2 {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: var(--cor-fundo-hover);
+    border-radius: 0.75rem;
+}
+
+.reading-status-widget-v2.empty {
+    text-align: center;
+}
+
+.reading-status-widget-v2 .reading-status-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 1rem;
+}
+
+.current-book-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.current-book-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.current-book-cover {
+    width: 40px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.current-book-details .current-book-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--cor-texto-primario);
+    margin-bottom: 0;
+    line-height: 1.3;
+}
+
+.current-book-details .current-book-author {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+}
+
+.current-book-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.current-book-progress .progress {
+    flex-grow: 1;
+    height: 6px !important; /* Forçar altura */
+}
+
+.current-book-progress .progress-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   17. ESTILOS PARA EDIÇÃO INLINE (WIDGET DE CITAÇÃO)
+   ========================================================================== */
+
+.quote-edit-form {
+    background-color: var(--cor-fundo-card);
+    /* Um pouco mais escuro/claro que o fundo do widget para se destacar */
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--cor-borda);
+    animation: fadeIn 0.3s ease;
+}
+
+.quote-edit-form .form-control-sm {
+    font-size: 0.85rem; /* Ajusta o tamanho da fonte dos inputs */
+}
+
+.quote-edit-form textarea {
+    resize: vertical; /* Permite redimensionamento vertical */
+    min-height: 70px;
+}
+
+/* ==========================================================================
+   18. ESTILOS PARA O MODAL DE ESTATÍSTICAS (V2) - VERSÃO APRIMORADA
+   ========================================================================== */
+
+#statsModal .modal-content {
+    background-color: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 1rem;
+}
+
+#statsModal .modal-header {
+    border-bottom: 1px solid var(--cor-borda);
+    padding: 1rem 1.5rem;
+}
+
+.stats-modal-body {
+    padding: 1.5rem;
+    /* Usaremos um layout de duas colunas */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Coluna para stats, coluna para gráfico */
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+/* Container para a lista de cards de estatísticas */
+.stats-list-container {
+    display: grid;
+    grid-template-columns: 1fr; /* Cards empilhados */
+    gap: 1rem;
+}
+
+.stat-card-v2 {
+    background-color: var(--cor-fundo-hover);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    display: flex; /* Alinha ícone e texto */
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.stat-card-v2:hover {
+    transform: translateY(-3px);
+    border-color: var(--cor-acao-primaria);
+}
+
+.stat-card-v2 .stat-icon {
+    font-size: 1.75rem;
+    color: var(--cor-acao-primaria);
+    background-color: rgba(var(--cor-acao-primaria-rgb), 0.1);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card-v2 .stat-info .stat-title {
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 0.2rem;
+}
+
+.stat-card-v2 .stat-info .stat-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--cor-texto-primario);
+}
+
+/* Container para o gráfico */
+.chart-container-v2 {
+    padding-left: 1rem;
+    border-left: 1px solid var(--cor-borda);
+}
+
+/* Responsividade para o modal */
+@media (max-width: 768px) {
+    .stats-modal-body {
+        grid-template-columns: 1fr; /* Empilha tudo em telas pequenas */
+    }
+    .chart-container-v2 {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid var(--cor-borda);
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+    }
+}
+
+/* ==========================================================================
+   19. ESTILOS PARA O MODAL DE CONQUISTAS (V2)
+   ========================================================================== */
+
+#achievementsModal .modal-content {
+    background-color: var(--cor-fundo-hover);
+    border: none;
+    border-radius: 1rem;
+}
+
+#achievementsModal .modal-header {
+    background-color: var(--cor-fundo-card);
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.achievements-modal-body {
+    padding: 1.5rem;
+}
+
+.achievements-grid-v2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.achievement-card-v2 {
+    background-color: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.achievement-card-v2:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--sombra-card);
+}
+
+.achievement-card-v2 .ach-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+}
+
+.achievement-card-v2 .ach-info .ach-title {
+    font-weight: 600;
+    color: var(--cor-texto-primario);
+    margin-bottom: 0.25rem;
+}
+
+.achievement-card-v2 .ach-info .ach-description {
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 0.5rem;
+}
+
+.achievement-card-v2 .ach-info .ach-date {
+    font-size: 0.75rem;
+    color: var(--cor-texto-secundario);
+    font-style: italic;
+}
+
+/* Cores por Tier */
+.ach-icon.tier-bronze { background-color: #cd7f32; }
+.ach-icon.tier-silver { background-color: #c0c0c0; }
+.ach-icon.tier-gold   { background-color: #ffd700; }
+.ach-icon.tier-platinum { background-color: #e5e4e2; }
+
+/* Estado "Em Progresso" */
+.achievement-card-v2.in-progress {
+    opacity: 0.7;
+    background-color: var(--cor-fundo-hover);
+}
+
+.achievement-card-v2.in-progress .ach-icon {
+    filter: grayscale(80%);
+}
+

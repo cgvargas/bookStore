@@ -5,282 +5,726 @@
 
 {% block extra_css %}
 <style>
-    /* Estilo personalizado para o hover do botão Premium */
-    .btn-outline-primary:hover {
-        background-color: #fd7e14 !important;
-        color: white !important;
-        border-color: #fd7e14 !important;
-        text-decoration: none !important;
+    /* ============================================================================
+       SISTEMA DE DESIGN MODERNO - COMPATÍVEL COM TEMAS GLOBAIS
+       ============================================================================ */
+
+    /* Animações suaves */
+    * {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Remove sublinhado de todos os botões */
-    .btn:hover {
-        text-decoration: none !important;
-    }
-
+    /* Header moderno com gradiente dinâmico */
     .pricing-header {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-        padding: 80px 0;
-        color: white;
-        margin-bottom: 60px;
+        background: linear-gradient(135deg, var(--cor-acao-primaria) 0%, var(--cor-acao-secundaria) 100%);
+        padding: 100px 0 80px;
+        color: var(--cor-texto-invertido);
+        margin-bottom: 80px;
+        position: relative;
+        overflow: hidden;
     }
 
+    .pricing-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        pointer-events: none;
+    }
+
+    .pricing-header h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .pricing-header .lead {
+        font-size: 1.4rem;
+        font-weight: 300;
+        opacity: 0.9;
+    }
+
+    /* Cards modernos com glassmorphism */
     .plan-card {
-        border-radius: 12px;
+        background: var(--cor-fundo-card);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
         overflow: hidden;
-        transition: transform 0.3s, box-shadow 0.3s;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         height: 100%;
+        position: relative;
+        box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.1),
+            0 1px 0 rgba(255, 255, 255, 0.1) inset;
     }
 
     .plan-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        transform: translateY(-12px) scale(1.02);
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.15),
+            0 1px 0 rgba(255, 255, 255, 0.2) inset;
     }
 
+    /* Headers dos planos com gradientes modernos */
     .plan-header {
-        padding: 25px 20px;
+        padding: 40px 30px;
         text-align: center;
+        position: relative;
+        overflow: hidden;
     }
 
     .freemium-header {
-        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        color: white;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+        color: var(--cor-texto-invertido);
     }
 
     .premium-header {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--cor-acao-primaria) 0%, var(--cor-acao-secundaria) 50%, #ff8c00 100%);
+        color: var(--cor-texto-invertido);
+        position: relative;
     }
 
-    .plan-price {
-        font-size: 2.5rem;
+    .premium-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.1) 75%);
+        background-size: 20px 20px;
+        animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: 0 0; }
+        100% { background-position: 40px 40px; }
+    }
+
+    .plan-header h3 {
+        font-size: 2rem;
         font-weight: 700;
-        margin: 20px 0 10px;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .plan-price small {
-        font-size: 1rem;
+    .plan-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
         font-weight: 400;
     }
 
+    /* Preços com tipografia moderna */
+    .plan-price {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin: 30px 0 15px;
+        background: linear-gradient(45deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,1) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: none;
+        position: relative;
+    }
+
+    .plan-price small {
+        font-size: 1.2rem;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    /* Seção de features modernizada */
     .plan-features {
-        padding: 30px;
+        padding: 40px 30px;
+        background: var(--cor-fundo-card);
+        color: var(--cor-texto-primario);
     }
 
     .feature-item {
         display: flex;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .feature-item:hover {
+        background: var(--cor-fundo-hover);
+        transform: translateX(8px);
     }
 
     .feature-item i {
-        margin-right: 10px;
-        font-size: 1.2rem;
+        margin-right: 16px;
+        font-size: 1.3rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    .feature-item span {
+        font-size: 1rem;
+        font-weight: 500;
+        flex: 1;
     }
 
     .active-feature {
         opacity: 1;
+        color: var(--cor-texto-primario);
     }
 
     .inactive-feature {
-        opacity: 0.5;
+        opacity: 0.6;
+        color: var(--cor-texto-secundario);
     }
 
+    /* Badge recomendado moderno */
     .highlight-badge {
         position: absolute;
-        top: 0;
-        right: 20px;
-        background-color: #ffc107;
-        color: #000;
-        font-weight: 600;
-        padding: 5px 15px;
-        border-radius: 0 0 15px 15px;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        top: -1px;
+        right: 30px;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #1f2937;
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding: 8px 20px;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+        z-index: 10;
     }
 
-    /* Métodos de pagamento */
-    .payment-methods {
-        background-color: #f8f9fa;
+    /* Botões modernos - TEXTO CENTRALIZADO */
+    .btn-modern {
+        padding: 16px 32px;
         border-radius: 12px;
-        padding: 30px;
-        margin-top: 60px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .btn-modern span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        text-align: center;
+    }
+
+    .btn-outline-secondary.btn-modern {
+        color: var(--cor-texto-secundario);
+        border-color: var(--cor-borda);
+        background: transparent;
+    }
+
+    .btn-outline-secondary.btn-modern:hover {
+        background: var(--cor-fundo-hover);
+        color: var(--cor-texto-primario);
+        border-color: var(--cor-acao-secundaria);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .btn-outline-primary.btn-modern {
+        color: var(--cor-acao-primaria);
+        border-color: var(--cor-acao-primaria);
+        background: transparent;
+        position: relative;
+    }
+
+    .btn-outline-primary.btn-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, var(--cor-acao-primaria) 0%, var(--cor-acao-secundaria) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 10px;
+    }
+
+    .btn-outline-primary.btn-modern:hover::before {
+        opacity: 1;
+    }
+
+    .btn-outline-primary.btn-modern:hover {
+        color: var(--cor-texto-invertido);
+        border-color: var(--cor-acao-secundaria);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 102, 0, 0.3);
+    }
+
+    .btn-outline-primary.btn-modern span {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Seção de métodos de pagamento modernizada */
+    .payment-methods {
+        background: var(--cor-fundo-card);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--cor-borda);
+        border-radius: 20px;
+        padding: 50px 40px;
+        margin-top: 80px;
+        box-shadow: var(--sombra-card);
+        text-align: center;
     }
 
     .payment-methods h4 {
-        color: #212529;
-        font-weight: 600;
+        color: var(--cor-texto-primario);
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 40px;
     }
 
     .payment-methods p {
-        color: #495057;
+        color: var(--cor-texto-secundario);
         font-weight: 500;
+        font-size: 1.1rem;
+    }
+
+    .payment-icon-container {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .payment-method {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: var(--cor-fundo-hover);
+        border: 2px solid transparent;
+    }
+
+    .payment-method:hover {
+        background: var(--cor-acao-primaria);
+        color: var(--cor-texto-invertido);
+        transform: translateY(-4px);
+        border-color: var(--cor-acao-primaria);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .payment-method:hover .payment-icon {
+        color: var(--cor-texto-invertido);
     }
 
     .payment-icon {
-        font-size: 2rem;
-        margin: 0 10px;
-        color: #495057;
+        font-size: 2.5rem;
+        margin-bottom: 16px; /* Espaçamento fixo do ícone */
+        color: var(--cor-acao-primaria);
+        transition: all 0.3s ease;
+        flex-shrink: 0; /* Impede que o ícone reduza de tamanho */
     }
 
-    .faq-section {
+    .payment-method p {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    /* Tabela modernizada - CORREÇÃO TEMA ESCURO */
+    .comparison-section {
         margin-top: 60px;
+        padding: 40px 0;
+    }
+
+    .comparison-section h3 {
+        color: var(--cor-texto-primario);
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .table-modern {
+        background: var(--cor-fundo-card);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--sombra-card);
+        border: 1px solid var(--cor-borda);
+    }
+
+    .table-modern th,
+    .table-modern td {
+        padding: 20px;
+        border-bottom: 1px solid var(--cor-borda);
+        color: var(--cor-texto-primario);
+        vertical-align: middle;
+        background: var(--cor-fundo-card);
+    }
+
+    .table-modern th {
+        background: var(--cor-fundo-hover);
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--cor-texto-primario);
+    }
+
+    .table-modern tbody tr:hover {
+        background: var(--cor-fundo-hover);
+    }
+
+    .table-modern tbody tr:hover td {
+        background: var(--cor-fundo-hover);
+    }
+
+    /* Garantir que a tabela funcione no tema escuro */
+    html[data-theme='dark'] .table-modern {
+        background: var(--cor-fundo-card) !important;
+        border-color: var(--cor-borda) !important;
+    }
+
+    html[data-theme='dark'] .table-modern th,
+    html[data-theme='dark'] .table-modern td {
+        background: var(--cor-fundo-card) !important;
+        color: var(--cor-texto-primario) !important;
+        border-color: var(--cor-borda) !important;
+    }
+
+    html[data-theme='dark'] .table-modern th {
+        background: var(--cor-fundo-hover) !important;
+        color: var(--cor-texto-primario) !important;
+    }
+
+    html[data-theme='dark'] .table-modern tbody tr:hover,
+    html[data-theme='dark'] .table-modern tbody tr:hover td {
+        background: var(--cor-fundo-hover) !important;
+        color: var(--cor-texto-primario) !important;
+    }
+
+    /* FAQ modernizado */
+    .faq-section {
+        margin-top: 80px;
+        padding: 60px 0;
+    }
+
+    .faq-section h3 {
+        color: var(--cor-texto-primario);
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .accordion-modern {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--sombra-card);
+        border: 1px solid var(--cor-borda);
+    }
+
+    .accordion-item {
+        background: var(--cor-fundo-card);
+        border: none;
+        border-bottom: 1px solid var(--cor-borda);
+    }
+
+    .accordion-item:last-child {
+        border-bottom: none;
+    }
+
+    .accordion-button {
+        background: var(--cor-fundo-card);
+        color: var(--cor-texto-primario);
+        border: none;
+        padding: 24px 30px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
     }
 
     .accordion-button:not(.collapsed) {
-        background-color: #e7f1ff;
-        color: #0d6efd;
+        background: var(--cor-acao-primaria);
+        color: var(--cor-texto-invertido);
+        box-shadow: none;
     }
 
+    .accordion-button::after {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(8%) saturate(299%) hue-rotate(202deg) brightness(91%) contrast(86%);
+    }
+
+    .accordion-button:not(.collapsed)::after {
+        filter: brightness(0) saturate(100%) invert(100%);
+    }
+
+    .accordion-body {
+        background: var(--cor-fundo-card);
+        color: var(--cor-texto-primario);
+        padding: 30px;
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+
+    /* CTA final modernizado - ESPAÇAMENTO CORRIGIDO */
     .cta-section {
-        background-color: #e9ecef;
-        padding: 50px 0;
+        background: linear-gradient(135deg, var(--cor-fundo-card) 0%, var(--cor-fundo-hover) 100%);
+        border: 1px solid var(--cor-borda);
+        padding: 80px 0;
         margin-top: 60px;
-        border-radius: 12px;
+        margin-bottom: 80px; /* ADICIONADO: Espaçamento do footer */
+        border-radius: 24px;
+        position: relative;
+        overflow: hidden;
     }
 
-    .cta-section h2,
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 50% 50%, rgba(13, 110, 253, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .cta-section h2 {
+        color: var(--cor-texto-primario);
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
     .cta-section .lead {
-        color: #212529;
-        font-weight: 600;
+        color: var(--cor-texto-secundario);
+        font-size: 1.3rem;
+        font-weight: 400;
+        margin-bottom: 40px;
     }
 
-    /* Estilos para o modo escuro */
-    .dark-mode .plan-card {
-        background-color: #2c2c2c;
-        box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    /* Responsividade moderna */
+    @media (max-width: 992px) {
+        .pricing-header h1 {
+            font-size: 2.8rem;
+        }
+
+        .pricing-header .lead {
+            font-size: 1.2rem;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+        }
+
+        .payment-icon-container {
+            gap: 30px;
+        }
+
+        .comparison-section h3,
+        .faq-section h3 {
+            font-size: 2.2rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2.3rem;
+        }
     }
 
-    .dark-mode .plan-features {
-        background-color: #2c2c2c;
-        color: #e2e8f0;
+    @media (max-width: 768px) {
+        .pricing-header {
+            padding: 80px 0 60px;
+            margin-bottom: 60px;
+        }
+
+        .pricing-header h1 {
+            font-size: 2.3rem;
+        }
+
+        .pricing-header .lead {
+            font-size: 1.1rem;
+        }
+
+        .plan-header {
+            padding: 30px 20px;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+        }
+
+        .plan-features {
+            padding: 30px 20px;
+        }
+
+        .feature-item {
+            padding: 10px 12px;
+        }
+
+        .payment-methods {
+            padding: 40px 20px;
+            margin-top: 60px;
+        }
+
+        .payment-icon-container {
+            gap: 20px;
+        }
+
+        .payment-method {
+            padding: 15px;
+            /* DIMENSÕES FIXAS MOBILE - Todos idênticos */
+            width: 130px !important;
+            height: 120px !important;
+        }
+
+        .payment-icon {
+            font-size: 2rem;
+        }
+
+        .comparison-section,
+        .faq-section {
+            margin-top: 60px;
+            padding: 40px 0;
+        }
+
+        .comparison-section h3,
+        .faq-section h3 {
+            font-size: 1.9rem;
+        }
+
+        .cta-section {
+            padding: 60px 0;
+            margin-top: 60px;
+            margin-bottom: 60px; /* Espaçamento mobile adequado */
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+        }
+
+        .cta-section .lead {
+            font-size: 1.2rem;
+        }
     }
 
-    .dark-mode .plan-card:hover {
-        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    @media (max-width: 576px) {
+        .pricing-header h1 {
+            font-size: 2rem;
+        }
+
+        .plan-header h3 {
+            font-size: 1.6rem;
+        }
+
+        .plan-price {
+            font-size: 2.2rem;
+        }
+
+        .comparison-section h3,
+        .faq-section h3 {
+            font-size: 1.7rem;
+        }
+
+        .cta-section h2 {
+            font-size: 1.8rem;
+        }
+
+        .table-modern th,
+        .table-modern td {
+            padding: 15px 10px;
+            font-size: 0.9rem;
+        }
+
+        .accordion-button {
+            padding: 20px 15px;
+            font-size: 1rem;
+        }
+
+        .accordion-body {
+            padding: 20px 15px;
+            font-size: 1rem;
+        }
     }
 
-    .dark-mode .payment-methods {
-        background-color: #1e1e1e;
-        color: #e2e8f0;
+    /* Tema escuro específico - sobrescrever regras quando necessário */
+    html[data-theme='dark'] .payment-method {
+        background: var(--cor-fundo-hover);
     }
 
-    .dark-mode .payment-methods h4 {
-        color: #e2e8f0;
-        font-weight: 600;
+    html[data-theme='dark'] .payment-method:hover {
+        background: var(--cor-acao-primaria);
+        color: var(--cor-texto-invertido);
     }
 
-    .dark-mode .payment-methods p {
-        color: #e2e8f0;
-        font-weight: 500;
+    html[data-theme='dark'] .highlight-badge {
+        color: #1f2937;
     }
 
-    .dark-mode .payment-icon {
-        color: #a0aec0;
+    html[data-theme='dark'] .plan-price {
+        background: linear-gradient(45deg, rgba(248,250,252,0.9) 0%, rgba(248,250,252,1) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    .dark-mode h3,
-    .dark-mode .cta-section h2,
-    .dark-mode .cta-section .lead {
-        color: #e2e8f0;
-        font-weight: 600;
+    /* Correção para botões no tema escuro */
+    html[data-theme='dark'] .btn-outline-secondary.btn-modern {
+        color: var(--cor-texto-secundario);
+        border-color: var(--cor-borda);
     }
 
-    .dark-mode .text-muted {
-        color: #a0aec0 !important;
+    html[data-theme='dark'] .btn-outline-secondary.btn-modern:hover {
+        background: var(--cor-fundo-hover);
+        color: var(--cor-texto-primario);
+        border-color: var(--cor-acao-secundaria);
     }
 
-    .dark-mode .cta-section {
-        background-color: #1e1e1e;
+    html[data-theme='dark'] .btn-outline-primary.btn-modern {
+        color: var(--cor-acao-primaria);
+        border-color: var(--cor-acao-primaria);
     }
 
-    .dark-mode .table {
-        color: #e2e8f0;
-    }
-
-    .dark-mode .table-bordered {
-        border-color: #444;
-    }
-
-    .dark-mode .table-light {
-        background-color: #2c2c2c;
-        color: #e2e8f0;
-        border-color: #444;
-    }
-
-    .dark-mode .accordion-item {
-        background-color: #2c2c2c;
-        border-color: #444;
-    }
-
-    .dark-mode .accordion-button {
-        background-color: #2c2c2c;
-        color: #e2e8f0;
-    }
-
-    .dark-mode .accordion-button:not(.collapsed) {
-        background-color: #1e1e1e;
-        color: #0d6efd;
-    }
-
-    .dark-mode .accordion-body {
-        background-color: #2c2c2c;
-        color: #e2e8f0;
-    }
-
-    .dark-mode .inactive-feature {
-        opacity: 0.5;
-        color: #a0aec0;
-    }
-
-    /* Estilos para botões no modo escuro */
-    .dark-mode .btn-outline-primary {
-        color: #3b82f6;
-        border-color: #3b82f6;
-    }
-
-    .dark-mode .btn-outline-primary:hover {
-        background-color: #fd7e14 !important;
-        color: white !important;
-        border-color: #fd7e14 !important;
-        text-decoration: none !important;
-    }
-
-    .dark-mode .btn-outline-secondary {
-        color: #94a3b8;
-        border-color: #94a3b8;
-    }
-
-    .dark-mode .btn-outline-secondary:hover {
-        color: #e2e8f0;
-        background-color: #4b5563;
-        border-color: #4b5563;
-        text-decoration: none !important;
+    html[data-theme='dark'] .btn-outline-primary.btn-modern:hover {
+        color: var(--cor-texto-invertido);
+        border-color: var(--cor-acao-secundaria);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Cabeçalho da página -->
+<!-- Cabeçalho modernizado -->
 <header class="pricing-header">
     <div class="container text-center">
-        <h1 class="display-4 fw-bold mb-3">Escolha o Plano Ideal</h1>
+        <h1 class="fw-bold mb-3">Escolha o Plano Ideal</h1>
         <p class="lead">Flexibilidade para atender às suas necessidades literárias</p>
     </div>
 </header>
 
 <div class="container">
-    <!-- Cards de Planos -->
-    <div class="row g-4 mb-5">
+    <!-- Cards de Planos Modernizados -->
+    <div class="row g-5 mb-5">
         <!-- Plano Freemium -->
         <div class="col-lg-6">
-            <div class="card plan-card border-0 shadow">
+            <div class="plan-card">
                 <div class="plan-header freemium-header">
                     <h3 class="fw-bold mb-2">Freemium</h3>
                     <p class="mb-0">Perfeito para começar</p>
                     <div class="plan-price">
                         R$ 0<small>/mês</small>
                     </div>
-                    <p class="text-light mb-0">Acesso básico à plataforma</p>
+                    <p class="mb-0">Acesso básico à plataforma</p>
                 </div>
                 <div class="plan-features">
                     <div class="feature-item active-feature">
@@ -300,28 +744,30 @@
                         <span>Integração limitada com Google Books</span>
                     </div>
                     <div class="feature-item inactive-feature">
-                        <i class="bi bi-x-circle-fill text-secondary"></i>
+                        <i class="bi bi-x-circle text-secondary"></i>
                         <span>Recomendações avançadas com IA</span>
                     </div>
                     <div class="feature-item inactive-feature">
-                        <i class="bi bi-x-circle-fill text-secondary"></i>
+                        <i class="bi bi-x-circle text-secondary"></i>
                         <span>Suporte prioritário</span>
                     </div>
                     <div class="feature-item inactive-feature">
-                        <i class="bi bi-x-circle-fill text-secondary"></i>
+                        <i class="bi bi-x-circle text-secondary"></i>
                         <span>Estatísticas de leitura detalhadas</span>
                     </div>
                     <div class="feature-item inactive-feature">
-                        <i class="bi bi-x-circle-fill text-secondary"></i>
+                        <i class="bi bi-x-circle text-secondary"></i>
                         <span>Prateleiras ilimitadas</span>
                     </div>
                     <div class="feature-item inactive-feature">
-                        <i class="bi bi-x-circle-fill text-secondary"></i>
+                        <i class="bi bi-x-circle text-secondary"></i>
                         <span>Acesso antecipado a novos recursos</span>
                     </div>
 
                     <div class="d-grid gap-2 mt-4">
-                        <a href="{% url 'core:register' %}" class="btn btn-outline-secondary btn-lg">Começar Grátis</a>
+                        <a href="{% url 'core:register' %}" class="btn btn-outline-secondary btn-lg btn-modern">
+                            <span>Começar Grátis</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -329,7 +775,7 @@
 
         <!-- Plano Premium -->
         <div class="col-lg-6">
-            <div class="card plan-card border-0 shadow position-relative">
+            <div class="plan-card position-relative">
                 <div class="highlight-badge">Recomendado</div>
                 <div class="plan-header premium-header">
                     <h3 class="fw-bold mb-2">Premium</h3>
@@ -337,7 +783,7 @@
                     <div class="plan-price">
                         R$ 25<small>/mês</small>
                     </div>
-                    <p class="text-light mb-0">ou R$ 270/ano (economia de 10%)</p>
+                    <p class="mb-0">ou R$ 270/ano (economia de 10%)</p>
                 </div>
                 <div class="plan-features">
                     <div class="feature-item active-feature">
@@ -378,155 +824,182 @@
                     </div>
 
                     <div class="d-grid gap-2 mt-4">
-                        <a href="{% url 'core:premium_signup' %}" class="btn btn-outline-primary btn-lg">Assinar Premium</a>
+                        <a href="{% url 'core:premium_signup' %}" class="btn btn-outline-primary btn-lg btn-modern">
+                            <span>Assinar Premium</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Métodos de Pagamento -->
-    <div class="payment-methods shadow-sm">
-        <h4 class="text-center mb-4 fw-bold">Métodos de Pagamento Aceitos</h4>
-        <div class="d-flex justify-content-center flex-wrap">
-            <div class="text-center mx-3">
+    <!-- Métodos de Pagamento Modernizados -->
+    <div class="payment-methods">
+        <h4 class="fw-bold mb-4">Métodos de Pagamento Aceitos</h4>
+        <div class="payment-icon-container">
+            <div class="payment-method">
                 <i class="bi bi-credit-card payment-icon"></i>
                 <p>Cartão de Crédito</p>
             </div>
-            <div class="text-center mx-3">
+            <div class="payment-method">
                 <i class="bi bi-credit-card-2-front payment-icon"></i>
                 <p>Cartão de Débito</p>
             </div>
-            <div class="text-center mx-3">
+            <div class="payment-method">
                 <i class="bi bi-qr-code payment-icon"></i>
                 <p>PIX</p>
             </div>
         </div>
-        <p class="text-center text-muted mt-3">Processamento seguro com criptografia SSL. Sem taxas ocultas.</p>
+        <p class="text-center mt-3">Processamento seguro com criptografia SSL. Sem taxas ocultas.</p>
     </div>
 
-    <!-- Comparativo de Planos -->
-    <div class="mt-5 pt-4">
-        <h3 class="text-center mb-4">Comparativo Detalhado</h3>
+    <!-- Comparativo Detalhado Modernizado -->
+    <div class="comparison-section">
+        <h3 class="fw-bold mb-4">Comparativo Detalhado</h3>
         <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="table-light">
+            <table class="table table-modern">
+                <thead>
                     <tr>
-                        <th>Recurso</th>
-                        <th class="text-center">Freemium</th>
-                        <th class="text-center">Premium</th>
+                        <th style="width: 40%;">Recurso</th>
+                        <th class="text-center" style="width: 30%;">Freemium</th>
+                        <th class="text-center" style="width: 30%;">Premium</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Catálogo de livros</td>
+                        <td><strong>Catálogo de livros</strong></td>
                         <td class="text-center">Completo</td>
                         <td class="text-center">Completo</td>
                     </tr>
                     <tr>
-                        <td>Prateleiras virtuais</td>
+                        <td><strong>Prateleiras virtuais</strong></td>
                         <td class="text-center">3 prateleiras</td>
-                        <td class="text-center">Ilimitadas</td>
+                        <td class="text-center"><span class="text-success fw-bold">Ilimitadas</span></td>
                     </tr>
                     <tr>
-                        <td>Recomendações personalizadas</td>
+                        <td><strong>Recomendações personalizadas</strong></td>
                         <td class="text-center">Básicas</td>
-                        <td class="text-center">Avançadas com IA</td>
+                        <td class="text-center"><span class="text-success fw-bold">Avançadas com IA</span></td>
                     </tr>
                     <tr>
-                        <td>Estatísticas de leitura</td>
+                        <td><strong>Estatísticas de leitura</strong></td>
                         <td class="text-center">Básicas</td>
-                        <td class="text-center">Detalhadas</td>
+                        <td class="text-center"><span class="text-success fw-bold">Detalhadas</span></td>
                     </tr>
                     <tr>
-                        <td>Exportação de dados</td>
-                        <td class="text-center"><i class="bi bi-x text-secondary"></i></td>
-                        <td class="text-center"><i class="bi bi-check text-success"></i></td>
+                        <td><strong>Exportação de dados</strong></td>
+                        <td class="text-center"><i class="bi bi-x-lg text-secondary"></i></td>
+                        <td class="text-center"><i class="bi bi-check-lg text-success"></i></td>
                     </tr>
                     <tr>
-                        <td>Anúncios</td>
-                        <td class="text-center">Sim</td>
-                        <td class="text-center">Sem anúncios</td>
+                        <td><strong>Anúncios</strong></td>
+                        <td class="text-center"><span class="text-warning">Sim</span></td>
+                        <td class="text-center"><span class="text-success fw-bold">Sem anúncios</span></td>
                     </tr>
                     <tr>
-                        <td>Acesso a recursos antecipados</td>
-                        <td class="text-center"><i class="bi bi-x text-secondary"></i></td>
-                        <td class="text-center"><i class="bi bi-check text-success"></i></td>
+                        <td><strong>Acesso a recursos antecipados</strong></td>
+                        <td class="text-center"><i class="bi bi-x-lg text-secondary"></i></td>
+                        <td class="text-center"><i class="bi bi-check-lg text-success"></i></td>
                     </tr>
                     <tr>
-                        <td>Suporte técnico</td>
+                        <td><strong>Suporte técnico</strong></td>
                         <td class="text-center">Email</td>
-                        <td class="text-center">Prioritário (email + chat)</td>
+                        <td class="text-center"><span class="text-success fw-bold">Prioritário (email + chat)</span></td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- FAQ -->
+    <!-- FAQ Modernizado -->
     <div class="faq-section">
-        <h3 class="text-center mb-4">Perguntas Frequentes</h3>
-        <div class="accordion" id="accordionFAQ">
+        <h3 class="fw-bold mb-4">Perguntas Frequentes</h3>
+        <div class="accordion accordion-modern" id="accordionFAQ">
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingOne">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <i class="bi bi-question-circle me-3"></i>
                         Posso mudar de plano a qualquer momento?
                     </button>
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionFAQ">
                     <div class="accordion-body">
-                        Sim! Você pode fazer upgrade para o plano Premium a qualquer momento. Se já for assinante Premium, também pode cancelar e retornar ao plano Freemium quando desejar, sem perder suas prateleiras atuais.
+                        <strong>Sim, absolutamente!</strong> Você pode fazer upgrade para o plano Premium a qualquer momento. Se já for assinante Premium, também pode cancelar e retornar ao plano Freemium quando desejar, sem perder suas prateleiras atuais. A flexibilidade é uma das nossas prioridades.
                     </div>
                 </div>
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingTwo">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        <i class="bi bi-calendar-check me-3"></i>
                         Como funciona a cobrança do plano anual?
                     </button>
                 </h2>
                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionFAQ">
                     <div class="accordion-body">
-                        No plano anual, você efetua um único pagamento de R$ 270,00, equivalente a R$ 22,50 por mês (economia de 10% em relação ao plano mensal). A renovação é automática, mas você receberá um aviso com 7 dias de antecedência.
+                        No plano anual, você efetua um único pagamento de <strong>R$ 270,00</strong>, equivalente a R$ 22,50 por mês (economia de 10% em relação ao plano mensal). A renovação é automática, mas você receberá um aviso com 7 dias de antecedência para confirmar ou cancelar.
                     </div>
                 </div>
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingThree">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        <i class="bi bi-shield-check me-3"></i>
                         O que acontece se eu cancelar minha assinatura Premium?
                     </button>
                 </h2>
                 <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionFAQ">
                     <div class="accordion-body">
-                        Ao cancelar, você manterá o acesso Premium até o final do período pago. Depois disso, sua conta será convertida para o plano Freemium. Suas prateleiras virtuais serão mantidas, mas apenas as 3 principais ficarão ativas. Você pode reativar o Premium a qualquer momento para recuperar o acesso completo.
+                        Ao cancelar, você manterá o acesso Premium até o final do período pago. Depois disso, sua conta será convertida para o plano Freemium. <strong>Suas prateleiras virtuais serão mantidas</strong>, mas apenas as 3 principais ficarão ativas. Você pode reativar o Premium a qualquer momento para recuperar o acesso completo.
                     </div>
                 </div>
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingFour">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                        Posso pagar via Pix?
+                        <i class="bi bi-qr-code me-3"></i>
+                        Posso pagar via PIX?
                     </button>
                 </h2>
                 <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionFAQ">
                     <div class="accordion-body">
-                        Sim! Oferecemos pagamento via Pix para assinaturas mensais e anuais. Ao escolher esta opção, você receberá um QR code para pagamento e, após a confirmação, sua assinatura será ativada imediatamente.
+                        <strong>Sim!</strong> Oferecemos pagamento via PIX para assinaturas mensais e anuais. Ao escolher esta opção, você receberá um QR code para pagamento e, após a confirmação (que é instantânea), sua assinatura será ativada imediatamente.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFive">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        <i class="bi bi-arrow-clockwise me-3"></i>
+                        Existe período de teste gratuito para o Premium?
+                    </button>
+                </h2>
+                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionFAQ">
+                    <div class="accordion-body">
+                        Oferecemos <strong>7 dias gratuitos</strong> do plano Premium para novos usuários! Durante este período, você terá acesso completo a todas as funcionalidades Premium. Você pode cancelar a qualquer momento durante o teste sem cobrança.
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Call to Action -->
+    <!-- Call to Action Final Modernizado -->
     <div class="cta-section text-center">
-        <div class="container">
-            <h2 class="mb-3">Pronto para elevar sua experiência literária?</h2>
+        <div class="container position-relative">
+            <h2 class="fw-bold mb-3">Pronto para elevar sua experiência literária?</h2>
             <p class="lead mb-4">Junte-se a milhares de leitores que já transformaram sua relação com os livros</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="{% url 'core:register' %}" class="btn btn-outline-primary btn-lg fw-bold">Começar Grátis</a>
-                <a href="{% url 'core:premium_signup' %}" class="btn btn-outline-primary btn-lg fw-bold">Assinar Premium</a>
+            <div class="d-flex justify-content-center gap-4 flex-wrap">
+                <a href="{% url 'core:register' %}" class="btn btn-outline-secondary btn-lg btn-modern fw-bold">
+                    <span><i class="bi bi-person-plus me-2"></i>Começar Grátis</span>
+                </a>
+                <a href="{% url 'core:premium_signup' %}" class="btn btn-outline-primary btn-lg btn-modern fw-bold">
+                    <span><i class="bi bi-star me-2"></i>Assinar Premium</span>
+                </a>
             </div>
+            <p class="mt-4 small opacity-75">
+                <i class="bi bi-shield-check me-2"></i>
+                Garantia de 30 dias • Cancele quando quiser • Suporte 24/7
+            </p>
         </div>
     </div>
 </div>
@@ -543,6 +1016,58 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         }
+
+        // Animação suave ao scrollar para seções
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Efeito de hover nos cards de plano
+        const planCards = document.querySelectorAll('.plan-card');
+        planCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-12px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Animação de entrada para os elementos
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Elementos para observar
+        const animateElements = document.querySelectorAll('.plan-card, .payment-methods, .comparison-section, .faq-section, .cta-section');
+
+        // Aplicar animação inicial
+        animateElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
     });
 </script>
 {% endblock %}

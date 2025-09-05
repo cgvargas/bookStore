@@ -1,10 +1,217 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% comment %}
+Arquivo: cgbookstore/apps/core/templates/core/_event_widget.html
+Template corrigido para o widget de eventos com funcionalidade e estética aprimoradas
+{% endcomment %}
+
+{% if featured_events %}
+<div class="event-widget-wrapper">
+    <!-- Estrutura principal do Swiper.js -->
+    <div class="swiper event-swiper">
+        <div class="swiper-wrapper">
+            <!-- Loop para criar um slide para cada evento -->
+            {% for event in featured_events %}
+            <div class="swiper-slide">
+                <div class="event-widget">
+                    <div class="event-widget-header">
+                        <h3>
+                            {% if forloop.counter == 1 %}
+                                Próximo Evento
+                            {% else %}
+                                Evento {{ forloop.counter }}
+                            {% endif %}
+                        </h3>
+                    </div>
+
+                    <a href="{% if event.url %}{{ event.url }}{% else %}{% url 'core:eventos' %}{% endif %}"
+                       class="event-widget-body"
+                       title="Ver detalhes do evento: {{ event.titulo }}"
+                       {% if event.url %}target="_blank" rel="noopener noreferrer"{% endif %}>
+
+                        {% if event.imagem %}
+                            <img src="{{ event.imagem.url }}" 
+                                 alt="{{ event.titulo }}" 
+                                 class="event-image"
+                                 loading="lazy"
+                                 onerror="this.style.display='none';">
+                        {% endif %}
+                        
+                        <div class="event-info">
+                            <h4 class="event-title">{{ event.titulo }}</h4>
+                            
+                            <p class="event-date">
+                                <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                                <time datetime="{{ event.data_evento|date:'c' }}">
+                                    {{ event.data_evento|date:"d/m/Y \à\s H:i" }}
+                                </time>
+                            </p>
+                            
+                            {% if event.local %}
+                            <p class="event-location">
+                                <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                                <span>{{ event.local }}</span>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Navegação apenas se houver mais de um evento -->
+        {% if featured_events|length > 1 %}
+            <!-- Paginação (bolinhas) -->
+            <div class="swiper-pagination" aria-label="Navegação de eventos"></div>
+            
+            <!-- Botões de Navegação (setas) -->
+            <div class="swiper-button-prev" 
+                 aria-label="Evento anterior"
+                 tabindex="0"></div>
+            <div class="swiper-button-next" 
+                 aria-label="Próximo evento"
+                 tabindex="0"></div>
+        {% endif %}
+    </div>
+    
+    <!-- Footer com botão corrigido -->
+    <div class="event-widget-footer">
+        <a href="{% url 'core:eventos' %}" 
+           class="btn-view-all"
+           title="Ver todos os eventos disponíveis"
+           aria-label="Ver lista completa de eventos">
+            <span>Ver todos os eventos</span>
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Script específico para este widget -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar se o Swiper está disponível
+    if (typeof Swiper !== 'undefined') {
+        // Configuração do Swiper para eventos
+        const eventSwiper = new Swiper('.event-swiper', {
+            // Configurações básicas
+            loop: {% if featured_events|length > 1 %}true{% else %}false{% endif %},
+            slidesPerView: 1,
+            spaceBetween: 0,
+            
+            // Autoplay apenas se houver múltiplos eventos
+            {% if featured_events|length > 1 %}
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true
+            },
+            {% endif %}
+            
+            // Navegação
+            pagination: {
+                el: '.event-swiper .swiper-pagination',
+                clickable: true,
+                dynamicBullets: true
+            },
+            
+            navigation: {
+                nextEl: '.event-swiper .swiper-button-next',
+                prevEl: '.event-swiper .swiper-button-prev',
+            },
+            
+            // Efeitos
+            effect: 'slide',
+            speed: 600,
+            
+            // Acessibilidade
+            a11y: {
+                prevSlideMessage: 'Slide anterior',
+                nextSlideMessage: 'Próximo slide',
+                paginationBulletMessage: 'Ir para slide {{index}}'
+            },
+            
+            // Eventos
+            on: {
+                init: function() {
+                    // Adicionar classe quando inicializado
+                    this.el.classList.add('swiper-initialized');
+                },
+                
+                slideChange: function() {
+                    // Analytics ou outros eventos podem ser adicionados aqui
+                    console.log('Evento slide changed:', this.activeIndex);
+                }
+            }
+        });
+        
+        // Adicionar funcionalidade de teclado para navegação
+        document.addEventListener('keydown', function(e) {
+            if (document.activeElement && 
+                document.activeElement.closest('.event-swiper')) {
+                
+                if (e.key === 'ArrowLeft') {
+                    eventSwiper.slidePrev();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowRight') {
+                    eventSwiper.slideNext();
+                    e.preventDefault();
+                }
+            }
+        });
+    } else {
+        console.warn('Swiper não está disponível. Widget de eventos funcionará sem carrossel.');
+    }
+    
+    // Adicionar funcionalidade ao botão "Ver todos os eventos"
+    const viewAllButton = document.querySelector('.btn-view-all');
+    if (viewAllButton) {
+        viewAllButton.addEventListener('click', function(e) {
+            // Adicionar efeito visual de clique
+            this.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 100);
+            
+            // Analytics ou tracking podem ser adicionados aqui
+            console.log('Clicou em "Ver todos os eventos"');
+        });
+        
+        // Adicionar suporte para Enter e Space
+        viewAllButton.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+    }
+    
+    // Tratamento de erro para imagens
+    const eventImages = document.querySelectorAll('.event-image');
+    eventImages.forEach(function(img) {
+        img.addEventListener('error', function() {
+            // Esconder imagem com erro ou mostrar placeholder
+            this.style.display = 'none';
+            
+            // Opcional: adicionar placeholder
+            const placeholder = document.createElement('div');
+            placeholder.className = 'event-image-placeholder';
+            placeholder.innerHTML = '<i class="bi bi-calendar-event"></i>';
+            placeholder.style.cssText = `
+                width: 100%;
+                height: 150px;
+                background: var(--cor-fundo-hover);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--cor-texto-secundario);
+                font-size: 2rem;
+                border-radius: var(--radius-md);
+                margin-bottom: var(--spacing-md);
+            `;
+            
+            this.parentNode.replaceChild(placeholder, this);
+        });
+    });
+});
+</script>
+{% endif %}

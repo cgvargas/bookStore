@@ -1,0 +1,317 @@
+/* profile-card-stats.css */
+/* Estilos para o widget de estatísticas detalhadas no card de perfil */
+
+/* Estilo base para o widget */
+.detailed-stats-widget {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Melhoria na adaptação ao tema escuro */
+.dark-mode .detailed-stats-widget {
+    background-color: rgba(33, 37, 41, 0.85);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilo para o botão de alternância */
+.stats-toggle-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.35rem;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    background-color: transparent;
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.stats-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Melhor contraste para o botão no tema escuro */
+.dark-mode .stats-toggle-btn {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #f8f9fa;
+}
+
+.dark-mode .stats-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Estilos das abas de navegação */
+.detailed-stats-widget .nav-tabs {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 0.75rem;
+}
+
+.detailed-stats-widget .nav-link {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    color: #6c757d;
+    border: none;
+    border-radius: 0;
+    transition: all 0.2s ease;
+}
+
+.detailed-stats-widget .nav-link:hover {
+    color: #495057;
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.detailed-stats-widget .nav-link.active {
+    color: #0d6efd;
+    font-weight: 500;
+    background-color: transparent;
+    border-bottom: 2px solid #0d6efd;
+}
+
+.detailed-stats-widget .nav-link i {
+    font-size: 1rem;
+}
+
+/* Melhor contraste para abas no tema escuro */
+.dark-mode .detailed-stats-widget .nav-tabs {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .detailed-stats-widget .nav-link {
+    color: #adb5bd;
+}
+
+.dark-mode .detailed-stats-widget .nav-link:hover {
+    color: #f8f9fa;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .detailed-stats-widget .nav-link.active {
+    color: #4dabf7;
+    border-bottom-color: #4dabf7;
+}
+
+/* Conteúdo das abas */
+.detailed-stats-widget .tab-content {
+    font-size: 0.85rem;
+}
+
+.detailed-stats-widget .tab-pane {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Garantir contraste no tema escuro para texto nas estatísticas */
+.dark-mode .detailed-stats-widget .fw-bold {
+    color: #fff;
+}
+
+.dark-mode .detailed-stats-widget .text-muted {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Barras de progresso personalizadas */
+.detailed-stats-widget .progress {
+    height: 6px;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.05);
+    margin-top: 0.25rem;
+}
+
+.dark-mode .detailed-stats-widget .progress {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.detailed-stats-widget .progress-bar {
+    border-radius: 3px;
+}
+
+/* Cores diferentes para barras de progresso por gênero */
+.detailed-stats-widget #genresStats .progress-bar:nth-of-type(1) {
+    background-color: #0d6efd;
+}
+
+.detailed-stats-widget #genresStats .progress-bar:nth-of-type(2) {
+    background-color: #6f42c1;
+}
+
+.detailed-stats-widget #genresStats .progress-bar:nth-of-type(3) {
+    background-color: #fd7e14;
+}
+
+.detailed-stats-widget #genresStats .progress-bar:nth-of-type(4) {
+    background-color: #198754;
+}
+
+.detailed-stats-widget #genresStats .progress-bar:nth-of-type(5) {
+    background-color: #dc3545;
+}
+
+/* Estilo para adaptação a temas personalizados - alto contraste */
+.custom-theme .detailed-stats-widget {
+    --text-color: var(--card-text-color, #212529);
+    --bg-color: var(--card-bg-color, #ffffff);
+    --muted-color: var(--card-muted-color, #6c757d);
+    color: var(--text-color);
+    background-color: var(--bg-color);
+}
+
+.custom-theme .detailed-stats-widget .text-muted {
+    color: var(--muted-color) !important;
+}
+
+/* Estilo para a lista de autores */
+.detailed-stats-widget .list-group-item {
+    background-color: transparent;
+    border: none;
+    padding: 0.4rem 0;
+}
+
+.detailed-stats-widget .list-group-item:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .detailed-stats-widget .list-group-item:not(:last-child) {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Cores para medalhas com melhor visibilidade */
+.text-bronze {
+    color: #cd7f32;
+}
+
+.dark-mode .text-bronze {
+    color: #e8935a;
+}
+
+.dark-mode .text-warning {
+    color: #ffc107 !important;
+}
+
+.dark-mode .text-secondary {
+    color: #adb5bd !important;
+}
+
+/* Cores para tendências */
+.detailed-stats-widget .text-success {
+    color: #198754 !important;
+}
+
+.detailed-stats-widget .text-danger {
+    color: #dc3545 !important;
+}
+
+.dark-mode .detailed-stats-widget .text-success {
+    color: #20c997 !important;
+}
+
+.dark-mode .detailed-stats-widget .text-danger {
+    color: #ff6b6b !important;
+}
+
+/* Badges com melhor contraste */
+.detailed-stats-widget .badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+.dark-mode .detailed-stats-widget .badge.bg-primary {
+    background-color: #4dabf7 !important;
+    color: #212529 !important;
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .detailed-stats-widget {
+        padding: 0.75rem;
+    }
+
+    .detailed-stats-widget .nav-link {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .detailed-stats-widget .nav-link i {
+        font-size: 0.9rem;
+    }
+}
+
+/* Efeitos de hover nos itens das estatísticas */
+.detailed-stats-widget .tab-pane > div {
+    transition: all 0.2s ease;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.detailed-stats-widget .tab-pane > div:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.dark-mode .detailed-stats-widget .tab-pane > div:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+/* Ajustes para garantir contraste de texto com fundos personalizados */
+.detailed-stats-widget[data-high-contrast="true"] .text-muted {
+    color: rgba(0, 0, 0, 0.75) !important;
+    font-weight: 500;
+}
+
+.dark-mode .detailed-stats-widget[data-high-contrast="true"] .text-muted {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+}
+
+/* Estilização para scrollbar personalizada */
+.detailed-stats-widget::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.detailed-stats-widget::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.detailed-stats-widget::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.detailed-stats-widget::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .detailed-stats-widget::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-mode .detailed-stats-widget::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}

@@ -2,9 +2,12 @@
 import os
 from pathlib import Path
 import environ
+import dj_database_url
 import logging
 
 from django.urls import reverse_lazy
+
+logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,7 +64,8 @@ INSTALLED_APPS = [
 
     # Apps terceiros
     'stdimage',
-    #'django_extensions',
+    'storages',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -96,24 +100,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cgbookstore.config.wsgi.application'
 
-# Database
+# ==============================================================================
+# SEÇÃO DE BANCO DE DADOS
+# ==============================================================================
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='cgbookstore_db'),
-        'USER': env('DB_USER', default='cgbookstore_user'),
-        'PASSWORD': env('DB_PASSWORD', default=''),
-        'HOST': env('DB_HOST', default='localhost'),
-        'PORT': env('DB_PORT', default='5432'),
-        'OPTIONS': {
-            'client_encoding': 'LATIN1',
-            'connect_timeout': 10,
-            'application_name': 'cgv_bookstore',
-        },
-        'ATOMIC_REQUESTS': True,
-        'TIME_ZONE': 'America/Sao_Paulo',
-    }
+    'default': env.db_url('DATABASE_URL')
 }
+
+DATABASES['default']['OPTIONS'] = DATABASES['default'].get('OPTIONS', {})
+DATABASES['default']['OPTIONS']['sslmode'] = 'require'
 
 # Fallback para SQLite se explicitamente solicitado no ambiente de desenvolvimento
 if DJANGO_ENV == 'development' and env.bool('USE_SQLITE', default=False):
@@ -150,13 +146,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Media files
+# ==============================================================================
+# CONFIGURAÇÃO DE MÍDIA E ARMAZENAMENTO
+# ==============================================================================
+
+# Por padrão, usa armazenamento local
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -303,17 +302,6 @@ else:
             },
             'KEY_PREFIX': 'image_proxy',
 
-        },
-        'weather': {
-            'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': f'redis://127.0.0.1:6379/5',  # Uso do banco de dados Redis 5
-            'TIMEOUT': 60 * 30,  # 30 minutos (os dados meteorológicos mudam constantemente)
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-                'MAX_ENTRIES': 500,  # Não precisa ser grande, só armazena algumas cidades
-            },
-            'KEY_PREFIX': 'weather',
-
         }
     }
 
@@ -332,13 +320,10 @@ GOOGLE_BOOKS_RECOMMENDATIONS_CACHE_TIMEOUT = 60 * 60 * 24  # 24 horas
 # API Key do Google Books
 GOOGLE_BOOKS_API_KEY = env('GOOGLE_BOOKS_API_KEY', default='')
 
-# Configuração de variáveis de ambiente sobre o tempo:
-WEATHER_API_KEY = env('WEATHER_API_KEY', default='')
-
 # Configurações de Autenticação
 LOGIN_REDIRECT_URL = reverse_lazy('core:index')
-LOGIN_URL = 'login'
-LOGOUT_REDIRECT_URL = 'index'
+LOGIN_URL = 'core:login'
+LOGOUT_REDIRECT_URL = 'core:index'
 
 # Configurações de Sessão
 SESSION_COOKIE_AGE = 604800  # 1 semana em segundos
@@ -387,59 +372,97 @@ if not DEBUG:
 # Usar ETag para habilitar cache no navegador
 USE_ETAGS = True
 
-# ===== CONFIGURAÇÕES OLLAMA PARA CHATBOT LITERÁRIO =====
-# Adicionar ao final do arquivo settings.py
+# ===== CONFIGURAÇÕES OLLAMA PARA CHATBOT LITERÁRIO COM GPT-OSS =====
+# Substituir a seção existente no final do arquivo settings.py
 
-# Configurações do Ollama AI Service
+# Configurações do Ollama AI Service com GPT-OSS
 OLLAMA_CONFIG = {
     # Habilitação do serviço
     'enabled': env.bool('OLLAMA_ENABLED', default=True),
 
     # Configurações de conexão
     'base_url': env('OLLAMA_BASE_URL', default='http://localhost:11434'),
-    'timeout': env.int('OLLAMA_TIMEOUT', default=30),
+    'timeout': env.int('OLLAMA_TIMEOUT', default=90),
     'max_retries': env.int('OLLAMA_MAX_RETRIES', default=3),
 
-    # Configurações do modelo
+    # ✅ MODELO ATUALIZADO PARA LLAMA 3.2
     'model': env('OLLAMA_MODEL', default='llama3.2:3b'),
     'temperature': env.float('OLLAMA_TEMPERATURE', default=0.7),
-    'max_tokens': env.int('OLLAMA_MAX_TOKENS', default=500),
+    'max_tokens': env.int('OLLAMA_MAX_TOKENS', default=2048),
 
     # Configurações de fallback
     'fallback_enabled': env.bool('OLLAMA_FALLBACK_ENABLED', default=True),
     'auto_download_model': env.bool('OLLAMA_AUTO_DOWNLOAD', default=True),
 
     # Configurações de cache
-    'cache_responses': env.bool('OLLAMA_CACHE_RESPONSES', default=False),
-    'cache_timeout': env.int('OLLAMA_CACHE_TIMEOUT', default=1800),  # 30 minutos
+    'cache_responses': env.bool('OLLAMA_CACHE_RESPONSES', default=True),
+    'cache_timeout': env.int('OLLAMA_CACHE_TIMEOUT', default=3600),
 }
 
-# Template de prompt do sistema para literatura
-OLLAMA_SYSTEM_PROMPT = """Você é um assistente literário especializado da CG.BookStore.Online.
+# Configurações específicas do GPT-OSS
+GPT_OSS_CONFIG = {
+    # Configurações de raciocínio
+    'reasoning_effort': env('GPT_OSS_REASONING_EFFORT', default='medium'),
+    'show_reasoning': env.bool('GPT_OSS_SHOW_REASONING', default=False),
+    'use_chain_of_thought': env.bool('GPT_OSS_USE_COT', default=True),
+
+    # Configurações avançadas do modelo
+    'context_length': env.int('GPT_OSS_CONTEXT_LENGTH', default=8192),
+    'repeat_penalty': env.float('GPT_OSS_REPEAT_PENALTY', default=1.1),
+    'top_k': env.int('GPT_OSS_TOP_K', default=40),
+    'top_p': env.float('GPT_OSS_TOP_P', default=0.9),
+
+    # ✅ TIMEOUTS AJUSTADOS PARA LLAMA 3.2:3B
+    'timeout_simple': env.int('GPT_OSS_TIMEOUT_SIMPLE', default=30),
+    'timeout_reasoning': env.int('GPT_OSS_TIMEOUT_REASONING', default=60),
+    'timeout_analysis': env.int('GPT_OSS_TIMEOUT_ANALYSIS', default=90),
+    'timeout_complex': env.int('GPT_OSS_TIMEOUT_COMPLEX', default=120),
+
+    # Configurações de performance
+    'enable_moe_optimization': env.bool('GPT_OSS_MOE_OPTIMIZATION', default=True),
+    'active_parameters_target': env.int('GPT_OSS_ACTIVE_PARAMS', default=3600000000),
+}
+
+# Template de prompt do sistema otimizado para GPT-OSS
+OLLAMA_SYSTEM_PROMPT = """Você é um assistente literário especializado da CG.BookStore.Online, utilizando o modelo GPT-OSS para análises profundas.
 
 CONTEXTO DA CONVERSA:
 {context_info}
 
 SUAS ESPECIALIDADES:
-- Literatura brasileira e internacional
-- Recomendações de livros personalizadas
-- Informações sobre autores e obras
-- Navegação e funcionalidades do site
-- Sugestões de leitura baseadas em preferências
+- Literatura brasileira e internacional com análise crítica avançada
+- Recomendações de livros baseadas em raciocínio estruturado
+- Análises de estilo, tema, personagens e contexto histórico
+- Informações detalhadas sobre autores e movimentos literários
+- Navegação e funcionalidades do site com suporte inteligente
+- Sugestões personalizadas usando chain-of-thought
 
-DIRETRIZES DE RESPOSTA:
-- Use linguagem natural, amigável e acessível
-- Seja preciso e útil nas informações sobre livros
-- Se não souber algo específico, seja honesto e ofereça alternativas
-- Mantenha respostas concisas (máximo 3 parágrafos)
-- Foque em aspectos literários relevantes
-- Incentive a descoberta de novos livros e autores
+DIRETRIZES DE RESPOSTA COM GPT-OSS:
+- Use seu raciocínio step-by-step para análises complexas
+- Seja preciso e fundamentado nas informações sobre livros
+- Demonstre o processo de pensamento quando apropriado
+- Mantenha respostas úteis e bem estruturadas
+- Foque em aspectos literários relevantes com profundidade
+- Use exemplos concretos e citações quando possível
+- Adapte a complexidade ao nível do usuário
+
+NÍVEL DE RACIOCÍNIO: {reasoning_effort}
+MOSTRAR CADEIA DE PENSAMENTO: {show_reasoning}
 
 PERGUNTA DO USUÁRIO: {user_question}
 
-Responda de forma útil e contextual:"""
+Responda utilizando suas capacidades avançadas de raciocínio:"""
 
-# Configurações de logging específicas para IA
+# ===== EXTERNAL AI SERVICES =====
+GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
+GROQ_MODEL = os.getenv('GROQ_MODEL', 'llama3-8b-8192')
+GROQ_MAX_TOKENS = int(os.getenv('GROQ_MAX_TOKENS', '1024'))
+
+# HuggingFace API (Backup)
+HF_API_KEY = os.getenv('HF_API_KEY', '')
+HF_MODEL = os.getenv('HF_MODEL', 'microsoft/DialoGPT-large')
+
+# Configurações de logging específicas para GPT-OSS
 LOGGING_CONFIG_OLLAMA = {
     'ollama_service': {
         'handlers': ['console'],
@@ -450,6 +473,11 @@ LOGGING_CONFIG_OLLAMA = {
         'handlers': ['console'],
         'level': env('CHATBOT_AI_LOG_LEVEL', default='DEBUG'),
         'propagate': False,
+    },
+    'gpt_oss': {
+        'handlers': ['console'],
+        'level': env('GPT_OSS_LOG_LEVEL', default='INFO'),
+        'propagate': False,
     }
 }
 
@@ -459,103 +487,182 @@ if 'LOGGING' in locals() or 'LOGGING' in globals():
 else:
     LOGGING['loggers'] = LOGGING_CONFIG_OLLAMA
 
-# Configurações de integração com chatbot existente
+# Configurações de integração com chatbot existente (atualizadas para GPT-OSS)
 CHATBOT_AI_INTEGRATION = {
     # Quando usar IA como fallback
     'use_ai_fallback': env.bool('CHATBOT_USE_AI_FALLBACK', default=True),
 
-    # Threshold de confiança para usar IA
-    'ai_fallback_threshold': env.float('CHATBOT_AI_THRESHOLD', default=0.5),
+    # Threshold de confiança para usar IA (ajustado para GPT-OSS)
+    'ai_fallback_threshold': env.float('CHATBOT_AI_THRESHOLD', default=0.4),
 
     # Prioridade: 'local_first' ou 'ai_first' ou 'hybrid'
-    'response_strategy': env('CHATBOT_RESPONSE_STRATEGY', default='local_first'),
+    'response_strategy': env('CHATBOT_RESPONSE_STRATEGY', default='hybrid'),
 
     # Usar IA para melhorar respostas de baixa qualidade
     'enhance_with_ai': env.bool('CHATBOT_ENHANCE_WITH_AI', default=True),
 
-    # Timeout específico para integração
-    'integration_timeout': env.int('CHATBOT_AI_INTEGRATION_TIMEOUT', default=25),
+    # Timeout específico para integração (aumentado para GPT-OSS)
+    'integration_timeout': env.int('CHATBOT_AI_INTEGRATION_TIMEOUT', default=120),
+
+    # Configurações específicas para GPT-OSS
+    'prefer_gpt_oss_for_analysis': env.bool('PREFER_GPT_OSS_ANALYSIS', default=True),
+    'gpt_oss_reasoning_threshold': env.float('GPT_OSS_REASONING_THRESHOLD', default=0.6),
 }
 
-# Cache específico para respostas da IA (se usar cache)
-if env.bool('OLLAMA_CACHE_RESPONSES', default=False):
-    CACHES['ollama_responses'] = {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'redis://127.0.0.1:6379/6',
-        'TIMEOUT': OLLAMA_CONFIG['cache_timeout'],
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'MAX_ENTRIES': 1000,
-            'COMPRESS_MIN_LEN': 100,
-            'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
-        },
-        'KEY_PREFIX': 'ollama_ai',
-    }
+# Cache específico para respostas da IA GPT-OSS
+CACHES['gpt_oss_responses'] = {
+    'BACKEND': 'django_redis.cache.RedisCache',
+    'LOCATION': f'redis://127.0.0.1:6379/7',
+    'TIMEOUT': OLLAMA_CONFIG.get('cache_timeout', 3600),
+    'OPTIONS': {
+        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        'MAX_ENTRIES': 2000,
+        'COMPRESS_MIN_LEN': 200,
+        'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+    },
+    'KEY_PREFIX': 'gpt_oss',
+}
 
-# Configurações de monitoramento e estatísticas
+# Cache para chain-of-thought e reasoning
+CACHES['gpt_oss_reasoning'] = {
+    'BACKEND': 'django_redis.cache.RedisCache',
+    'LOCATION': f'redis://127.0.0.1:6379/8',
+    'TIMEOUT': 60 * 60 * 6,
+    'OPTIONS': {
+        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        'MAX_ENTRIES': 1000,
+        'COMPRESS_MIN_LEN': 500,
+        'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+    },
+    'KEY_PREFIX': 'gpt_oss_reasoning',
+}
+
+# Configurações de monitoramento e estatísticas (atualizadas)
 AI_MONITORING = {
     'enable_stats': env.bool('AI_ENABLE_STATS', default=True),
     'stats_retention_days': env.int('AI_STATS_RETENTION', default=30),
     'alert_on_high_failure_rate': env.bool('AI_ALERT_FAILURES', default=True),
-    'failure_rate_threshold': env.float('AI_FAILURE_THRESHOLD', default=0.3),  # 30%
+    'failure_rate_threshold': env.float('AI_FAILURE_THRESHOLD', default=0.2),
+
+    # Monitoramento específico GPT-OSS
+    'monitor_reasoning_performance': env.bool('MONITOR_GPT_OSS_REASONING', default=True),
+    'reasoning_timeout_threshold': env.int('GPT_OSS_REASONING_TIMEOUT', default=30),
+    'track_model_switches': env.bool('TRACK_MODEL_SWITCHES', default=True),
 }
 
-# Configurações de desenvolvimento vs produção
+# Configurações de desenvolvimento vs produção (atualizadas para GPT-OSS)
 if DJANGO_ENV == 'development':
     # Configurações mais relaxadas para desenvolvimento
     OLLAMA_CONFIG.update({
-        'timeout': 90,  # Timeout maior para desenvolvimento
-        'auto_download_model': True,  # Auto-download habilitado
-        'fallback_enabled': True,  # Sempre usar fallback
+        'timeout': env.int('OLLAMA_TIMEOUT', 300),
+        'auto_download_model': True,
+        'fallback_enabled': True,
+        'cache_responses': True,
+    })
+
+    GPT_OSS_CONFIG.update({
+        'show_reasoning': False,
+        'reasoning_effort': 'medium',
+        'enable_literary_reasoning': True,
     })
 
     CHATBOT_AI_INTEGRATION.update({
-        'ai_fallback_threshold': 0.3,  # Threshold menor para testar IA mais
-        'enhance_with_ai': True,  # Sempre tentar melhorar com IA
+        'ai_fallback_threshold': 0.3,
+        'enhance_with_ai': True,
+        'response_strategy': 'hybrid',
     })
 
 else:
     # Configurações otimizadas para produção
     OLLAMA_CONFIG.update({
-        'timeout': 20,  # Timeout menor para produção
-        'auto_download_model': False,  # Não baixar automaticamente em produção
-        'cache_responses': True,  # Cache habilitado em produção
+        'timeout': 60,
+        'auto_download_model': False,
+        'cache_responses': True,
+        'cache_timeout': 7200,
+    })
+
+    GPT_OSS_CONFIG.update({
+        'show_reasoning': False,
+        'reasoning_effort': 'medium',
+        'enable_moe_optimization': True,
     })
 
     CHATBOT_AI_INTEGRATION.update({
-        'ai_fallback_threshold': 0.5,  # Threshold padrão
-        'integration_timeout': 15,  # Timeout menor para produção
+        'ai_fallback_threshold': 0.4,
+        'integration_timeout': 120,
+        'response_strategy': 'local_first',
     })
 
-# Configurações de segurança para IA
+# Configurações de segurança para IA (atualizadas para GPT-OSS)
 AI_SECURITY = {
-    'max_prompt_length': env.int('AI_MAX_PROMPT_LENGTH', default=2000),
-    'max_response_length': env.int('AI_MAX_RESPONSE_LENGTH', default=1500),
+    'max_prompt_length': env.int('AI_MAX_PROMPT_LENGTH', default=4000),
+    'max_response_length': env.int('AI_MAX_RESPONSE_LENGTH', default=3000),
+    'max_reasoning_length': env.int('AI_MAX_REASONING_LENGTH', default=2000),
     'filter_sensitive_content': env.bool('AI_FILTER_CONTENT', default=True),
-    'rate_limit_per_user': env.int('AI_RATE_LIMIT', default=20),  # requests per minute
-    'rate_limit_window': env.int('AI_RATE_WINDOW', default=60),  # seconds
+    'rate_limit_per_user': env.int('AI_RATE_LIMIT', default=15),
+    'rate_limit_window': env.int('AI_RATE_WINDOW', default=60),
+
+    # Segurança específica GPT-OSS
+    'validate_reasoning_output': env.bool('VALIDATE_GPT_OSS_REASONING', default=True),
+    'sanitize_chain_of_thought': env.bool('SANITIZE_COT', default=True),
 }
 
-# Configurações avançadas (opcional)
-OLLAMA_ADVANCED = {
-    # Configurações do modelo
-    'model_options': {
-        'num_ctx': env.int('OLLAMA_CONTEXT_LENGTH', default=2048),
-        'repeat_penalty': env.float('OLLAMA_REPEAT_PENALTY', default=1.1),
-        'top_k': env.int('OLLAMA_TOP_K', default=40),
-        'top_p': env.float('OLLAMA_TOP_P', default=0.9),
-    },
+# Aliases para compatibilidade com código existente
+OLLAMA_MODEL = OLLAMA_CONFIG['model']
+OLLAMA_BASE_URL = OLLAMA_CONFIG['base_url']
+OLLAMA_TIMEOUT = OLLAMA_CONFIG['timeout']
+OLLAMA_TEMPERATURE = OLLAMA_CONFIG['temperature']
+OLLAMA_MAX_TOKENS = OLLAMA_CONFIG['max_tokens']
 
-    # Configurações de sistema
-    'system_settings': {
-        'num_thread': env.int('OLLAMA_THREADS', default=4),
-        'numa': env.bool('OLLAMA_NUMA', default=False),
-    },
-
-    # Configurações de monitoramento
-    'monitoring': {
-        'log_requests': env.bool('OLLAMA_LOG_REQUESTS', default=DEBUG),
-        'log_responses': env.bool('OLLAMA_LOG_RESPONSES', default=DEBUG),
-        'track_tokens': env.bool('OLLAMA_TRACK_TOKENS', default=True),
-    }
+# Configurações consolidadas para facilitar acesso
+AI_CONFIG = {
+    'ollama': OLLAMA_CONFIG,
+    'gpt_oss': GPT_OSS_CONFIG,
+    'integration': CHATBOT_AI_INTEGRATION,
+    'security': AI_SECURITY,
+    'monitoring': AI_MONITORING,
 }
+
+
+# Validação de configurações críticas
+def validate_gpt_oss_config():
+    """Valida se as configurações do GPT-OSS estão corretas."""
+    import logging
+    logger = logging.getLogger(__name__)
+
+    required_settings = [
+        'OLLAMA_BASE_URL',
+        'OLLAMA_MODEL',
+        'GPT_OSS_REASONING_EFFORT'
+    ]
+
+    missing_settings = []
+    for setting in required_settings:
+        if not env(setting, default=None):
+            missing_settings.append(setting)
+
+    if missing_settings:
+        logger.warning(f"Configurações GPT-OSS ausentes: {missing_settings}")
+
+    return len(missing_settings) == 0
+
+
+# Executar validação em desenvolvimento
+if DJANGO_ENV == 'development':
+    validate_gpt_oss_config()
+
+# ==============================================================================
+# CONFIGURAÇÃO DE ARMAZENAMENTO DE MÍDIA - VERSÃO FINAL CORRIGIDA
+# ==============================================================================
+# Apenas para ambientes de produção (ou sempre que não estiver usando SQLite local)
+if not DEBUG:
+    AWS_ACCESS_KEY_ID = env('SUPABASE_SERVICE_ROLE_KEY')
+    AWS_SECRET_ACCESS_KEY = env('SUPABASE_SERVICE_ROLE_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL')
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    AWS_LOCATION = 'media'
+    AWS_DEFAULT_ACL = 'public-read'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/'
+# ==============================================================================

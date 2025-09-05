@@ -73,7 +73,7 @@ class BookEditView(UpdateView):
             messages.success(self.request, f'Livro "{self.object.titulo}" atualizado com sucesso!')
 
             # Redireciona para a página de detalhes
-            return redirect('book_detail', pk=self.object.pk)
+            return redirect('core:book_detail', pk=self.object.pk)
 
         except Exception as e:
             logger.error(f"Erro ao atualizar livro: {str(e)}")
@@ -87,4 +87,4 @@ class BookEditView(UpdateView):
 
     def get_success_url(self):
         """URL de redirecionamento após sucesso"""
-        return reverse('book_detail', kwargs={'pk': self.object.pk})
+        return reverse('core:book_detail', kwargs={'pk': self.object.pk})

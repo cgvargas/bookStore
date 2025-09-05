@@ -1,0 +1,285 @@
+/* profile-card-quote.css */
+/* Estilos para o widget de citação favorita no card de perfil */
+
+/* Estilo do widget principal */
+.quote-widget {
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.dark-mode .quote-widget {
+    border-top-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Cabeçalho */
+.quote-header h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: inherit;
+}
+
+/* Botões de ação */
+.quote-actions .btn-link,
+.add-quote-btn {
+    color: var(--bs-primary);
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.quote-actions .btn-link:hover,
+.add-quote-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Formatação da citação */
+.quote-content {
+    padding: 0.25rem 0.5rem;
+    position: relative;
+}
+
+.quote-content blockquote {
+    position: relative;
+    padding: 0.5rem 0 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .quote-content blockquote {
+    border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+.quote-text {
+    font-style: italic;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 1.5rem;
+}
+
+.blockquote-footer {
+    font-size: 0.75rem;
+    color: var(--bs-secondary);
+}
+
+/* Animação na entrada da citação */
+.quote-content {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ícones de aspas decorativas */
+.quote-content blockquote:before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    left: -6px;
+    font-size: 2rem;
+    color: rgba(0, 0, 0, 0.1);
+    font-family: Georgia, serif;
+}
+
+.dark-mode .quote-content blockquote:before {
+    color: rgba(255, 255, 255, 0.1);
+}
+
+/* Estado vazio - sem citação */
+.empty-quote {
+    padding: 0.5rem;
+    color: var(--bs-secondary);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+/* Formulário de edição */
+.quote-edit-form {
+    animation: fadeIn 0.3s ease;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 0.5rem;
+}
+
+.dark-mode .quote-edit-form {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.quote-edit-form .form-label {
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
+    font-weight: 500;
+}
+
+.quote-edit-form .form-control {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.quote-edit-form textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Botões do formulário */
+.quote-edit-form .btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.quote-edit-form .btn-outline-secondary {
+    border-color: #ced4da;
+}
+
+/* Notificações temporárias */
+.quote-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    z-index: 9999;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    transform: translateX(150%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.quote-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.quote-notification-success {
+    background-color: #28a745;
+    color: white;
+    border-left: 5px solid #1e7e34;
+}
+
+.quote-notification-error {
+    background-color: #dc3545;
+    color: white;
+    border-left: 5px solid #a71d2a;
+}
+
+.quote-notification-info {
+    background-color: #17a2b8;
+    color: white;
+    border-left: 5px solid #138496;
+}
+
+/* Ajustes específicos para temas literários */
+
+/* Tema Fantasia */
+.theme-fantasy .quote-widget {
+    border-top-color: rgba(147, 112, 219, 0.3) !important;
+    border-bottom-color: rgba(147, 112, 219, 0.3) !important;
+}
+
+.theme-fantasy .quote-content blockquote {
+    border-left-color: rgba(147, 112, 219, 0.5) !important;
+}
+
+.theme-fantasy .quote-content blockquote:before {
+    color: rgba(147, 112, 219, 0.3) !important;
+}
+
+/* Tema Ficção Científica */
+.theme-scifi .quote-widget {
+    border-top-color: rgba(0, 176, 255, 0.3) !important;
+    border-bottom-color: rgba(0, 176, 255, 0.3) !important;
+}
+
+.theme-scifi .quote-content blockquote {
+    border-left-color: rgba(0, 176, 255, 0.5) !important;
+}
+
+.theme-scifi .quote-content blockquote:before {
+    color: rgba(0, 176, 255, 0.3) !important;
+}
+
+/* Tema Romance */
+.theme-romance .quote-widget {
+    border-top-color: rgba(255, 105, 180, 0.3) !important;
+    border-bottom-color: rgba(255, 105, 180, 0.3) !important;
+}
+
+.theme-romance .quote-content blockquote {
+    border-left-color: rgba(255, 105, 180, 0.5) !important;
+}
+
+.theme-romance .quote-content blockquote:before {
+    color: rgba(255, 105, 180, 0.3) !important;
+}
+
+/* Tema Horror */
+.theme-horror .quote-widget {
+    border-top-color: rgba(128, 0, 0, 0.3) !important;
+    border-bottom-color: rgba(128, 0, 0, 0.3) !important;
+}
+
+.theme-horror .quote-content blockquote {
+    border-left-color: rgba(255, 77, 77, 0.5) !important;
+}
+
+.theme-horror .quote-content blockquote:before {
+    color: rgba(255, 77, 77, 0.3) !important;
+}
+
+/* Tema Mistério */
+.theme-mystery .quote-widget {
+    border-top-color: rgba(243, 156, 18, 0.3) !important;
+    border-bottom-color: rgba(243, 156, 18, 0.3) !important;
+}
+
+.theme-mystery .quote-content blockquote {
+    border-left-color: rgba(243, 156, 18, 0.5) !important;
+}
+
+.theme-mystery .quote-content blockquote:before {
+    color: rgba(243, 156, 18, 0.3) !important;
+}
+
+/* Tema Histórico */
+.theme-historical .quote-widget {
+    border-top-color: rgba(139, 69, 19, 0.3) !important;
+    border-bottom-color: rgba(139, 69, 19, 0.3) !important;
+}
+
+.theme-historical .quote-content blockquote {
+    border-left-color: rgba(139, 69, 19, 0.5) !important;
+}
+
+.theme-historical .quote-content blockquote:before {
+    color: rgba(139, 69, 19, 0.3) !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .quote-notification {
+        max-width: 80%;
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .quote-text {
+        font-size: 0.8rem;
+    }
+
+    .blockquote-footer {
+        font-size: 0.7rem;
+    }
+}

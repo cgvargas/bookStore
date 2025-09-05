@@ -76,8 +76,6 @@ class AuthorDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         # Adicionar livros do autor ao contexto
-        context['livros'] = self.object.get_livros()
-
+        context['livros'] = self.object.books.filter(ativo=True)  # Melhor filtrar por livros ativos
         return context

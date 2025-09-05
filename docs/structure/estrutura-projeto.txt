@@ -98,8 +98,7 @@ Data de geração: 04/04/2025 08:24:18
 │   │   │   ├── styles.css
 │   │   │   ├── swiper-custom.css
 │   │   │   ├── theme-compatibility.css
-│   │   │   ├── video-section.css
-│   │   │   └── weather_widget.css
+│   │   │   └──video-section.css
 │   │   ├── images
 │   │   │   ├── favicon.svg
 │   │   │   ├── logo.png
@@ -138,8 +137,7 @@ Data de geração: 04/04/2025 08:24:18
 │   │       ├── swiper-config.js
 │   │       ├── theme-switcher.js
 │   │       ├── timezone-fix.js
-│   │       ├── video-section.js
-│   │       └── weather_widget.js
+│   │       └── video-section.js
 │   └── apps
 │       ├── __init__.py
 │       ├── chatbot_literario
@@ -224,7 +222,6 @@ Data de geração: 04/04/2025 08:24:18
 │           ├── tests.py
 │           ├── urls.py
 │           ├── urls_author.py
-│           ├── weather_config.py
 │           ├── admin
 │           │   ├── README.md
 │           │   ├── __init__.py
@@ -404,8 +401,7 @@ Data de geração: 04/04/2025 08:24:18
 │           │   │   │   ├── modal_prateleiras.html
 │           │   │   │   ├── modal_recomendacoes.html
 │           │   │   │   ├── personalized_shelf_widget.html
-│           │   │   │   ├── recommendation_widget.html
-│           │   │   │   └── weather_widget.html
+│           │   │   │   └── recommendation_widget.html
 │           │   │   ├── email
 │           │   │   │   ├── contato_confirmacao.html
 │           │   │   │   ├── contato_email.html
@@ -445,8 +441,7 @@ Data de geração: 04/04/2025 08:24:18
 │               ├── external_book_details_view.py
 │               ├── general.py
 │               ├── profile.py
-│               ├── recommendation_views.py
-│               └── weather.py
+│               └── recommendation_views.py
 ├── dados
 │   └── data
 └── tests

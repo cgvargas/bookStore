@@ -11,18 +11,21 @@ Contém views para:
 - Termos de uso
 """
 
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.views.generic import ListView
+from ..models import EventItem, Advertisement
 import logging
-from typing import Dict, Any, List
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.contrib import messages
-from django.views.generic import CreateView, TemplateView, FormView
+from django.views.generic import CreateView, FormView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.middleware.csrf import get_token
 from django.core.serializers.json import DjangoJSONEncoder
 from django.views.generic import TemplateView
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
-from django.db.models.query import QuerySet
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from ..forms import ContatoForm
@@ -32,52 +35,38 @@ from ..forms import UserRegistrationForm
 from django.utils import timezone
 from ..models.banner import Banner
 from ..models.book import Book
-from ..models.home_content import HomeSection, EventItem
+from ..models.home_content import HomeSection, VideoItem
 from ..recommendations.engine import RecommendationEngine
-from ..models.home_content import DefaultShelfType
 from ..services.google_books_service import GoogleBooksClient
 
-
-# Configuração de logger para rastreamento de eventos
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
 
 class IndexView(TemplateView):
-    """
-    View para página inicial da CGBookStore.
-
-    Características:
-    - Carrega seções dinâmicas definidas pelo admin
-    - Suporta diferentes tipos de seções (prateleiras, vídeos, anúncios)
-    - Mantém recomendações personalizadas para usuários logados
-    - Tratamento de erros com logs detalhados
-    - Suporte a seções personalizadas com layouts dinâmicos
-    """
     template_name = 'core/home.html'
-
-    # Função modificada dentro da classe IndexView no arquivo general.py
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            logger.info('[DIAGNÓSTICO INDEX] Iniciando carregamento da página inicial.')
+            print('=' * 80)
+            print('[DIAGNÓSTICO INDEX] ==================== INÍCIO ====================')
+            print('[DIAGNÓSTICO INDEX] IndexView.get_context_data() EXECUTADA!')
+            print('[DIAGNÓSTICO INDEX] Iniciando carregamento da página inicial com estrutura final.')
+            print('=' * 80)
+
             current_datetime = timezone.now()
 
-            # 1. Banners
+            # Carregar banners
             context['banners'] = Banner.objects.filter(
                 ativo=True, data_inicio__lte=current_datetime, data_fim__gte=current_datetime
             ).order_by('ordem')
-            logger.info(f"[DIAGNÓSTICO INDEX] Banners carregados: {context['banners'].count()}")
+            print(f'[DIAGNÓSTICO INDEX] Banners carregados: {context["banners"].count()}')
 
-            processed_sections = []
-
-            # 2. Recomendações (se usuário logado)
+            # Recomendações para usuários autenticados
             if self.request.user.is_authenticated:
-                # O seu código de recomendações já funciona bem, então vamos mantê-lo
-                # ... (código para gerar 'mixed_recommendations')
-                # Apenas garantimos que o resultado seja adicionado corretamente
+                print('[DIAGNÓSTICO INDEX] Carregando recomendações para usuário autenticado')
                 engine = RecommendationEngine()
                 mixed_recommendations = engine.get_mixed_recommendations(self.request.user, limit=12)
                 context.update({
@@ -86,101 +75,241 @@ class IndexView(TemplateView):
                     'has_mixed_recommendations': mixed_recommendations.get('has_external') or bool(
                         mixed_recommendations.get('local'))
                 })
-                logger.info(f"[DIAGNÓSTICO INDEX] Recomendações mistas processadas.")
 
-            # 3. Processamento de todas as seções da Home
-            logger.info('[DIAGNÓSTICO INDEX] Iniciando busca unificada de todas as seções.')
-            admin_sections = HomeSection.objects.filter(ativo=True).prefetch_related(
-                'book_shelf__shelf_type', 'book_shelf__livros__autores',
-                'video_section__videos', 'custom_section__section_type',
-                'author_section__autores', 'advertisement', 'link_items'
+            processed_sections = []
+
+            # *** INICIALIZAR background_settings FORA DO LOOP ***
+            background_settings = None
+
+            print('[DIAGNÓSTICO INDEX] Iniciando carregamento de seções...')
+
+            all_sections = HomeSection.objects.filter(ativo=True).select_related(
+                'advertisement', 'background_settings'  # *** IMPORTANTE: incluir background_settings ***
+            ).prefetch_related(
+                'manual_books',
+                'video_section', 'video_section__videos',
+                'author_section', 'author_section__autores',
+                'link_items'
             ).order_by('ordem')
 
-            logger.info(f'[DIAGNÓSTICO INDEX] Encontradas {admin_sections.count()} seções ativas para processar.')
+            print(f'[DIAGNÓSTICO INDEX] Encontradas {all_sections.count()} seções ativas para processar.')
 
-            for section in admin_sections:
-                try:
-                    section_data = {'titulo': section.titulo, 'tipo': section.tipo, 'id': f'section-{section.id}',
-                                    'css_class': section.css_class}
+            if all_sections.exists():
+                sections_info = [f"{s.titulo} (tipo: {s.tipo}, id: {s.id})" for s in all_sections]
+                print(f'[DIAGNÓSTICO INDEX] Lista completa de seções: {sections_info}')
+            else:
+                print('[DIAGNÓSTICO INDEX] ⚠️ NENHUMA seção ativa encontrada no banco de dados!')
 
-                    # TIPO: Prateleira de Livros
-                    if section.tipo == 'shelf' and hasattr(section, 'book_shelf'):
-                        book_shelf = section.book_shelf
-                        livros = book_shelf.livros.all() if book_shelf.livros.exists() else book_shelf.get_filtered_books()
-                        if livros.exists():
-                            section_data['livros'] = livros[:book_shelf.max_livros]
-                            if book_shelf.shelf_type: section_data['id'] = book_shelf.shelf_type.identificador
+            for index, section in enumerate(all_sections, 1):
+                print(
+                    f'[DIAGNÓSTICO INDEX] [{index}/{all_sections.count()}] Processando seção: "{section.titulo}" (tipo: {section.tipo}, id: {section.id})')
+
+                section_data = {
+                    'titulo': section.titulo,
+                    'tipo': section.tipo,
+                    'id': f'section-{section.id}',
+                    'css_class': section.css_class,
+                }
+
+                # *** LÓGICA PARA BACKGROUND ***
+                if section.tipo == 'background':
+                    print(f'[DIAGNÓSTICO INDEX] └── Processando configuração de background: {section.titulo}')
+                    print(
+                        f'[DIAGNÓSTICO INDEX]     hasattr(section, "background_settings"): {hasattr(section, "background_settings")}')
+
+                    if hasattr(section, 'background_settings'):
+                        print(f'[DIAGNÓSTICO INDEX]     ✅ background_settings existe!')
+                        bg_settings = section.background_settings
+                        print(f'[DIAGNÓSTICO INDEX]     background_settings.habilitado: {bg_settings.habilitado}')
+                        print(f'[DIAGNÓSTICO INDEX]     background_settings.imagem: {bg_settings.imagem}')
+                        print(f'[DIAGNÓSTICO INDEX]     background_settings.opacidade: {bg_settings.opacidade}')
+                        print(f'[DIAGNÓSTICO INDEX]     background_settings.aplicar_em: {bg_settings.aplicar_em}')
+                        print(f'[DIAGNÓSTICO INDEX]     background_settings.posicao: {bg_settings.posicao}')
+
+                        if bg_settings.habilitado:
+                            print(f'[DIAGNÓSTICO INDEX]     ✅ Background habilitado e adicionado ao contexto')
+                            # *** DEFINIR BACKGROUND_SETTINGS PARA USO NO CONTEXTO ***
+                            background_settings = bg_settings
+                            section_data['background_settings'] = bg_settings
                             processed_sections.append(section_data)
-                            logger.info(f'[DIAGNÓSTICO INDEX] ✅ Seção SHELF "{section.titulo}" adicionada.')
                         else:
-                            logger.warning(f'[DIAGNÓSTICO INDEX] ❌ Seção SHELF "{section.titulo}" pulada (sem livros).')
+                            print(f'[DIAGNÓSTICO INDEX]     ⚠️ Background existe mas está desabilitado')
+                    else:
+                        print(f'[DIAGNÓSTICO INDEX]     ❌ background_settings não existe para: {section.titulo}')
+                        # Debug adicional
+                        attrs = [attr for attr in dir(section) if
+                                 not attr.startswith("_") and not callable(getattr(section, attr))]
+                        print(
+                            f'[DIAGNÓSTICO INDEX]     Atributos disponíveis: {attrs[:10]}...')  # Mostrar só os primeiros 10
 
-                    # TIPO: Seção de Vídeos
-                    elif section.tipo == 'video' and hasattr(section, 'video_section'):
-                        video_section = section.video_section
-                        if video_section.ativo:
-                            videos = video_section.videos.filter(ativo=True, videosectionitem__ativo=True).order_by(
-                                'videosectionitem__ordem')
-                            if videos.exists():
-                                section_data['videos'] = videos
-                                processed_sections.append(section_data)
-                                logger.info(f'[DIAGNÓSTICO INDEX] ✅ Seção VIDEO "{section.titulo}" adicionada.')
+                elif section.tipo == 'shelf':
+                    print(f'[DIAGNÓSTICO INDEX] └── Processando prateleira de livros: {section.titulo}')
+                    livros = section.get_books()
+                    if livros and livros.exists():
+                        print(f'[DIAGNÓSTICO INDEX]     ✅ Prateleira com {livros.count()} livros adicionada')
+                        section_data['livros'] = livros
+                        processed_sections.append(section_data)
+                    else:
+                        print(f'[DIAGNÓSTICO INDEX]     ⚠️ Prateleira sem livros: {section.titulo}')
+
+                elif section.tipo == 'video':
+                    print(f'[DIAGNÓSTICO INDEX] └── Processando seção de vídeo: {section.titulo}')
+                    print(
+                        f'[DIAGNÓSTICO INDEX]     Verificando se tem video_section... {hasattr(section, "video_section")}')
+                    if hasattr(section, 'video_section'):
+                        print(f'[DIAGNÓSTICO INDEX]     ✅ video_section existe! Buscando vídeos associados...')
+                        videos = VideoItem.objects.filter(
+                            videosectionitem__video_section=section.video_section,
+                            videosectionitem__ativo=True
+                        ).order_by('videosectionitem__ordem')
+                        print(f'[DIAGNÓSTICO INDEX]     Vídeos encontrados após filtro e ordenação: {videos.count()}')
+                        if videos.exists():
+                            print(
+                                f'[DIAGNÓSTICO INDEX]     ✅ Seção de vídeo com {videos.count()} vídeos adicionada ao contexto.')
+                            section_data['videos'] = videos
+                            processed_sections.append(section_data)
+                        else:
+                            print(
+                                f'[DIAGNÓSTICO INDEX]     ⚠️ Seção de vídeo encontrada, mas sem vídeos ativos associados: {section.titulo}')
+                    else:
+                        print(
+                            f'[DIAGNÓSTICO INDEX]     ❌ Atributo video_section não foi encontrado para: {section.titulo}. Verifique se a seção foi salva corretamente no admin.')
+
+                elif section.tipo == 'author':
+                    print('=' * 50)
+                    print(f'[DIAGNÓSTICO INDEX] └── 🎯 PROCESSANDO SEÇÃO DE AUTOR: {section.titulo}')
+                    print(f'[DIAGNÓSTICO INDEX]     Verificando se tem author_section...')
+                    print(
+                        f'[DIAGNÓSTICO INDEX]     hasattr(section, "author_section"): {hasattr(section, "author_section")}')
+                    if hasattr(section, 'author_section'):
+                        print(f'[DIAGNÓSTICO INDEX]     ✅ author_section existe!')
+                        print(f'[DIAGNÓSTICO INDEX]     author_section.ativo: {section.author_section.ativo}')
+                        print(f'[DIAGNÓSTICO INDEX]     Chamando get_autores()...')
+                        try:
+                            autores = section.author_section.get_autores()
+                            print(f'[DIAGNÓSTICO INDEX]     get_autores() executado com sucesso')
+                            print(f'[DIAGNÓSTICO INDEX]     Tipo do retorno: {type(autores)}')
+                            if autores:
+                                if hasattr(autores, 'count'):
+                                    autores_count = autores.count()
+                                else:
+                                    autores_count = len(autores)
+                                print(f'[DIAGNÓSTICO INDEX]     Autores encontrados: {autores_count}')
+                                if autores_count > 0:
+                                    try:
+                                        autores_list = list(autores.values_list('nome', 'sobrenome', 'ativo'))
+                                        print(f'[DIAGNÓSTICO INDEX]     Lista de autores: {autores_list}')
+                                    except Exception as e:
+                                        print(f'[DIAGNÓSTICO INDEX]     Erro ao listar autores: {e}')
+
+                                    print(
+                                        f'[DIAGNÓSTICO INDEX]     ✅ SEÇÃO DE AUTOR ADICIONADA COM {autores_count} AUTORES!')
+                                    section_data['authors'] = autores
+                                    section_data['author_section'] = section.author_section
+                                    processed_sections.append(section_data)
+                                else:
+                                    print(f'[DIAGNÓSTICO INDEX]     ⚠️ get_autores() retornou lista vazia')
                             else:
-                                logger.warning(
-                                    f'[DIAGNÓSTICO INDEX] ❌ Seção VIDEO "{section.titulo}" pulada (sem vídeos ativos).')
+                                print(f'[DIAGNÓSTICO INDEX]     ⚠️ get_autores() retornou None')
+                        except Exception as autor_error:
+                            print(f'[DIAGNÓSTICO INDEX]     ❌ ERRO em get_autores(): {autor_error}')
+                            import traceback
+                            traceback.print_exc()
+                    else:
+                        print(f'[DIAGNÓSTICO INDEX]     ❌ author_section NÃO EXISTE para seção: {section.titulo}')
+                    print('=' * 50)
 
-                    # TIPO: Seção Customizada (Autores, Eventos, etc.)
-                    elif section.tipo == 'custom':
-                        logger.info(f'[DIAGNÓSTICO INDEX] Processando seção CUSTOM: "{section.titulo}"')
-                        if hasattr(section, 'author_section') and section.author_section.ativo:
-                            section_data['author_section'] = section.author_section
-                            section_data['authors'] = section.author_section.get_autores()
+                # Outros tipos de seção...
+                elif section.tipo == 'ad':
+                    print(f'[DIAGNÓSTICO INDEX] └── Processando propaganda: {section.titulo}')
+                    if hasattr(section, 'advertisement'):
+                        print(f'[DIAGNÓSTICO INDEX]     ✅ Propaganda adicionada')
+                        section_data['advertisement'] = section.advertisement
+                        processed_sections.append(section_data)
+                    else:
+                        print(f'[DIAGNÓSTICO INDEX]     ❌ advertisement não existe para: {section.titulo}')
+
+                elif section.tipo == 'link_grid':
+                    print(f'[DIAGNÓSTICO INDEX] └── Processando grade de links: {section.titulo}')
+                    if hasattr(section, 'link_items'):
+                        links = section.link_items.filter(ativo=True)
+                        if links.exists():
+                            print(f'[DIAGNÓSTICO INDEX]     ✅ Grade de links com {links.count()} itens adicionada')
+                            section_data['links'] = links
                             processed_sections.append(section_data)
-                            logger.info(f'[DIAGNÓSTICO INDEX] ✅ Seção de AUTORES "{section.titulo}" adicionada.')
-                        # Adicione aqui 'elif' para outros tipos de 'custom_section' se necessário
                         else:
-                            logger.warning(
-                                f'[DIAGNÓSTICO INDEX] ⚠️ Seção CUSTOM "{section.titulo}" sem lógica de renderização definida.')
+                            print(f'[DIAGNÓSTICO INDEX]     ⚠️ Grade de links sem itens: {section.titulo}')
+                    else:
+                        print(f'[DIAGNÓSTICO INDEX]     ❌ link_items não existe para: {section.titulo}')
 
-                    # Adicione outros elif para 'ad', 'link_grid', etc.
+                else:
+                    print(f'[DIAGNÓSTICO INDEX] └── Tipo de seção não reconhecido: {section.tipo}')
 
-                except Exception as e:
-                    logger.error(f'[DIAGNÓSTICO INDEX] ❌ ERRO ao processar seção "{section.titulo}": {e}',
-                                 exc_info=True)
-
-            # O nome da variável de contexto deve ser 'shelves' para corresponder ao template
+            # *** ADICIONAR BACKGROUND_SETTINGS AO CONTEXTO FORA DO LOOP ***
+            context['background_settings'] = background_settings
             context['shelves'] = processed_sections
 
-            # 4. Ranking de Leitores (Gamificação)
-            context['ranking_usuarios'] = User.objects.annotate(
-                livros_lidos=Count('bookshelves', filter=Q(bookshelves__shelf_type='lido'))
-            ).filter(livros_lidos__gt=0).order_by('-livros_lidos')[:3]  # Apenas os 3 primeiros para a home
-            logger.info(
-                f"[DIAGNÓSTICO INDEX] Ranking de leitores carregado: {context['ranking_usuarios'].count()} usuários.")
+            # *** DEBUG FINAL DO BACKGROUND ***
+            print('=' * 80)
+            print(f'[DIAGNÓSTICO INDEX] ==================== DEBUG BACKGROUND ====================')
+            if background_settings:
+                print(f'[DIAGNÓSTICO INDEX] ✅ BACKGROUND SETTINGS FINAL DEFINIDO:')
+                print(f'[DIAGNÓSTICO INDEX]     - Objeto: {background_settings}')
+                print(f'[DIAGNÓSTICO INDEX]     - Imagem: {background_settings.imagem}')
+                print(f'[DIAGNÓSTICO INDEX]     - URL: {background_settings.imagem.url}')
+                print(f'[DIAGNÓSTICO INDEX]     - Habilitado: {background_settings.habilitado}')
+                print(f'[DIAGNÓSTICO INDEX]     - Opacidade: {background_settings.opacidade}')
+                print(f'[DIAGNÓSTICO INDEX]     - Posição: {background_settings.posicao}')
+                print(f'[DIAGNÓSTICO INDEX]     - Aplicar em: {background_settings.aplicar_em}')
+            else:
+                print(f'[DIAGNÓSTICO INDEX] ❌ BACKGROUND_SETTINGS É NONE - NÃO SERÁ RENDERIZADO')
+            print('=' * 80)
 
-            logger.info(
-                f'[DIAGNÓSTICO INDEX] RESUMO: {len(processed_sections)} seções processadas. Página carregada com sucesso.')
+            # Resto do código (eventos, ranking, etc...)
+            featured_events = EventItem.objects.filter(
+                ativo=True,
+                em_destaque=True
+            ).order_by('-data_evento')[:6]
+            context['featured_events'] = featured_events
+            if featured_events:
+                print(
+                    f'[DIAGNÓSTICO INDEX] ✅ {len(featured_events)} evento(s) em destaque encontrados para o carrossel.')
+            else:
+                print('[DIAGNÓSTICO INDEX] ⚠️ Nenhum evento em destaque ativo foi encontrado.')
+
+            context['ranking_usuarios'] = User.objects.select_related('profile').annotate(
+                livros_lidos=Count('bookshelves', filter=Q(bookshelves__shelf_type='lido'))
+            ).filter(livros_lidos__gt=0).order_by('-livros_lidos')[:3]
+
+            print(f'[DIAGNÓSTICO INDEX] Ranking de leitores: {context["ranking_usuarios"].count()} usuários')
+
+            # >>> INÍCIO DA CORREÇÃO <<<
+            # Busca as opções de prateleiras para serem usadas nos dropdowns da página.
+            try:
+                opcoes_prateleiras = Book.get_shelf_special_choices()
+                # Filtra a opção "Nenhum" (''), que não é útil em um dropdown de adição.
+                opcoes_prateleiras_filtradas = [choice for choice in opcoes_prateleiras if choice[0]]
+                context['opcoes_prateleiras'] = opcoes_prateleiras_filtradas
+                print(
+                    f'[DIAGNÓSTICO INDEX] ✅ Opções de prateleiras carregadas para dropdowns: {len(opcoes_prateleiras_filtradas)} opções')
+            except Exception as e:
+                # Em caso de erro, define uma lista vazia para não quebrar a página.
+                context['opcoes_prateleiras'] = []
+                print(f'[DIAGNÓSTICO INDEX] ❌ Erro ao buscar opções de prateleiras para a home: {e}')
+            # >>> FIM DA CORREÇÃO <<<
+
+            print('[DIAGNÓSTICO INDEX] ==================== FIM ====================')
+            print('=' * 80)
             return context
 
         except Exception as e:
-            logger.error(f'[DIAGNÓSTICO INDEX] ❌ ERRO FATAL ao carregar página: {e}', exc_info=True)
+            print(f'[DIAGNÓSTICO INDEX] ❌ ERRO FATAL ao carregar página: {e}')
+            import traceback
+            traceback.print_exc()
             messages.error(self.request, 'Ocorreu um erro ao carregar a página inicial.')
-            context.update({'banners': [], 'shelves': [], 'ranking_usuarios': []})
+            context.update({'banners': [], 'shelves': [], 'ranking_usuarios': [], 'background_settings': None,
+                            'opcoes_prateleiras': []})
             return context
-
-    def _get_shelf_books(self, shelf_type, max_books):
-        """Retorna livros baseado no tipo de prateleira."""
-        filters = {
-            'latest': Book.objects.all().order_by('-created_at'),
-            'bestsellers': Book.objects.filter(quantidade_vendida__gt=0).order_by('-quantidade_vendida'),
-            'most_viewed': Book.objects.filter(quantidade_acessos__gt=0).order_by('-quantidade_acessos'),
-            'featured': Book.objects.filter(e_destaque=True).order_by('ordem_exibicao'),
-            'movies': Book.objects.filter(adaptado_filme=True).order_by('ordem_exibicao'),
-            'manga': Book.objects.filter(e_manga=True).order_by('ordem_exibicao'),
-        }
-
-        queryset = filters.get(shelf_type, Book.objects.none())
-        return queryset[:max_books]
 
 
 class RegisterView(CreateView):
@@ -460,3 +589,49 @@ class ReaderRankingView(TemplateView):
 def aceitar_cookies(request):
     request.session['cookie_consent'] = True
     return JsonResponse({'cookie_consent': True})
+
+
+class EventosView(ListView):
+    model = EventItem
+    template_name = 'core/eventos.html'
+    context_object_name = 'event_list'
+    paginate_by = 10
+
+    def get_queryset(self):
+        # Retorna todos os eventos ativos, ordenados pelos mais recentes primeiro
+        return EventItem.objects.filter(ativo=True).order_by('-data_evento')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Adiciona propagandas ativas ao contexto para exibir na página
+        context['advertisements'] = Advertisement.objects.filter(
+            section__ativo=True
+        ).select_related('section')
+        context['title'] = 'Eventos Literários'
+        return context
+
+@require_http_methods(["GET"])
+def get_csrf_token(request):
+    """
+    View para obter/renovar o CSRF token.
+    Útil quando o token expira ou há problemas de sincronização.
+    """
+    try:
+        # Obter novo token
+        token = get_token(request)
+
+        logger.info(
+            f'CSRF token gerado para usuário: {request.user.username if request.user.is_authenticated else "Anônimo"}')
+
+        return JsonResponse({
+            'csrf_token': token,
+            'status': 'success',
+            'message': 'Token CSRF obtido com sucesso'
+        })
+
+    except Exception as e:
+        logger.error(f'Erro ao gerar CSRF token: {str(e)}')
+        return JsonResponse({
+            'error': 'Erro ao obter token CSRF',
+            'status': 'error'
+        }, status=500)

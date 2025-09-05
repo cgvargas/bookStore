@@ -3,9 +3,9 @@ Módulo responsável pelas views relacionadas a livros.
 Inclui busca, gerenciamento de prateleiras e detalhes dos livros.
 
 Principais funcionalidades:
-- Pesquisa de livros via Google Books API
+- Pesquisa de livros (híbrida: local + externa)
 - Gerenciamento de prateleiras de usuário
-- Processamento de capas de livros
+- Lógica de curadoria com livros públicos e privados
 - Adição e remoção de livros
 """
 import decimal
@@ -15,6 +15,11 @@ import requests
 from decimal import Decimal
 from django.conf import settings
 
+from types import SimpleNamespace
+from django.templatetags.static import static
+from django.urls import reverse
+from django.utils.http import urlencode
+from django.db.models import Q
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
@@ -28,35 +33,245 @@ from django.core.files.storage import default_storage
 from PIL import Image
 from io import BytesIO
 from django.core.files.base import ContentFile
+from django.core.paginator import Paginator
 
 from cgbookstore.apps.core.models import UserBookShelf, Book
 from ..services.google_books_service import GoogleBooksClient
 
-# Configuração do logger para rastreamento de eventos de livros
 logger = logging.getLogger(__name__)
 
-# Instância global do cliente Google Books com contexto de busca
-google_books_client = GoogleBooksClient(
-    cache_namespace="books_search",
-    context="search"
-)
-
 __all__ = [
-    'BookSearchView',
-    'BookDetailView',
-    'search_books',
-    'add_to_shelf',
-    'remove_from_shelf',
-    'get_book_details',
-    'update_book',
-    'move_book',
-    'add_book_manual',
-    'CatalogueView',
-    'NewReleasesView',
-    'BestSellersView',
-    'RecommendedBooksView',
-    'CheckoutPremiumView',
+    'BookSearchView', 'BookDetailView', 'search_books', 'add_to_shelf',
+    'remove_from_shelf', 'get_book_details', 'update_book', 'move_book',
+    'add_book_manual', 'CatalogueView', 'NewReleasesView', 'BestSellersView',
+    'RecommendedBooksView', 'CheckoutPremiumView', 'add_external_book_to_shelf',
+    'external_book_details_view'
 ]
+
+
+# ==============================================================================
+# NOVA ARQUITETURA DE CURADORIA E LÓGICA DE VIEWS
+# ==============================================================================
+
+@login_required
+@require_http_methods(["GET"])
+def search_books(request):
+    """
+    Endpoint HÍBRIDO e ROBUSTO para busca de livros.
+    """
+    query = request.GET.get('q', '').strip()
+    page = int(request.GET.get('page', 1))
+
+    if not query:
+        return JsonResponse({
+            'books': [], 'total_pages': 1, 'current_page': 1,
+            'has_previous': False, 'has_next': False
+        })
+
+    # --- Busca Local (apenas na página 1) ---
+    processed_local_results = []
+    if page == 1:
+        local_books = Book.objects.public().filter(
+            Q(titulo__icontains=query) | Q(authors__nome__icontains=query)
+        ).distinct()[:5]
+        processed_local_results = [
+            {
+                'id': book.id, 'external_id': book.external_id, 'titulo': book.titulo,
+                'autores': [author.get_nome_completo() for author in book.authors.all()],
+                'capa_url': book.get_display_cover_url(),
+                'data_publicacao': book.data_publicacao.year if book.data_publicacao else 'N/A',
+                'descricao': book.descricao or 'Descrição não disponível', 'source': 'local'
+            } for book in local_books
+        ]
+
+    # --- Busca Externa com Paginação ---
+    google_client = GoogleBooksClient(context="search")
+    processed_external_results = []
+    external_data = {}
+
+    try:
+        external_data = google_client.search_books(
+            query, search_type='title', page=page, items_per_page=10
+        )
+
+        # ✅ MELHORIA: Se a busca externa retornar um erro (ex: página inválida), registramos
+        if external_data.get('error'):
+            logger.warning(
+                f"API do Google retornou um erro para query '{query}' na página {page}: {external_data['error']}")
+
+        local_external_ids = {book['external_id'] for book in processed_local_results if book['external_id']}
+
+        for item in external_data.get('books', []):
+            external_id = item.get('id')
+            if page == 1 and external_id in local_external_ids:
+                continue
+
+            data_publicacao = item.get('published_date', 'N/A')
+
+            processed_external_results.append({
+                'id': None, 'external_id': external_id,
+                'titulo': item.get('title', 'Título não disponível'),
+                'autores': item.get('authors', ['Autor desconhecido']),
+                'capa_url': item.get('thumbnail', static('images/no-cover.svg')),
+                'data_publicacao': data_publicacao,
+                'descricao': item.get('description', 'Descrição não disponível'),
+                'source': 'google'
+            })
+
+    except Exception as e:
+        logger.error(f"Erro na busca externa de livros: {e}", exc_info=True)
+
+    # --- Combinação e Resposta Final ---
+    combined_results = processed_local_results + processed_external_results
+
+    # ✅ LÓGICA ANTI-ERRO: Se a busca não encontrou NADA (nem local, nem externo)
+    # e estamos além da primeira página, significa que chegamos ao fim.
+    if not combined_results and page > 1:
+        return JsonResponse({
+            'books': [],  # Retorna lista vazia para o JS parar de pedir mais páginas
+            'total_pages': page,  # Informa que a página atual é a última
+            'current_page': page,
+            'has_previous': True,
+            'has_next': False  # Garante que não há próxima página
+        })
+
+    return JsonResponse({
+        'books': combined_results,
+        'total_pages': external_data.get('total_pages', 1 if combined_results else 0),
+        'current_page': external_data.get('current_page', 1),
+        'has_previous': external_data.get('has_previous', False),
+        'has_next': external_data.get('has_next', False)
+    })
+
+
+@login_required
+def external_book_details_view(request, external_id):
+    """
+    (VERSÃO ROBUSTA - COM VERIFICAÇÃO DE TEMPLATE)
+    Exibe detalhes de um livro, buscando na API e passando um dicionário para o template.
+    """
+    from django.template.loader import get_template
+    from django.template.exceptions import TemplateDoesNotExist
+
+    book_in_db = None
+    try:
+        # 1. Busca sempre na API primeiro para ter os dados mais recentes
+        google_client = GoogleBooksClient()
+        api_data = google_client.get_book_by_id(external_id)
+
+        if not api_data:
+            raise Http404("Detalhes do livro não encontrados na API externa.")
+
+        # 2. Verifica se o livro já existe no nosso banco de dados
+        book_in_db = Book.objects.filter(external_id=external_id).first()
+
+        # 3. Monta um dicionário com os dados para o template
+        volume_info = api_data.get('volumeInfo', {})
+
+        # Constrói o nosso objeto de livro para o template
+        book_context = {
+            'id': book_in_db.id if book_in_db else None,
+            'titulo': volume_info.get('title', 'Título não disponível'),
+            'subtitulo': volume_info.get('subtitle', ''),
+            'autor': ', '.join(volume_info.get('authors', ['Autor desconhecido'])),
+            'editora': volume_info.get('publisher', ''),
+            'descricao': volume_info.get('description', ''),
+            'numero_paginas': volume_info.get('pageCount'),
+            'capa_url': volume_info.get('imageLinks', {}).get('thumbnail', ''),
+            'external_id': external_id,
+            'is_temporary': not bool(book_in_db),
+            # Adiciona campos necessários para compatibilidade com template
+            'isbn': volume_info.get('industryIdentifiers', [{}])[0].get('identifier', ''),
+            'idioma': volume_info.get('language', ''),
+            'categoria': volume_info.get('categories', []),
+            'genero': ', '.join(volume_info.get('categories', [])) if volume_info.get('categories') else '',
+        }
+
+        # Adiciona métodos "mock" para compatibilidade com o template
+        def get_display_cover_url():
+            return book_context['capa_url'] if book_context['capa_url'] else static('images/no-cover.svg')
+
+        def get_preview_url():
+            # Para livros externos, usar a mesma URL da capa
+            return get_display_cover_url()
+
+        def get_capa_url():
+            return get_display_cover_url()
+
+        # Adiciona os métodos ao contexto
+        book_context['get_display_cover_url'] = get_display_cover_url
+        book_context['get_capa_url'] = get_capa_url
+        book_context['get_preview_url'] = get_preview_url
+
+        # Processa data de publicação
+        data_pub_str = volume_info.get('publishedDate')
+        if data_pub_str:
+            try:
+                if len(data_pub_str) == 4:  # Apenas ano
+                    book_context['data_publicacao'] = datetime.strptime(data_pub_str, '%Y').date()
+                elif len(data_pub_str) == 7:  # Ano-Mês
+                    book_context['data_publicacao'] = datetime.strptime(data_pub_str + '-01', '%Y-%m-%d').date()
+                else:  # Data completa
+                    book_context['data_publicacao'] = datetime.strptime(data_pub_str, '%Y-%m-%d').date()
+            except ValueError:
+                try:
+                    book_context['data_publicacao'] = datetime.strptime(data_pub_str[:4], '%Y').date()
+                except ValueError:
+                    book_context['data_publicacao'] = None
+        else:
+            book_context['data_publicacao'] = None
+
+        # 4. Determina o status da prateleira do usuário
+        user_shelf = None
+        shelf_display = 'Não está em sua prateleira'
+
+        if request.user.is_authenticated and book_in_db:
+            shelf_entry = UserBookShelf.objects.filter(user=request.user, book=book_in_db).first()
+            if shelf_entry:
+                user_shelf = shelf_entry.shelf_type
+                shelf_display = shelf_entry.get_shelf_type_display()
+
+        # 5. Prepara o contexto final
+        context = {
+            'book': book_context,
+            'book_json': json.dumps(book_context, default=str),
+            'shelf': user_shelf,
+            'shelf_display': shelf_display,
+            'is_from_recommendation': request.GET.get('from') == 'recommendations',
+        }
+
+        # ✅ CORREÇÃO: Tenta diferentes caminhos de template
+        template_paths = [
+            'core/book/book_details.html',
+            'core/book_details.html',
+            'book_details.html',
+            'core/book/details.html'
+        ]
+
+        template_to_use = None
+        for template_path in template_paths:
+            try:
+                get_template(template_path)
+                template_to_use = template_path
+                logger.info(f"[external_book_details_view] Template encontrado: {template_path}")
+                break
+            except TemplateDoesNotExist:
+                continue
+
+        if not template_to_use:
+            logger.error(f"[external_book_details_view] Nenhum template encontrado. Testados: {template_paths}")
+            raise TemplateDoesNotExist("Nenhum template de detalhes de livro encontrado")
+
+        logger.info(
+            f"[external_book_details_view] Renderizando template {template_to_use} para livro: {book_context['titulo']}")
+        return render(request, template_to_use, context)
+
+    except Http404 as e:
+        logger.warning(f"Http404 em external_book_details_view para ID {external_id}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Erro inesperado em external_book_details_view para ID {external_id}: {e}", exc_info=True)
+        return render(request, 'core/error.html', {'error_message': 'Ocorreu um erro inesperado.'})
 
 
 class BookManagementMixin:
@@ -181,264 +396,326 @@ class BookSearchView(TemplateView):
 
 
 @login_required
-@require_http_methods(["GET"])
-def search_books(request):
-    """
-    Endpoint para busca de livros usando Google Books API.
-
-    Características:
-    - Suporta busca por diferentes tipos
-    - Paginação de resultados
-    - Retorna resultados em formato JSON
-
-    Returns:
-        JsonResponse com resultados da busca
-    """
-    query = request.GET.get('q', '')
-    search_type = request.GET.get('type', 'all')
-    page = int(request.GET.get('page', 1))
-    items_per_page = 8
-    client = GoogleBooksClient()
-
-    try:
-        return JsonResponse(client.search_books(
-            query=query,
-            search_type=search_type,
-            page=page,
-            items_per_page=items_per_page
-        ))
-    except Exception as e:
-        logger.error(f"Erro na busca de livros: {str(e)}")
-        return JsonResponse({
-            'error': 'Erro ao buscar livros',
-            'details': str(e)
-        }, status=500)
-
-
-@login_required
 @require_http_methods(["POST"])
 def add_to_shelf(request):
     """
     Adiciona um livro à prateleira do usuário.
-    Aceita tanto dados em JSON quanto form-urlencoded.
+    Versão simplificada e corrigida com melhor tratamento de erros.
 
-    Fluxo de processamento:
-    1. Valida dados do livro
-    2. Processa informações do livro
-    3. Salva imagem de capa (se disponível)
-    4. Cria/atualiza registro do livro
-    5. Adiciona à prateleira do usuário
-
-    Returns:
-        JsonResponse indicando sucesso ou falha
+    Aceita tanto dados JSON quanto form-urlencoded.
+    Suporta tanto livros existentes quanto criação de novos livros a partir de dados externos.
     """
-    global pub_date_str
     try:
-        # Verifica o tipo de conteúdo para determinar como processar os dados
-        if request.content_type == 'application/x-www-form-urlencoded':
-            # Processamento para dados form-urlencoded
-            book_id = request.POST.get('book_id')
-            shelf = request.POST.get('shelf')
-
-            if not book_id or not shelf:
-                return JsonResponse({
-                    'status': 'error',
-                    'message': 'Dados incompletos (book_id ou shelf ausentes)'
-                }, status=400)
-
-            try:
-                # Obter o livro pelo ID
-                book = Book.objects.get(id=book_id)
-
-                # Validação e mapeamento do tipo de prateleira
-                valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
-                shelf_mapping = {
-                    'favoritos': 'favorito',
-                    'lidos': 'lido',
-                    'lendo': 'lendo',
-                    'vou_ler': 'vou_ler'
-                }
-                shelf = shelf_mapping.get(shelf, shelf)
-
-                if str(shelf) not in valid_shelf_types:
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': f'Tipo de prateleira inválido: {shelf}'
-                    }, status=400)
-
-                # Adicionar ou atualizar na prateleira
-                shelf_obj, created = UserBookShelf.objects.update_or_create(
-                    user=request.user,
-                    book=book,
-                    defaults={'shelf_type': str(shelf), 'added_at': timezone.now()}
-                )
-
-                return JsonResponse({
-                    'status': 'success',
-                    'message': f'Livro adicionado com sucesso à sua prateleira de {shelf_obj.get_shelf_type_display()}!'
-                })
-
-            except Book.DoesNotExist:
-                logger.error(f"Livro ID {book_id} não encontrado")
-                return JsonResponse({
-                    'status': 'error',
-                    'message': 'Livro não encontrado'
-                }, status=404)
-
-        else:
-            # Processamento para JSON
+        # Determinar o tipo de conteúdo e extrair dados
+        if request.content_type == 'application/json' or request.body:
             try:
                 data = json.loads(request.body)
+            except json.JSONDecodeError:
+                # Fallback para form data se JSON falhar
+                data = dict(request.POST.items())
+        else:
+            data = dict(request.POST.items())
 
-                # Para compatibilidade com o addToShelf no book-details.js
-                book_id = data.get('book_id')
-                shelf_type = data.get('shelf_type')
+        logger.info(f"[add_to_shelf] Dados recebidos: {json.dumps(data, indent=2)}")
 
-                if book_id and shelf_type:
-                    # Processamento simples para formato do frontend atual
-                    try:
-                        # Obter o livro pelo ID
-                        book = Book.objects.get(id=book_id)
+        # Extrair parâmetros com múltiplas tentativas para compatibilidade
+        book_id = data.get('book_id')
+        shelf_type = data.get('shelf_type') or data.get('shelf')
+        book_data = data.get('book_data', {})
 
-                        # Validação do tipo de prateleira
-                        valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
-                        if str(shelf_type) not in valid_shelf_types:
-                            return JsonResponse({
-                                'status': 'error',
-                                'message': f'Tipo de prateleira inválido: {shelf_type}'
-                            }, status=400)
+        # Log dos parâmetros extraídos
+        logger.info(f"[add_to_shelf] Parâmetros: book_id={book_id}, shelf_type={shelf_type}")
 
-                        # Adicionar ou atualizar na prateleira
-                        shelf_obj, created = UserBookShelf.objects.update_or_create(
-                            user=request.user,
-                            book=book,
-                            defaults={'shelf_type': str(shelf_type), 'added_at': timezone.now()}
-                        )
+        # Validação de parâmetros básicos
+        if not shelf_type:
+            logger.error("[add_to_shelf] Tipo de prateleira não fornecido")
+            return JsonResponse({
+                'success': False,
+                'error': 'Tipo de prateleira é obrigatório'
+            }, status=400)
 
-                        return JsonResponse({
-                            'success': True,
-                            'message': f'Livro adicionado com sucesso à prateleira {shelf_obj.get_shelf_type_display()}!'
-                        })
+        # Normalizar e validar o tipo de prateleira
+        shelf_type = normalize_shelf_type(shelf_type)
+        if not shelf_type:
+            logger.error(f"[add_to_shelf] Tipo de prateleira inválido após normalização")
+            return JsonResponse({
+                'success': False,
+                'error': 'Tipo de prateleira inválido'
+            }, status=400)
 
-                    except Book.DoesNotExist:
-                        logger.error(f"Livro ID {book_id} não encontrado")
-                        return JsonResponse({
-                            'success': False,
-                            'error': 'Livro não encontrado'
-                        }, status=404)
+        # Cenário 1: Livro existente (book_id fornecido)
+        if book_id:
+            return handle_existing_book(request.user, book_id, shelf_type)
 
-                # Processamento para o formato completo com book_data
-                book_data = data.get('book_data', {})
-                shelf = data.get('shelf')
+        # Cenário 2: Criar livro a partir de dados externos
+        elif book_data:
+            return handle_external_book_creation(request.user, book_data, shelf_type)
 
-                if not book_data or not shelf:
-                    return JsonResponse({'success': False, 'error': 'Dados incompletos'}, status=400)
-
-                # Log detalhado dos dados recebidos
-                logger.info(f"Dados recebidos - Shelf: {shelf}")
-                logger.info(f"Dados do livro: {json.dumps(book_data, indent=2)}")
-
-                mixin = BookManagementMixin()
-
-                # Preparação de defaults para o livro
-                book_defaults = {
-                    'titulo': book_data.get('titulo', 'Título não disponível'),
-                    'subtitulo': book_data.get('subtitulo', ''),
-                    'autor': book_data.get('autores', ['Autor desconhecido'])[0],
-                    'editora': book_data.get('editora', ''),
-                    'isbn': book_data.get('isbn', ''),
-                    'data_publicacao': None,
-                    'descricao': book_data.get('descricao', 'Descrição não disponível'),
-                    'categoria': book_data.get('categorias', []),
-                    'preco': Decimal('0'),
-                    'preco_promocional': Decimal('0')
-                }
-
-                # Processamento de data de publicação
-                try:
-                    pub_date_str = book_data.get('data_publicacao', '')
-                    if pub_date_str:
-                        book_defaults['data_publicacao'] = datetime.strptime(pub_date_str.split('-')[0], '%Y').date()
-                except (ValueError, TypeError) as date_error:
-                    logger.warning(f"Data de publicação inválida: {pub_date_str}. Erro: {str(date_error)}")
-
-                # Processamento de preço com tratamento de erro
-                try:
-                    book_defaults['preco'] = Decimal(str(book_data.get('valor', 0)))
-                    book_defaults['preco_promocional'] = Decimal(str(book_data.get('valor_promocional', 0)))
-                except (TypeError, ValueError, decimal.InvalidOperation) as e:
-                    logger.error(f"Erro ao converter valores de preço para decimal: {e}")
-                    return JsonResponse({'success': False, 'error': 'Erro ao processar o preço do livro'}, status=400)
-
-                # Processamento de capa
-                capa = None
-                thumbnail_url = book_data.get('capa_url')
-                if thumbnail_url:
-                    try:
-                        response = requests.get(thumbnail_url, timeout=10)
-                        if response.status_code == 200:
-                            filename = f"book_{timezone.now().timestamp()}.jpg"
-                            saved_paths = mixin.save_cover_image(response.content, filename)
-                            if saved_paths and isinstance(saved_paths, tuple):
-                                capa = saved_paths[0]
-                    except Exception as e:
-                        logger.error(f"Erro ao baixar imagem: {str(e)}")
-
-                if capa:
-                    book_defaults['capa'] = capa
-
-                # Criar ou atualizar livro
-                book, created = Book.objects.get_or_create(
-                    titulo=book_defaults['titulo'],
-                    defaults=book_defaults
-                )
-
-                if not created and capa:
-                    book.capa = capa
-                    book.save()
-
-                # Validação e mapeamento do tipo de prateleira
-                valid_shelf_types = dict(UserBookShelf.SHELF_CHOICES).keys()
-                shelf_mapping = {
-                    'favoritos': 'favorito',
-                    'lidos': 'lido',
-                    'lendo': 'lendo',
-                    'vou_ler': 'vou_ler'
-                }
-                shelf = shelf_mapping.get(shelf, shelf)
-
-                if str(shelf) not in valid_shelf_types:
-                    return JsonResponse({
-                        'success': False,
-                        'error': f'Tipo de prateleira inválido: {shelf}'
-                    }, status=400)
-
-                # Atualizar prateleira
-                shelf_obj, created = UserBookShelf.objects.update_or_create(
-                    user=request.user,
-                    book=book,
-                    defaults={'shelf_type': str(shelf), 'added_at': timezone.now()}
-                )
-
-                return JsonResponse({
-                    'success': True,
-                    'message': f'Livro adicionado com sucesso à sua prateleira de {shelf_obj.get_shelf_type_display()}!'
-                })
-
-            except json.JSONDecodeError as e:
-                logger.error(f"Erro ao decodificar JSON: {str(e)}", exc_info=True)
-                return JsonResponse({
-                    'status': 'error',
-                    'message': 'Formato de dados inválido. Esperado JSON válido.'
-                }, status=400)
+        else:
+            logger.error("[add_to_shelf] Nem book_id nem book_data fornecidos")
+            return JsonResponse({
+                'success': False,
+                'error': 'ID do livro ou dados do livro são obrigatórios'
+            }, status=400)
 
     except Exception as e:
-        logger.error(f"Erro ao adicionar livro: {str(e)}", exc_info=True)
+        logger.error(f"[add_to_shelf] Erro não tratado: {str(e)}", exc_info=True)
         return JsonResponse({
-            'status': 'error',
-            'message': 'Erro ao processar livro',
-            'details': str(e)
+            'success': False,
+            'error': 'Erro interno do servidor'
         }, status=500)
+
+
+def normalize_shelf_type(shelf_type):
+    """
+    Normaliza o tipo de prateleira para garantir compatibilidade.
+
+    Args:
+        shelf_type: Tipo de prateleira recebido
+
+    Returns:
+        str: Tipo normalizado ou None se inválido
+    """
+    # Mapeamento de compatibilidade
+    shelf_mapping = {
+        'favoritos': 'favorito',
+        'lidos': 'lido',
+        'lendo': 'lendo',
+        'vou_ler': 'vou_ler',
+        'quero_ler': 'vou_ler',
+        'want_to_read': 'vou_ler',
+        'reading': 'lendo',
+        'read': 'lido',
+        'favorites': 'favorito',
+        'favorite': 'favorito'
+    }
+
+    # Normalizar para minúsculo e tentar mapear
+    shelf_normalized = str(shelf_type).lower().strip()
+    shelf_final = shelf_mapping.get(shelf_normalized, shelf_normalized)
+
+    # Validar contra os tipos válidos
+    valid_types = dict(UserBookShelf.SHELF_CHOICES).keys()
+
+    if shelf_final in valid_types:
+        logger.info(f"[normalize_shelf_type] '{shelf_type}' normalizado para '{shelf_final}'")
+        return shelf_final
+
+    logger.error(f"[normalize_shelf_type] Tipo inválido: '{shelf_type}' -> '{shelf_final}'")
+    return None
+
+
+def handle_existing_book(user, book_id, shelf_type):
+    """
+    Lida com adição de livro existente à prateleira.
+
+    Args:
+        user: Usuário
+        book_id: ID do livro
+        shelf_type: Tipo de prateleira normalizado
+
+    Returns:
+        JsonResponse
+    """
+    try:
+        logger.info(f"[handle_existing_book] Processando livro ID: {book_id}")
+
+        # Buscar o livro
+        book = Book.objects.get(id=book_id)
+        logger.info(f"[handle_existing_book] Livro encontrado: '{book.titulo}'")
+
+        # Usar o método otimizado do modelo para adicionar à prateleira
+        shelf_obj, created, moved_from = UserBookShelf.add_to_shelf(user, book, shelf_type)
+
+        # Preparar mensagem de resposta
+        if created:
+            message = f'Livro adicionado à prateleira "{shelf_obj.get_shelf_type_display()}" com sucesso!'
+        elif moved_from:
+            message = f'Livro movido de "{moved_from}" para "{shelf_obj.get_shelf_type_display()}"!'
+        else:
+            message = f'Livro já estava na prateleira "{shelf_obj.get_shelf_type_display()}"'
+
+        logger.info(f"[handle_existing_book] Sucesso: {message}")
+
+        return JsonResponse({
+            'success': True,
+            'message': message,
+            'created': created,
+            'moved_from': moved_from
+        })
+
+    except Book.DoesNotExist:
+        logger.error(f"[handle_existing_book] Livro ID {book_id} não encontrado")
+        return JsonResponse({
+            'success': False,
+            'error': 'Livro não encontrado'
+        }, status=404)
+    except Exception as e:
+        logger.error(f"[handle_existing_book] Erro: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': 'Erro ao processar livro existente'
+        }, status=500)
+
+
+def handle_external_book_creation(user, book_data, shelf_type):
+    """
+    Cria um novo livro a partir de dados externos e adiciona à prateleira.
+
+    Args:
+        user: Usuário
+        book_data: Dados do livro
+        shelf_type: Tipo de prateleira normalizado
+
+    Returns:
+        JsonResponse
+    """
+    try:
+        logger.info("[handle_external_book_creation] Iniciando criação de livro externo")
+
+        # Validar dados essenciais
+        external_id = book_data.get('external_id')
+        titulo = book_data.get('titulo')
+
+        if not titulo:
+            return JsonResponse({
+                'success': False,
+                'error': 'Título do livro é obrigatório'
+            }, status=400)
+
+        # Verificar se o livro já existe (por external_id se disponível)
+        book = None
+        if external_id:
+            book = Book.objects.filter(external_id=external_id).first()
+            if book:
+                logger.info(f"[handle_external_book_creation] Livro já existe: {book.titulo}")
+                return handle_existing_book(user, book.id, shelf_type)
+
+        # Preparar dados do livro
+        book_defaults = prepare_book_data(book_data, user)
+
+        # Criar o livro
+        book, created = Book.objects.get_or_create(
+            titulo=titulo,
+            autor=book_defaults.get('autor', 'Autor desconhecido'),
+            defaults=book_defaults
+        )
+
+        if created:
+            logger.info(f"[handle_external_book_creation] Novo livro criado: {book.titulo}")
+        else:
+            logger.info(f"[handle_external_book_creation] Livro existente encontrado: {book.titulo}")
+
+        # Processar e salvar capa se disponível
+        process_book_cover(book, book_data)
+
+        # Adicionar à prateleira
+        shelf_obj, shelf_created, moved_from = UserBookShelf.add_to_shelf(user, book, shelf_type)
+
+        message = f'Livro "{book.titulo}" adicionado à prateleira "{shelf_obj.get_shelf_type_display()}" com sucesso!'
+
+        return JsonResponse({
+            'success': True,
+            'message': message,
+            'book_created': created,
+            'shelf_created': shelf_created
+        })
+
+    except Exception as e:
+        logger.error(f"[handle_external_book_creation] Erro: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': 'Erro ao criar livro a partir de dados externos'
+        }, status=500)
+
+
+def prepare_book_data(book_data, user):
+    """
+    Prepara os dados do livro para criação.
+
+    Args:
+        book_data: Dados brutos do livro
+        user: Usuário que está criando
+
+    Returns:
+        dict: Dados preparados para criação do livro
+    """
+    from decimal import Decimal
+    from datetime import datetime
+
+    # Dados básicos
+    defaults = {
+        'visibility': Book.Visibility.PRIVATE,  # Livros criados por usuários são privados por padrão
+        'created_by': user,
+        'titulo': book_data.get('titulo', 'Título não disponível'),
+        'subtitulo': book_data.get('subtitulo', ''),
+        'autor': ', '.join(book_data.get('autores', ['Autor desconhecido'])),
+        'editora': book_data.get('editora', ''),
+        'isbn': book_data.get('isbn', ''),
+        'descricao': book_data.get('descricao', ''),
+        'categoria': ', '.join(book_data.get('categorias', [])) if book_data.get('categorias') else '',
+        'external_id': book_data.get('external_id'),
+        'capa_url': book_data.get('capa_url', ''),
+        'origem': 'user_import'
+    }
+
+    # Processar data de publicação
+    data_pub_str = book_data.get('data_publicacao')
+    if data_pub_str:
+        try:
+            if len(str(data_pub_str)) == 4:  # Apenas ano
+                defaults['data_publicacao'] = datetime.strptime(str(data_pub_str), '%Y').date()
+            else:  # Data completa
+                defaults['data_publicacao'] = datetime.strptime(str(data_pub_str)[:10], '%Y-%m-%d').date()
+        except (ValueError, TypeError) as e:
+            logger.warning(f"[prepare_book_data] Data inválida '{data_pub_str}': {e}")
+
+    # Processar preços
+    try:
+        if book_data.get('preco'):
+            defaults['preco'] = Decimal(str(book_data['preco']))
+        if book_data.get('preco_promocional'):
+            defaults['preco_promocional'] = Decimal(str(book_data['preco_promocional']))
+    except (ValueError, TypeError) as e:
+        logger.warning(f"[prepare_book_data] Erro ao processar preços: {e}")
+
+    return defaults
+
+
+def process_book_cover(book, book_data):
+    """
+    Processa e salva a capa do livro se disponível.
+
+    Args:
+        book: Instância do livro
+        book_data: Dados do livro com URL da capa
+    """
+    thumbnail_url = book_data.get('capa_url')
+    if not thumbnail_url:
+        return
+
+    try:
+        logger.info(f"[process_book_cover] Baixando capa de: {thumbnail_url}")
+
+        response = requests.get(thumbnail_url, timeout=10)
+        response.raise_for_status()
+
+        # Usar o mixin para salvar a imagem
+        mixin = BookManagementMixin()
+        filename = f"book_{book.id}_{timezone.now().timestamp()}.jpg"
+        saved_paths = mixin.save_cover_image(response.content, filename)
+
+        if saved_paths and isinstance(saved_paths, tuple):
+            capa_path, preview_path = saved_paths
+            book.capa = capa_path
+            book.capa_preview = preview_path
+            book.save(update_fields=['capa', 'capa_preview'])
+            logger.info(f"[process_book_cover] Capa salva: {capa_path}")
+
+    except requests.RequestException as e:
+        logger.error(f"[process_book_cover] Erro ao baixar capa: {e}")
+    except Exception as e:
+        logger.error(f"[process_book_cover] Erro ao processar capa: {e}")
 
 
 @login_required
@@ -918,6 +1195,14 @@ class BookDetailView(LoginRequiredMixin, DetailView):
     template_name = 'core/book/book_details.html'
     context_object_name = 'book'
 
+    def get_queryset(self):
+        # Garante que só se possa ver detalhes de livros públicos
+        # ou livros privados que o próprio usuário adicionou.
+        return Book.objects.filter(
+            Q(visibility=Book.Visibility.PUBLIC) |
+            (Q(visibility=Book.Visibility.PRIVATE) & Q(created_by=self.request.user))
+        ).distinct()
+
     def get_context_data(self, **kwargs):
         """
         Adiciona informações da prateleira ao contexto com verificações de segurança aprimoradas.
@@ -927,6 +1212,7 @@ class BookDetailView(LoginRequiredMixin, DetailView):
         """
         context = super().get_context_data(**kwargs)
         book = self.get_object()
+        # >>>>> CORREÇÃO APLICADA AQUI <<<<<
         user = self.request.user
 
         # Verificar se o usuário está autenticado
@@ -992,242 +1278,95 @@ class BookDetailView(LoginRequiredMixin, DetailView):
 
 @login_required
 @require_http_methods(["POST"])
-def add_external_to_shelf(request):
+def add_external_book_to_shelf(request):
     """
-    Adiciona um livro externo diretamente à prateleira sem importá-lo
-    completamente.
-
-    Esta é uma alternativa para quando a importação completa falha.
-    Cria um livro com dados mínimos a partir dos dados externos.
-
-    Returns:
-        JsonResponse: Resposta com status da operação
+    Cria um livro 'privado' a partir de dados externos e o adiciona à prateleira.
+    AGORA COM DOWNLOAD E SALVAMENTO DA CAPA.
     """
-    if not request.user.is_authenticated:
-        return JsonResponse({'status': 'error', 'message': 'Usuário não autenticado'}, status=401)
-
     try:
-        # Carrega dados do corpo da requisição
         data = json.loads(request.body)
-        external_id = data.get('external_id')
+        book_data = data.get('book_data', {})
         shelf_type = data.get('shelf_type')
 
-        if not external_id or not shelf_type:
-            return JsonResponse({'status': 'error', 'message': 'Dados incompletos'}, status=400)
+        if not all([book_data, shelf_type, book_data.get('external_id')]):
+            return JsonResponse({'success': False, 'error': 'Dados incompletos.'}, status=400)
 
-        # Verifica se o livro já existe pelo ID externo
-        existing_book = Book.objects.filter(external_id=external_id).first()
+        external_id = book_data['external_id']
+        book = Book.objects.filter(external_id=external_id).first()
 
-        if existing_book:
-            # Se existe, apenas adiciona à prateleira
-            _, created = UserBookShelf.objects.get_or_create(
-                user=request.user,
-                book=existing_book,
-                defaults={'shelf_type': shelf_type}
-            )
+        if not book:
+            data_pub = None
+            if book_data.get('data_publicacao'):
+                try:
+                    pub_date_str = str(book_data['data_publicacao'])
+                    if len(pub_date_str) == 4:
+                        data_pub = datetime.strptime(pub_date_str, '%Y').date()
+                    else:
+                        data_pub = datetime.strptime(pub_date_str, '%Y-%m-%d').date()
+                except (ValueError, TypeError):
+                    data_pub = None
 
-            message = 'Livro adicionado à prateleira'
-            if not created:
-                message = 'Livro já estava na prateleira'
+            # >>>>> INÍCIO DA LÓGICA DE SALVAR A IMAGEM <<<<<
+            capa_path = None
+            capa_preview_path = None
+            mixin = BookManagementMixin()
+            thumbnail_url = book_data.get('capa_url')
 
-            return JsonResponse({
-                'status': 'success',
-                'message': message
-            })
+            if thumbnail_url:
+                try:
+                    response = requests.get(thumbnail_url, timeout=10)
+                    response.raise_for_status()
 
-        # Se não existe, tenta criar a partir dos dados externos
-        try:
-            external_data = json.loads(data.get('external_data', '{}'))
-            volume_info = external_data.get('volumeInfo', {})
+                    filename = f"book_{external_id}.jpg"
+                    saved_paths = mixin.save_cover_image(response.content, filename)
 
-            # Cria livro minimalista
-            new_book = Book.objects.create(
-                titulo=volume_info.get('title', 'Sem título'),
-                autor=volume_info.get('authors', ['Autor desconhecido'])[0] if volume_info.get(
-                    'authors') else 'Autor desconhecido',
+                    if saved_paths and isinstance(saved_paths, tuple):
+                        capa_path, capa_preview_path = saved_paths
+                        logger.info(f"Capa para {external_id} salva em: {capa_path}")
+
+                except requests.RequestException as e:
+                    logger.error(f"Erro ao baixar a imagem da capa de {thumbnail_url}: {e}")
+                except Exception as e:
+                    logger.error(f"Erro ao processar e salvar a capa: {e}", exc_info=True)
+            # >>>>> FIM DA LÓGICA DE SALVAR A IMAGEM <<<<<
+
+            book = Book.objects.create(
+                visibility=Book.Visibility.PRIVATE,
+                created_by=request.user,
+                titulo=book_data.get('titulo', 'Título não disponível'),
+                autor=', '.join(book_data.get('autores', ['Autor desconhecido'])),
+                editora=book_data.get('editora', ''),
+                data_publicacao=data_pub,
+                descricao=book_data.get('descricao', ''),
+                capa_url=thumbnail_url,
+                capa=capa_path,  # SALVANDO O CAMINHO DA IMAGEM LOCAL
+                capa_preview=capa_preview_path,  # SALVANDO O CAMINHO DO PREVIEW
                 external_id=external_id,
-                capa_url=volume_info.get('imageLinks', {}).get('thumbnail', '')
+                origem='google_books_user'
             )
 
-            # Adiciona à prateleira
-            UserBookShelf.objects.create(
-                user=request.user,
-                book=new_book,
-                shelf_type=shelf_type
-            )
+        shelf_obj, created = UserBookShelf.objects.update_or_create(
+            user=request.user,
+            book=book,
+            defaults={'shelf_type': shelf_type}
+        )
 
-            logger.info(f"Livro externo adicionado diretamente: {new_book.titulo} (ID: {new_book.id})")
+        message = 'Livro adicionado à sua prateleira com sucesso!'
+        if not created:
+            message = f'Livro movido para a prateleira "{shelf_obj.get_shelf_type_display()}"'
 
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Livro adicionado à prateleira'
-            })
-
-        except Exception as e:
-            logger.error(f"Erro ao processar dados externos: {str(e)}")
-            return JsonResponse({'status': 'error', 'message': f'Erro ao processar dados externos: {str(e)}'},
-                                status=500)
+        return JsonResponse({'success': True, 'message': message})
 
     except Exception as e:
-        logger.error(f"Erro ao adicionar livro externo à prateleira: {str(e)}")
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
-
-@login_required
-def external_book_details_view(request, external_id):
-    """
-    View para exibir detalhes de livros externos (Google Books API)
-
-    Args:
-        request: HttpRequest
-        external_id: ID interno do livro no banco de dados
-
-    Returns:
-        HttpResponse com os detalhes do livro ou página de erro
-    """
-    try:
-        # Log de debug para rastreamento
-        print(f"[external_book_details_view] Processando livro ID interno: {external_id}")
-
-        # Buscar o livro no banco de dados pelo ID interno
-        try:
-            book = Book.objects.get(id=external_id)
-            print(f"[external_book_details_view] Livro encontrado: {book.titulo}")
-        except Book.DoesNotExist:
-            print(f"[external_book_details_view] Livro com ID {external_id} não encontrado no banco")
-            raise Http404("Livro não encontrado")
-
-        # Verificar se o livro tem external_id
-        if not book.external_id:
-            print(f"[external_book_details_view] Livro {book.titulo} não possui external_id")
-            return render(request, 'core/error.html', {
-                'error_message': "Este livro não possui informações externas disponíveis."
-            })
-
-        google_books_id = book.external_id
-        print(f"[external_book_details_view] Usando Google Books ID: {google_books_id}")
-
-        # Buscar informações detalhadas na API do Google Books
-        try:
-            google_books_service = GoogleBooksService()
-            book_details = google_books_service.get_book_details(google_books_id)
-
-            if not book_details:
-                print(f"[external_book_details_view] Detalhes não encontrados para ID: {google_books_id}")
-                raise Http404("Detalhes do livro não encontrados")
-
-            print(f"[external_book_details_view] Detalhes obtidos com sucesso da API")
-
-        except Exception as api_error:
-            print(f"[external_book_details_view] Erro na API do Google Books: {str(api_error)}")
-            return render(request, 'core/error.html', {
-                'error_message': "Não foi possível obter informações atualizadas do livro. Tente novamente mais tarde."
-            })
-
-        # Verificar se o usuário já tem este livro em suas prateleiras
-        user_book_shelf = None
-        if request.user.is_authenticated:
-            try:
-                user_book_shelf = UserBookShelf.objects.get(
-                    user=request.user,
-                    book=book
-                ).shelf_type
-            except UserBookShelf.DoesNotExist:
-                pass
-
-        # Buscar livros relacionados/recomendados
-        related_books = []
-        if book_details.get('categories'):
-            try:
-                categories = book_details['categories']
-                related_books = Book.objects.filter(
-                    categoria__in=categories
-                ).exclude(id=external_id)[:6]
-            except Exception as related_error:
-                print(f"[external_book_details_view] Erro ao buscar livros relacionados: {str(related_error)}")
-
-        # Preparar contexto para o template
-        context = {
-            'book': book,
-            'book_details': book_details,
-            'user_book_shelf': user_book_shelf,
-            'related_books': related_books,
-            'google_books_id': google_books_id,
-        }
-
-        print(f"[external_book_details_view] Renderizando template com sucesso")
-        return render(request, 'core/external_book_details.html', context)
-
-    except Http404:
-        # Re-raise Http404 para manter o comportamento esperado
-        raise
-
-    except Exception as e:
-        # Log do erro completo
-        import traceback
-        print(f"[external_book_details_view] Erro inesperado: {str(e)}")
-        print(f"[external_book_details_view] Traceback: {traceback.format_exc()}")
-
-        # Retornar página de erro amigável
-        return render(request, 'core/error.html', {
-            'error_message': "Ocorreu um erro inesperado ao carregar os detalhes do livro. Por favor, tente novamente."
-        })
-
-class GoogleBooksService:
-    """
-    Serviço para interagir com a API do Google Books
-    """
-
-    def __init__(self):
-        self.api_key = getattr(settings, 'GOOGLE_BOOKS_API_KEY', None)
-        self.base_url = 'https://www.googleapis.com/books/v1/volumes'
-
-    def get_book_details(self, google_books_id):
-        """
-        Busca detalhes de um livro específico pelo Google Books ID
-
-        Args:
-            google_books_id: ID do livro no Google Books
-
-        Returns:
-            dict: Dados do livro ou None se não encontrado
-        """
-        try:
-            import requests
-
-            url = f"{self.base_url}/{google_books_id}"
-            params = {}
-
-            if self.api_key:
-                params['key'] = self.api_key
-
-            print(f"[GoogleBooksService] Fazendo requisição para: {url}")
-
-            response = requests.get(url, params=params, timeout=10)
-            response.raise_for_status()
-
-            data = response.json()
-
-            # Verificar se os dados são válidos
-            if 'volumeInfo' not in data:
-                print(f"[GoogleBooksService] Resposta inválida da API: {data}")
-                return None
-
-            return data['volumeInfo']
-
-        except requests.exceptions.RequestException as e:
-            print(f"[GoogleBooksService] Erro na requisição: {str(e)}")
-            raise
-        except Exception as e:
-            print(f"[GoogleBooksService] Erro inesperado: {str(e)}")
-            raise
+        logger.error(f"Erro em add_external_book_to_shelf: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': 'Ocorreu um erro interno.'}, status=500)
 
 
 class CatalogueView(TemplateView):
     """
     View para página de catálogo completo de livros.
 
-    Exibe todos os livros cadastrados no sistema.
+    Exibe todos os livros PÚBLICOS cadastrados no sistema.
     """
     template_name = 'core/book/catalogue.html'
 
@@ -1243,64 +1382,57 @@ class CatalogueView(TemplateView):
         sort_param = self.request.GET.get('sort', 'titulo')
         categoria_filter = self.request.GET.get('categoria', '')
 
-        # Base query
-        books = Book.objects.filter(is_temporary=False)
+        # Base query agora usa nosso manager para pegar apenas livros públicos.
+        # A filtragem de 'is_temporary' não é mais necessária se livros
+        # temporários também forem 'private'.
+        books = Book.objects.public()
 
-        # Aplicar filtros se fornecidos
+        # Aplicar filtros se fornecidos (esta lógica continua a mesma)
         if search_query:
             books = books.filter(
-                models.Q(titulo__icontains=search_query) |
-                models.Q(autor__icontains=search_query) |
-                models.Q(categoria__icontains=search_query)
+                Q(titulo__icontains=search_query) |
+                Q(autor__icontains=search_query) |
+                Q(categoria__icontains=search_query)
             )
 
         if categoria_filter:
-            # Tratamento especial para categorias armazenadas como listas
-            # Busca tanto o nome exato quanto como parte de uma lista
             books = books.filter(
-                models.Q(categoria=categoria_filter) |
-                models.Q(categoria__icontains=f"'{categoria_filter}'")
+                Q(categoria=categoria_filter) |
+                Q(categoria__icontains=f"'{categoria_filter}'")
             )
 
-        # Aplicar ordenação
+        # Aplicar ordenação (esta lógica continua a mesma)
         valid_sort_fields = ['titulo', '-titulo', 'autor', '-autor', 'data_publicacao', '-data_publicacao']
         if sort_param in valid_sort_fields:
             books = books.order_by(sort_param)
         else:
+            # A ordenação padrão já está no meta do modelo, mas podemos garantir aqui
             books = books.order_by('titulo')
 
-        # Implementar paginação
-        from django.core.paginator import Paginator
+        # Implementar paginação (esta lógica continua a mesma)
         paginator = Paginator(books, items_per_page)
         books_page = paginator.get_page(page)
 
-        # Processamento especial para categorias
-        # Obtém todas as categorias e processa para exibição limpa
-        raw_categories = Book.objects.exclude(
-            models.Q(categoria__isnull=True) |
-            models.Q(categoria='')
+        # A busca por categorias também deve ser feita apenas em livros públicos
+        raw_categories = Book.objects.public().exclude(
+            Q(categoria__isnull=True) | Q(categoria='')
         ).values_list('categoria', flat=True).distinct()
 
-        # Processa as categorias para remover a formatação de lista
+        # Processa as categorias (esta lógica continua a mesma)
         processed_categories = set()
         for cat in raw_categories:
-            # Se for uma lista em formato de string (ex: "['Fiction']")
             if cat.startswith('[') and cat.endswith(']'):
                 try:
-                    # Tenta extrair o conteúdo da lista
                     import ast
                     cat_list = ast.literal_eval(cat)
                     for item in cat_list:
                         if item:
                             processed_categories.add(item)
                 except (ValueError, SyntaxError):
-                    # Se falhar na conversão, usa o valor original
                     processed_categories.add(cat)
             else:
-                # Categoria normal
                 processed_categories.add(cat)
 
-        # Converte para lista e ordena
         categories = sorted(list(processed_categories))
 
         context.update({
@@ -1320,25 +1452,23 @@ class NewReleasesView(TemplateView):
     """
     View para página de novos lançamentos.
 
-    Exibe os livros marcados como lançamentos.
+    Exibe os livros PÚBLICOS marcados como lançamentos.
     """
     template_name = 'core/book/book_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Otimização: Obter lançamentos com prefetch_related para relacionamentos M2M
-        releases = Book.objects.filter(
-            e_lancamento=True,
-            is_temporary=False
-        ).order_by('-data_publicacao', 'titulo')
+        # A consulta base agora começa com os livros públicos.
+        base_query = Book.objects.public()
 
-        # Alternativa utilizando o campo tipo_shelf_especial
+        # Primeiro, tentamos a busca pelo campo booleano, que é o mais direto.
+        releases = base_query.filter(e_lancamento=True).order_by('-data_publicacao', 'titulo')
+
+        # Se a primeira busca não retornar nada, tentamos a busca alternativa
+        # pelo campo de texto 'tipo_shelf_especial'.
         if not releases.exists():
-            releases = Book.objects.filter(
-                tipo_shelf_especial='lancamentos',
-                is_temporary=False
-            ).order_by('-data_publicacao', 'titulo')
+            releases = base_query.filter(tipo_shelf_especial='lancamentos').order_by('-data_publicacao', 'titulo')
 
         context.update({
             'title': 'Novos Lançamentos',
@@ -1353,24 +1483,27 @@ class BestSellersView(TemplateView):
     """
     View para página de livros mais vendidos.
 
-    Exibe os livros com maior quantidade de vendas.
+    Exibe os livros PÚBLICOS com maior quantidade de vendas.
     """
     template_name = 'core/book/book_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Otimização: Obter os mais vendidos com select_related
-        bestsellers = Book.objects.filter(
-            tipo_shelf_especial='mais_vendidos',
-            is_temporary=False
+        # A consulta base agora começa com os livros públicos.
+        base_query = Book.objects.public()
+
+        # Primeiro, tentamos buscar livros especificamente marcados como 'mais_vendidos'.
+        bestsellers = base_query.filter(
+            tipo_shelf_especial='mais_vendidos'
         ).order_by('-quantidade_vendida', 'titulo')
 
-        # Caso não haja livros marcados especificamente como bestsellers
+        # Se a busca específica não retornar resultados, pegamos o ranking geral dos 20
+        # livros públicos mais vendidos (com quantidade_vendida > 0).
         if not bestsellers.exists():
-            bestsellers = Book.objects.filter(
-                is_temporary=False
-            ).order_by('-quantidade_vendida', 'titulo')[:20]  # Limite para os 20 mais vendidos
+            bestsellers = base_query.filter(
+                quantidade_vendida__gt=0
+            ).order_by('-quantidade_vendida', 'titulo')[:20]
 
         context.update({
             'title': 'Mais Vendidos',

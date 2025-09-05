@@ -1,0 +1,207 @@
+/* ==========================================================================
+   static/css/chatbot_widget.css (VERSÃO REATORADA E INTEGRADA)
+   ========================================================================== */
+
+/* ==========================================================================
+   Estilos Base do Widget
+   - Agora usa variáveis globais de design para consistência.
+   ========================================================================== */
+.chatbot-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: var(--z-modal);
+    font-family: 'Inter', sans-serif;
+}
+
+.chatbot-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--cor-acao-primaria), var(--cor-acao-secundaria));
+    color: var(--cor-texto-invertido);
+    border-radius: var(--radius-circle);
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    box-shadow: var(--sombra-card);
+    cursor: pointer;
+    z-index: 9998;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.chatbot-toggle-btn:hover {
+    transform: scale(1.1);
+}
+
+/* ==========================================================================
+   Janela do Chat
+   - Totalmente conectada às variáveis de tema globais.
+   ========================================================================== */
+.chatbot-widget.open {
+    display: flex;
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.chatbot-widget {
+    width: 370px;
+    max-width: 90vw;
+    height: 75vh;
+    max-height: 600px;
+    background-color: var(--cor-fundo-card); /* <-- CONECTADO */
+    color: var(--cor-texto-primario);       /* <-- CONECTADO */
+    border: 1px solid var(--cor-borda);       /* <-- CONECTADO */
+    border-radius: var(--radius-lg);
+    box-shadow: var(--sombra-card);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    transition: opacity var(--transition-default), transform var(--transition-default);
+    transform: translateY(20px);
+    opacity: 0;
+}
+
+/* Cabeçalho */
+.chatbot-header {
+    background: linear-gradient(135deg, var(--cor-acao-primaria), var(--cor-acao-secundaria));
+    color: var(--cor-texto-invertido);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+}
+
+.chatbot-header h6 {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Corpo do Chat */
+.chatbot-body {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--cor-fundo-secundario); /* <-- CONECTADO */
+}
+
+.chatbot-messages {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Estilos das Mensagens */
+.message {
+    max-width: 85%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+    animation: message-fade-in 0.4s ease-out;
+}
+
+.user-message {
+    background-color: var(--cor-acao-primaria); /* <-- CONECTADO */
+    color: var(--cor-texto-invertido);        /* <-- CONECTADO */
+    align-self: flex-end;
+    border-radius: 20px 20px 5px 20px;
+}
+
+.bot-message {
+    background-color: var(--cor-fundo-primario); /* <-- CONECTADO */
+    color: var(--cor-texto-primario);           /* <-- CONECTADO */
+    align-self: flex-start;
+    border-radius: 20px 20px 20px 5px;
+}
+
+.message-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    align-self: flex-end;
+    margin-top: 5px;
+    color: inherit; /* Herda a cor do elemento pai (.user-message ou .bot-message) */
+}
+
+/* Rodapé e Input */
+.chatbot-footer {
+    padding: 15px;
+    border-top: 1px solid var(--cor-borda);       /* <-- CONECTADO */
+    background-color: var(--cor-fundo-card);      /* <-- CONECTADO */
+}
+
+.chatbot-footer form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#widgetUserMessage {
+    flex-grow: 1;
+    border-radius: 20px;
+    border: 1px solid var(--cor-borda);           /* <-- CONECTADO */
+    background-color: var(--cor-fundo-input);       /* <-- CONECTADO */
+    color: var(--cor-texto-primario);             /* <-- CONECTADO */
+    padding: 10px 15px;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+#widgetUserMessage:focus {
+    border-color: var(--cor-borda-input-foco);    /* <-- CONECTADO */
+    box-shadow: 0 0 0 2px rgba(var(--cor-acao-primaria), 0.25);
+    outline: none;
+}
+
+.chatbot-send-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: var(--radius-circle);
+    border: none;
+    background-color: var(--cor-acao-primaria);   /* <-- CONECTADO */
+    color: var(--cor-texto-invertido);          /* <-- CONECTADO */
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    transition: background-color var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.chatbot-send-btn:hover {
+    background-color: var(--cor-acao-primaria-hover); /* <-- CONECTADO */
+}
+
+/* ==========================================================================
+   REMOÇÃO COMPLETA DAS REGRAS .dark-mode E VARIÁVEIS LOCAIS
+   O componente agora é 100% controlado pelo tema global.
+   ========================================================================== */
+
+/* (O restante do seu CSS do chatbot, como animações, pode vir aqui) */
+@keyframes message-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ... cole outras animações aqui se houver ... */

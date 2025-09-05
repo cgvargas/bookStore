@@ -1,27 +1,47 @@
 # cgbookstore/apps/chatbot_literario/services/chatbot_types.py
-"""
-Arquivo para centralizar tipos de dados e estruturas compartilhadas
-entre os diferentes serviços do chatbot para evitar dependências circulares.
-"""
-from typing import NamedTuple, Optional, List, Dict, Any
 
-class SearchResult(NamedTuple):
+from dataclasses import dataclass
+from typing import Optional, Dict, Any, List
+
+
+@dataclass
+class SearchResult:
     """
-    Representa um resultado de busca, seja da base de conhecimento local ou da IA.
+    ✅ Resultado de busca semântica na base de conhecimento
+    Usado pelo EmbeddingsService e TrainingService
     """
     answer: str
     source: str
     confidence: float
-    context_match: bool = False
-    question_found: Optional[str] = None
+    question_found: str
+    context_match: bool = True
+
+    # Campos opcionais para compatibilidade
+    category: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
-class ChatContext(NamedTuple):
+@dataclass
+class ChatbotResponse:
     """
-    Representa o contexto completo da conversa para ser usado pela IA.
+    ✅ Resposta padronizada do chatbot
+    Usado pelo FunctionalChatbot e AI Service
     """
-    entities: Dict[str, List[str]]
-    last_topic: Optional[str]
-    last_question_type: Optional[str]
-    conversation_history: Optional[List[Dict[str, Any]]]
-    user_id: Optional[str]
+    response: str
+    success: bool = True
+    source: str = 'ai'
+    confidence: float = 1.0
+
+    # Metadados opcionais
+    response_time: Optional[float] = None
+    model_used: Optional[str] = None
+    token_count: Optional[int] = None
+    knowledge_items_used: int = 0
+    error: Optional[str] = None
+
+
+# ✅ EXPORTS
+__all__ = [
+    'SearchResult',
+    'ChatbotResponse'
+]

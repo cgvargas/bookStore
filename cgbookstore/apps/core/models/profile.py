@@ -1,10 +1,15 @@
 # cgbookstore/apps/core/models/profile.py
+import logging
 import math
+from collections import Counter
 
 from django.db import models
 from django.conf import settings
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
 from django.utils import timezone
 
+logger = logging.getLogger(__name__)
 
 def get_default_card_style():
     return {
@@ -20,6 +25,7 @@ def get_default_card_style():
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, verbose_name='Avatar')
     bio = models.TextField(max_length=500, blank=True)
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
@@ -153,45 +159,84 @@ class ReadingStats(models.Model):
 
     def update_stats(self):
         """
-        Atualiza as estatísticas com base nos livros atuais do usuário.
+        Atualiza todas as estatísticas do usuário com base nos seus livros.
+        Versão completamente reescrita com tratamento robusto.
         """
-        from .book import UserBookShelf  # Importação local para evitar circular imports
+        import logging
+        import ast
+        from collections import Counter
+        from .book import UserBookShelf
 
-        # Obter livros lidos
-        read_books = UserBookShelf.objects.filter(
-            user=self.user,
-            shelf_type='lido'
-        ).select_related('book')
+        logger = logging.getLogger(__name__)
 
-        # Atualizar contadores
-        self.total_books_read = read_books.count()
+        # ===== 1. Contadores Básicos =====
+        read_shelves = UserBookShelf.objects.filter(user=self.user, shelf_type='lido').select_related('book')
+        self.total_books_read = read_shelves.count()
+        self.total_pages_read = read_shelves.aggregate(total=Sum('book__numero_paginas'))['total'] or 0
 
-        # Calcular total de páginas (se disponível)
-        total_pages = 0
-        for shelf in read_books:
-            pages = getattr(shelf.book, 'paginas', 0)
-            if pages and isinstance(pages, int):
-                total_pages += pages
+        # ===== 2. Cálculo de Livros por Mês =====
+        monthly_counts = (
+            read_shelves
+            .annotate(month=TruncMonth('updated_at'))
+            .values('month')
+            .annotate(count=models.Count('id'))
+            .order_by('month')
+        )
 
-        self.total_pages_read = total_pages
+        books_by_month_data = {}
+        for entry in monthly_counts:
+            year_str = str(entry['month'].year)
+            month_str = str(entry['month'].month)
+            if year_str not in books_by_month_data:
+                books_by_month_data[year_str] = {str(m): 0 for m in range(1, 13)}
+            books_by_month_data[year_str][month_str] = entry['count']
 
-        # Atualizar velocidade de leitura
-        self.reading_velocity = self.calculate_reading_velocity()
+        self.books_by_month = books_by_month_data
 
-        # Atualizar livros por mês
-        # Este é um exemplo simplificado - a implementação real seria mais complexa
-        if not self.books_by_month:
-            self.books_by_month = {}
+        # ===== 4. Cálculo do Gênero Favorito =====
 
-        current_year = timezone.now().year
-        if str(current_year) not in self.books_by_month:
-            self.books_by_month[str(current_year)] = {
-                "1": 0, "2": 0, "3": 0, "4": 0,
-                "5": 0, "6": 0, "7": 0, "8": 0,
-                "9": 0, "10": 0, "11": 0, "12": 0
-            }
+        # Usar a lógica que funciona no teste manual
+        raw_data = list(read_shelves.values_list('book__genero', flat=True))
 
-        # Salvar alterações
+        # Se gêneros vazios, usar categoria
+        if not any(item.strip() for item in raw_data if item):
+            raw_data = list(read_shelves.values_list('book__categoria', flat=True))
+
+        # Aplicar limpeza de dados corrompidos
+        cleaned_genres = []
+        for item in raw_data:
+            if not item or not item.strip():
+                continue
+
+            # Tratar strings de lista corrompidas
+            if item.startswith("['") and item.endswith("']"):
+                try:
+                    parsed_list = ast.literal_eval(item)
+                    if isinstance(parsed_list, list) and parsed_list:
+                        item = parsed_list[0]
+                except (ValueError, SyntaxError):
+                    pass
+
+            # Normalizar
+            normalized_item = item.strip().title()
+            if normalized_item:
+                cleaned_genres.append(normalized_item)
+
+        # Calcular mais comum
+        if cleaned_genres:
+            genre_counts = Counter(cleaned_genres)
+            most_common = genre_counts.most_common(1)
+            self.favorite_genre = most_common[0][0] if most_common else "Não definido"
+        else:
+            self.favorite_genre = "Não definido"
+
+        # Debug log
+        logger.info(f"Estatísticas para {self.user.username}: "
+                    f"Livros: {self.total_books_read}, "
+                    f"Páginas: {self.total_pages_read}, "
+                    f"Gênero: '{self.favorite_genre}'")
+
+        # Salvar no banco
         self.save()
 
 

@@ -101,7 +101,7 @@ class CustomLogoutView(LogoutView):
     """
     View customizada para logout com registro de evento.
     """
-    next_page = 'index'
+    next_page = 'core:index'
 
     def post(self, request, *args, **kwargs):
         """

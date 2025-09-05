@@ -1,22 +1,33 @@
-<!-- template/base.html-->
+<!-- template/base.html -->
 
 <!DOCTYPE html>
 {% load static %}
 
 <html lang="pt-BR" {% if user.is_authenticated %}data-auth="true"{% endif %} class="">
 <head>
+    <!-- TESTE PARA VERIFICAR O ARQUIVO CORRETO - 28/08/2025 -->
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+
+    <!-- BOOTSTRAP CSS - VERSÃO ÚNICA -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- BOOTSTRAP ICONS - VERSÃO ÚNICA SEM INTEGRITY -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- SWIPER CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+
+    <!-- CSS CUSTOMIZADOS -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
-    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-    <link rel="stylesheet" href="{% static 'css/background.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
     <link rel="stylesheet" href="{% static 'css/book-covers-fix.css' %}">
+    <link rel="stylesheet" href="{% static 'css/events.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chatbot_widget.css' %}">
+
     <title>{% block title %}CG.BookStore Online{% endblock %}</title>
+
     <style>
         /* Remove a setinha do dropdown Explorando */
         #exploreDropdown.dropdown-toggle::after {
@@ -39,12 +50,31 @@
             left: 0;
             margin-top: 0;
         }
+
+        /* Regra para esconder modais externos */
+        #externalBookModal, #shelfSelectionModal {
+            display: none;
+        }
     </style>
-    {% block extra_css %}
-    {% endblock %}
+
+    <!-- TEMA: Script bloqueante para evitar flash -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'auto';
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+
+    {% block extra_css %}{% endblock %}
 </head>
-<body>
-    {% if background_settings %}
+
+<body class="{% block body_class %}{% endblock %}">
+    {% comment %} === ESTA SEÇÃO DEVE EXISTIR === {% endcomment %}
+    {% if background_settings and background_settings.habilitado %}
         <div class="custom-background
             position-{{ background_settings.posicao }}
             opacity-{{ background_settings.opacidade|floatformat:"0" }}
@@ -52,6 +82,7 @@
             style="background-image: url('{{ background_settings.imagem.url }}');">
         </div>
     {% endif %}
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 1020;">
         <a class="navbar-brand d-flex align-items-center" href="{% url 'core:index' %}">
@@ -95,18 +126,15 @@
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/admin/' %}active{% endif %}" href="{% url 'admin:index' %}">Admin</a>
                         </li>
-                        <!-- Adicione aqui o novo link para Analytics -->
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/analytics/dashboard/' %}active{% endif %}" href="/api/analytics/dashboard/">Analytics</a>
                         </li>
                     {% endif %}
-                    <!-- Início: Seletor de tema -->
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="themeToggle" title="Alternar tema">
                             <i class="bi bi-circle-half"></i>
                         </a>
                     </li>
-                    <!-- Fim: Seletor de tema -->
                     <li class="nav-item">
                         <form method="post" action="{% url 'core:logout' %}" class="d-inline">
                             {% csrf_token %}
@@ -124,7 +152,6 @@
                             <i class="bi bi-person" style="font-size: 1.4rem;"></i>
                         </a>
                     </li>
-                    <!-- Seletor de tema para usuários não logados -->
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="themeToggle" title="Alternar tema">
                             <i class="bi bi-circle-half"></i>
@@ -135,95 +162,94 @@
         </div>
     </nav>
 
-    <!-- Linha decorativa -->
-    <div class="line" style="margin-top: 60px; position: relative; z-index: 10;"></div>
+    <main class="main-content-wrapper">
+        <!-- Linha decorativa -->
+        <div class="line" style="margin-top: 60px;"></div>
 
-    <!-- Conteúdo principal -->
-    <div class="container-fluid mt-4" style="padding-top: 20px;">
-        {% block content %}
-        {% endblock %}
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container py-5">
-            <div class="row g-5">
-                <!-- Coluna 1: Sobre -->
-                <div class="col-lg-4">
-                    <div class="footer-brand mb-4">
-                        <img src="{% static 'images/logo.png' %}" alt="CG BookStore Logo" class="footer-logo mb-3">
-                        <h2 class="brand-name h4 text-primary mb-3">CG BookStore</h2>
-                    </div>
-                    <p class="footer-about mb-4">
-                        Conectando leitores a histórias incríveis. Sua biblioteca digital para descobrir,
-                        organizar e compartilhar experiências literárias únicas.
-                    </p>
-                    <div class="social-links">
-                        <a href="https://www.instagram.com/cg.bookstore/" target="_blank" class="social-link">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-                        <a href="https://x.com/CG_BookStore" target="_blank" class="social-link">
-                            <i class="bi bi-twitter-x"></i>
-                        </a>
-                        <a href="https://www.facebook.com/profile.php?id=61569188766565" target="_blank" class="social-link">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Coluna 2: Explorando -->
-                <div class="col-lg-3 col-md-6">
-                    <h3 class="footer-heading">Explorando</h3>
-                    <ul class="footer-links">
-                        <li><a href="{% url 'core:catalogue' %}"><i class="bi bi-chevron-right"></i> Catálogo</a></li>
-                        <li><a href="{% url 'core:new_releases' %}"><i class="bi bi-chevron-right"></i> Novos Lançamentos</a></li>
-                        <li><a href="{% url 'core:bestsellers' %}"><i class="bi bi-chevron-right"></i> Mais Vendidos</a></li>
-                        <li><a href="{% url 'core:recommended_books' %}"><i class="bi bi-chevron-right"></i> Recomendados</a></li>
-                    </ul>
-                </div>
-
-                <!-- Coluna 3: Links Úteis -->
-                <div class="col-lg-3 col-md-6">
-                    <h3 class="footer-heading">Links Úteis</h3>
-                    <ul class="footer-links">
-                        <li><a href="{% url 'core:sobre' %}"><i class="bi bi-chevron-right"></i> Sobre Nós</a></li>
-                        <li><a href="{% url 'core:contato' %}"><i class="bi bi-chevron-right"></i> FAQ</a></li>
-                        <li><a href="{% url 'core:contato' %}"><i class="bi bi-chevron-right"></i> Contato</a></li>
-                        <li><a href="{% url 'core:planos' %}"><i class="bi bi-chevron-right"></i> Planos</a></li>
-                        <li><a href="{% url 'core:index' %}"><i class="bi bi-chevron-right"></i> Blog Literário</a></li>
-                    </ul>
-                </div>
-
-                <!-- Coluna 4: Legal -->
-                <div class="col-lg-2 col-md-6">
-                    <h3 class="footer-heading">Legal</h3>
-                    <ul class="footer-links">
-                        <li><a href="{% url 'core:politica_privacidade' %}"><i class="bi bi-chevron-right"></i> Privacidade</a></li>
-                        <li><a href="{% url 'core:termos_uso' %}"><i class="bi bi-chevron-right"></i> Termos de Uso</a></li>
-                        <li><a href="{% url 'core:politica_privacidade' %}"><i class="bi bi-chevron-right"></i> Cookies</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <hr class="footer-divider">
-
-            <!-- Copyright -->
-            <div class="footer-bottom row align-items-center">
-                <div class="col-md-6">
-                    <p class="copyright mb-0">
-                        © {% now "Y" %} CGVargas Informática. Todos os direitos reservados.
-                    </p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="credits mb-0">
-                        Desenvolvido com <i class="bi bi-heart-fill text-danger"></i> por CGVargas Team
-                    </p>
-                </div>
-            </div>
+        <!-- Conteúdo principal -->
+        <div class="container-fluid mt-4" style="padding-top: 20px;">
+            {% block content %}
+            {% endblock %}
         </div>
-    </footer>
 
-<!-- Modais para livros externos e seleção de prateleira -->
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container py-5">
+                <div class="row g-5">
+                    <!-- Coluna 1: Sobre -->
+                    <div class="col-lg-4">
+                        <div class="footer-brand mb-4">
+                            <img src="{% static 'images/logo.png' %}" alt="CG BookStore Logo" class="footer-logo mb-3">
+                            <h2 class="brand-name h4 text-primary mb-3">CG BookStore</h2>
+                        </div>
+                        <p class="footer-about mb-4">
+                            Conectando leitores a histórias incríveis. Sua biblioteca digital para descobrir,
+                            organizar e compartilhar experiências literárias únicas.
+                        </p>
+                        <div class="social-links">
+                            <a href="https://www.instagram.com/cg.bookstore/" target="_blank" class="social-link">
+                                <i class="bi bi-instagram"></i>
+                            </a>
+                            <a href="https://x.com/CG_BookStore" target="_blank" class="social-link">
+                                <i class="bi bi-twitter-x"></i>
+                            </a>
+                            <a href="https://www.facebook.com/profile.php?id=61569188766565" target="_blank" class="social-link">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Outras colunas do footer... -->
+                    <div class="col-lg-3 col-md-6">
+                        <h3 class="footer-heading">Explorando</h3>
+                        <ul class="footer-links">
+                            <li><a href="{% url 'core:catalogue' %}"><i class="bi bi-chevron-right"></i> Catálogo</a></li>
+                            <li><a href="{% url 'core:new_releases' %}"><i class="bi bi-chevron-right"></i> Novos Lançamentos</a></li>
+                            <li><a href="{% url 'core:bestsellers' %}"><i class="bi bi-chevron-right"></i> Mais Vendidos</a></li>
+                            <li><a href="{% url 'core:recommended_books' %}"><i class="bi bi-chevron-right"></i> Recomendados</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <h3 class="footer-heading">Links Úteis</h3>
+                        <ul class="footer-links">
+                            <li><a href="{% url 'core:sobre' %}"><i class="bi bi-chevron-right"></i> Sobre Nós</a></li>
+                            <li><a href="{% url 'core:contato' %}"><i class="bi bi-chevron-right"></i> FAQ</a></li>
+                            <li><a href="{% url 'core:contato' %}"><i class="bi bi-chevron-right"></i> Contato</a></li>
+                            <li><a href="{% url 'core:planos' %}"><i class="bi bi-chevron-right"></i> Planos</a></li>
+                            <li><a href="{% url 'core:index' %}"><i class="bi bi-chevron-right"></i> Blog Literário</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-2 col-md-6">
+                        <h3 class="footer-heading">Legal</h3>
+                        <ul class="footer-links">
+                            <li><a href="{% url 'core:politica_privacidade' %}"><i class="bi bi-chevron-right"></i> Privacidade</a></li>
+                            <li><a href="{% url 'core:termos_uso' %}"><i class="bi bi-chevron-right"></i> Termos de Uso</a></li>
+                            <li><a href="{% url 'core:politica_privacidade' %}"><i class="bi bi-chevron-right"></i> Cookies</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr class="footer-divider">
+
+                <!-- Copyright -->
+                <div class="footer-bottom row align-items-center">
+                    <div class="col-md-6">
+                        <p class="copyright mb-0">
+                            © {% now "Y" %} CGVargas Informática. Todos os direitos reservados.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="credits mb-0">
+                            Desenvolvido com <i class="bi bi-heart-fill text-danger"></i> por CGVargas Team
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
 <!-- Modal para detalhes de livros externos -->
 <div id="externalBookModal" class="modal-container">
   <div class="modal-content max-w-lg">
@@ -320,129 +346,384 @@
   </div>
 </div>
 
+<!-- Modal de Customização do Card -->
+<div class="modal fade" id="customizeCardModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Personalizar Card do Perfil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cardCustomizationForm">
+                    <div class="mb-3">
+                        <label class="form-label">Temas Predefinidos</label>
+                        <select class="form-select" id="style_preset">
+                            <option value="custom">Personalizado</option>
+                            <option value="classic">Clássico</option>
+                            <option value="dark">Escuro</option>
+                            <option value="minimalist">Minimalista</option>
+                            <option value="vibrant">Vibrante</option>
+                        </select>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Cor de Fundo</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-palette"></i></span>
+                                <input type="color" class="form-control form-control-color" id="style_background_color">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Cor do Texto</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-type"></i></span>
+                                <input type="color" class="form-control form-control-color" id="style_text_color">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Cor da Borda</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-border"></i></span>
+                                <input type="color" class="form-control form-control-color" id="style_border_color">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Estilo da Imagem</label>
+                            <select class="form-select" id="style_image_style">
+                                <option value="circle">Circular</option>
+                                <option value="square">Quadrado</option>
+                                <option value="hexagon">Hexágono</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Efeito Hover</label>
+                            <select class="form-select" id="style_hover_effect">
+                                <option value="translate">Elevação</option>
+                                <option value="scale">Escala</option>
+                                <option value="glow">Brilho</option>
+                                <option value="none">Nenhum</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">
+                                <label class="form-label">Estilo dos Ícones</label>
+                            <select class="form-select" id="style_icon_style">
+                                <option value="default">Padrão</option>
+                                <option value="filled">Preenchido</option>
+                                <option value="outline">Contorno</option>
+                                <option value="minimal">Minimalista</option>
+                            </select>
+                            </label>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Raio da Borda</label>
+                            <select class="form-select" id="style_border_radius">
+                                <option value="0">Sem arredondamento</option>
+                                <option value="0.25rem">Suave</option>
+                                <option value="0.5rem">Médio</option>
+                                <option value="1rem">Grande</option>
+                                <option value="2rem">Extra Grande</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Estilo da Sombra</label>
+                            <select class="form-select" id="style_shadow_style">
+                                <option value="none">Nenhuma</option>
+                                <option value="light">Suave</option>
+                                <option value="medium">Média</option>
+                                <option value="dark">Forte</option>
+                                <option value="colored">Colorida</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="cancelCustomizationBtn" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveCardCustomization()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Mover Livro -->
+<div class="modal fade" id="moveBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
+                <h5 class="modal-title">Mover para Outra Prateleira</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="moveBookForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Selecione a Nova Prateleira</label>
+                        <select class="form-select" name="new_shelf">
+                            <option value="favorito" {% if shelf == 'favorito' %}disabled{% endif %}>
+                                ⭐ Favoritos
+                            </option>
+                            <option value="lendo" {% if shelf == 'lendo' %}disabled{% endif %}>
+                                📖 Lendo
+                            </option>
+                            <option value="vou_ler" {% if shelf == 'vou_ler' %}disabled{% endif %}>
+                                📚 Quero Ler
+                            </option>
+                            <option value="lido" {% if shelf == 'lido' %}disabled{% endif %}>
+                                ✅ Lido
+                            </option>
+                        </select>
+                        <small class="form-text">
+                            Escolha a prateleira para onde deseja mover este livro.
+                        </small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal" id="cancelMoveButton">
+                    Cancelar
+                </button>
+                <!-- REMOÇÃO DO ONCLICK - será gerenciado via event listener -->
+                <button type="button" class="btn btn-primary" id="confirmMoveButton" data-action="move-book">
+                    <i class="bi bi-arrow-right-circle"></i> Mover
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para visualização da imagem completa -->
+<div id="imageModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
+                <h5 class="modal-title">Visualizar Imagem</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+                <img src="" id="modalImage" alt="Capa em tamanho completo" class="img-fluid">
+            </div>
+            <div class="modal-footer border-top-0 justify-content-center">
+                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar à prateleira -->
+<div class="modal fade" id="addToShelfModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-bottom-0 bg-dark text-white rounded-top-4">
+                <h5 class="modal-title">Adicionar à Prateleira</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addToShelfForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Selecione a Prateleira</label>
+                        <select class="form-select" name="shelf_type">
+                            <option value="favorito">Favoritos</option>
+                            <option value="lendo">Lendo</option>
+                            <option value="vou_ler">Quero Ler</option>
+                            <option value="lido">Lido</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary close-modal" data-bs-dismiss="modal" id="cancelShelfButton">Cancelar</button>
+                <!-- REMOÇÃO DO ONCLICK - será gerenciado via event listener -->
+                <button type="button" class="btn btn-primary" id="confirmAddButton" data-action="add-to-shelf">
+                   <i class="bi bi-bookmark-plus"></i> Adicionar à Prateleira
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Atualização de Progresso (Atualizado) -->
+<div class="modal fade" id="updateProgressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Atualizar Progresso de Leitura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateProgressForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="bookId" name="book_id">
+
+                    <div class="mb-3">
+                        <label for="bookTitle" class="form-label">Livro</label>
+                        <input type="text" class="form-control" id="bookTitle" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="currentPage" class="form-label">Página Atual</label>
+                        <input type="number" class="form-control" id="currentPage" name="current_page" min="1" required>
+                        <div class="form-text" id="totalPagesText"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="startedAt" class="form-label">Data de Início</label>
+                        <input type="date" class="form-control" id="startedAt" name="started_at" required>
+                        <div class="form-text">Data em que iniciou a leitura</div>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" id="progressBar"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="markAsFinished" name="mark_as_finished">
+                        <label class="form-check-label" for="markAsFinished">Marcar como concluído</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary save-progress-btn">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Estatísticas Detalhadas (V2) -->
+<div class="modal fade" id="statsModal" tabindex="-1" aria-labelledby="statsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="statsModalLabel"><i class="bi bi-bar-chart-line-fill me-2"></i>Estatísticas de Leitura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body stats-modal-body">
+                <!-- O conteúdo será preenchido pelo JavaScript -->
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% block extra_js %}
-<!-- Scripts principais -->
+<!-- SCRIPTS PRINCIPAIS EM ORDEM ESPECÍFICA -->
+
+<!-- 1. JQUERY - PRIMEIRO -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- 2. POPPER.JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"></script>
+
+<!-- 3. BOOTSTRAP JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 4. SWIPER -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 
-<script>
-    // Verificar se jQuery carregou
-    if (typeof jQuery === 'undefined') {
-        console.error('jQuery não foi carregado. Tentando carregar novamente...');
-        let jqueryScript = document.createElement('script');
-        jqueryScript.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
-        document.body.appendChild(jqueryScript);
-    }
-</script>
-
-<!-- CSRF Setup -->
+<!-- 5. CONFIGURAÇÕES BÁSICAS -->
 <script src="{% static 'js/csrf-setup.js' %}"></script>
-<script src="{% static 'js/profile.js' %}"></script>
-<script src="{% static 'js/theme-switcher.js' %}"></script>
 
-<!-- Script de verificação e recuperação -->
+<!-- 6. SCRIPTS ESPECÍFICOS DA PÁGINA -->
+{% if request.path == '/profile/' %}
+    <!-- Scripts apenas para a página de perfil -->
+    <script src="{% static 'js/profile.js' %}"></script>
+{% else %}
+    <!-- Scripts para outras páginas -->
+{% endif %}
+
+<!-- 7. SCRIPTS GLOBAIS -->
+<script src="{% static 'js/theme-switcher.js' %}"></script>
+<script src="{% static 'js/event-swiper-config.js' %}"></script>
+
+<!-- 8. VERIFICAÇÃO DE RECURSOS CRÍTICOS -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Função para verificar recursos críticos
-    function checkCriticalResources() {
-        const resources = {
-            'jQuery': typeof jQuery !== 'undefined',
-            'Bootstrap': typeof bootstrap !== 'undefined',
-            'Popper': typeof Popper !== 'undefined'
-        };
+    // Verificar se recursos críticos carregaram
+    const criticalResources = {
+        'jQuery': typeof jQuery !== 'undefined',
+        'Bootstrap': typeof bootstrap !== 'undefined',
+        'Popper': typeof Popper !== 'undefined'
+    };
 
-        let allLoaded = true;
-        Object.entries(resources).forEach(([name, loaded]) => {
-            if (!loaded) {
-                console.error(`${name} não foi carregado corretamente`);
-                allLoaded = false;
+    const failed = Object.entries(criticalResources).filter(([name, loaded]) => !loaded);
+
+    if (failed.length > 0) {
+        console.error('Recursos críticos falharam ao carregar:', failed.map(([name]) => name));
+
+        // Tentar recarregar recursos críticos
+        failed.forEach(([name]) => {
+            if (name === 'Bootstrap') {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js';
+                document.head.appendChild(script);
             }
         });
-
-        // Se algum recurso não carregou, tentar recuperar
-        if (!allLoaded) {
-            recoverResources();
-        }
-
-        return allLoaded;
+    } else {
+        console.log('Todos os recursos críticos carregaram corretamente');
     }
 
-    // Função para recuperar recursos não carregados
-    function recoverResources() {
-        if (typeof jQuery === 'undefined') {
-            let script = document.createElement('script');
-            script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
-            document.body.appendChild(script);
-        }
-
-        if (typeof Popper === 'undefined') {
-            let script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js';
-            document.body.appendChild(script);
-        }
-
-        if (typeof bootstrap === 'undefined') {
-            // Recarregar CSS do Bootstrap
-            if (!document.querySelector('link[href*="bootstrap.min.css"]')) {
-                let link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css';
-                document.head.appendChild(link);
-            }
-
-            // Recarregar JS do Bootstrap
-            let script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js';
-            document.body.appendChild(script);
-        }
-    }
-
-    // Tratamento global de erros
-    window.addEventListener('error', function(e) {
-        // Ignorar erros específicos de extensões
-        if (e.message.includes('message port') || e.message.includes('extension')) {
-            return;
-        }
-        console.error('Erro capturado:', e.message);
-    });
-
-    // Verificar recursos após um curto delay para dar tempo de carregarem
-    setTimeout(checkCriticalResources, 500);
-
-    // Verificar novamente após um tempo maior caso ainda haja problemas
-    setTimeout(function() {
-        if (!checkCriticalResources()) {
-            console.error('Recursos críticos ainda não carregaram após espera. Última tentativa...');
-            recoverResources();
-        }
-    }, 2000);
-});
-</script>
-
-<!-- Script para inicialização de componentes do Bootstrap -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    // Inicializar tooltips e popovers apenas se Bootstrap estiver disponível
     if (typeof bootstrap !== 'undefined') {
+        // Tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
-    }
 
-    // Inicializar popovers
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    if (typeof bootstrap !== 'undefined') {
+        // Popovers
+        const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
         popoverTriggerList.map(function (popoverTriggerEl) {
             return new bootstrap.Popover(popoverTriggerEl);
         });
+
+        // Dropdowns
+        const dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElementList.forEach(function(dropdownToggleEl) {
+            new bootstrap.Dropdown(dropdownToggleEl);
+        });
+
+        console.log('Bootstrap components inicializados:', {
+            tooltips: tooltipTriggerList.length,
+            popovers: popoverTriggerList.length,
+            dropdowns: dropdownElementList.length
+        });
     }
+});
+
+// Tratamento global de erros
+window.addEventListener('error', function(e) {
+    if (e.message.includes('message port') || e.message.includes('extension')) {
+        return; // Ignorar erros de extensões
+    }
+    console.error('Erro global capturado:', e.message);
 });
 </script>
 
-<!-- Script para manipulação do navbar em dispositivos móveis -->
+<!-- 9. NAVBAR MOBILE -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const navbarToggler = document.querySelector('.navbar-toggler');
@@ -451,11 +732,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (navbarToggler && navbarCollapse) {
         navbarToggler.addEventListener('click', function() {
             if (typeof bootstrap !== 'undefined') {
-                var bsCollapse = new bootstrap.Collapse(navbarCollapse, {
+                const bsCollapse = new bootstrap.Collapse(navbarCollapse, {
                     toggle: true
                 });
             } else {
-                // Fallback básico se o Bootstrap não estiver disponível
                 navbarCollapse.classList.toggle('show');
             }
         });
@@ -463,26 +743,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Script para inicializar os dropdowns -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicialização específica para dropdowns
-    if (typeof bootstrap !== 'undefined') {
-        // Inicializa todos os dropdowns na página
-        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-        dropdownElementList.forEach(function(dropdownToggleEl) {
-            new bootstrap.Dropdown(dropdownToggleEl);
-        });
-
-        // Log para confirmar inicialização
-        console.log('Dropdowns inicializados:', dropdownElementList.length);
-    } else {
-        console.error('Bootstrap não está disponível para inicializar dropdowns');
-    }
-});
-
-</script>
-
+<!-- 10. COOKIES -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     fetch("{% url 'core:aceitar_cookies' %}")
@@ -501,7 +762,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 {% endblock %}
 
-<!-- Scripts para tratamento de imagens e recomendações -->
+<!-- SCRIPTS FINAIS -->
 <script src="{% static 'js/image-fallback-improved.js' %}"></script>
 <script src="{% static 'js/book-recommendation-fix.js' %}"></script>
 

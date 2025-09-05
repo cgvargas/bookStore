@@ -1,8 +1,8 @@
 import logging
 from django.core.management.base import BaseCommand
 from cgbookstore.apps.core.models import User
-from cgbookstore.apps.chatbot_literario.services.chatbot_service import chatbot
-from cgbookstore.apps.chatbot_literario.services.training_service import training_service
+from cgbookstore.apps.chatbot_literario.services import functional_chatbot
+from cgbookstore.apps.chatbot_literario.services import training_service
 import inspect
 import sys
 
@@ -37,21 +37,21 @@ class Command(BaseCommand):
 
         # 1. Verificar se o chatbot está inicializado
         self.stdout.write("\n📋 1. Verificando inicialização...")
-        if not chatbot.initialized:
-            chatbot.initialize()
-        self.stdout.write(f"   ✅ Chatbot inicializado: {chatbot.initialized}")
+        if not functional_chatbot.initialized:
+            functional_chatbot.initialize()
+        self.stdout.write(f"   ✅ Chatbot inicializado: {functional_chatbot.initialized}")
 
         # 2. Verificar métodos no código atual
         self.stdout.write("\n📋 2. Verificando métodos corrigidos...")
 
         # Verificar se os métodos corrigidos existem
         context_class = None
-        if hasattr(chatbot, 'get_user_context'):
-            user_context = chatbot.get_user_context(None) if chatbot.get_user_context else None
+        if hasattr(functional_chatbot, 'get_user_context'):
+            user_context = functional_chatbot.get_user_context(None) if functional_chatbot.get_user_context else None
             if user_context:
                 context_class = user_context.__class__
 
-        chatbot_class = chatbot.__class__
+        chatbot_class = functional_chatbot.__class__
 
         methods_to_check = [
             ('should_clear_context', context_class),
@@ -116,7 +116,7 @@ class Command(BaseCommand):
 
         # Limpar contexto antes do teste
         if user:
-            chatbot.clear_user_context(user)
+            functional_chatbot.clear_user_context(user)
 
         test_sequence = [
             "Fale sobre Harry Potter",
@@ -129,7 +129,7 @@ class Command(BaseCommand):
             self.stdout.write(f"\n🎯 Teste {i}: '{message}'")
 
             try:
-                response, source = chatbot.get_response(message, user)
+                response, source = functional_chatbot.get_response(message, user)
 
                 self.stdout.write(f"   📤 Resposta: {response[:100]}...")
                 self.stdout.write(f"   📍 Fonte: {source}")
@@ -171,7 +171,7 @@ class Command(BaseCommand):
         # 6. Verificar contexto atual
         self.stdout.write("\n📋 6. Estado do contexto após teste...")
         if user:
-            context = chatbot.get_user_context(user)
+            context = functional_chatbot.get_user_context(user)
             self.stdout.write(f"   📚 Entidades extraídas: {context.entities}")
             self.stdout.write(f"   🎯 Último tópico: {context.last_topic}")
             self.stdout.write(f"   ❓ Último tipo de pergunta: {context.last_question_type}")

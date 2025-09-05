@@ -1,0 +1,297 @@
+/* Estilo do grid de livros */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2.5rem;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* Estilo específico para dispositivos móveis */
+@media (max-width: 768px) {
+    .books-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+/* Estilo específico para telas muito pequenas */
+@media (max-width: 480px) {
+    .books-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 1rem;
+    }
+
+    .catalogue-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .catalogue-header p {
+        font-size: 1rem;
+    }
+}
+
+/* Melhorias para o cabeçalho do catálogo */
+.catalogue-header {
+    position: relative;
+    padding: 2rem 0;
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.catalogue-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--cor-texto-primario);
+    margin-bottom: 0.5rem;
+}
+
+.catalogue-header p {
+    color: var(--cor-texto-secundario);
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.catalogue-header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 3px;
+    background-color: var(--cor-acao-secundaria);
+    border-radius: 1.5px;
+}
+
+/* Melhorias para o filtro do catálogo - TEMA CLARO */
+.catalogue-filter {
+    background-color: rgba(248, 249, 250, 0.9);
+    border-radius: 12px;
+    padding: 1.8rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.catalogue-filter .form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333333;
+}
+
+.catalogue-filter .form-control,
+.catalogue-filter .form-select {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+    color: #333333;
+}
+
+.catalogue-filter .form-control:focus,
+.catalogue-filter .form-select:focus {
+    border-color: var(--cor-acao-secundaria);
+    box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.15);
+}
+
+.catalogue-filter .form-control::placeholder {
+    color: #666666;
+}
+
+.catalogue-filter .btn-primary {
+    background-color: var(--cor-acao-secundaria);
+    border-color: var(--cor-acao-secundaria);
+    padding: 10px 25px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.catalogue-filter .btn-primary:hover {
+    background-color: var(--cor-acao-secundaria-hover);
+    border-color: var(--cor-acao-secundaria-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* CARDS DE LIVROS - TEMA CLARO */
+.book-card {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    padding-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.book-card:hover {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.book-card .book-title {
+    color: #333333 !important;
+    font-weight: 600;
+    max-height: 3.5em;
+    -webkit-line-clamp: 3;
+}
+
+.book-card .book-author {
+    color: #666666 !important;
+    margin-top: 5px;
+}
+
+.book-info {
+    margin-bottom: 0;
+    padding-bottom: 10px;
+}
+
+/* ============================================================================
+   TEMA ESCURO - CORREÇÕES ESPECÍFICAS
+   ============================================================================ */
+
+/* Filtro no tema escuro */
+html[data-theme='dark'] .catalogue-filter {
+    background-color: rgba(33, 37, 41, 0.85) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme='dark'] .catalogue-filter .form-label {
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] .catalogue-filter .form-control,
+html[data-theme='dark'] .catalogue-filter .form-select {
+    background-color: rgba(33, 37, 41, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] .catalogue-filter .form-control::placeholder {
+    color: var(--cor-texto-secundario) !important;
+}
+
+html[data-theme='dark'] .catalogue-filter .form-control:focus,
+html[data-theme='dark'] .catalogue-filter .form-select:focus {
+    border-color: var(--cor-acao-secundaria) !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.15) !important;
+    background-color: rgba(33, 37, 41, 0.9) !important;
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] .catalogue-filter .btn-primary {
+    background-color: var(--cor-acao-secundaria) !important;
+    border-color: var(--cor-acao-secundaria) !important;
+}
+
+html[data-theme='dark'] .catalogue-filter .btn-primary:hover {
+    background-color: var(--cor-acao-secundaria-hover) !important;
+    border-color: var(--cor-acao-secundaria-hover) !important;
+}
+
+/* CARDS DE LIVROS - TEMA ESCURO */
+html[data-theme='dark'] .book-card {
+    background-color: rgba(43, 48, 53, 0.85) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-theme='dark'] .book-card:hover {
+    background-color: rgba(43, 48, 53, 0.95) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+html[data-theme='dark'] .book-card .book-title {
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] .book-card .book-author {
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* Cabeçalho no tema escuro */
+html[data-theme='dark'] .catalogue-header h1 {
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] .catalogue-header p {
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* Oculta elementos de preço na página de catálogo */
+.books-grid .book-price,
+.books-grid .promotional-price,
+.books-grid .original-price,
+.books-grid .regular-price,
+.books-grid .discount-badge {
+    display: none !important;
+}
+
+/* Paginação personalizada */
+.pagination .page-link {
+    color: var(--cor-acao-secundaria);
+    background-color: transparent;
+    border-color: rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--cor-acao-secundaria);
+    border-color: var(--cor-acao-secundaria);
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+/* Paginação no tema escuro */
+html[data-theme='dark'] .pagination .page-link {
+    background-color: rgba(33, 37, 41, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] .pagination .page-link:hover {
+    background-color: #343a40 !important;
+    border-color: #495057 !important;
+    color: #e9ecef !important;
+}
+
+html[data-theme='dark'] .pagination .page-item.active .page-link {
+    background-color: var(--cor-acao-secundaria) !important;
+    border-color: var(--cor-acao-secundaria) !important;
+    color: white !important;
+}
+
+html[data-theme='dark'] .pagination .page-item.disabled .page-link {
+    background-color: rgba(33, 37, 41, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* Alert no tema escuro */
+html[data-theme='dark'] .alert-info {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+    color: #6ea8fe !important;
+}
+
+/* Ícone no alert */
+html[data-theme='dark'] .alert-info .bi-info-circle {
+    color: #6ea8fe !important;
+}

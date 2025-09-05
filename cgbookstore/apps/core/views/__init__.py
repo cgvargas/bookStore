@@ -27,7 +27,7 @@ from .auth import (
 
 # Importações de views de perfil
 from .profile import (
-    ProfileUpdateView  # Atualização do perfil de usuário
+    ProfileUpdateView
 )
 
 # Importações de views de livros

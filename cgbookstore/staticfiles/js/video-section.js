@@ -12,42 +12,65 @@ function onYouTubeIframeAPIReady() {
     console.log('YouTube API Ready');
 }
 
+// Função simples para corrigir thumbnails que possam ter falhado
+function fixBrokenThumbnails() {
+    const thumbnails = document.querySelectorAll('.video-thumbnail');
+
+    thumbnails.forEach(img => {
+        // Adicionar handler para caso a imagem não carregue
+        if (img.complete && img.naturalHeight === 0) {
+            const videoId = img.closest('.video-link')?.getAttribute('data-video-id');
+            if (videoId) {
+                img.src = `https://img.youtube.com/vi/${videoId}/default.jpg`;
+            }
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Carrega a API do YouTube
     loadYouTubeAPI();
 
-    // Inicializa o Swiper para os vídeos
-    const videoSwipers = document.querySelectorAll('.videoSwiper');
-    videoSwipers.forEach(function(element) {
-        new Swiper(element, {
-            slidesPerView: 1,
-            spaceBetween: 16,
-            navigation: {
-                nextEl: element.querySelector('.swiper-button-next'),
-                prevEl: element.querySelector('.swiper-button-prev'),
-            },
-            breakpoints: {
-                640: {
-                    slidesPerView: 2,
-                    spaceBetween: 16,
+    // Tenta corrigir thumbnails quebrados após tudo carregar
+    window.addEventListener('load', fixBrokenThumbnails);
+
+    // Inicializa o Swiper para os vídeos após um pequeno delay
+    setTimeout(() => {
+        const videoSwipers = document.querySelectorAll('.videoSwiper');
+        videoSwipers.forEach(function(element) {
+            new Swiper(element, {
+                slidesPerView: 1,
+                spaceBetween: 16,
+                navigation: {
+                    nextEl: element.querySelector('.swiper-button-next'),
+                    prevEl: element.querySelector('.swiper-button-prev'),
                 },
-                768: {
-                    slidesPerView: 3,
-                    spaceBetween: 24,
-                },
-                1024: {
-                    slidesPerView: 4,
-                    spaceBetween: 24,
-                    preventInteractionOnTransition: true,
+                breakpoints: {
+                    640: {
+                        slidesPerView: 2,
+                        spaceBetween: 16,
+                    },
+                    768: {
+                        slidesPerView: 3,
+                        spaceBetween: 24,
+                    },
+                    1024: {
+                        slidesPerView: 4,
+                        spaceBetween: 24,
+                        preventInteractionOnTransition: true,
+                    }
                 }
-            }
+            });
         });
-    });
+    }, 500);
 
     const modal = document.getElementById('videoModal');
-    const modalContent = modal.querySelector('.modal-content');
-    const closeBtn = modal.querySelector('.close-modal');
+    const modalContent = modal?.querySelector('.modal-content');
+    const closeBtn = modal?.querySelector('.close-modal');
     const videoContainer = document.getElementById('modalVideoPlayer');
+
+    // Se os elementos necessários não existirem, não configuramos os handlers
+    if (!modal || !closeBtn || !videoContainer) return;
 
     // Função para abrir o modal e iniciar o vídeo
     function openVideoModal(videoId) {

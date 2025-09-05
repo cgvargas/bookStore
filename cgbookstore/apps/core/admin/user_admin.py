@@ -92,3 +92,19 @@ class ProfileAdmin(LoggingAdminMixin, OptimizedQuerysetMixin, admin.ModelAdmin):
                 f"Perfil criado - Usuário: {obj.user.username} | "
                 f"Criado por: {request.user.username}"
             )
+
+class UserBookShelfAdmin(LoggingAdminMixin, OptimizedQuerysetMixin, admin.ModelAdmin):
+    """
+    Configuração do admin para prateleiras de usuário.
+    """
+    list_display = ('user', 'book', 'shelf_type', 'added_at', 'updated_at')
+    list_filter = ('shelf_type', 'added_at')
+    search_fields = ('user__username', 'book__titulo')
+    raw_id_fields = ('user', 'book')
+    readonly_fields = ('added_at', 'updated_at')
+
+    # Definir explicitamente apenas campos editáveis
+    fields = ('user', 'book', 'shelf_type')
+
+    # Campos para otimização de consultas
+    select_related_fields = ['user', 'book']

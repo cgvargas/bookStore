@@ -131,7 +131,7 @@ def chatbot_message(request):
         Message.objects.create(
             conversation=conversation,
             content=user_message_text,
-            sender='user'
+            role='user'  #
         )
 
         # 2. Chama o chatbot, passando a mensagem E o objeto da conversa persistida.
@@ -145,7 +145,7 @@ def chatbot_message(request):
         bot_msg_obj = Message.objects.create(
             conversation=conversation,
             content=bot_response_text,
-            sender='bot'
+            role='assistant'
         )
 
         # Atualiza o timestamp da conversa para ordenação

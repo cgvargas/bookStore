@@ -59,22 +59,37 @@
     background-color: #2B2B40 !important;
 }
 
-/* Limpar qualquer estilo de coluna com título */
+/* Garantir que as células específicas com classe de campo/coluna
+   não sobrescrevam o zebrado com estilos próprios */
 #result_list td.field-titulo,
-#changelist table td.field-titulo,
-#result_list td.field-name,
-#changelist table td.field-name,
+#changelist td.field-titulo,
+#result_list td.column-titulo,
+#changelist td.column-titulo,
 td[class*="field-titulo"],
-td[class*="field-nome"],
-td[class*="field-name"],
 td[class*="column-titulo"],
+td[class*="field-nome"],
 td[class*="column-nome"],
+td[class*="field-name"],
 td[class*="column-name"] {
-    background-color: transparent !important;
+    background: transparent !important;
     background-image: none !important;
-    font-size: 14px !important;
-    font-weight: normal !important;
-    color: #FFFFFF !important;
+    background-color: transparent !important;
+}
+
+/* Este seletor mais específico garante que mesmo com estilo inline,
+   o zebrado seja respeitado */
+#result_list tbody tr:nth-child(odd) td.field-titulo,
+#result_list tbody tr:nth-child(odd) td.column-titulo,
+#changelist tbody tr:nth-child(odd) td.field-titulo,
+#changelist tbody tr:nth-child(odd) td.column-titulo {
+    background-color: #121212 !important;
+}
+
+#result_list tbody tr:nth-child(even) td.field-titulo,
+#result_list tbody tr:nth-child(even) td.column-titulo,
+#changelist tbody tr:nth-child(even) td.field-titulo,
+#changelist tbody tr:nth-child(even) td.column-titulo {
+    background-color: #2A2A3A !important;
 }
 
 /* Garantir que as células de dados não tenham gradientes ou cores */
@@ -216,14 +231,18 @@ td.column-titulo a {
     margin: 0 !important;
 }
 
-/* Efeito hover nas linhas */
+/* Garantir que o hover não seja sobrescrito */
 .module tr:hover td,
 #result_list tr:hover td,
-#changelist table tr:hover td {
-    background-color: rgba(255, 140, 0, 0.1) !important;
+#changelist table tr:hover td,
+#result_list tr:hover td.field-titulo,
+#result_list tr:hover td.column-titulo,
+#changelist tr:hover td.field-titulo,
+#changelist tr:hover td.column-titulo {
+    background-color: rgba(43, 43, 64, 0.2) !important;
 }
 
-/* Botões de ações principais em laranja */
+/* Botões de ações principais */
 .addlink,
 .button.default,
 input[type="submit"].default,
@@ -235,16 +254,16 @@ input[type="submit"].default,
 .button.default:hover,
 input[type="submit"].default:hover,
 .submit-row input.default:hover {
-    background-color:#1A1A2E !important;
+    background-color: #1A1A2E !important;
 }
 
-/* Cabeçalhos de filtro em laranja */
+/* Cabeçalhos de filtro */
 #changelist-filter h2 {
     background: #2B2B40 !important;
     color: white !important;
 }
 
-/* Seleção de filtro em laranja */
+/* Seleção de filtro */
 #changelist-filter li.selected {
     border-right: 3px solid #2B2B40 !important;
 }
@@ -325,13 +344,6 @@ input[type="submit"].default:hover,
     word-break: break-word !important;
 }
 
-/* Dashboard card layout */
-body.dashboard #content-main {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)) !important;
-    gap: 20px !important;
-    padding: 20px !important;
-}
-
 /* Força estilos de fontes corretas */
 .module td,
 .module th,
@@ -367,7 +379,7 @@ td.field-titulo {
     background-color: transparent !important;
 }
 
-/* Garantir que apenas os cabeçalhos de tabela tenham a cor laranja */
+/* Garantir que apenas os cabeçalhos de tabela tenham a cor escura */
 #result_list thead th,
 #changelist thead th {
     background: #2B2B40 !important;

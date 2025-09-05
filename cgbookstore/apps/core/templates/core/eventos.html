@@ -1,10 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "core/base.html" %}
+{% load static %}
+
+{% comment %}
+Arquivo: cgbookstore/apps/core/templates/core/eventos.html
+Este template renderiza a lista completa de eventos literários e uma
+barra lateral com anúncios. É alimentado pela EventosView.
+{% endcomment %}
+
+{% block title %}{{ title }} | {{ site.name }}{% endblock %}
+
+{% block content %}
+<div class="container eventos-page">
+    <h1 class="page-title">{{ title }}</h1>
+
+    <div class="main-content">
+        <div class="event-list">
+            {% for event in event_list %}
+            <div class="event-card">
+                {% if event.imagem %}
+                <img src="{{ event.imagem.url }}" alt="{{ event.titulo }}" class="event-card-image">
+                {% endif %}
+                <div class="event-card-body">
+                    <h2 class="event-card-title">{{ event.titulo }}</h2>
+                    <p class="event-card-date">
+                        <i class="bi bi-calendar-event"></i>
+                        {{ event.data_evento|date:"d F, Y \à\s H:i" }}
+                    </p>
+                    {% if event.local %}
+                    <p class="event-card-location">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        {{ event.local }}
+                    </p>
+                    {% endif %}
+                    <p class="event-card-description">{{ event.descricao|truncatewords:30 }}</p>
+                    {% if event.url %}
+                    <a href="{{ event.url }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Ver Detalhes</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info">
+                <p>Nenhum evento programado no momento. Volte em breve para mais novidades!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if advertisements %}
+        <aside class="sidebar-ads">
+            <h3>Publicidade</h3>
+            {% for ad in advertisements %}
+            <div class="ad-card">
+                <a href="{{ ad.url }}" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ ad.imagem.url }}" alt="Anúncio: {{ ad.section.titulo }}">
+                </a>
+            </div>
+            {% endfor %}
+        </aside>
+        {% endif %}
+    </div>
+
+    {% comment %} Adicionar paginação se houver muitas páginas {% endcomment %}
+    {% if is_paginated %}
+        <nav aria-label="Paginação de eventos">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

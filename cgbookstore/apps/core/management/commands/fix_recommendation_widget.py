@@ -43,7 +43,7 @@ class Command(BaseCommand):
                 {% for book in recommended_books %}
                 <div class="swiper-slide">
                     <div class="book-card">
-                        <a href="{% if book.is_external %}{% url 'external_book_details' book.external_id %}{% else %}{% url 'book_detail' book.id %}{% endif %}" class="book-link">
+                        <a href="{% if book.is_external %}{% url 'external_book_details' book.external_id %}{% else %}{% url 'core:book_detail' book.id %}{% endif %}" class="book-link">
                             <div class="book-cover-container">
                                 <img 
                                     src="{% if book.is_external %}{% if book.capa_url %}{{ book.capa_url }}{% else %}{% static 'images/no-cover.svg' %}{% endif %}{% else %}{% if book.capa %}{{ book.capa.url }}{% elif book.capa_url %}{{ book.capa_url }}{% else %}{% static 'images/no-cover.svg' %}{% endif %}{% endif %}" 

@@ -9,31 +9,31 @@
     <div class="row">
         <!-- Informações do autor -->
         <div class="col-md-4 mb-4">
-            <div class="author-profile card border shadow-sm">
+            <div class="author-profile card border shadow-sm" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda) !important;">
                 <div class="card-body text-center p-4">
                     {% if author.foto %}
                     <img src="{{ author.foto.url }}" alt="{{ author.get_nome_completo }}"
                          class="rounded-circle img-fluid mb-3" style="max-width: 200px; height: 200px; object-fit: cover;">
                     {% else %}
-                    <div class="author-placeholder rounded-circle mx-auto d-flex align-items-center justify-content-center bg-secondary text-white mb-3" style="width: 200px; height: 200px;">
+                    <div class="author-placeholder rounded-circle mx-auto d-flex align-items-center justify-content-center text-white mb-3" style="width: 200px; height: 200px; background-color: var(--cor-acao-secundaria);">
                         <span style="font-size: 4rem;">{{ author.nome|first }}</span>
                     </div>
                     {% endif %}
-                    
-                    <h1 class="h3 card-title">{{ author.get_nome_completo }}</h1>
-                    
+
+                    <h1 class="h3 card-title" style="color: var(--cor-texto-primario);">{{ author.get_nome_completo }}</h1>
+
                     {% if author.nacionalidade %}
                     <p class="text-muted mb-2">{{ author.nacionalidade }}</p>
                     {% endif %}
-                    
+
                     {% if author.data_nascimento %}
                     <p class="text-muted mb-3">Nascimento: {{ author.data_nascimento|date:"d/m/Y" }}</p>
                     {% endif %}
-                    
+
                     {% if author.twitter or author.instagram or author.facebook or author.website %}
                     <div class="author-social mt-3 mb-3 d-flex justify-content-center">
                         {% if author.website %}
-                        <a href="{{ author.website }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Website do autor" style="width: 32px; height: 32px;">
+                        <a href="{{ author.website }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Website do autor" style="width: 32px; height: 32px; color: var(--cor-texto-primario); border-color: var(--cor-borda);">
                             {% if "wikipedia" in author.website %}
                                 <span class="text-center">W</span>
                             {% elif "medium" in author.website %}
@@ -53,42 +53,42 @@
                         {% endif %}
 
                         {% if author.twitter %}
-                        <a href="https://twitter.com/{{ author.twitter }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Twitter" style="width: 32px; height: 32px;">
+                        <a href="https://twitter.com/{{ author.twitter }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Twitter" style="width: 32px; height: 32px; color: var(--cor-texto-primario); border-color: var(--cor-borda);">
                             <span class="text-center">T</span>
                         </a>
                         {% endif %}
 
                         {% if author.instagram %}
-                        <a href="https://instagram.com/{{ author.instagram }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Instagram" style="width: 32px; height: 32px;">
+                        <a href="https://instagram.com/{{ author.instagram }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Instagram" style="width: 32px; height: 32px; color: var(--cor-texto-primario); border-color: var(--cor-borda);">
                             <span class="text-center">IG</span>
                         </a>
                         {% endif %}
 
                         {% if author.facebook %}
-                        <a href="https://facebook.com/{{ author.facebook }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Facebook" style="width: 32px; height: 32px;">
+                        <a href="https://facebook.com/{{ author.facebook }}" class="btn btn-sm btn-outline-secondary mx-1 d-flex align-items-center justify-content-center" target="_blank" title="Facebook" style="width: 32px; height: 32px; color: var(--cor-texto-primario); border-color: var(--cor-borda);">
                             <span class="text-center">FB</span>
                         </a>
                         {% endif %}
                     </div>
                     {% endif %}
-                    
+
                     <div class="book-count mt-2">
-                        <span class="badge bg-primary">{{ author.get_livros_count }} livro(s)</span>
+                        <span class="badge" style="background-color: var(--cor-acao-primaria); color: var(--cor-texto-invertido);">{{ author.get_livros_count }} livro(s)</span>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Biografia e livros -->
         <div class="col-md-8">
             <!-- Biografia -->
-            <div class="author-bio card border shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h2 class="h4 mb-0">Biografia</h2>
+            <div class="author-bio card border shadow-sm mb-4" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda) !important;">
+                <div class="card-header" style="background-color: var(--cor-fundo-secundario); border-bottom-color: var(--cor-borda);">
+                    <h2 class="h4 mb-0" style="color: var(--cor-texto-primario);">Biografia</h2>
                 </div>
                 <div class="card-body">
                     {% if author.biografia %}
-                    <div class="biography">
+                    <div class="biography" style="color: var(--cor-texto-primario);">
                         {{ author.biografia|linebreaks }}
                     </div>
                     {% else %}
@@ -96,18 +96,18 @@
                     {% endif %}
                 </div>
             </div>
-            
+
             <!-- Livros do autor -->
-            <div class="author-books card border shadow-sm">
-                <div class="card-header bg-light">
-                    <h2 class="h4 mb-0">Livros de {{ author.nome }}</h2>
+            <div class="author-books card border shadow-sm" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda) !important;">
+                <div class="card-header" style="background-color: var(--cor-fundo-secundario); border-bottom-color: var(--cor-borda);">
+                    <h2 class="h4 mb-0" style="color: var(--cor-texto-primario);">Livros de {{ author.nome }}</h2>
                 </div>
                 <div class="card-body">
                     {% if livros %}
                     <div class="row row-cols-1 row-cols-md-3 g-4">
                         {% for livro in livros %}
                         <div class="col">
-                            <div class="book-card card h-100 border shadow-sm">
+                            <div class="book-card card h-100 border shadow-sm" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda) !important;">
                                 <a href="{% url 'core:book_detail' livro.pk %}" class="text-decoration-none">
                                     <div class="book-cover-container text-center p-2">
                                         {% if livro.capa %}
@@ -117,14 +117,14 @@
                                         {% endif %}
                                     </div>
                                     <div class="card-body">
-                                        <h5 class="card-title text-truncate">{{ livro.titulo }}</h5>
+                                        <h5 class="card-title text-truncate" style="color: var(--cor-texto-primario);">{{ livro.titulo }}</h5>
                                         {% if livro.ano_publicacao %}
                                         <p class="card-text text-muted small mb-1">{{ livro.ano_publicacao }}</p>
                                         {% endif %}
                                         {% if livro.categorias.all %}
                                         <div class="categories mt-2">
                                             {% for categoria in livro.categorias.all|slice:":2" %}
-                                            <span class="badge bg-secondary">{{ categoria.nome }}</span>
+                                            <span class="badge" style="background-color: var(--cor-acao-secundaria); color: var(--cor-texto-invertido);">{{ categoria.nome }}</span>
                                             {% endfor %}
                                         </div>
                                         {% endif %}
@@ -141,16 +141,17 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Botão de voltar -->
     <div class="row mt-4">
         <div class="col-12 text-center">
-            <a href="{% url 'core:authors:author-list' %}" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center">
+            <a href="{% url 'core:authors:author-list' %}" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center" style="color: var(--cor-acao-secundaria); border-color: var(--cor-acao-secundaria);">
                 <i class="fas fa-arrow-left me-2"></i>Lista de autores
             </a>
         </div>
     </div>
 </div>
+
 <style>
     .fallback-icon {
         display: none;
@@ -159,6 +160,19 @@
     .fab:empty + .fallback-icon,
     .fas:empty + .fallback-icon {
         display: inline;
+    }
+
+    /* Botões de rede social hover */
+    .btn-outline-secondary:hover {
+        background-color: var(--cor-acao-secundaria) !important;
+        border-color: var(--cor-acao-secundaria) !important;
+        color: var(--cor-texto-invertido) !important;
+    }
+
+    /* Botão de voltar hover */
+    .btn-outline-secondary:hover {
+        background-color: var(--cor-acao-secundaria) !important;
+        color: var(--cor-texto-invertido) !important;
     }
 </style>
 {% endblock %}

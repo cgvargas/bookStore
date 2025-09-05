@@ -3,95 +3,108 @@
 
 {% block title %}Contato{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/contato.css' %}">
-{% endblock %}
-
 {% block content %}
-<div class="container mt-3">
-    <div class="row">
+<div class="container py-5 animate-fade-in">
+
+    <!-- Título Principal da Página -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Fale Conosco</h1>
+        <p class="lead text-muted">Estamos prontos para ajudar. Preencha o formulário ou use um de nossos canais.</p>
+    </div>
+
+    <div class="row g-lg-5 justify-content-center">
+
         <!-- Coluna do Formulário -->
-        <div class="col-md-6 p-4">
-            <h2 class="mb-3">Entre em contato conosco</h2>
-            <form method="post" autocomplete="off">
-                {% csrf_token %}
-                <div class="row mb-2">
-                    <div class="col-md-6">
-                        <div class="form-group mb-2">
-                            <label for="nome" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="nome" name="nome" required>
+        <div class="col-lg-6">
+            <div class="card contact-page-card p-4 p-md-5">
+                <form method="post" autocomplete="off" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-4">
+                        <!-- Nome e Email lado a lado -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Seu nome" required>
+                                <label for="nome">Nome</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="seu@email.com" required>
+                                <label for="email">Email</label>
+                            </div>
+                        </div>
+
+                        <!-- Assunto -->
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="assunto" name="assunto" placeholder="Assunto da mensagem" required>
+                                <label for="assunto">Assunto</label>
+                            </div>
+                        </div>
+
+                        <!-- Mensagem -->
+                        <div class="col-12">
+                             <div class="form-floating">
+                                <textarea class="form-control" id="mensagem" name="mensagem" placeholder="Deixe sua mensagem aqui" style="height: 150px" required></textarea>
+                                <label for="mensagem">Mensagem</label>
+                            </div>
+                        </div>
+
+                        <!-- Botão de Envio -->
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                <i class="bi bi-send-fill me-2"></i> Enviar Mensagem
+                            </button>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-2">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group mb-2">
-                    <label for="assunto" class="form-label">Assunto</label>
-                    <input type="text" class="form-control" id="assunto" name="assunto" required>
-                </div>
-                <div class="form-group mb-2">
-                    <label for="mensagem" class="form-label">Mensagem</label>
-                    <textarea class="form-control" id="mensagem" name="mensagem" rows="8" required></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Enviar</button>
-            </form>
+                </form>
+            </div>
         </div>
 
-        <!-- Coluna de Informações Adicionais -->
-        <div class="col-md-6 bg-light p-4">
-            <!-- Seção de Informações de Contato -->
-            <div class="contact-info mb-4">
-                <h3 class="mb-3">Informações de Contato</h3>
-                <div class="mb-2">
-                    <i class="bi bi-envelope-fill me-2"></i>
-                    <span>cg.bookstore.online@gmail.com</span>
-                </div>
-                <div class="mb-2">
-                    <i class="bi bi-clock-fill me-2"></i>
-                    <span>Segunda a Sexta: 9h às 18h</span>
-                </div>
-                <div class="mb-2">
-                    <i class="bi bi-geo-alt-fill me-2"></i>
-                    <span>Nilópolis, RJ - Brasil</span>
-                </div>
-            </div>
-
-            <!-- Redes Sociais -->
-            <div class="social-section">
-                <h3 class="mb-3">Nos Siga nas Redes Sociais</h3>
-                <div class="d-flex gap-3">
-                    <a href="https://www.instagram.com/cg.bookstore/" target="_blank" class="text-decoration-none">
-                        <i class="bi bi-instagram fs-4"></i>
-                    </a>
-                    <a href="https://www.facebook.com/profile.php?id=61569188766565" target="_blank" class="text-decoration-none">
-                        <i class="bi bi-facebook fs-4"></i>
-                    </a>
-                    <a href="https://x.com/CG_BookStore" target="_blank" class="text-decoration-none">
-                        <i class="bi bi-twitter-x fs-4"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Mapa de Nilópolis -->
-            <div class="mt-4">
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29451.866891040837!2d-43.42645721345536!3d-22.809554441010692!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9962fd0cec20eb%3A0x6796d4517e22574e!2sNil%C3%B3polis%2C%20RJ!5e0!3m2!1spt-BR!2sbr!4v1709336117965!5m2!1spt-BR!2sbr"
-                            width="100%"
-                            height="300"
-                            style="border:0;"
-                            allowfullscreen=""
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
+        <!-- Coluna de Informações e Mapa -->
+        <div class="col-lg-5">
+            <div class="card contact-page-card p-4 h-100">
+                <!-- Informações de Contato -->
+                <div class="mb-4">
+                    <h3 class="h4 mb-3">Nossos Canais</h3>
+                    <div class="contact-info-item">
+                        <i class="bi bi-envelope-fill"></i>
+                        <div>
+                            <strong>Email</strong>
+                            <span>cg.bookstore.online@gmail.com</span>
+                        </div>
                     </div>
+                    <div class="contact-info-item">
+                        <i class="bi bi-clock-fill"></i>
+                        <div>
+                            <strong>Horário</strong>
+                            <span>Seg. a Sex. das 9h às 18h</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Redes Sociais -->
+                <div class="mb-4">
+                    <h3 class="h4 mb-3">Redes Sociais</h3>
+                    <div class="d-flex gap-3">
+                        <a href="https://www.instagram.com/cg.bookstore/" target="_blank" class="social-link-contact-page" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=61569188766565" target="_blank" class="social-link-contact-page" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://x.com/CG_BookStore" target="_blank" class="social-link-contact-page" title="Twitter/X"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+
+                <!-- Mapa -->
+                <div class="mt-auto">
+                    <h3 class="h4 mb-3">Nossa Localização</h3>
+                     <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29451.866891040837!2d-43.42645721345536!3d-22.809554441010692!2m3!1f0!2f0!3f0!3m2!i1024!i768!4f13.1!3m3!1m2!1s0x9962fd0cec20eb%3A0x6796d4s517e22574e!2sNil%C3%B3polis%2C%20RJ!5e0!3m2!1spt-BR!2sbr!4v1709336117965!5m2!1spt-BR!2sbr"
+                        width="100%"
+                        height="180"
+                        style="border:0; border-radius: var(--radius-md);"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
                 </div>
             </div>
         </div>

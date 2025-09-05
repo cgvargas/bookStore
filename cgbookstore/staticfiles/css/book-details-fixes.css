@@ -1,0 +1,395 @@
+/* ==========================================================================
+   CORREÇÃO COMPLETA DO TEMA ESCURO - PÁGINA DE DETALHES DO LIVRO
+   ========================================================================== */
+
+/* 1. RESET E VARIÁVEIS DE TEMA UNIFICADAS */
+:root {
+    /* Tema Claro */
+    --cor-fundo-primario: #ffffff;
+    --cor-fundo-secundario: rgba(248, 249, 250, 0.7);
+    --cor-fundo-card: rgba(255, 255, 255, 0.85);
+    --cor-texto-primario: #212529;
+    --cor-texto-secundario: #6c757d;
+    --cor-texto-invertido: #ffffff;
+    --cor-acao-secundaria: #ff6600;
+    --cor-acao-secundaria-hover: #e65c00;
+    --cor-borda: #dee2e6;
+    --sombra-card: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme='dark'] {
+    /* Tema Escuro */
+    --cor-fundo-primario: #121212;
+    --cor-fundo-secundario: rgba(30, 30, 30, 0.95);
+    --cor-fundo-card: rgba(43, 48, 53, 0.95);
+    --cor-texto-primario: #f8f9fa;
+    --cor-texto-secundario: #adb5bd;
+    --cor-texto-invertido: #ffffff;
+    --cor-acao-secundaria: #ff6600;
+    --cor-acao-secundaria-hover: #ff8533;
+    --cor-borda: #495057;
+    --sombra-card: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+}
+
+/* 2. APLICAÇÃO FORÇADA DO TEMA NO BODY */
+body {
+    background-color: var(--cor-fundo-primario) !important;
+    color: var(--cor-texto-primario) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 3. CARDS E CONTAINERS PRINCIPAIS */
+.card,
+.book-cover-container,
+.book-details {
+    background-color: var(--cor-fundo-card) !important;
+    color: var(--cor-texto-primario) !important;
+    border: 1px solid var(--cor-borda) !important;
+    box-shadow: var(--sombra-card) !important;
+    transition: all 0.3s ease;
+}
+
+/* 4. TÍTULOS E TEXTOS */
+.book-title,
+h1, h2, h3, h4, h5, h6 {
+    color: var(--cor-texto-primario) !important;
+}
+
+.book-subtitle,
+.text-muted {
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* 5. INFORMAÇÕES DO LIVRO */
+.info-item {
+    background-color: var(--cor-fundo-secundario) !important;
+    color: var(--cor-texto-primario) !important;
+    border: 1px solid var(--cor-borda) !important;
+    transition: all 0.3s ease;
+}
+
+.info-item:hover {
+    background-color: var(--cor-fundo-hover, rgba(255, 255, 255, 0.1)) !important;
+    border-color: var(--cor-acao-secundaria) !important;
+}
+
+.info-item strong {
+    color: var(--cor-texto-primario) !important;
+}
+
+/* 6. SEÇÕES DE CONTEÚDO */
+.content-section,
+.extra-section {
+    background-color: var(--cor-fundo-card) !important;
+    color: var(--cor-texto-primario) !important;
+    border: 1px solid var(--cor-borda) !important;
+    border-radius: 8px;
+}
+
+.content-section h3,
+.extra-section h3 {
+    color: var(--cor-texto-primario) !important;
+    border-bottom: 2px solid var(--cor-borda) !important;
+}
+
+.content-text,
+.extra-text {
+    color: var(--cor-texto-primario) !important;
+}
+
+/* 7. NAVEGAÇÃO POR ABAS */
+.nav-tabs {
+    border-bottom: 2px solid var(--cor-borda) !important;
+}
+
+.nav-tabs .nav-link {
+    color: var(--cor-texto-secundario) !important;
+    border: none !important;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--cor-texto-primario) !important;
+    background-color: var(--cor-fundo-hover, rgba(255, 255, 255, 0.05)) !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--cor-acao-secundaria) !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid var(--cor-acao-secundaria) !important;
+    font-weight: 600;
+}
+
+/* 8. BREADCRUMB */
+.breadcrumb {
+    background-color: transparent !important;
+}
+
+.breadcrumb-item a {
+    color: var(--cor-acao-secundaria) !important;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--cor-acao-secundaria-hover) !important;
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* 9. BOTÕES */
+.btn-primary {
+    background-color: var(--cor-acao-secundaria) !important;
+    border-color: var(--cor-acao-secundaria) !important;
+    color: var(--cor-texto-invertido) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--cor-acao-secundaria-hover) !important;
+    border-color: var(--cor-acao-secundaria-hover) !important;
+}
+
+.btn-outline-primary {
+    color: var(--cor-acao-secundaria) !important;
+    border-color: var(--cor-acao-secundaria) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--cor-acao-secundaria) !important;
+    color: var(--cor-texto-invertido) !important;
+}
+
+.btn-outline-secondary {
+    color: var(--cor-texto-secundario) !important;
+    border-color: var(--cor-borda) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--cor-texto-secundario) !important;
+    color: var(--cor-fundo-primario) !important;
+}
+
+/* 10. BADGES */
+.badge {
+    background-color: var(--cor-acao-secundaria) !important;
+    color: var(--cor-texto-invertido) !important;
+}
+
+/* 11. MODAIS - TEMA ESCURO */
+html[data-theme='dark'] .modal-content {
+    background-color: var(--cor-fundo-card) !important;
+    color: var(--cor-texto-primario) !important;
+    border: 1px solid var(--cor-borda) !important;
+}
+
+html[data-theme='dark'] .modal-header {
+    background-color: var(--cor-fundo-secundario) !important;
+    border-bottom: 1px solid var(--cor-borda) !important;
+}
+
+html[data-theme='dark'] .modal-footer {
+    background-color: var(--cor-fundo-secundario) !important;
+    border-top: 1px solid var(--cor-borda) !important;
+}
+
+html[data-theme='dark'] .form-select,
+html[data-theme='dark'] .form-control {
+    background-color: var(--cor-fundo-secundario) !important;
+    color: var(--cor-texto-primario) !important;
+    border: 1px solid var(--cor-borda) !important;
+}
+
+html[data-theme='dark'] .form-select option {
+    background-color: var(--cor-fundo-card) !important;
+    color: var(--cor-texto-primario) !important;
+}
+
+/* 12. LINKS */
+a:not(.btn):not(.nav-link):not(.breadcrumb-item) {
+    color: var(--cor-acao-secundaria) !important;
+    text-decoration: none;
+}
+
+a:not(.btn):not(.nav-link):not(.breadcrumb-item):hover {
+    color: var(--cor-acao-secundaria-hover) !important;
+    text-decoration: underline;
+}
+
+/* 13. PREÇOS */
+.book-price .original-price {
+    color: var(--cor-texto-secundario) !important;
+}
+
+.book-price .promotional-price {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+.book-price .regular-price {
+    color: var(--cor-texto-primario) !important;
+}
+
+/* 14. CORREÇÕES ESPECÍFICAS PARA TEMA ESCURO */
+
+/* Forçar fundo escuro em elementos específicos */
+html[data-theme='dark'] body {
+    background-color: #121212 !important;
+}
+
+html[data-theme='dark'] .container,
+html[data-theme='dark'] .row,
+html[data-theme='dark'] .col-md-4,
+html[data-theme='dark'] .col-md-8 {
+    background-color: transparent !important;
+}
+
+/* Cards no tema escuro */
+html[data-theme='dark'] .card {
+    background-color: rgba(43, 48, 53, 0.95) !important;
+    border-color: #495057 !important;
+}
+
+html[data-theme='dark'] .card-body {
+    background-color: transparent !important;
+}
+
+/* Container de capa no tema escuro */
+html[data-theme='dark'] .book-cover-container {
+    background-color: rgba(43, 48, 53, 0.95) !important;
+}
+
+/* Abas no tema escuro */
+html[data-theme='dark'] .tab-content {
+    background-color: transparent !important;
+}
+
+html[data-theme='dark'] .tab-pane {
+    background-color: transparent !important;
+}
+
+/* 15. CORREÇÕES PARA SELETORES ESPECÍFICOS EXISTENTES */
+
+/* Remove conflitos de classes antigas */
+.light-mode .card,
+.light-mode .book-details,
+body.light-mode .card,
+body.light-mode .book-cover-container {
+    /* Sobrescreve regras antigas com as novas variáveis */
+    background-color: var(--cor-fundo-card) !important;
+    color: var(--cor-texto-primario) !important;
+}
+
+/* Remove conflitos do tema escuro */
+body.dark-mode .card,
+body.dark-mode .book-cover-container,
+html.dark-mode body .card,
+html.dark-mode body .book-cover-container {
+    background-color: var(--cor-fundo-card) !important;
+    color: var(--cor-texto-primario) !important;
+}
+
+/* 16. ESTADOS HOVER E FOCUS */
+.card:hover {
+    background-color: var(--cor-fundo-card) !important;
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px);
+}
+
+html[data-theme='dark'] .card:hover {
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 17. ELEMENTOS DE FORMULÁRIO */
+.form-control,
+.form-select {
+    background-color: var(--cor-fundo-card) !important;
+    color: var(--cor-texto-primario) !important;
+    border: 1px solid var(--cor-borda) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--cor-fundo-card) !important;
+    color: var(--cor-texto-primario) !important;
+    border-color: var(--cor-acao-secundaria) !important;
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.25) !important;
+}
+
+/* 18. DROPDOWN MENU */
+.dropdown-menu {
+    background-color: var(--cor-fundo-card) !important;
+    border: 1px solid var(--cor-borda) !important;
+}
+
+.dropdown-item {
+    color: var(--cor-texto-primario) !important;
+}
+
+.dropdown-item:hover {
+    background-color: var(--cor-fundo-hover, rgba(255, 255, 255, 0.1)) !important;
+    color: var(--cor-acao-secundaria) !important;
+}
+
+/* 19. CORREÇÃO PARA ÍCONES */
+.bi {
+    color: inherit !important;
+}
+
+.nav-link .bi {
+    color: var(--cor-texto-secundario) !important;
+}
+
+.nav-link.active .bi,
+.nav-link:hover .bi {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+/* 20. ANIMAÇÕES E TRANSIÇÕES */
+* {
+    transition: background-color 0.3s ease,
+                color 0.3s ease,
+                border-color 0.3s ease !important;
+}
+
+/* 21. CORREÇÃO PARA MEDIA QUERIES EXISTENTES */
+@media (prefers-color-scheme: dark) {
+    /* Remove regras antigas de prefers-color-scheme
+       que podem estar conflitando com data-theme */
+}
+
+/* 22. FALLBACKS E COMPATIBILIDADE */
+.book-details-page {
+    background-color: var(--cor-fundo-primario) !important;
+    color: var(--cor-texto-primario) !important;
+    min-height: 100vh;
+}
+
+/* 23. CORREÇÃO PARA LOADING STATES */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* 24. CORREÇÃO FINAL - FORÇA APLICAÇÃO DE TEMA */
+html[data-theme='dark'] .book-details-page * {
+    /* Força cores do tema escuro em todos os elementos */
+    color: var(--cor-texto-primario);
+}
+
+html[data-theme='dark'] .book-details-page .card,
+html[data-theme='dark'] .book-details-page .info-item,
+html[data-theme='dark'] .book-details-page .content-section,
+html[data-theme='dark'] .book-details-page .extra-section {
+    background-color: var(--cor-fundo-card) !important;
+    border-color: var(--cor-borda) !important;
+}
+
+/* 25. PRINT STYLES */
+@media print {
+    * {
+        background-color: white !important;
+        color: black !important;
+    }
+}

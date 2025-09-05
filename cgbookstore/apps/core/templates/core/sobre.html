@@ -20,44 +20,65 @@
 
 {% block extra_css %}
 <style>
-    /* Regras existentes que serão mantidas */
+    /* ============================================================================
+       SISTEMA DE CORES UNIFICADO - COMPATÍVEL COM TEMAS GLOBAIS
+       ============================================================================ */
+
+    /* Cards base - usando variáveis CSS globais */
     .card {
         transition: transform 0.3s, box-shadow 0.3s;
         border-radius: 10px;
         border: none;
-        background: #f8f9fa;
+        background-color: var(--cor-fundo-card);
+        color: var(--cor-texto-primario);
         height: 100%;
+        box-shadow: var(--sombra-card);
     }
+
     .card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
     }
+
+    /* Elementos de lista */
     .list-unstyled li {
         padding-left: 1.5rem;
         position: relative;
         margin-bottom: 1rem;
+        color: var(--cor-texto-primario);
     }
+
     .list-unstyled li::before {
         position: absolute;
         left: 0;
     }
+
+    /* Cards especiais com gradientes adaptativos */
     .journey-card {
-        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        background: var(--cor-fundo-card);
+        border: 1px solid var(--cor-borda);
     }
+
     .tech-card {
-        background: linear-gradient(to bottom, #f8f9fa, #e2e8f0);
+        background: var(--cor-fundo-card);
+        border: 1px solid var(--cor-borda);
     }
+
+    /* Ícones de features */
     .feature-icon {
         font-size: 1.5rem;
-        color: #0d6efd;
+        color: var(--cor-acao-primaria);
         margin-right: 0.5rem;
     }
+
+    /* Títulos de seção */
     .section-title {
         position: relative;
         padding-bottom: 15px;
         margin-bottom: 25px;
-        color: #2c3e50;
+        color: var(--cor-texto-primario);
     }
+
     .section-title::after {
         content: '';
         position: absolute;
@@ -65,54 +86,81 @@
         bottom: 0;
         width: 50px;
         height: 3px;
-        background: #0d6efd;
+        background: var(--cor-acao-primaria);
     }
+
     .section-title.text-center::after {
         left: 50%;
         transform: translateX(-50%);
     }
+
+    /* Cards de citação */
     .quote-card {
-        background-color: #e9f2ff;
-        border-left: 5px solid #0d6efd;
+        background-color: var(--cor-fundo-hover);
+        border-left: 5px solid var(--cor-acao-primaria);
         padding: 20px;
         font-style: italic;
+        color: var(--cor-texto-primario);
+        border-radius: 8px;
     }
+
+    /* Features futuras */
     .future-feature {
-        background-color: #ffffff;
+        background-color: var(--cor-fundo-card);
+        border: 1px solid var(--cor-borda);
         border-radius: 8px;
         padding: 15px;
         margin-bottom: 15px;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        box-shadow: var(--sombra-card);
         transition: transform 0.2s;
     }
+
     .future-feature:hover {
         transform: translateX(5px);
     }
+
+    .future-feature h5,
+    .future-feature p {
+        color: var(--cor-texto-primario);
+    }
+
+    /* Card de compromisso */
     .commitment-card {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+        background: var(--cor-fundo-card);
+        border: 1px solid var(--cor-borda);
         border-radius: 10px;
     }
+
+    /* Badges personalizados */
     .badge-custom {
-        background: #e7f0fd;
-        color: #0d6efd;
+        background: rgba(13, 110, 253, 0.1);
+        color: var(--cor-acao-primaria);
         font-weight: 500;
         padding: 5px 10px;
         border-radius: 20px;
+        border: 1px solid rgba(13, 110, 253, 0.2);
     }
+
+    /* Badges de tecnologia */
     .tech-badge {
         display: inline-block;
         padding: 6px 12px;
         margin: 5px;
         font-size: 0.85rem;
         font-weight: 500;
-        background: #f1f5f9;
-        color: #334155;
+        background: var(--cor-fundo-hover);
+        color: var(--cor-texto-primario);
         border-radius: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: var(--sombra-card);
+        border: 1px solid var(--cor-borda);
     }
+
     .tech-badge i {
         margin-right: 5px;
+        color: var(--cor-acao-primaria);
     }
+
+    /* Botões com alinhamento vertical */
     .btn-vertical-center {
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
@@ -121,137 +169,206 @@
         align-items: center;
         justify-content: center;
     }
-     .section-title::after {
-        display: none; /* Remove a linha completamente */
-    }
-    /* Manter algum espaçamento onde a linha estava */
-    .section-title {
-        margin-bottom: 20px; /* Ajuste conforme necessário */
+
+    .btn-vertical-fix {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 38px;
     }
 
-    .no-scroll-modal {
-        overflow: hidden !important;
-        max-height: none !important;
-        scrollbar-width: none; /* Firefox */
-    }
-    .no-scroll-modal::-webkit-scrollbar {
-        display: none; /* Chrome, Edge */
+    /* Títulos e textos principais */
+    .display-4,
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--cor-texto-primario) !important;
     }
 
-    .modal-body h5,
-        .modal-body p,
-        .modal-body li {
-            color: #000 !important;
+    .lead,
+    .card-text,
+    p:not(.text-muted) {
+        color: var(--cor-texto-primario) !important;
     }
 
-    /* Remove scroll de todas as partes do modal */
-    .modal,
-    .modal-dialog,
-    .modal-content,
-    .modal-body {
-        overflow: hidden !important;
-        max-height: 100vh !important;
+    .text-muted {
+        color: var(--cor-texto-secundario) !important;
     }
 
-    /* Esconde scrollbar do Chrome, Edge */
-    .modal-body::-webkit-scrollbar {
-        display: none !important;
+    /* CORREÇÃO ESPECÍFICA - Títulos que devem ser sempre brancos no tema escuro */
+    html[data-theme='dark'] h2.section-title,
+    html[data-theme='dark'] h3:not(.card-title):not(.modal-title) {
+        color: var(--cor-texto-primario) !important;
     }
 
-    /* Esconde scrollbar do Firefox */
-    .modal-body {
-        scrollbar-width: none !important;
+    /* Garantir que parágrafos lead sejam sempre legíveis */
+    html[data-theme='dark'] p.lead {
+        color: var(--cor-texto-primario) !important;
     }
+
+    /* Correção específica para o título "Tecnologia de Ponta" */
+    html[data-theme='dark'] .section-title.text-center {
+        color: var(--cor-texto-primario) !important;
+    }
+
+    /* Força máxima - qualquer título h2 no tema escuro deve ser branco */
+    html[data-theme='dark'] h2 {
+        color: var(--cor-texto-primario) !important;
+    }
+
+    /* CORREÇÃO ULTRA ESPECÍFICA para "Tecnologia de Ponta" */
+    html[data-theme='dark'] h2.section-title.text-center,
+    html[data-theme='dark'] .section-title.text-center,
+    html[data-theme='dark'] .tech-card .section-title,
+    html[data-theme='dark'] .col-12 h2.section-title.text-center {
+        color: var(--cor-texto-primario) !important;
+        -webkit-text-fill-color: var(--cor-texto-primario) !important;
+    }
+
+    /* SOLUÇÃO EXTREMA - Buscar por qualquer h2 que contenha "Tecnologia" */
+    html[data-theme='dark'] h2:contains("Tecnologia"),
+    html[data-theme='dark'] .row h2,
+    html[data-theme='dark'] .col-12 > h2 {
+        color: var(--cor-texto-primario) !important;
+        -webkit-text-fill-color: var(--cor-texto-primario) !important;
+        text-shadow: none !important;
+    }
+
+    /* Textos específicos dos cards */
+    .card-title {
+        color: var(--cor-texto-primario) !important;
+    }
+
+    .card-body p,
+    .card-body li,
+    .card-body ul {
+        color: var(--cor-texto-primario) !important;
+    }
+
+    /* ============================================================================
+       MODAIS - CORREÇÕES PARA AMBOS OS TEMAS
+       ============================================================================ */
+
     .modal-content {
-    border-radius: 1rem !important; /* mais arredondado */
+        border-radius: 1rem !important;
+        background-color: var(--cor-fundo-card);
+        color: var(--cor-texto-primario);
     }
 
     .modal-header {
         border-top-left-radius: 1rem !important;
         border-top-right-radius: 1rem !important;
+        background-color: var(--cor-acao-primaria) !important;
+        color: var(--cor-texto-invertido) !important;
+        border-bottom: none;
     }
 
-    .modal-header {
-    background-color: #000 !important;
-    color: #fff !important;
-    border-bottom: none;
+    .modal-body {
+        background-color: var(--cor-fundo-card);
+        color: var(--cor-texto-primario);
+        scrollbar-width: none;
+        overflow-x: hidden;
     }
 
-    .btn-vertical-fix {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 38px;
+    .modal-body::-webkit-scrollbar {
+        display: none;
     }
 
-    /* NOVAS REGRAS PARA CORREÇÃO DE CONTRASTE */
-
-    /* Regras para modo claro */
-    html.light-mode .journey-card .card-title,
-    html.light-mode .tech-card .section-title,
-    html.light-mode .card h3,
-    html.light-mode .card h4,
-    html.light-mode .card h5 {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
+    .modal-body h5,
+    .modal-body p,
+    .modal-body li {
+        color: var(--cor-texto-primario) !important;
     }
 
-    html.light-mode .journey-card .card-text,
-    html.light-mode .journey-card li,
-    html.light-mode .journey-card .quote-card,
-    html.light-mode .tech-card .card-text,
-    html.light-mode .card p:not(.text-muted) {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
+    .modal-footer {
+        background-color: var(--cor-fundo-card);
+        border-top: 1px solid var(--cor-borda);
     }
 
-    html.light-mode .card .text-muted {
-        color: #333333 !important;
-        -webkit-text-fill-color: #333333 !important;
+    /* Lista do modal */
+    .list-group-item.bg-transparent {
+        background-color: transparent !important;
+        color: var(--cor-texto-primario) !important;
+        border: none;
     }
 
-    /* Regras para modo escuro */
-    html.dark-mode .journey-card .card-title,
-    html.dark-mode .tech-card .section-title,
-    html.dark-mode .card h3,
-    html.dark-mode .card h4,
-    html.dark-mode .card h5 {
-        color: #ffffff !important;
-        -webkit-text-fill-color: #ffffff !important;
+    /* Seção de background especial para modais no tema escuro */
+    html[data-theme='dark'] .modal-body .bg-light {
+        background-color: var(--cor-fundo-hover) !important;
+        color: var(--cor-texto-primario) !important;
     }
 
-    html.dark-mode .journey-card .card-text,
-    html.dark-mode .journey-card li,
-    html.dark-mode .journey-card .quote-card,
-    html.dark-mode .tech-card .card-text,
-    html.dark-mode .card p:not(.text-muted) {
-        color: #e2e8f0 !important;
-        -webkit-text-fill-color: #e2e8f0 !important;
+    /* ============================================================================
+       AJUSTES ESPECÍFICOS PARA TEMA ESCURO
+       ============================================================================ */
+
+    html[data-theme='dark'] .journey-card {
+        background-color: var(--cor-fundo-card) !important;
     }
 
-    html.dark-mode .card .text-muted {
-        color: #a0aec0 !important;
-        -webkit-text-fill-color: #a0aec0 !important;
+    html[data-theme='dark'] .tech-card {
+        background-color: var(--cor-fundo-card) !important;
     }
 
-    /* Garantir alta especificidade para sobrescrever qualquer outro estilo */
-    html[class] .section-title.text-center,
-    html[class] .section-title.text-dark,
-    html[class] h2.section-title {
-        color: inherit !important;
+    html[data-theme='dark'] .commitment-card {
+        background-color: var(--cor-fundo-card) !important;
     }
 
-    /* Ajustar cores específicas para cada tema */
-    html.light-mode h2.section-title {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
+    html[data-theme='dark'] .future-feature {
+        background-color: var(--cor-fundo-card) !important;
+        border-color: var(--cor-borda) !important;
     }
 
-    html.dark-mode h2.section-title {
-        color: #ffffff !important;
-        -webkit-text-fill-color: #ffffff !important;
+    html[data-theme='dark'] .quote-card {
+        background-color: var(--cor-fundo-hover) !important;
+        color: var(--cor-texto-primario) !important;
     }
 
+    html[data-theme='dark'] .badge-custom {
+        background: rgba(13, 110, 253, 0.2);
+        color: var(--cor-acao-primaria);
+        border-color: rgba(13, 110, 253, 0.3);
+    }
+
+    html[data-theme='dark'] .tech-badge {
+        background-color: var(--cor-fundo-hover) !important;
+        color: var(--cor-texto-primario) !important;
+        border-color: var(--cor-borda) !important;
+    }
+
+    /* ============================================================================
+       RESPONSIVIDADE E ACABAMENTOS
+       ============================================================================ */
+
+    /* Remover linha decorativa dos títulos se necessário */
+    .section-title.no-line::after {
+        display: none;
+    }
+
+    /* Espaçamento ajustado quando não há linha */
+    .section-title.no-line {
+        margin-bottom: 20px;
+    }
+
+    /* Ajustes para dispositivos móveis */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .future-feature {
+            padding: 12px;
+        }
+
+        .tech-badge {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            margin: 3px;
+        }
+    }
+
+    /* Garantir que todos os elementos usem as cores corretas */
+    * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
 </style>
 {% endblock %}
 

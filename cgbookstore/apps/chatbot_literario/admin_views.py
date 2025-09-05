@@ -19,7 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from cgbookstore.apps.chatbot_literario.models import (
-    Conversation, Message, KnowledgeItem, TrainingSession
+    Conversation, Message, KnowledgeItem, TrainingSession, ConversationFeedback
 )
 # ✅ CORREÇÃO: Importar do PACOTE `services`, não do módulo.
 # Isso força a execução do `__init__.py` do pacote.
@@ -52,9 +52,8 @@ def training_interface(request):
         total_conversations = Conversation.objects.count()
         total_messages = Message.objects.count()
 
-        # Analytics básicos
-        from cgbookstore.apps.chatbot_literario.models import ChatAnalytics
-        total_analytics = ChatAnalytics.objects.count()
+        # ✅ CORREÇÃO: Usar ConversationFeedback ao invés de ChatAnalytics
+        total_analytics = ConversationFeedback.objects.count()
 
         # Conversas recentes para a aba de conversas
         recent_conversations = Conversation.objects.select_related('user').order_by('-started_at')[:10]
@@ -90,7 +89,7 @@ def training_interface(request):
             },
         }
 
-        # Renderizar template correto
+        # ✅ CORREÇÃO: Usar o caminho correto do template
         return render(request, 'chatbot_literario/training/training.html', context)
 
     except Exception as e:
@@ -159,7 +158,7 @@ def test_chatbot(request):
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
     # Redireciona para a interface de treinamento
-    return redirect('admin:chatbot_literario_training')
+    return redirect('chatbot_training_dashboard')
 
 
 @staff_member_required
@@ -188,7 +187,7 @@ def add_knowledge_item(request):
                     })
                 else:
                     messages.error(request, 'Pergunta e resposta são obrigatórias')
-                    return redirect(request.path)
+                    return redirect('chatbot_training_dashboard')
 
             # Adicionar conhecimento usando training_service
             result = training_service.add_knowledge(
@@ -213,13 +212,13 @@ def add_knowledge_item(request):
                     return JsonResponse(result)
                 else:
                     messages.success(request, 'Conhecimento adicionado com sucesso!')
-                    return redirect('admin:chatbot_literario_training')
+                    return redirect('chatbot_training_dashboard')
             else:
                 if request.content_type == 'application/json':
                     return JsonResponse(result)
                 else:
                     messages.error(request, result['message'])
-                    return redirect('admin:chatbot_literario_training')
+                    return redirect('chatbot_training_dashboard')
 
         except Exception as e:
             logger.error(f"Erro ao adicionar conhecimento: {e}")
@@ -230,15 +229,10 @@ def add_knowledge_item(request):
                 })
             else:
                 messages.error(request, f'Erro interno: {str(e)}')
-                return redirect('admin:chatbot_literario_training')
+                return redirect('chatbot_training_dashboard')
 
-    # GET - Renderizar formulário
-    context = {
-        'title': 'Adicionar Conhecimento',
-        'form_action': request.path,
-        'categories': ['manual', 'literatura', 'navegacao', 'ajuda', 'recomendacao'],
-    }
-    return render(request, 'chatbot_literario/training/training.html', context)
+    # GET - Redirecionar para a interface de treinamento
+    return redirect('chatbot_training_dashboard')
 
 
 @csrf_exempt
@@ -257,10 +251,10 @@ def add_to_knowledge(request):
 
         conversation_id = data.get('conversation_id')
         message_id = data.get('message_id')
-        question = data.get('question', '').strip()
-        answer = data.get('answer', '').strip()
+        user_input = data.get('user_input', '').strip()
+        bot_response = data.get('bot_response', '').strip()
 
-        if not all([question, answer]):
+        if not all([user_input, bot_response]):
             return JsonResponse({
                 'success': False,
                 'error': 'Pergunta e resposta são obrigatórias'
@@ -268,8 +262,8 @@ def add_to_knowledge(request):
 
         # Usar training_service para adicionar
         result = training_service.add_knowledge(
-            question=question,
-            answer=answer,
+            question=user_input,
+            answer=bot_response,
             category='from_conversation'
         )
 
@@ -277,22 +271,24 @@ def add_to_knowledge(request):
             # Registrar sessão de treinamento
             TrainingSession.objects.create(
                 trainer_user=request.user,
-                original_question=question,
+                original_question=user_input,
                 original_answer='',
-                corrected_answer=answer,
+                corrected_answer=bot_response,
                 knowledge_item_id=result.get('id'),
                 training_type='manual_addition',
                 notes=f'Adição de conversa ID: {conversation_id}, Mensagem ID: {message_id}'
             )
 
-        return JsonResponse(result)
+            messages.success(request, 'Conhecimento adicionado com sucesso!')
+        else:
+            messages.error(request, result['message'])
+
+        return redirect('chatbot_training_dashboard')
 
     except Exception as e:
         logger.error(f"Erro em add_to_knowledge: {e}")
-        return JsonResponse({
-            'success': False,
-            'error': f'Erro interno: {str(e)}'
-        })
+        messages.error(request, f'Erro interno: {str(e)}')
+        return redirect('chatbot_training_dashboard')
 
 
 @staff_member_required
@@ -303,15 +299,15 @@ def import_knowledge(request):
     """
     if request.method == 'POST':
         try:
-            if 'knowledge_file' not in request.FILES:
+            if 'import_file' not in request.FILES:
                 messages.error(request, 'Nenhum arquivo foi enviado')
-                return redirect(request.path)
+                return redirect('chatbot_training_dashboard')
 
-            uploaded_file = request.FILES['knowledge_file']
+            uploaded_file = request.FILES['import_file']
 
             if not uploaded_file.name.endswith('.json'):
                 messages.error(request, 'Apenas arquivos JSON são suportados')
-                return redirect(request.path)
+                return redirect('chatbot_training_dashboard')
 
             # Ler e processar arquivo JSON
             file_content = uploaded_file.read().decode('utf-8')
@@ -327,7 +323,7 @@ def import_knowledge(request):
                 items = knowledge_data
             else:
                 messages.error(request, 'Formato de arquivo inválido')
-                return redirect(request.path)
+                return redirect('chatbot_training_dashboard')
 
             # Processar cada item
             for item in items:
@@ -374,15 +370,11 @@ def import_knowledge(request):
         except Exception as e:
             logger.error(f"Erro na importação: {e}")
             messages.error(request, f'Erro na importação: {str(e)}')
-        return redirect('admin:chatbot_literario_training')
 
-    # GET - Renderizar formulário de importação
-    context = {
-        'title': 'Importar Base de Conhecimento',
-        'form_action': request.path,
-        'accept_types': '.json',
-    }
-    return render(request, 'chatbot_literario/training/training.html', context)
+        return redirect('chatbot_training_dashboard')
+
+    # GET - Redirecionar para a interface de treinamento
+    return redirect('chatbot_training_dashboard')
 
 
 @staff_member_required
@@ -392,8 +384,8 @@ def export_knowledge(request):
     Esta é a função chamada por /admin/chatbot/treinamento/exportar/
     """
     try:
-        format_type = request.GET.get('format', 'json')
-        active_only = request.GET.get('active_only', 'true').lower() == 'true'
+        format_type = request.POST.get('format', 'json')
+        active_only = request.POST.get('active_only', 'true').lower() == 'true'
 
         # Usar training_service para exportar
         export_result = training_service.export_knowledge_data(
@@ -412,12 +404,12 @@ def export_knowledge(request):
                 return response
         else:
             messages.error(request, export_result['message'])
-            return redirect('admin:chatbot_literario_training')
 
     except Exception as e:
         logger.error(f"Erro na exportação: {e}")
         messages.error(request, f'Erro na exportação: {str(e)}')
-        return redirect('admin:chatbot_literario_training')
+
+    return redirect('chatbot_training_dashboard')
 
 
 @staff_member_required
@@ -428,7 +420,7 @@ def update_embeddings(request):
     # ✅ Garante que a view só responde a requisições POST
     if request.method != 'POST':
         messages.error(request, "Ação inválida. Use o botão no painel.")
-        return redirect('admin:chatbot_literario_training')
+        return redirect('chatbot_training_dashboard')
 
     try:
         # Usar training_service para atualizar embeddings
@@ -458,7 +450,7 @@ def update_embeddings(request):
         messages.error(request, f'Erro interno do servidor ao atualizar embeddings: {str(e)}')
 
     # ✅ Redireciona o usuário de volta para o painel principal
-    return redirect('admin:chatbot_literario_training')
+    return redirect('chatbot_training_dashboard')
 
 
 # =============================================================================
@@ -497,7 +489,7 @@ def run_add_specific_dates(request):
         logger.error(f"Erro ao adicionar datas específicas: {e}")
         messages.error(request, f'Erro: {str(e)}')
 
-    return redirect('admin:chatbot_literario_training')
+    return redirect('chatbot_training_dashboard')
 
 
 @staff_member_required
@@ -521,7 +513,7 @@ def run_debug_chatbot(request):
     except Exception as e:
         logger.error(f"Erro no debug: {e}", exc_info=True)
         messages.error(request, f'Erro no debug: {str(e)}')
-        return redirect('admin:chatbot_literario_training')
+        return redirect('chatbot_training_dashboard')
 
 
 @staff_member_required
@@ -543,7 +535,7 @@ def system_statistics(request):
             'knowledge_stats': stats,
             'quality_metrics': quality_metrics,
             'recent_training': recent_training,
-            'debug_info': None, # Não aplicável para esta view
+            'debug_info': None,  # Não aplicável para esta view
         }
         # ✅ Renderiza a nova dashboard
         return render(request, 'admin/chatbot_literario/debug_results.html', context)
@@ -551,7 +543,7 @@ def system_statistics(request):
     except Exception as e:
         logger.error(f"Erro nas estatísticas: {e}", exc_info=True)
         messages.error(request, f'Erro: {str(e)}')
-        return redirect('admin:chatbot_literario_training')
+        return redirect('chatbot_training_dashboard')
 
 
 @staff_member_required
@@ -582,7 +574,7 @@ def clean_knowledge_base(request):
             logger.error(f"Erro na limpeza: {e}")
             messages.error(request, f'Erro na limpeza: {str(e)}')
 
-    return redirect('admin:chatbot_literario_training')
+    return redirect('chatbot_training_dashboard')
 
 
 @staff_member_required
@@ -603,196 +595,7 @@ def system_config(request):
     except Exception as e:
         logger.error(f"Erro na configuração: {e}")
         messages.error(request, f'Erro: {str(e)}')
-        return redirect('admin:chatbot_literario_training')
-
-
-# =============================================================================
-# FUNÇÕES DE SIMULADOR E ADMIN AVANÇADO
-# =============================================================================
-
-@csrf_exempt
-@staff_member_required
-@require_http_methods(["POST"])
-def simulator_chat(request):
-    """
-    Endpoint para conversas no simulador.
-    """
-    try:
-        data = json.loads(request.body)
-        user_message = data.get('message', '').strip()
-        conversation_history = data.get('conversation_history', [])
-        session_id = data.get('session_id', 'admin_simulator')
-
-        if not user_message:
-            return JsonResponse({
-                'success': False,
-                'error': 'Mensagem não pode estar vazia'
-            })
-
-        # Buscar ou criar conversa para o simulador
-        conversation, created = Conversation.objects.get_or_create(
-            user_id=request.user.id,
-            defaults={
-                'is_training_session': True
-            }
-        )
-
-        if created:
-            conversation.title = f'Simulador - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
-            conversation.save()
-
-        # Salvar mensagem do usuário
-        user_msg = Message.objects.create(
-            conversation=conversation,
-            content=user_message,
-            sender='user',
-            response_time=0.0
-        )
-
-        # ✅ CORREÇÃO 3: Usar `functional_chatbot.get_response` e tratar o dicionário de resposta.
-        response_data = functional_chatbot.get_response(
-            user_message=user_message,
-            user_id=str(request.user.id)
-        )
-        bot_response = response_data.get('response', 'Desculpe, não consegui gerar uma resposta.')
-
-        # Salvar resposta do bot
-        bot_msg = Message.objects.create(
-            conversation=conversation,
-            content=bot_response,
-            sender='bot',
-            response_time=0.0
-        )
-
-        return JsonResponse({
-            'success': True,
-            'response': bot_response,
-            'message_id': bot_msg.id,
-            'conversation_id': conversation.id,
-            'timestamp': bot_msg.created_at.isoformat(),
-            'can_correct': True
-        })
-
-    except Exception as e:
-        logger.error(f"Erro no simulador: {e}")
-        return JsonResponse({
-            'success': False,
-            'error': f'Erro interno: {str(e)}'
-        })
-
-
-@csrf_exempt
-@staff_member_required
-@require_http_methods(["POST"])
-def correct_response(request):
-    """
-    Endpoint para corrigir respostas do chatbot.
-    """
-    try:
-        data = json.loads(request.body)
-        message_id = data.get('message_id')
-        correct_answer = data.get('correct_answer', '').strip()
-        original_question = data.get('original_question', '').strip()
-
-        if not all([message_id, correct_answer, original_question]):
-            return JsonResponse({
-                'success': False,
-                'error': 'Todos os campos são obrigatórios'
-            })
-
-        # Buscar mensagem original
-        message = get_object_or_404(Message, id=message_id, sender='bot')
-
-        with transaction.atomic():
-            # Registrar correção usando training_service
-            training_result = training_service.add_knowledge(
-                question=original_question,
-                answer=correct_answer,
-                category='simulator_correction'
-            )
-
-            if training_result['success']:
-                # Criar sessão de treinamento
-                training_session = TrainingSession.objects.create(
-                    trainer_user=request.user,
-                    original_question=original_question,
-                    original_answer=message.content,
-                    corrected_answer=correct_answer,
-                    knowledge_item_id=training_result.get('id'),
-                    training_type='manual_correction',
-                    notes=f'Correção via simulador - Message ID: {message_id}'
-                )
-
-                # Atualizar mensagem original
-                message.was_corrected = True
-                message.corrected_response = correct_answer
-                message.corrected_by = request.user
-                message.corrected_at = timezone.now()
-                message.save()
-
-                logger.info(
-                    f"✅ Correção aplicada por {request.user.username}: '{original_question}' → '{correct_answer}'")
-
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Correção aplicada com sucesso!',
-                    'training_session_id': training_session.id,
-                    'knowledge_item_id': training_result.get('id')
-                })
-            else:
-                return JsonResponse({
-                    'success': False,
-                    'error': f'Erro no treinamento: {training_result["message"]}'
-                })
-
-    except Exception as e:
-        logger.error(f"Erro na correção: {e}")
-        return JsonResponse({
-            'success': False,
-            'error': f'Erro interno: {str(e)}'
-        })
-
-
-@csrf_exempt
-@staff_member_required
-@require_http_methods(["POST"])
-def test_learning(request):
-    """
-    Testa se o sistema aprendeu uma correção, usando o novo fluxo de conversa.
-    """
-    try:
-        data = json.loads(request.body)
-        test_question = data.get('question', '').strip()
-
-        if not test_question:
-            return JsonResponse({'success': False, 'error': 'Pergunta para teste é obrigatória'})
-
-        # ✅ CORREÇÃO: Cria uma conversa nova e limpa especificamente para este teste.
-        # Isso garante que o teste não seja "contaminado" por um histórico anterior.
-        test_conversation = Conversation.objects.create(
-            user=request.user,
-            is_training_session=True,
-            title=f"Teste de aprendizado: {test_question[:50]}"
-        )
-
-        # ✅ CORREÇÃO: Chama o chatbot com o objeto `conversation` recém-criado.
-        response_data = functional_chatbot.get_response(
-            user_message=test_question,
-            conversation=test_conversation
-        )
-
-        test_response = response_data.get('response', 'Não foi possível obter uma resposta para o teste.')
-
-        return JsonResponse({
-            'success': True,
-            'question': test_question,
-            'response': test_response,
-            'timestamp': timezone.now().isoformat()
-        })
-
-    except Exception as e:
-        logger.error(f"Erro no teste de aprendizado: {e}", exc_info=True)
-        return JsonResponse({'success': False, 'error': f'Erro interno: {str(e)}'})
+        return redirect('chatbot_training_dashboard')
 
 
 # =============================================================================
@@ -813,39 +616,3 @@ def chatbot_simulator(request):
     Simulador do chatbot - redireciona para test_chatbot.
     """
     return test_chatbot(request)
-
-
-# Funções adicionais para compatibilidade total com site.py
-training_history = system_statistics
-knowledge_base_manager = run_debug_chatbot
-bulk_train_knowledge = update_embeddings
-training_analytics = system_statistics
-add_knowledge_manual = add_knowledge_item
-export_knowledge_base = export_knowledge
-
-
-# =============================================================================
-# FUNÇÃO REQUERIDA PELO CONFIG/URLS.PY
-# =============================================================================
-
-def get_admin_urls():
-    """
-    Função requerida pelo config/urls.py para registrar URLs administrativas.
-    Retorna lista de URLs do chatbot para serem incluídas no roteamento principal.
-    """
-    from django.urls import path
-
-    return [
-        # URLs básicas já registradas no site.py
-        path('admin/chatbot/simulator/', test_chatbot, name='chatbot_simulator'),
-        path('admin/chatbot/dashboard/', training_interface, name='chatbot_dashboard'),
-
-        # URLs adicionais que podem ser necessárias
-        path('admin/chatbot/api/chat/', simulator_chat, name='chatbot_api_chat'),
-        path('admin/chatbot/api/correct/', correct_response, name='chatbot_api_correct'),
-        path('admin/chatbot/api/test-learning/', test_learning, name='chatbot_api_test_learning'),
-
-        # URLs de compatibilidade
-        path('admin/chatbot/training/', training_interface, name='chatbot_training_alt'),
-        path('admin/chatbot/test/', test_chatbot, name='chatbot_test_alt'),
-    ]

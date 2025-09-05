@@ -30,7 +30,7 @@
     <!-- Local Book Card -->
     <div class="col">
       <div class="card h-100 shadow-sm border-0 hover-scale book-card">
-        <a href="{% url 'book_detail' book.id %}" class="text-decoration-none text-dark view-book-btn" data-book-id="{{ book.id }}" data-book-type="local">
+        <a href="{% url 'core:book_detail' book.id %}" class="text-decoration-none text-dark view-book-btn" data-book-id="{{ book.id }}" data-book-type="local">
           <div class="position-relative">
             {% if book.capa %}
             <img src="{{ book.capa.url }}" class="card-img-top" alt="{{ book.titulo }}" onerror="this.src='{% static 'images/no-cover.svg' %}'; this.onerror=null;">
@@ -56,7 +56,7 @@
           </div>
         </a>
         <div class="card-footer bg-transparent border-0">
-          <a href="{% url 'book_detail' book.id %}" class="btn btn-primary w-100 btn-sm">
+          <a href="{% url 'core:book_detail' book.id %}" class="btn btn-primary w-100 btn-sm">
             <i class="bi bi-info-circle me-2"></i>Ver Detalhes
           </a>
         </div>

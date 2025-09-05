@@ -1,3 +1,5 @@
+# Arquivo: cgbookstore/apps/core/models/home_content.py
+
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
@@ -6,290 +8,135 @@ from django.db.models import Q
 from django.db.models.query import QuerySet
 import logging
 
-# ------------------------------------------------------------------------------
-# Sistema de gerenciamento de conteúdo da página inicial
-# Este módulo implementa uma arquitetura modular e flexível para gerenciar
-# diferentes tipos de seções na página inicial do site.
-# ------------------------------------------------------------------------------
+logger = logging.getLogger(__name__)
+
+# ==============================================================================
+# MODELO PRINCIPAL DE SEÇÃO
+# ==============================================================================
 
 class HomeSection(models.Model):
-    """Modelo para gerenciar seções da página inicial"""
-    # Define os tipos de seções disponíveis para a página inicial
+    """
+    Modelo unificado para gerenciar TODAS as seções da página inicial,
+    incluindo a lógica completa para prateleiras de livros.
+    """
+    # Tipos de Seção
     SECTION_TYPES = [
         ('shelf', 'Prateleira de Livros'),
         ('video', 'Seção de Vídeos'),
+        ('author', 'Seção de Autores'),
         ('ad', 'Área de Propaganda'),
         ('link_grid', 'Grade de Links'),
         ('banner', 'Banner Personalizado'),
-        ('custom', 'Seção Personalizada'),
+        ('custom', 'Seção Genérica'),
         ('background', 'Imagem de Fundo do Site'),
     ]
 
-    titulo = models.CharField('Título', max_length=200)
+    # Tipos de Prateleira (como ela obtém os livros)
+    SHELF_BEHAVIOR_CHOICES = [
+        ('manual', 'Seleção Manual de Livros'),
+        ('automatic', 'Filtro Automático'),
+    ]
+
+    # Opções de Filtro Automático (à prova de erros)
+    SHELF_FILTER_CHOICES = [
+        ('e_lancamento', 'É Lançamento'),
+        ('e_destaque', 'É Destaque'),
+        ('bestsellers', 'Mais Vendidos (por quantidade vendida)'),
+        ('most_viewed', 'Mais Acessados (por quantidade de acessos)'),
+        ('adaptado_filme', 'Adaptado para Filme/Série'),
+        ('e_manga', 'É Mangá'),
+        ('categoria__icontains', 'Categoria (contém texto)'),
+        ('autor__icontains', 'Autor (contém texto)'),
+        ('titulo__icontains', 'Título (contém texto)'),
+    ]
+
+    # --- CAMPOS PRINCIPAIS (PARA TODAS AS SEÇÕES) ---
+    titulo = models.CharField('Título da Seção', max_length=200)
     tipo = models.CharField('Tipo de Seção', max_length=20, choices=SECTION_TYPES)
     ordem = models.IntegerField('Ordem de Exibição', default=0)
     ativo = models.BooleanField('Ativo', default=True)
-    css_class = models.CharField('Classe CSS', max_length=100, blank=True)
-    descricao = models.TextField('Descrição', blank=True)
+
+    # --- CAMPOS ESPECÍFICOS PARA PRATELEIRAS DE LIVROS (tipo='shelf') ---
+    shelf_behavior = models.CharField(
+        'Tipo de Prateleira', max_length=20, choices=SHELF_BEHAVIOR_CHOICES,
+        blank=True, help_text="Escolha como os livros desta prateleira serão selecionados."
+    )
+    shelf_filter_field = models.CharField(
+        'Filtro Automático', max_length=50, choices=SHELF_FILTER_CHOICES,
+        blank=True, help_text="Usado apenas se o tipo for 'Filtro Automático'."
+    )
+    shelf_filter_value = models.CharField(
+        'Valor para o Filtro', max_length=100,
+        blank=True, help_text="Ex: 'Ficção Científica' para o filtro de Categoria."
+    )
+    manual_books = models.ManyToManyField(
+        'Book', through='HomeSectionBookItem', related_name='home_sections',
+        blank=True, verbose_name='Livros Manuais'
+    )
+    max_books = models.IntegerField('Máximo de Livros', default=12, validators=[MinValueValidator(1), MaxValueValidator(50)])
+
+    # --- CAMPOS PARA PERSONALIZAÇÃO FUTURA ---
+    customization_options = models.JSONField(
+        'Opções de Personalização (JSON)', blank=True, null=True,
+        help_text="Configurações avançadas como cores, transparência, formato de cards, etc."
+    )
+    css_class = models.CharField('Classe CSS Adicional', max_length=100, blank=True)
+
+    # --- CAMPOS DE AUDITORIA ---
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
     updated_at = models.DateTimeField('Atualizado em', auto_now=True)
+
 
     class Meta:
         ordering = ['ordem', 'titulo']
-        verbose_name = 'Seção'
-        verbose_name_plural = 'Seções'
+        verbose_name = 'Seção da Home'
+        verbose_name_plural = 'Seções da Home'
 
     def __str__(self):
-        return self.titulo
+        return f"{self.ordem}: {self.titulo} ({self.get_tipo_display()})"
 
-    def get_template_name(self):
+    def get_books(self) -> QuerySet:
         """
-        Retorna o caminho para o template a ser usado para renderizar esta seção.
-        """
-        templates = {
-            'shelf': 'core/includes/book_shelf.html',
-            'video': 'core/includes/video_section.html',
-            'ad': 'core/includes/advertisement.html',
-            'link_grid': 'core/includes/link_grid.html',
-            'custom': None  # Para seções personalizadas, o template é definido dinamicamente
-        }
-
-        # Para seções personalizadas, busca o template do layout selecionado
-        if self.tipo == 'custom' and hasattr(self, 'custom_section'):
-            try:
-                custom_section = self.custom_section
-                if custom_section and custom_section.layout and hasattr(custom_section.layout, 'template_path'):
-                    return custom_section.layout.template_path
-            except Exception:
-                pass
-
-        return templates.get(self.tipo)
-
-
-# ------------------------------------------------------------------------------
-# Modelos para gerenciamento de prateleiras de livros
-# O sistema permite configurar diferentes tipos de prateleiras automatizadas ou
-# personalizadas com livros específicos.
-# ------------------------------------------------------------------------------
-
-class DefaultShelfType(models.Model):
-    """Modelo para definir os tipos de prateleiras padrão"""
-    nome = models.CharField('Nome', max_length=100)
-    identificador = models.CharField('Identificador', max_length=50, unique=True)
-    # Os campos filtro_campo e filtro_valor são usados para criar filtros dinâmicos
-    filtro_campo = models.CharField('Campo do Filtro', max_length=50)
-    filtro_valor = models.CharField('Valor do Filtro', max_length=50)
-    ordem = models.IntegerField('Ordem', default=0)
-    ativo = models.BooleanField('Ativo', default=True)
-    created_at = models.DateTimeField('Criado em', auto_now_add=True)
-    updated_at = models.DateTimeField('Atualizado em', auto_now=True)
-
-    class Meta:
-        verbose_name = 'Prateleira Padrão'
-        verbose_name_plural = 'Prateleiras Padrão'
-        ordering = ['ordem']
-
-    def __str__(self):
-        return self.nome
-
-    def get_livros(self) -> QuerySet:
-        """
-        Retorna os livros filtrados baseado nas configurações.
-        VERSÃO REFINADA E CORRIGIDA para sempre retornar um QuerySet.
+        Lógica centralizada para buscar os livros de uma prateleira.
         """
         from .book import Book
-        logger = logging.getLogger(__name__)
 
-        logger.info(
-            f"[DIAGNÓSTICO GET_LIVROS] Buscando para prateleira: '{self.nome}' (Campo: '{self.filtro_campo}', Valor: '{self.filtro_valor}')")
+        if self.tipo != 'shelf':
+            return Book.objects.none()
 
-        livros = Book.objects.none()  # Começa com um QuerySet vazio
+        if self.shelf_behavior == 'manual':
+            return self.manual_books.all().order_by('homesectionbookitem__ordem')
 
-        try:
-            campo = self.filtro_campo
-            valor = self.filtro_valor
+        elif self.shelf_behavior == 'automatic':
+            campo = self.shelf_filter_field
+            valor = self.shelf_filter_value
 
-            # Mapeamento para campos booleanos e casos especiais
-            if campo == 'e_lancamento':
-                livros = Book.objects.filter(e_lancamento=True).order_by('-created_at')
-                if not livros.exists():
-                    logger.warning(f"Fallback para '{self.nome}': não há lançamentos, usando os mais recentes.")
-                    livros = Book.objects.all().order_by('-created_at')
+            boolean_fields = ['e_lancamento', 'e_destaque', 'adaptado_filme', 'e_manga']
+            if campo in boolean_fields:
+                return Book.objects.filter(ativo=True, **{campo: True})[:self.max_books]
 
-            elif campo == 'e_destaque':
-                livros = Book.objects.filter(e_destaque=True).order_by('ordem_exibicao')
-                if not livros.exists():
-                    logger.warning(f"Fallback para '{self.nome}': não há destaques, usando mais acessados.")
-                    livros = Book.objects.filter(quantidade_acessos__gt=0).order_by('-quantidade_acessos')
+            if campo == 'bestsellers':
+                return Book.objects.filter(ativo=True, quantidade_vendida__gt=0).order_by('-quantidade_vendida')[:self.max_books]
+            if campo == 'most_viewed':
+                return Book.objects.filter(ativo=True, quantidade_acessos__gt=0).order_by('-quantidade_acessos')[:self.max_books]
 
-            elif campo == 'quantidade_vendida':
-                livros = Book.objects.filter(quantidade_vendida__gt=0).order_by('-quantidade_vendida')
-                if not livros.exists():
-                    logger.warning(f"Fallback para '{self.nome}': não há livros vendidos, usando mais recentes.")
-                    livros = Book.objects.all().order_by('-created_at')
+            if valor:
+                return Book.objects.filter(ativo=True, **{campo: valor})[:self.max_books]
 
-            elif campo == 'adaptado_filme':
-                livros = Book.objects.filter(adaptado_filme=True).order_by('ordem_exibicao')
-                if not livros.exists():
-                    logger.warning(f"Fallback para '{self.nome}': não há filmes, buscando por palavras-chave.")
-                    livros = Book.objects.filter(Q(descricao__icontains='filme') | Q(descricao__icontains='série'))
-
-            elif campo == 'e_manga' or campo == 'mangas':  # Suporta campo antigo e novo
-                livros = Book.objects.filter(e_manga=True).order_by('ordem_exibicao')
-                if not livros.exists():
-                    logger.warning(f"Fallback para '{self.nome}': não há mangas, buscando por categoria.")
-                    livros = Book.objects.filter(Q(categoria__icontains='manga') | Q(genero__icontains='manga'))
-
-            elif campo == 'tipo_shelf_especial':
-                livros = Book.objects.filter(tipo_shelf_especial=valor).order_by('ordem_exibicao')
-
-            else:
-                # Tentativa de filtro dinâmico genérico
-                try:
-                    filtro_dict = {campo: valor}
-                    livros = Book.objects.filter(**filtro_dict).order_by('ordem_exibicao')
-                    logger.info(
-                        f"[DIAGNÓSTICO GET_LIVROS] Filtro dinâmico para '{self.nome}' encontrou {livros.count()} livros.")
-                except Exception as e:
-                    logger.error(f"[DIAGNÓSTICO GET_LIVROS] Erro no filtro dinâmico para '{self.nome}': {e}")
-                    # Mantém o queryset vazio 'livros'
-
-            # Se após todas as tentativas, 'livros' ainda estiver vazio, aplica um fallback final
-            if not livros.exists():
-                logger.warning(
-                    f"[DIAGNÓSTICO GET_LIVROS] Nenhuma regra funcionou para '{self.nome}'. Aplicando fallback de emergência (aleatórios).")
-                livros = Book.objects.all().order_by('?')
-
-            logger.info(f"[DIAGNÓSTICO GET_LIVROS] ✅ Prateleira '{self.nome}' retornando {livros.count()} livros.")
-            return livros
-
-        except Exception as e:
-            logger.critical(f"[DIAGNÓSTICO GET_LIVROS] ❌ ERRO CRÍTICO ao filtrar prateleira '{self.nome}': {e}",
-                            exc_info=True)
-            # Fallback de emergência definitivo
-            return Book.objects.all().order_by('-created_at')[:8]
-
-
-class BookShelfSection(models.Model):
-    """Modelo para configurar prateleiras de livros"""
-    # Relação com a seção da página inicial
-    section = models.OneToOneField(
-        HomeSection,
-        on_delete=models.CASCADE,
-        related_name='book_shelf',
-        limit_choices_to={'tipo': 'shelf'},  # Restringe a seções do tipo prateleira
-        verbose_name='Seção'
-    )
-
-    # Sistema de compatibilidade para código legado
-    SHELF_TYPES = [
-        ('latest', 'Últimos Adicionados'),
-        ('bestsellers', 'Mais Vendidos'),
-        ('most_viewed', 'Mais Acessados'),
-        ('featured', 'Destaques'),
-        ('movies', 'Adaptados para Filme/Série'),
-        ('manga', 'Mangás'),
-        ('custom', 'Personalizada'),
-    ]
-
-    # Sistema atual usando ForeignKey para tipos de prateleira configuráveis
-    shelf_type = models.ForeignKey(
-        DefaultShelfType,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='Tipo de Prateleira Personalizada'
-    )
-
-    # Campo mantido para compatibilidade com código existente
-    tipo_shelf = models.CharField(
-        'Tipo de Prateleira (Legado)',
-        max_length=20,
-        choices=SHELF_TYPES,
-        blank=True,
-        help_text='Usado apenas para compatibilidade. Preferir o campo "Tipo de Prateleira Personalizada".'
-    )
-
-    # Relacionamento muitos-para-muitos com livros através de uma tabela intermediária
-    livros = models.ManyToManyField(
-        'Book',
-        through='BookShelfItem',
-        related_name='home_shelves',
-        verbose_name='Livros'
-    )
-    max_livros = models.IntegerField(
-        'Máximo de Livros',
-        default=12,
-        validators=[MinValueValidator(1), MaxValueValidator(50)]
-    )
-
-    class Meta:
-        verbose_name = 'Prateleira'
-        verbose_name_plural = 'Prateleiras'
-
-    def __str__(self):
-        return f"Prateleira: {self.section.titulo}"
-
-    def get_tipo_identificador(self):
-        """Retorna o identificador do tipo de prateleira"""
-        if self.shelf_type:
-            return self.shelf_type.identificador
-        return self.tipo_shelf
-
-    def get_tipo_shelf_display(self):
-        """Retorna o nome formatado do tipo de prateleira legado"""
-        if not self.tipo_shelf:
-            return ''
-        return dict(self.SHELF_TYPES).get(self.tipo_shelf, self.tipo_shelf)
-
-    def get_filtered_books(self):
-        """Obtém livros filtrados baseados no tipo de prateleira"""
-        from .book import Book
-
-        # Implementa sistema com fallback entre novo modelo e legado
-        # Primeiro, tenta usar o shelf_type se estiver definido
-        if self.shelf_type:
-            return self.shelf_type.get_livros()
-
-        # Se não, usa a lógica legada baseada no tipo_shelf
-        if self.tipo_shelf == 'latest':
-            return Book.objects.all().order_by('-created_at')
-        elif self.tipo_shelf == 'bestsellers':
-            return Book.objects.filter(quantidade_vendida__gt=0).order_by('-quantidade_vendida')
-        elif self.tipo_shelf == 'most_viewed':
-            return Book.objects.filter(quantidade_acessos__gt=0).order_by('-quantidade_acessos')
-        elif self.tipo_shelf == 'featured':
-            return Book.objects.filter(e_destaque=True).order_by('ordem_exibicao')
-        elif self.tipo_shelf == 'movies':
-            return Book.objects.filter(adaptado_filme=True).order_by('ordem_exibicao')
-        elif self.tipo_shelf == 'manga':
-            return Book.objects.filter(e_manga=True).order_by('ordem_exibicao')
-
-        # Se for custom ou nenhum dos anteriores, retorna lista vazia
         return Book.objects.none()
 
 
-class BookShelfItem(models.Model):
-    """Modelo para ordenar livros nas prateleiras"""
-    # Modelo intermediário para relacionamento M2M ordenado entre prateleira e livros
-    shelf = models.ForeignKey(
-        BookShelfSection,
-        on_delete=models.CASCADE,
-        verbose_name='Prateleira'
-    )
-    livro = models.ForeignKey(
-        'Book',
-        on_delete=models.CASCADE,
-        verbose_name='Livro'
-    )
-    ordem = models.IntegerField('Ordem', default=0)
-    added_at = models.DateTimeField('Adicionado em', auto_now_add=True)
+class HomeSectionBookItem(models.Model):
+    """
+    Modelo 'through' para definir a ordem dos livros em uma prateleira manual.
+    """
+    section = models.ForeignKey(HomeSection, on_delete=models.CASCADE)
+    book = models.ForeignKey('Book', on_delete=models.CASCADE)
+    ordem = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ['ordem', '-added_at']
-        unique_together = ['shelf', 'livro']  # Impede duplicidade de livros na mesma prateleira
-        verbose_name = 'Item da Prateleira'
-        verbose_name_plural = 'Itens da Prateleira'
+        ordering = ['ordem']
+        unique_together = ['section', 'book']
 
 
 # ------------------------------------------------------------------------------
@@ -488,6 +335,13 @@ class CustomSection(models.Model):
     )
     ativo = models.BooleanField('Ativo', default=True)
 
+    config_json = models.JSONField(
+        'Configurações Adicionais (JSON)',
+        blank=True,
+        null=True,
+        help_text='Configurações específicas em formato JSON para este layout.'
+    )
+
     class Meta:
         verbose_name = 'Seção Especial'
         verbose_name_plural = 'Seções Especiais'
@@ -518,9 +372,11 @@ class EventItem(models.Model):
     ativo = models.BooleanField('Ativo', default=True)
     custom_section = models.ForeignKey(
         CustomSection,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='events',
-        verbose_name='Seção Personalizada'
+        verbose_name='Seção Personalizada',
+        null=True,
+        blank=True
     )
     created_at = models.DateTimeField('Criado em', auto_now_add=True)
     updated_at = models.DateTimeField('Atualizado em', auto_now=True)

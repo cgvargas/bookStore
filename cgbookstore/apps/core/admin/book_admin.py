@@ -118,10 +118,10 @@ class BookAdmin(LoggingAdminMixin, OptimizedQuerysetMixin, admin.ModelAdmin):
     def cover_preview(self, obj):
         """Retorna uma prévia da capa do livro para exibição no admin"""
         if obj.capa:
-            return format_html('<img src="{}" height="100" />', obj.get_capa_url())
+            return format_html('<img src="{}" height="100" />', obj.get_display_cover_url())
         return "Sem capa"
 
-    cover_preview.short_description = 'Prévia da Capa'
+    cover_preview.short_description = 'CAPA'
 
     def preco_display(self, obj):
         """Formata o preço para exibição na lista"""
@@ -145,7 +145,27 @@ class BookAdmin(LoggingAdminMixin, OptimizedQuerysetMixin, admin.ModelAdmin):
             # Em caso de erro na conversão
             return "Preço inválido"
 
-    preco_display.short_description = 'Preço'
+    preco_display.short_description = 'PREÇO'
+
+    # Adicionando short_description para campos do modelo
+    def get_changelist_form(self, request, **kwargs):
+        """Customiza o formulário da changelist"""
+        form = super().get_changelist_form(request, **kwargs)
+        return form
+
+    def get_changelist_formset(self, request, **kwargs):
+        """Customiza o formset da changelist"""
+        formset = super().get_changelist_formset(request, **kwargs)
+        return formset
+
+    # Customizar labels dos campos do modelo
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Customizar títulos das colunas diretamente nos campos do modelo
+        if hasattr(Book, 'quantidade_acessos'):
+            Book._meta.get_field('quantidade_acessos').verbose_name = 'ACESSOS'
+        if hasattr(Book, 'quantidade_vendida'):
+            Book._meta.get_field('quantidade_vendida').verbose_name = 'VENDAS'
 
     # Ações em lote
     def mark_as_featured(self, request, queryset):

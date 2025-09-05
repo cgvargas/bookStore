@@ -1,317 +1,212 @@
-/**
- * Estilos para as listas de alteração do Admin Django
- * Este arquivo estiliza as tabelas de listagem e filtragem de registros
- */
 
-/* Container da lista de alteração */
-#changelist {
-    background-color: var(--bg-panel);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-    margin-top: 15px;
+/* Base para zebra striping nas linhas da tabela */
+#result_list tbody tr:nth-child(even),
+#changelist table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
-/* Container do formulário de lista */
-.changelist-form-container {
-    width: 100%;
+#result_list tbody tr:nth-child(odd),
+#changelist table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
 }
 
-/* Filtros da lista */
-#changelist-filter {
-    background-color: var(--bg-element);
-    border-left: 1px solid var(--border-subtle, var(--border-color));
-    padding-bottom: 15px;
+/* Cabeçalhos */
+#result_list th,
+#changelist table th,
+.module thead th,
+.change-list table thead th,
+.dashboard-table thead th {
+    background: #2B2B40 !important;
+    background-image: none !important;
+    color: white !important;
+    padding: 12px 15px !important;
+    text-align: center !important;
+    border-radius: 0 !important;
 }
 
-#changelist-filter h2 {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: var(--text-primary);
-    padding: 10px 15px;
-    font-weight: 600;
-    margin: 0;
-    font-size: 14px;
-    text-transform: uppercase;
-}
-
-#changelist-filter h3 {
-    color: var(--accent-color);
-    padding: 10px 15px;
-    margin: 10px 0 0 0;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-#changelist-filter ul {
-    padding: 0;
-    margin: 0 0 10px 0;
-    list-style-type: none;
-}
-
-#changelist-filter li {
-    padding: 5px 15px;
-}
-
-#changelist-filter a {
-    color: var(--text-secondary);
-}
-
-#changelist-filter a:hover,
-#changelist-filter li.selected a {
-    color: var(--primary-color);
-}
-
-#changelist-filter li.selected {
-    border-right: 3px solid var(--primary-color);
-    background-color: var(--info-bg);
-}
-
-/* Botão para limpar todos os filtros */
-#changelist-filter-clear {
-    margin: 0 15px 10px;
-    padding: 5px 0;
-}
-
-#changelist-filter-clear a {
-    color: var(--danger-color) !important;
-    font-size: 12px;
+/* Garante que links dentro dos cabeçalhos também fiquem brancos */
+#result_list th a,
+#changelist table th a {
+    color: white !important;
     text-decoration: none;
 }
 
-#changelist-filter-clear a:hover {
+/* Estado hover para o link no cabeçalho */
+#result_list th a:hover,
+#changelist table th a:hover {
     text-decoration: underline;
 }
 
-/* Barra de busca e ferramentas */
-#toolbar {
-    background-color: var(--bg-element);
-    padding: 10px 15px;
-    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+/* Linhas ao passar o mouse */
+#result_list tbody tr:hover,
+#changelist table tbody tr:hover {
+    background-color: #e6f2ff;
 }
 
-#toolbar form input {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-subtle, var(--border-color));
-    color: var(--text-primary);
-    padding: 5px 10px;
-    border-radius: 3px;
+/* Corrige a cor dos filtros à esquerda */
+#changelist-filter h2 {
+    background: #2B2B40 !important;
+    color: white !important;
 }
 
-#toolbar form input:focus {
-    outline: none;
-    border-color: var(--primary-color);
+#changelist-filter li.selected {
+    border-right: 3px solid #2B2B40 !important;
 }
 
-#toolbar #searchbar {
-    padding: 5px 10px;
-    border-radius: 3px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-subtle, var(--border-color));
-    color: var(--text-primary);
-    min-width: 250px;
+#changelist-filter li.selected a {
+    color: #2B2B40 !important;
 }
 
-#toolbar #searchbar:focus {
-    outline: none;
-    border-color: var(--primary-color);
+/* Botões "Add" e ações */
+.object-tools a,
+.addlink {
+    background-color: #2B2B40 !important;
+    color: white !important;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
 }
 
-/* Ferramentas de objeto */
-.object-tools {
-    margin-top: 0;
-    text-align: right;
-    float: right;
-    padding: 10px 0;
+.object-tools a:hover,
+.addlink:hover {
+    background-color: #1A1A2E !important;
+    color: #fff !important;
 }
 
-.object-tools a {
-    background-color: var(--accent-color);
-    color: var(--text-primary);
-    font-weight: 600;
-    padding: 5px 12px;
-    border-radius: 3px;
-    display: inline-block;
-    text-transform: uppercase;
-    font-size: 12px;
+.paginator a:hover,
+.paginator .this-page {
+    background-color: #2B2B40 !important;
+    color: white !important;
 }
 
-.object-tools a:hover {
-    background-color: var(--accent-hover, #09a173);
-}
-
-/* Barra de ações */
-.actions {
-    background-color: var(--bg-element);
-    padding: 10px 15px;
-    border-bottom: 1px solid var(--border-subtle, var(--border-color));
-}
-
-.actions label {
-    color: var(--text-secondary);
-    margin-right: 10px;
-}
-
-.actions select {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-subtle, var(--border-color));
-    color: var(--text-primary);
-    padding: 5px 10px;
-    border-radius: 3px;
-    margin-right: 5px;
-}
-
-.actions button {
-    background-color: var(--accent-color);
-    border: none;
-    color: var(--text-primary);
-    padding: 5px 12px;
-    border-radius: 3px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.actions button:hover {
-    background-color: var(--accent-hover, #09a173);
-}
-
-/* Tabela de resultados */
-#result_list {
+/* Correções gerais */
+.module table {
     width: 100%;
     border-collapse: collapse;
 }
 
-#result_list th {
-    background-color: var(--primary-color);
-    color: var(--text-primary);
-    padding: 8px 10px;
-    text-align: left;
-    font-weight: 600;
-    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+.module table th,
+.module table td {
+    border: 1px solid #ddd;
+    padding: 8px;
 }
 
-#result_list th a {
-    color: var(--text-primary) !important;
-}
-
-#result_list td {
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border-subtle, var(--border-color));
-    color: var(--text-secondary);
-}
-
-#result_list tbody tr:hover {
-    background-color: var(--bg-hover);
-}
-
-#result_list a {
-    color: var(--primary-color);
-}
-
-#result_list a:hover {
-    color: var(--primary-hover);
-}
-
-/* Alternância de cores das linhas */
-.row1 {
-    background-color: var(--bg-row1, rgba(255, 255, 255, 0.02));
-}
-
-.row2 {
-    background-color: var(--bg-row2, transparent);
-}
-
-/* Paginação */
-.paginator {
-    padding: 10px 15px;
-    background-color: var(--bg-element);
-    border-top: 1px solid var(--border-subtle, var(--border-color));
-    color: var(--text-secondary);
-    font-size: 13px;
-    line-height: 22px;
-    margin-top: 0;
+.module table th {
     text-align: center;
 }
 
-.paginator a,
-.paginator span.this-page {
-    padding: 2px 6px;
-    margin: 0 2px;
-    border-radius: 3px;
-    font-weight: normal;
+/* Ajuste de largura para a primeira coluna (seletor) */
+#result_list th:first-child,
+#changelist table th:first-child,
+#result_list td:first-child,
+#changelist table td:first-child {
+    width: 20px !important; /* Largura reduzida para a coluna de seleção */
+    min-width: 20px !important;
+    max-width: 20px !important;
 }
 
-.paginator a {
-    background-color: var(--primary-color);
-    color: var(--text-primary) !important;
-    text-decoration: none;
+/* Aumentar a largura da coluna de título */
+#result_list th:nth-child(2),
+#changelist table th:nth-child(2),
+#result_list td:nth-child(2),
+#changelist table td:nth-child(2) {
+    width: 300px !important; /* Aumentando a largura da coluna de título */
+    min-width: 300px !important;
 }
 
-.paginator a:hover {
-    background-color: var(--primary-hover);
+/* Garantir que o conteúdo não quebre a formatação */
+#result_list td,
+#changelist table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.paginator span.this-page {
-    background-color: var(--bg-element);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
+/* Adicionais para posicionamento dos botões de ação e pesquisa */
+
+/* Container para ações e pesquisa */
+.actions-and-search-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(100% - 30px) !important; /* Reduza a largura para criar espaço */
+    margin-bottom: 10px;
+    margin-right: 30px !important; /* Adicione margem à direita */
+    background-color: #2B2B40;
+    padding: 8px 15px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    color: white;
+}
+
+/* Ajustes para o formulário de pesquisa */
+#changelist-search {
+    margin: 0;
+    padding: 0;
+    float: right;
+    text-align: right;
+    position: relative;
+    right: 0;
+}
+
+/* Contentor do formulário */
+.changelist-form-container {
+    padding-right: 15px;
+}
+
+/* Ajuste para textos e elementos dentro do container */
+.actions-and-search-container label,
+.actions-and-search-container select,
+.actions-and-search-container button {
+    color: white;
+}
+
+.actions-and-search-container select {
+    background-color: #3e3e5c;
+    border: 1px solid #4d4d6b;
+    color: white;
+}
+
+/* Estilo para o botão Adicionar */
+.object-tools a.addlink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    border-radius: 4px;
+    font-size: 20px;
     font-weight: bold;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-indent: -9999px;
+    position: relative;
 }
 
-/* Data Hierarchy (filtro por datas) */
-.xfull {
-    background-color: var(--bg-element);
-    padding: 10px 15px;
-    border-bottom: 1px solid var(--border-subtle, var(--border-color));
+.object-tools a.addlink::before {
+    content: "+";
+    position: absolute;
+    text-indent: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.calendarbox, .clockbox {
-    background-color: var(--bg-panel);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+/* Adicionar margem ao botão de pesquisa */
+#changelist-search {
+    margin: 0 20px 0 0 !important; /* Margem à direita de 20px */
+    padding: 0;
+    text-align: right;
+    flex-grow: 0;
 }
 
-.calendar caption,
-.calendarbox h2 {
-    background: var(--primary-color);
-    color: var(--text-primary);
-}
-
-.calendar td a {
-    background-color: var(--accent-color);
-    color: var(--text-primary);
-}
-
-.calendar td a:hover {
-    background-color: var(--accent-hover, #09a173);
-}
-
-/* Estilos para tabelas vazias */
-p.paginator {
-    border-top: 1px solid var(--border-subtle, var(--border-color));
-    margin-top: 0;
-}
-
-.filtered .results,
-.change-list .filtered .paginator,
-.filtered table#result_list,
-.filtered .calendarbox {
-    width: 100%;
-}
-
-/* Corrige padding no cabeçalho da tabela quando ordenável */
-thead th.sortable {
-    padding-right: 20px;
-}
-
-thead th.sortable .text {
-    padding-right: 0;
-}
-
-/* Estilos para total de resultados filtrados */
-.filtered .results,
-.change-list .filtered .results,
-.change-list .filtered table#result_list {
-    margin-right: 0;
-    width: 100%;
+/* Garantir que o container tenha padding adequado */
+.actions-and-search-container {
+    padding: 8px 15px !important;
 }

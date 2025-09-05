@@ -43,9 +43,12 @@ a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: sticky;
+    position: fixed;
     top: 0;
-    z-index: 1000;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1100;
 }
 
 #branding h1 a {
@@ -95,6 +98,12 @@ a:hover {
     font-size: 0.9rem;
     padding: 10px 20px;
     margin: 0;
+    position: fixed;
+    top: 60px; /* Posiciona logo abaixo do cabeçalho */
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1050;
 }
 
 .breadcrumbs a {
@@ -109,6 +118,7 @@ a:hover {
 .main {
     display: flex;
     flex: 1;
+    margin-top: 100px; /* Espaço para o cabeçalho + breadcrumbs */
 }
 
 #content {
@@ -143,7 +153,7 @@ body.dashboard #content-main {
 }
 
 .module caption, .module .section {
-    background: linear-gradient(135deg, #2B2B40, #1A1A2E) !important; /* Mudando de laranja para tons escuros */
+    background: linear-gradient(135deg, #2B2B40, #1A1A2E) !important; /* Tons escuros */
     color: var(--text-primary) !important;
     padding: 15px;
     font-weight: 600;
@@ -223,32 +233,12 @@ body.dashboard #content-main {
 }
 
 /* Linhas alternadas nas tabelas - zebrado com cinza escuro/preto */
-.row1,
-tr.row1,
-tr:nth-child(odd),
-#result_list tbody tr:nth-child(odd),
-#changelist tbody tr:nth-child(odd),
-.module tbody tr:nth-child(odd),
-#result_list tbody tr:nth-child(odd) td,
-#changelist tbody tr:nth-child(odd) td,
-.module tbody tr:nth-child(odd) td {
-    background-color: #121212 !important;
-    color: #FFFFFF !important;
-    background-image: none !important;
+.row1, tr.row1, tr:nth-child(odd), .module tr:nth-child(odd) {
+    background-color: #121212 !important; /* Preto */
 }
 
-.row2,
-tr.row2,
-tr:nth-child(even),
-#result_list tbody tr:nth-child(even),
-#changelist tbody tr:nth-child(even),
-.module tbody tr:nth-child(even),
-#result_list tbody tr:nth-child(even) td,
-#changelist tbody tr:nth-child(even) td,
-.module tbody tr:nth-child(even) td {
-    background-color: #2A2A3A !important;
-    color: #FFFFFF !important;
-    background-image: none !important;
+.row2, tr.row2, tr:nth-child(even), .module tr:nth-child(even) {
+    background-color: #2A2A3A !important; /* Cinza escuro */
 }
 
 #result_list thead th,
@@ -573,12 +563,6 @@ tr:nth-child(even),
     font-weight: 600;
 }
 
-/* Dashboard customizado */
-.system-tools {
-    grid-column: 1 / -1;
-    margin-top: 30px;
-}
-
 .system-tools caption, .system-tools .section {
     background: linear-gradient(135deg, var(--danger-color), #FF6B8A) !important;
 }
@@ -635,6 +619,19 @@ tr:nth-child(even),
         overflow-x: auto;
         white-space: nowrap;
     }
+
+    /* Ajuste para cabeçalho fixo em telas menores */
+    #header {
+        padding: 10px 15px;
+    }
+
+    .main {
+        margin-top: 90px; /* Ajuste para telas menores */
+    }
+
+    .breadcrumbs {
+        top: 50px; /* Ajuste para telas menores */
+    }
 }
 
 @media (max-width: 767px) {
@@ -642,6 +639,11 @@ tr:nth-child(even),
         padding: 10px;
         flex-direction: column;
         align-items: flex-start;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
     }
 
     #branding h1 {
@@ -656,6 +658,14 @@ tr:nth-child(even),
         width: 100%;
     }
 
+    .main {
+        margin-top: 130px; /* Espaço para cabeçalho + breadcrumbs */
+    }
+
+    .breadcrumbs {
+        top: 90px; /* Posicionar após o cabeçalho quando em coluna */
+    }
+
     .object-tools {
         float: none;
         text-align: left;
@@ -666,11 +676,6 @@ tr:nth-child(even),
         margin: 0 10px 10px 0;
     }
 
-    body.dashboard #content-main {
-        display: block !important;
-        padding: 10px !important;
-    }
-
     body.dashboard #content-main .module {
         margin-bottom: 15px !important;
     }
@@ -679,4 +684,44 @@ tr:nth-child(even),
     .module th, .module td {
         padding: 8px;
     }
+}
+
+/* Configuração para reordenar seções no admin */
+.admin-cards-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Organização da ordem dos cards */
+#content-main {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Ordem dos principais grupos de cards */
+.module.chatbot-section {
+    order: 1;
+}
+
+.module.auth-section,
+div.module:has(> table > caption > a:contains("AUTENTICAÇÃO E AUTORIZAÇÃO")) {
+    order: 2;
+}
+
+.module.org-section,
+div.module:has(> table > caption > a:contains("ORGANIZAÇÃO")) {
+    order: 3;
+}
+
+/* Isso irá sobrescrever o grid layout definido anteriormente para .dashboard #content-main */
+body.dashboard #content-main {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Depois retornamos ao layout de grade para os cards individuais dentro das seções */
+body.dashboard #content-main > .module {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
 }

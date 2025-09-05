@@ -59,7 +59,7 @@ class AuthorSection(models.Model):
         'HomeSection',
         on_delete=models.CASCADE,
         related_name='author_section',
-        limit_choices_to={'tipo': 'custom'},  # Usa o tipo custom para aproveitar estrutura existente
+        limit_choices_to={'tipo': 'author'},
         verbose_name='Seção'
     )
     titulo_secundario = models.CharField('Subtítulo', max_length=200, blank=True)
@@ -96,30 +96,26 @@ class AuthorSection(models.Model):
         return f"Autores: {self.section.titulo}"
 
     def get_autores(self):
-        """Retorna os autores conforme configuração da seção"""
-        if self.ordem_exibicao == 'manual':
-            # Retorna autores na ordem manual definida
-            return Author.objects.filter(
-                authorsectionitem__author_section=self
-            ).order_by('authorsectionitem__ordem')
+        """Retorna os autores conforme configuração da seção, de forma otimizada."""
 
-        # Filtragem base
+        # Ordem Manual
+        if self.ordem_exibicao == 'manual':
+            # Busca os autores através da tabela 'through', respeitando a ordem definida
+            # e aplica o limite de 'max_autores'
+            return self.autores.all().order_by('authorsectionitem__ordem')[:self.max_autores]
+
+        # Ordem Automática
         queryset = Author.objects.filter(ativo=True)
 
-        # Aplicar filtro de destaque se necessário
         if self.apenas_destaque:
             queryset = queryset.filter(destaque=True)
 
-        # Aplicar ordenação
         if self.ordem_exibicao == 'livros':
-            # Ordenação por quantidade de livros requer annotation
             from django.db.models import Count
-            queryset = queryset.annotate(
-                livros_count=Count('books')
-            ).order_by('-livros_count')
+            queryset = queryset.annotate(livros_count=Count('books')).order_by('-livros_count')
         elif self.ordem_exibicao == 'recentes':
             queryset = queryset.order_by('-created_at')
-        else:  # Padrão: nome
+        else:  # Padrão 'nome'
             queryset = queryset.order_by('nome', 'sobrenome')
 
         return queryset[:self.max_autores]

@@ -1,13 +1,19 @@
 /* cgbookstore/static/css/book-details.css */
 
+/* Estilos para container da capa do livro */
 .book-cover-container {
-    padding: 1rem;
+    padding: 1.5rem;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
 }
 
-.book-cover.img-fluid {  /* Aumentando especificidade */
-    max-height: 500px !important; /* Forçando com !important */
+.book-cover.img-fluid {
+    max-height: 400px !important;
     width: auto;
+    margin: 0 auto;
     object-fit: contain;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     border-radius: 4px;
@@ -19,6 +25,7 @@
     transform: scale(1.02);
 }
 
+/* Estilos para títulos */
 .book-title {
     color: #2c3e50;
     font-weight: 700;
@@ -31,6 +38,7 @@
     font-size: 1.2rem;
 }
 
+/* Grid de informações */
 .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -60,6 +68,7 @@
     text-transform: uppercase;
 }
 
+/* Seções de conteúdo */
 .content-section, .extra-section {
     background-color: #fff;
     border-radius: 4px;
@@ -87,6 +96,7 @@
     font-size: 1rem;
 }
 
+/* Navegação por abas */
 .nav-tabs {
     border-bottom: 2px solid #dee2e6;
     margin-bottom: 1rem;
@@ -117,6 +127,7 @@
     margin-right: 0.5rem;
 }
 
+/* Badge de prateleira */
 .shelf-badge {
     text-align: center;
     padding: 1rem 0;
@@ -279,8 +290,8 @@ html {
 
 #imageModal .modal-dialog {
     max-width: none;
-    width: 85%; /* Reduzido para 85% */
-    height: 85vh; /* Reduzido para 85vh */
+    width: 85%;
+    height: 85vh;
     margin: 2rem auto;
     display: flex;
     align-items: center;
@@ -303,7 +314,7 @@ html {
 }
 
 #modalImage {
-    height: 60vh; /* Reduzido para 60vh */
+    height: 60vh;
     width: auto;
     object-fit: contain;
     -webkit-transform: translateZ(0);
@@ -352,8 +363,8 @@ html {
 }
 
 .card {
-    height: auto; /* Remove altura fixa */
-    min-height: 400px; /* Define altura mínima */
+    height: auto;
+    min-height: 400px;
 }
 
 .book-price {
@@ -368,7 +379,7 @@ html {
     align-items: center;
     margin: 0;
     width: 100%;
-    word-break: break-word; /* Previne overflow do texto */
+    word-break: break-word;
 }
 
 .book-price .original-price {
@@ -410,17 +421,226 @@ html {
     gap: 0.5rem;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    .action-buttons {
-        flex-direction: column;
-    }
+/* Ocultar botão de compra */
+button.btn-primary[onclick="handleBuyBook()"],
+.action-buttons button[onclick="handleBuyBook()"] {
+    display: none !important;
+}
 
-    .action-buttons .btn {
-        width: 100%;
-    }
+/* Ajustes específicos para tema claro */
+.light-mode .card,
+.light-mode .book-details {
+    background-color: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+    transition: none !important;
+    transform: none !important;
+}
 
-    .book-price .price {
-        font-size: 1.5rem;
-    }
+.light-mode .card:hover {
+    background-color: #ffffff !important;
+    transform: none !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-mode .book-title {
+    color: #1a1a1a !important;
+    font-weight: 700;
+}
+
+.light-mode .book-subtitle {
+    color: #4a5568 !important;
+}
+
+.light-mode .info-item {
+    background-color: #f8f9fa !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #333333 !important;
+}
+
+.light-mode .info-item strong {
+    color: #1a1a1a !important;
+}
+
+.light-mode .info-item:hover {
+    background-color: #e9ecef !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.light-mode .content-section,
+.light-mode .extra-section {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-mode .content-section h3,
+.light-mode .extra-section h3 {
+    color: #1a1a1a !important;
+    border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-mode .content-text,
+.light-mode .extra-text {
+    color: #333333 !important;
+}
+
+.light-mode .nav-tabs {
+    border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-mode .nav-tabs .nav-link {
+    color: #4a5568 !important;
+}
+
+.light-mode .nav-tabs .nav-link:hover {
+    color: #1a1a1a !important;
+}
+
+.light-mode .nav-tabs .nav-link.active {
+    color: var(--primary-color) !important;
+    border-bottom-color: var(--primary-color) !important;
+    font-weight: bold;
+}
+
+/* Garantir navbar correta no tema claro */
+.light-mode .navbar {
+    background-color: #ffffff !important;
+}
+
+.light-mode .navbar .nav-link {
+    color: #333333 !important;
+}
+
+.light-mode .navbar .nav-link:hover,
+.light-mode .navbar .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+/* Garantir footer correto no tema claro */
+.light-mode .footer {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+}
+
+.light-mode .footer-heading {
+    color: #1a1a1a !important;
+}
+
+.light-mode .footer-links a {
+    color: #333333 !important;
+}
+
+.light-mode .footer-links a:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Correção específica para card da imagem */
+.light-mode .book-cover-container {
+    background-color: #ffffff !important;
+}
+
+.light-mode .card .book-cover-container {
+    background-color: transparent !important;
+}
+
+/* Remover/ocultar valores de preço acima do botão */
+.book-price.text-center.mb-3 {
+    display: none !important;
+}
+
+/* Correções para links no tema escuro */
+body.dark-mode .content-section a,
+body.dark-mode .extra-section a,
+body.dark-mode .breadcrumb-item a,
+body.dark-mode .book-details a,
+html.dark-mode body .content-section a,
+html.dark-mode body .extra-section a,
+html.dark-mode body .breadcrumb-item a,
+html.dark-mode body .book-details a {
+    color: #63b3ed !important; /* Azul mais claro para melhor contraste */
+    text-decoration: none;
+}
+
+body.dark-mode .content-section a:hover,
+body.dark-mode .extra-section a:hover,
+body.dark-mode .breadcrumb-item a:hover,
+body.dark-mode .book-details a:hover,
+html.dark-mode body .content-section a:hover,
+html.dark-mode body .extra-section a:hover,
+html.dark-mode body .breadcrumb-item a:hover,
+html.dark-mode body .book-details a:hover {
+    color: #90cdf4 !important; /* Azul ainda mais claro ao passar o mouse */
+    text-decoration: underline;
+}
+
+/* Título do livro no tema escuro */
+body.dark-mode .book-title,
+html.dark-mode body .book-title {
+    color: #f8f9fa !important;
+}
+
+/* Subtítulo do livro no tema escuro */
+body.dark-mode .book-subtitle,
+html.dark-mode body .book-subtitle {
+    color: #adb5bd !important;
+}
+
+/* Links em breadcrumbs */
+body.dark-mode .breadcrumb-item.active,
+html.dark-mode body .breadcrumb-item.active {
+    color: #e2e8f0 !important;
+}
+
+/* Também corrigir títulos das abas no tema escuro */
+body.dark-mode .nav-tabs .nav-link,
+html.dark-mode body .nav-tabs .nav-link {
+    color: #adb5bd !important;
+}
+
+body.dark-mode .nav-tabs .nav-link:hover,
+html.dark-mode body .nav-tabs .nav-link:hover {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .nav-tabs .nav-link.active,
+html.dark-mode body .nav-tabs .nav-link.active {
+    color: #63b3ed !important;
+    border-bottom-color: #63b3ed !important;
+}
+
+/* Classe para forçar cores de link em ambos os temas */
+.force-visible-link {
+    color: #0d6efd !important;
+}
+
+.force-visible-link:hover {
+    color: #0a58ca !important;
+    text-decoration: underline;
+}
+
+/* Alterar cor do botão "Editar Livro" apenas no tema escuro */
+body.dark-mode .btn-outline-secondary[href*="book_edit"],
+html.dark-mode body .btn-outline-secondary[href*="book_edit"] {
+    color: #63b3ed !important; /* Azul claro */
+    border-color: #63b3ed !important;
+}
+
+body.dark-mode .btn-outline-secondary[href*="book_edit"]:hover,
+html.dark-mode body .btn-outline-secondary[href*="book_edit"]:hover {
+    color: #121212 !important; /* Texto escuro ao passar o mouse */
+    background-color: #63b3ed !important; /* Fundo azul ao passar o mouse */
+    border-color: #63b3ed !important;
+}
+
+/* Compatibilidade com data-bs-theme */
+[data-bs-theme="dark"] .btn-outline-secondary[href*="book_edit"] {
+    color: #63b3ed !important;
+    border-color: #63b3ed !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary[href*="book_edit"]:hover {
+    color: #121212 !important;
+    background-color: #63b3ed !important;
+    border-color: #63b3ed !important;
 }

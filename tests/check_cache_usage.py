@@ -80,7 +80,6 @@ def main():
         ('cgbookstore/apps/core/recommendations/engine.py', 'recommendations'),
         ('cgbookstore/apps/core/recommendations/utils/cache_manager.py', None),
         ('cgbookstore/apps/core/views/image_proxy.py', 'image_proxy'),
-        ('cgbookstore/apps/core/views/weather.py', None)
     ]
 
     print("==== VERIFICAÇÃO DE USO DE CACHE NOS SERVIÇOS ====")
@@ -93,7 +92,6 @@ def main():
     print("2. Para serviços Google Books, use cache específico: caches['google_books']")
     print("3. Para serviços de recomendação, use cache específico: caches['recommendations']")
     print("4. Para o proxy de imagens, use cache específico: caches['image_proxy']")
-    print("5. Para meteorologia, considere usar um cache específico: caches['weather'] (ainda não configurado)")
 
     print("\n==== COMO ATUALIZAR UM SERVIÇO PARA USAR CACHE ESPECÍFICO ====")
     print("1. Adicione a importação: from django.core.cache import caches")

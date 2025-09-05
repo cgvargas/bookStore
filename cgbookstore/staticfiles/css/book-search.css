@@ -59,3 +59,45 @@
         -webkit-line-clamp: 3;
     }
 }
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    .book-cover {
+        height: 250px;
+    }
+
+    .book-description {
+        -webkit-line-clamp: 3;
+    }
+}
+
+/* Estilos para o modal de prateleiras */
+.modal-content.rounded-4 {
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-header.rounded-top-4 {
+    border-top-left-radius: 0.5rem !important;
+    border-top-right-radius: 0.5rem !important;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.list-group-item:first-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+/* Efeito hover nos itens da prateleira */
+.shelf-option {
+    transition: all 0.2s ease;
+}
+
+.shelf-option:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}

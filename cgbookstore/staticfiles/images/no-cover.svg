@@ -1,13 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 192">
-  <!-- Background do livro -->
-  <rect width="128" height="192" fill="#f5f5f5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 400">
+  <!-- Gradiente de fundo -->
+  <defs>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7e5f" />
+      <stop offset="100%" stop-color="#feb47b" />
+    </linearGradient>
+    <!-- Sombra do livro -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="5" dy="5" stdDeviation="10" flood-opacity="0.3" />
+    </filter>
+  </defs>
 
-  <!-- Borda do livro -->
-  <rect x="4" y="4" width="120" height="184" fill="#fff" stroke="#ddd" stroke-width="2"/>
+  <!-- Fundo do livro com gradiente -->
+  <rect width="280" height="400" rx="10" ry="10" fill="url(#bookGradient)" filter="url(#shadow)" />
 
-  <!-- Ícone do livro -->
-  <path d="M34 66h60M34 86h60M34 106h40" stroke="#ccc" stroke-width="4" stroke-linecap="round"/>
+  <!-- Lombada do livro -->
+  <path d="M40 20v360" stroke="#fff" stroke-width="3" stroke-opacity="0.6" />
 
-  <!-- Texto "Sem capa" -->
-  <text x="64" y="146" font-family="Arial, sans-serif" font-size="14" fill="#999" text-anchor="middle">CGBookStore</text>
+  <!-- Texturas e detalhes do livro -->
+  <rect x="60" y="40" width="180" height="20" rx="5" ry="5" fill="#fff" fill-opacity="0.2" />
+  <rect x="60" y="100" width="180" height="3" fill="#fff" fill-opacity="0.3" />
+  <rect x="60" y="120" width="180" height="3" fill="#fff" fill-opacity="0.3" />
+  <rect x="60" y="140" width="180" height="3" fill="#fff" fill-opacity="0.3" />
+  <rect x="60" y="160" width="140" height="3" fill="#fff" fill-opacity="0.3" />
+
+  <!-- Ícone do livro no centro -->
+  <g transform="translate(140, 220) scale(2.5)">
+    <path d="M-20 -15 h40 v30 h-40 v-30 z" fill="none" stroke="#fff" stroke-width="2" />
+    <path d="M-10 -5 h20 M-10 0 h20 M-10 5 h15" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Texto principal -->
+  <text x="140" y="290" font-family="Arial, sans-serif" font-weight="bold" font-size="18" fill="#fff" text-anchor="middle">Capa não disponível</text>
+
+  <!-- Logo e informações -->
+  <g transform="translate(140, 330)">
+    <rect x="-80" y="-15" width="160" height="30" rx="15" ry="15" fill="#fff" fill-opacity="0.2" />
+    <text x="0" y="5" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="#fff" text-anchor="middle">CG.BookStore Online</text>
+  </g>
+
+  <!-- Detalhes decorativos nas bordas -->
+  <path d="M30 30 h20 M30 370 h20" stroke="#fff" stroke-width="2" stroke-opacity="0.6" />
 </svg>

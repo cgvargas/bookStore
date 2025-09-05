@@ -7,23 +7,23 @@
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="display-4 mb-3">Nossos Autores</h1>
+            <h1 class="display-4 mb-3" style="color: var(--cor-texto-primario);">Nossos Autores</h1>
             <p class="lead text-muted">Conheça os talentos literários que compõem nosso acervo.</p>
         </div>
     </div>
 
-    <!-- Filtro e busca (opcional) -->
+    <!-- Filtro e busca -->
     <div class="row mb-4">
         <div class="col-md-8">
             <div class="input-group">
-                <input type="text" id="author-search" class="form-control" placeholder="Buscar autor por nome..." aria-label="Buscar autor">
-                <button class="btn btn-outline-secondary" type="button" id="search-button">
+                <input type="text" id="author-search" class="form-control" placeholder="Buscar autor por nome..." aria-label="Buscar autor" style="background-color: var(--cor-fundo-input); border-color: var(--cor-borda); color: var(--cor-texto-primario);">
+                <button class="btn btn-outline-secondary" type="button" id="search-button" style="color: var(--cor-acao-secundaria); border-color: var(--cor-acao-secundaria);">
                     <i class="fas fa-search"></i> Buscar
                 </button>
             </div>
         </div>
         <div class="col-md-4">
-            <select class="form-select" id="ordenar-autores">
+            <select class="form-select" id="ordenar-autores" style="background-color: var(--cor-fundo-input); border-color: var(--cor-borda); color: var(--cor-texto-primario);">
                 <option selected value="nome">Ordenar por Nome</option>
                 <option value="livros">Ordenar por Nº de Livros</option>
                 <option value="recentes">Adicionados Recentemente</option>
@@ -35,7 +35,7 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="author-list">
         {% for author in authors %}
         <div class="col author-item">
-            <div class="card h-100 border shadow-sm hover-effect">
+            <div class="card h-100 border shadow-sm hover-effect" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda) !important;">
                 <a href="{% url 'core:authors:author-detail' author.slug %}" class="text-decoration-none">
                     <div class="card-body d-flex flex-column align-items-center p-4">
                         <!-- Imagem do autor - Agora centralizada -->
@@ -44,39 +44,37 @@
                             <img src="{{ author.foto.url }}" alt="{{ author.get_nome_completo }}"
                                  class="rounded-circle img-fluid mx-auto" style="width: 150px; height: 150px; object-fit: cover; display: block;">
                             {% else %}
-                            <div class="author-placeholder rounded-circle d-flex align-items-center justify-content-center bg-secondary text-white mx-auto"
-                                 style="width: 150px; height: 150px;">
+                            <div class="author-placeholder rounded-circle d-flex align-items-center justify-content-center text-white mx-auto"
+                                 style="width: 150px; height: 150px; background-color: var(--cor-acao-secundaria);">
                                 <span style="font-size: 3rem;">{{ author.nome|first }}</span>
                             </div>
                             {% endif %}
                         </div>
 
                         <!-- Informações do autor -->
-                        <h3 class="card-title h5 text-center text-dark">{{ author.get_nome_completo }}</h3>
+                        <h3 class="card-title h5 text-center" style="color: var(--cor-texto-primario);">{{ author.get_nome_completo }}</h3>
 
                         {% if author.nacionalidade %}
                         <p class="text-muted text-center mb-2">{{ author.nacionalidade }}</p>
                         {% endif %}
 
                         <div class="mt-2 mb-3">
-                            <span class="badge bg-primary">{{ author.get_livros_count }} livro(s)</span>
+                            <span class="badge" style="background-color: var(--cor-acao-primaria); color: var(--cor-texto-invertido);">{{ author.get_livros_count }} livro(s)</span>
                             {% if author.destaque %}
-                            <span class="badge bg-warning text-dark">Destaque</span>
+                            <span class="badge" style="background-color: var(--cor-acao-secundaria); color: var(--cor-texto-invertido);">Destaque</span>
                             {% endif %}
                         </div>
 
                         <p class="card-text text-muted text-center small">
                             {{ author.biografia|truncatechars:100 }}
                         </p>
-
-                        <!-- Redes sociais removidas -->
                     </div>
                 </a>
             </div>
         </div>
         {% empty %}
         <div class="col-12 text-center py-5">
-            <div class="alert alert-info">
+            <div class="alert alert-info" style="background-color: var(--cor-fundo-hover); border-color: var(--cor-acao-primaria); color: var(--cor-texto-primario);">
                 <p class="mb-0">Nenhum autor disponível no momento.</p>
             </div>
         </div>
@@ -91,23 +89,23 @@
                 <ul class="pagination justify-content-center">
                     {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page=1" aria-label="Primeira">
+                        <a class="page-link" href="?page=1" aria-label="Primeira" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-primario);">
                             <span aria-hidden="true">&laquo;&laquo;</span>
                         </a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Anterior" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-primario);">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
                     {% else %}
                     <li class="page-item disabled">
-                        <a class="page-link" href="#" aria-label="Primeira">
+                        <a class="page-link" href="#" aria-label="Primeira" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-secundario);">
                             <span aria-hidden="true">&laquo;&laquo;</span>
                         </a>
                     </li>
                     <li class="page-item disabled">
-                        <a class="page-link" href="#" aria-label="Anterior">
+                        <a class="page-link" href="#" aria-label="Anterior" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-secundario);">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
@@ -115,31 +113,35 @@
 
                     {% for num in page_obj.paginator.page_range %}
                         {% if page_obj.number == num %}
-                        <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        <li class="page-item active">
+                            <a class="page-link" href="?page={{ num }}" style="background-color: var(--cor-acao-secundaria); border-color: var(--cor-acao-secundaria); color: var(--cor-texto-invertido);">{{ num }}</a>
+                        </li>
                         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-primario);">{{ num }}</a>
+                        </li>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Próxima">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Próxima" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-primario);">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Última">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Última" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-primario);">
                             <span aria-hidden="true">&raquo;&raquo;</span>
                         </a>
                     </li>
                     {% else %}
                     <li class="page-item disabled">
-                        <a class="page-link" href="#" aria-label="Próxima">
+                        <a class="page-link" href="#" aria-label="Próxima" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-secundario);">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
                     <li class="page-item disabled">
-                        <a class="page-link" href="#" aria-label="Última">
+                        <a class="page-link" href="#" aria-label="Última" style="background-color: var(--cor-fundo-card); border-color: var(--cor-borda); color: var(--cor-texto-secundario);">
                             <span aria-hidden="true">&raquo;&raquo;</span>
                         </a>
                     </li>
@@ -157,18 +159,39 @@
     }
     .hover-effect:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        box-shadow: var(--sombra-card) !important;
     }
     .author-placeholder {
         transition: background-color 0.3s ease;
     }
     .hover-effect:hover .author-placeholder {
-        background-color: #007bff !important;
+        background-color: var(--cor-acao-secundaria-hover) !important;
+    }
+
+    /* Hover nos botões de busca e select */
+    .btn-outline-secondary:hover {
+        background-color: var(--cor-acao-secundaria) !important;
+        border-color: var(--cor-acao-secundaria) !important;
+        color: var(--cor-texto-invertido) !important;
+    }
+
+    /* Hover na paginação */
+    .page-link:hover {
+        background-color: var(--cor-acao-secundaria) !important;
+        border-color: var(--cor-acao-secundaria) !important;
+        color: var(--cor-texto-invertido) !important;
+    }
+
+    /* Focus nos campos de formulário */
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--cor-borda-input-foco) !important;
+        box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.1) !important;
     }
 </style>
 
 <script>
-    // Script básico para filtragem em tempo real (opcional)
+    // Script básico para filtragem em tempo real
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('author-search');
         const authorItems = document.querySelectorAll('.author-item');

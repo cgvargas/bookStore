@@ -1,1164 +1,408 @@
 {% extends "admin/base_site.html" %}
 {% load static %}
+{% load i18n %}
+
+{% block title %}Sistema de Treinamento do Chatbot Literário{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">Administração CG BookStore</a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
 
 {% block extrastyle %}
-<style>
-    /* CSS com alta especificidade para sobrescrever estilos do Django admin */
-    html body .chatbot-training-container,
-    html body .chatbot-training-container *,
-    html body .chatbot-training-container .card,
-    html body .chatbot-training-container .card-header,
-    html body .chatbot-training-container .card-body,
-    html body .chatbot-training-container .card-footer {
-        color: inherit !important;
-    }
-
-    /* Forçar cores da última interação com máxima especificidade */
-    html body .chatbot-training-container #lastInteraction p,
-    html body .chatbot-training-container #lastInteraction div p,
-    html body .chatbot-training-container .card-body #lastInteraction p {
-        background: #455a75 !important;
-        background-color: #455a75 !important;
-        color: #ecf0f1 !important;
-        border: 1px solid #34495e !important;
-    }
-    /* Forçar fundo escuro para toda a página */
-    body {
-        background-color: #000000 !important;
-        color: #fff !important;
-    }
-
-    .chatbot-training-container {
-        padding: 20px;
-        background-color: #2c3e50;
-        min-height: 100vh;
-        max-width: 1400px;
-        margin: 0 auto;
-        color: #fff;
-        border-radius: 12px;
-        box-shadow: 0 0 30px rgba(0,0,0,0.5);
-    }
-
-    .nav-tabs {
-        border-bottom: 2px solid #417690;
-        margin-bottom: 20px;
-        display: flex;
-        list-style: none;
-        padding: 0;
-        margin-left: 0;
-    }
-
-    .nav-tabs .nav-item {
-        list-style: none;
-        margin: 0;
-    }
-
-    .nav-tabs .nav-item::before {
-        display: none;
-    }
-
-    .nav-tabs .nav-link {
-        color: #ecf0f1;
-        background-color: #34495e;
-        border: 1px solid #2c3e50;
-        border-bottom: none;
-        padding: 12px 20px;
-        margin-right: 5px;
-        border-radius: 8px 8px 0 0;
-        font-weight: 500;
-        text-decoration: none;
-        display: block;
-    }
-
-    .nav-tabs .nav-link:hover {
-        background-color: #2c3e50;
-        border-color: #417690;
-        color: #fff;
-    }
-
-    .nav-tabs .nav-link.active {
-        background-color: #417690;
-        color: white;
-        border-color: #417690;
-    }
-
-    .stats-card {
-        background-color: #34495e;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        margin-bottom: 25px;
-        overflow: hidden;
-        border: 1px solid #2c3e50;
-    }
-
-    .stats-header {
-        background: linear-gradient(135deg, #417690, #2c3e50);
-        color: white;
-        padding: 20px;
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .stats-body {
-        padding: 25px;
-    }
-
-    .stats-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    .stat-item {
-        background: linear-gradient(135deg, #455a75, #34495e);
-        padding: 20px;
-        text-align: center;
-        border-radius: 8px;
-        border-left: 4px solid #417690;
-        transition: transform 0.2s ease;
-        border: 1px solid #2c3e50;
-        color: #ecf0f1;
-    }
-
-    .stat-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    .stat-number {
-        font-size: 32px;
-        font-weight: bold;
-        color: #79aec8;
-        margin-bottom: 8px;
-    }
-
-    .stat-label {
-        font-size: 14px;
-        color: #bdc3c7;
-        font-weight: 500;
-    }
-
-    .chat-simulator {
-        background-color: #34495e;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        margin-bottom: 25px;
-        overflow: hidden;
-        border: 1px solid #2c3e50;
-    }
-
-    .chat-header {
-        background: linear-gradient(135deg, #417690, #2c3e50);
-        color: white;
-        padding: 20px;
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .chat-messages {
-        height: 350px;
-        overflow-y: auto;
-        padding: 20px;
-        background-color: #2c3e50;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .chat-input {
-        padding: 20px;
-        background-color: #34495e;
-        border-top: 1px solid #2c3e50;
-    }
-
-    .user-message {
-        background: linear-gradient(135deg, #417690, #79aec8);
-        color: white;
-        padding: 12px 18px;
-        border-radius: 18px 18px 4px 18px;
-        margin-bottom: 15px;
-        max-width: 80%;
-        align-self: flex-end;
-        font-weight: 500;
-        box-shadow: 0 2px 8px rgba(65, 118, 144, 0.3);
-    }
-
-    .bot-message {
-        background-color: #455a75;
-        color: #ecf0f1;
-        padding: 12px 18px;
-        border-radius: 18px 18px 18px 4px;
-        margin-bottom: 15px;
-        max-width: 80%;
-        align-self: flex-start;
-        border: 1px solid #34495e;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    /* Tab content - garantir que apenas a aba ativa seja visível */
-    .tab-content {
-        padding: 0;
-    }
-
-    .tab-pane {
-        display: none;
-    }
-
-    .tab-pane.active {
-        display: block !important;
-    }
-
-    .tab-pane.show.active {
-        display: block !important;
-    }
-
-    .conversation-list {
-        max-height: 600px;
-        overflow-y: auto;
-        background-color: #f1f3f4;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-        border: 1px solid #dee2e6;
-    }
-
-    .conversation-item {
-        padding: 20px;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .conversation-item:last-child {
-        border-bottom: none;
-    }
-
-    .knowledge-item-form {
-        background-color: #34495e;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        margin-bottom: 25px;
-        border: 1px solid #2c3e50;
-        color: #ecf0f1;
-    }
-
-    .file-import-section {
-        background-color: #34495e;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        margin-bottom: 25px;
-        border: 1px solid #2c3e50;
-        color: #ecf0f1;
-    }
-
-    .progress-bar-container {
-        margin-top: 20px;
-    }
-
-    .category-distribution {
-        margin-top: 20px;
-        background-color: #34495e;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #2c3e50;
-        color: #ecf0f1;
-    }
-
-    .category-item {
-        display: flex;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #455a75;
-    }
-
-    .category-name {
-        flex: 0 0 150px;
-        font-weight: 500;
-        color: #ecf0f1;
-    }
-
-    .category-count {
-        flex: 0 0 60px;
-        text-align: right;
-        font-weight: bold;
-        color: #79aec8;
-    }
-
-    .category-bar {
-        flex: 1;
-        margin: 0 15px;
-        height: 8px;
-        background-color: #2c3e50;
-        border-radius: 4px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .category-bar-fill {
-        background: linear-gradient(90deg, #417690, #79aec8);
-        height: 100%;
-        position: absolute;
-        left: 0;
-        top: 0;
-        border-radius: 4px;
-        transition: width 0.3s ease;
-    }
-
-    /* Botões */
-    .btn {
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-weight: 500;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.2s ease;
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #417690, #79aec8);
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #366080, #6a9db8);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(65, 118, 144, 0.3);
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        color: white;
-    }
-
-    .btn-success:hover {
-        background: linear-gradient(135deg, #218838, #1ba085);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-    }
-
-    .btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none !important;
-        box-shadow: none !important;
-    }
-
-    /* Cards */
-    .card {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        overflow: hidden;
-    }
-
-    .card-header {
-        background-color: #f8f9fa;
-        padding: 15px 20px;
-        border-bottom: 1px solid #e9ecef;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .card-body {
-        padding: 20px;
-    }
-
-    .card-footer {
-        background-color: #f8f9fa;
-        padding: 15px 20px;
-        border-top: 1px solid #e9ecef;
-    }
-
-    /* Formulários com tema escuro */
-    .form-control, .form-select {
-        border: 1px solid #455a75;
-        border-radius: 6px;
-        padding: 10px 15px;
-        font-size: 14px;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        line-height: 1.5;
-        height: auto;
-        min-height: 40px;
-        background-color: #2c3e50;
-        color: #ecf0f1;
-    }
-
-    .form-control::placeholder {
-        color: #95a5a6;
-    }
-
-    .form-select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ecf0f1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 6.5 6.5L14 6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 16px;
-        padding-right: 40px;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #417690;
-        box-shadow: 0 0 0 3px rgba(65, 118, 144, 0.3);
-        outline: none;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #ecf0f1;
-        margin-bottom: 8px;
-        display: block;
-    }
-
-    .mb-3 {
-        margin-bottom: 1rem;
-    }
-
-    .mt-3 {
-        margin-top: 1rem;
-    }
-
-    .mt-4 {
-        margin-top: 1.5rem;
-    }
-
-    .d-flex {
-        display: flex;
-    }
-
-    .justify-content-between {
-        justify-content: space-between;
-    }
-
-    .align-items-center {
-        align-items: center;
-    }
-
-    .d-inline {
-        display: inline;
-    }
-
-    .text-muted {
-        color: #95a5a6 !important;
-    }
-
-    /* Garantir que textos pequenos também sejam claros */
-    small {
-        color: #95a5a6 !important;
-    }
-
-    /* Cores para badges em tema escuro */
-    .badge {
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .bg-success {
-        background-color: #27ae60 !important;
-        color: white;
-    }
-
-    .bg-warning {
-        background-color: #f39c12 !important;
-        color: #2c3e50;
-    }
-
-    .bg-danger {
-        background-color: #e74c3c !important;
-        color: white;
-    }
-
-    /* Progress bar */
-    .progress {
-        height: 10px;
-        background-color: #e9ecef;
-        border-radius: 5px;
-        overflow: hidden;
-    }
-
-    .progress-bar {
-        background: linear-gradient(90deg, #417690, #79aec8);
-        height: 100%;
-        transition: width 0.3s ease;
-    }
-
-    /* Input group */
-    .input-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .input-group .form-control {
-        flex: 1;
-    }
-
-    /* Responsividade */
-    @media (max-width: 768px) {
-        .chatbot-training-container {
-            padding: 15px;
-        }
-
-        .stats-row {
-            grid-template-columns: 1fr;
-        }
-
-        .category-name {
-            flex: 0 0 100px;
-            font-size: 14px;
-        }
-
-        .category-count {
-            flex: 0 0 40px;
-        }
-
-        .nav-tabs .nav-link {
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-    }
-
-    /* Scrollbar customizada */
-    .chat-messages::-webkit-scrollbar,
-    .conversation-list::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .chat-messages::-webkit-scrollbar-track,
-    .conversation-list::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 3px;
-    }
-
-    .chat-messages::-webkit-scrollbar-thumb,
-    .conversation-list::-webkit-scrollbar-thumb {
-        background: #417690;
-        border-radius: 3px;
-    }
-
-    .chat-messages::-webkit-scrollbar-thumb:hover,
-    .conversation-list::-webkit-scrollbar-thumb:hover {
-        background: #366080;
-    }
-
-    /* Grid layout para as ferramentas */
-    .tools-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 25px;
-        margin-bottom: 25px;
-    }
-
-    /* Cards de ferramentas */
-    .tool-card {
-        margin-bottom: 20px;
-        padding: 15px;
-        background-color: #2c3e50;
-        border-radius: 8px;
-        border: 1px solid #455a75;
-    }
-
-    .tool-title {
-        color: #79aec8;
-        margin-bottom: 10px;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    .tool-description {
-        color: #95a5a6;
-        font-size: 14px;
-        margin-bottom: 15px;
-        line-height: 1.4;
-    }
-
-    .tool-danger-title {
-        color: #e74c3c;
-        margin-bottom: 10px;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    /* Garantir que os cards da seção de ajuda também fiquem lado a lado */
-    .help-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-    }
-
-    .help-card {
-        padding: 15px;
-        background-color: #2c3e50;
-        border-radius: 8px;
-        border: 1px solid #455a75;
-    }
-
-    .help-card h4 {
-        margin-bottom: 8px;
-    }
-
-    .help-card p {
-        margin: 0;
-        color: #95a5a6;
-        font-size: 14px;
-    }
-
-    /* Responsividade para telas menores */
-    @media (max-width: 768px) {
-        .tools-grid {
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        .help-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* Indicador de "Digitando..." */
-    .bot-typing-indicator {
-        background-color: #455a75;
-        color: #ecf0f1;
-        padding: 12px 18px;
-        border-radius: 18px 18px 18px 4px;
-        margin-bottom: 15px;
-        max-width: 80%;
-        align-self: flex-start;
-        border: 1px solid #34495e;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .bot-typing-indicator span {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: #79aec8;
-        animation: typing-blink 1.4s infinite both;
-    }
-
-    .bot-typing-indicator span:nth-child(1) {
-        animation-delay: 0s;
-    }
-
-    .bot-typing-indicator span:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-
-    .bot-typing-indicator span:nth-child(3) {
-        animation-delay: 0.4s;
-    }
-
-    @keyframes typing-blink {
-        0% {
-            opacity: 0.2;
-        }
-        20% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 0.2;
-        }
-    }
-</style>
+    {{ block.super }} {# Mantém os estilos do pai, se houver #}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/training_styles.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="chatbot-training-container">
-    <h1 style="color: #ecf0f1; margin-bottom: 30px; font-weight: 600; text-align: center;">{{ title }}</h1>
+<div class="training-main-container">
+    <!-- Sidebar Navigation -->
+    <div class="training-sidebar">
+        {% include "admin/nav_sidebar.html" %}
+    </div>
 
-    <ul class="nav nav-tabs" id="myTab" role="tablist" style="list-style: none; display: flex; padding: 0; margin: 0 0 20px 0;">
-        <li class="nav-item" role="presentation" style="list-style: none;">
-            <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">Dashboard</button>
-        </li>
-        <li class="nav-item" role="presentation" style="list-style: none;">
-            <button class="nav-link" id="simulator-tab" data-bs-toggle="tab" data-bs-target="#simulator" type="button" role="tab" aria-controls="simulator" aria-selected="false">Simulador</button>
-        </li>
-        <li class="nav-item" role="presentation" style="list-style: none;">
-            <button class="nav-link" id="knowledge-tab" data-bs-toggle="tab" data-bs-target="#knowledge" type="button" role="tab" aria-controls="knowledge" aria-selected="false">Base de Conhecimento</button>
-        </li>
-        <li class="nav-item" role="presentation" style="list-style: none;">
-            <button class="nav-link" id="conversations-tab" data-bs-toggle="tab" data-bs-target="#conversations" type="button" role="tab" aria-controls="conversations" aria-selected="false">Conversas</button>
-        </li>
-        <li class="nav-item" role="presentation" style="list-style: none;">
-            <button class="nav-link" id="import-export-tab" data-bs-toggle="tab" data-bs-target="#import-export" type="button" role="tab" aria-controls="import-export" aria-selected="false">Importar/Exportar</button>
-        </li>
-        <li class="nav-item" role="presentation" style="list-style: none;">
-            <button class="nav-link" id="tools-tab" data-bs-toggle="tab" data-bs-target="#tools" type="button" role="tab" aria-controls="tools" aria-selected="false">Ferramentas</button>
-        </li>
-    </ul>
+    <!-- Main Content Area -->
+    <div class="training-content">
+        <div class="chatbot-training-container">
+            <h1 class="training-title">{{ title }}</h1>
 
-    <div class="tab-content" id="myTabContent">
-        <!-- Dashboard Tab -->
-        <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab" style="display: block;">
-            <div class="stats-card">
-                <div class="stats-header">
-                    <h3 style="margin: 0;">Estatísticas Gerais</h3>
-                </div>
-                <div class="stats-body">
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.total_knowledge }}</div>
-                            <div class="stat-label">Total de Itens de Conhecimento</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.active_knowledge }}</div>
-                            <div class="stat-label">Itens Ativos</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.total_conversations }}</div>
-                            <div class="stat-label">Total de Mensagens</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.total_feedback }}</div>
-                            <div class="stat-label">Total de Feedbacks</div>
-                        </div>
-                    </div>
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.recent_knowledge }}</div>
-                            <div class="stat-label">Itens Recentes (30 dias)</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.satisfaction_rate|floatformat:1 }}%</div>
-                            <div class="stat-label">Taxa de Satisfação</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.with_embeddings }}</div>
-                            <div class="stat-label">Com Embeddings</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stats.without_embeddings }}</div>
-                            <div class="stat-label">Sem Embeddings</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Navigation Tabs -->
+            <ul class="nav nav-tabs" id="trainingTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">
+                        📊 Dashboard
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="simulator-tab" data-bs-toggle="tab" data-bs-target="#simulator" type="button" role="tab" aria-controls="simulator" aria-selected="false">
+                        🤖 Simulador
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="knowledge-tab" data-bs-toggle="tab" data-bs-target="#knowledge" type="button" role="tab" aria-controls="knowledge" aria-selected="false">
+                        🧠 Base de Conhecimento
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="conversations-tab" data-bs-toggle="tab" data-bs-target="#conversations" type="button" role="tab" aria-controls="conversations" aria-selected="false">
+                        💬 Conversas
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="import-export-tab" data-bs-toggle="tab" data-bs-target="#import-export" type="button" role="tab" aria-controls="import-export" aria-selected="false">
+                        📁 Importar/Exportar
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tools-tab" data-bs-toggle="tab" data-bs-target="#tools" type="button" role="tab" aria-controls="tools" aria-selected="false">
+                        🛠️ Ferramentas
+                    </button>
+                </li>
+            </ul>
 
-            <!-- Distribuição por categoria -->
-            <div class="stats-card">
-                <div class="stats-header">
-                    <h3 style="margin: 0;">Distribuição por Categoria</h3>
-                </div>
-                <div class="stats-body">
-                    <div class="category-distribution">
-                        {% for category in stats.categories %}
-                        <div class="category-item">
-                            <div class="category-name">{{ category.category|default:"(Sem categoria)" }}</div>
-                            <div class="category-bar">
-                                <div class="category-bar-fill" style="width: {% if stats.total_knowledge > 0 %}{% widthratio category.count stats.total_knowledge 100 %}{% else %}0{% endif %}%"></div>
-                            </div>
-                            <div class="category-count">{{ category.count }}</div>
+            <!-- Tab Content -->
+            <div class="tab-content" id="trainingTabContent">
+                <!-- Dashboard Tab -->
+                <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                    <div class="stats-card">
+                        <div class="stats-header">
+                            <h3>📊 Estatísticas Gerais</h3>
                         </div>
-                        {% empty %}
-                        <p style="text-align: center; color: #95a5a6; margin: 20px 0;">Nenhuma categoria encontrada.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Status dos embeddings -->
-            <div class="stats-card">
-                <div class="stats-header">
-                    <h3 style="margin: 0;">Status dos Embeddings</h3>
-                </div>
-                <div class="stats-body">
-                    <p>
-                        {% if stats.embeddings_available %}
-                        <span class="badge bg-success">Disponível</span>
-                        Modelo de embeddings disponível para busca semântica.
-                        {% else %}
-                        <span class="badge bg-warning">Indisponível</span>
-                        Modelo de embeddings não disponível. Instale o pacote sentence-transformers para habilitar.
-                        {% endif %}
-                    </p>
-
-                    {% if stats.with_embeddings > 0 or stats.without_embeddings > 0 %}
-                    <div class="progress-bar-container">
-                        <p style="margin-bottom: 10px; font-weight: 600;">Progresso de Geração de Embeddings</p>
-                        <div class="progress-wrapper">
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: {% if stats.total_knowledge > 0 %}{% widthratio stats.with_embeddings stats.total_knowledge 100 %}{% else %}0{% endif %}%"
-                                    aria-valuenow="{% if stats.total_knowledge > 0 %}{% widthratio stats.with_embeddings stats.total_knowledge 100 %}{% else %}0{% endif %}"
-                                    aria-valuemin="0" aria-valuemax="100">
+                        <div class="stats-body">
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ stats.total_knowledge }}</div>
+                                    <div class="stat-label">Total de Itens de Conhecimento</div>
                                 </div>
-                                <span class="progress-percentage">{% if stats.total_knowledge > 0 %}{% widthratio stats.with_embeddings stats.total_knowledge 100 %}%{% else %}0%{% endif %}</span>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ stats.active_knowledge }}</div>
+                                    <div class="stat-label">Itens Ativos</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ stats.total_conversations }}</div>
+                                    <div class="stat-label">Total de Mensagens</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ stats.total_feedback }}</div>
+                                    <div class="stat-label">Total de Feedbacks</div>
+                                </div>
+                            </div>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ stats.recent_knowledge }}</div>
+                                    <div class="stat-label">Itens Recentes (30 dias)</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ stats.satisfaction_rate|floatformat:1 }}%</div>
+                                    <div class="stat-label">Taxa de Satisfação</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ stats.with_embeddings }}</div>
+                                    <div class="stat-label">Com Embeddings</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ stats.without_embeddings }}</div>
+                                    <div class="stat-label">Sem Embeddings</div>
+                                </div>
                             </div>
                         </div>
-                        <small style="color: #95a5a6; margin-top: 8px; display: block;">{{ stats.with_embeddings }} de {{ stats.total_knowledge }} itens com embeddings</small>
                     </div>
 
-                    <div class="mt-3">
-                        <form action="/admin/chatbot/treinamento/update-embeddings/" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="batch_size" value="100">
-                            <button type="submit" class="btn btn-primary" {% if not stats.embeddings_available %}disabled{% endif %}>
-                                Atualizar Embeddings
-                            </button>
-                        </form>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Simulador Tab -->
-        <div class="tab-pane fade" id="simulator" role="tabpanel" aria-labelledby="simulator-tab">
-            <div class="chat-simulator">
-                <div class="chat-header">
-                    <h3 style="margin: 0;">Simulador do Chatbot</h3>
-                </div>
-                <div class="chat-messages" id="chatMessages">
-                    <div class="bot-message">
-                        Olá! Sou o assistente virtual da CG.BookStore.Online. Como posso ajudar?
-                    </div>
-                </div>
-                <div class="chat-input">
-                    <div class="input-group">
-                        <input type="text" id="chatInput" class="form-control" placeholder="Digite sua mensagem...">
-                        <button class="btn btn-primary" id="sendMessage">Enviar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mt-4" style="background: #34495e !important; border: 1px solid #2c3e50 !important;">
-                <div class="card-header" style="background: #2c3e50 !important; border-bottom: 1px solid #455a75 !important;">
-                    <h3 style="margin: 0; color: #ecf0f1 !important;">Última Interação</h3>
-                </div>
-                <div class="card-body" id="lastInteraction" style="background: #34495e !important;">
-                    <p class="text-muted" style="color: #95a5a6 !important;">Nenhuma interação recente.</p>
-                </div>
-                <div class="card-footer" style="background: #2c3e50 !important; border-top: 1px solid #455a75 !important;">
-                    <form action="/admin/chatbot/treinamento/adicionar-da-conversa/" method="post" id="addInteractionForm">
-                        {% csrf_token %}
-                        <input type="hidden" name="user_input" id="userInputHidden">
-                        <input type="hidden" name="bot_response" id="botResponseHidden">
-                        <button type="submit" class="btn btn-success" disabled id="addInteractionBtn">
-                            Adicionar à Base de Conhecimento
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Base de Conhecimento Tab -->
-        <div class="tab-pane fade" id="knowledge" role="tabpanel" aria-labelledby="knowledge-tab">
-            <div class="knowledge-item-form">
-                <h3 style="margin-bottom: 20px; color: #ecf0f1;">Adicionar Item de Conhecimento</h3>
-                <form action="/admin/chatbot/treinamento/adicionar-conhecimento/" method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="question" class="form-label">Pergunta</label>
-                        <textarea class="form-control" id="question" name="question" rows="2" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="answer" class="form-label">Resposta</label>
-                        <textarea class="form-control" id="answer" name="answer" rows="3" required></textarea>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="mb-3">
-                            <label for="category" class="form-label">Categoria</label>
-                            <input type="text" class="form-control" id="category" name="category" placeholder="Ex: livros, autores, navegação">
+                    <!-- Distribuição por categoria -->
+                    <div class="stats-card">
+                        <div class="stats-header">
+                            <h3>📋 Distribuição por Categoria</h3>
                         </div>
-                        <div class="mb-3">
-                            <label for="source" class="form-label">Fonte</label>
-                            <input type="text" class="form-control" id="source" name="source" value="manual">
+                        <div class="stats-body">
+                            <div class="category-distribution">
+                                {% for category in stats.categories %}
+                                <div class="category-item">
+                                    <div class="category-name">{{ category.category|default:"(Sem categoria)" }}</div>
+                                    <div class="category-bar">
+                                        <div class="category-bar-fill" style="width: {% if stats.total_knowledge > 0 %}{% widthratio category.count stats.total_knowledge 100 %}{% else %}0{% endif %}%"></div>
+                                    </div>
+                                    <div class="category-count">{{ category.count }}</div>
+                                </div>
+                                {% empty %}
+                                <p class="no-data">Nenhuma categoria encontrada.</p>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Adicionar</button>
-                </form>
-            </div>
 
-            <div class="mt-4">
-                <p style="background-color: #34495e; padding: 15px; border-radius: 8px; border-left: 4px solid #417690; border: 1px solid #2c3e50; color: #ecf0f1;">
-                    Para visualizar e gerenciar todos os itens de conhecimento, use a
-                    <a href="/admin/chatbot_literario/knowledgeitem/" style="color: #79aec8; text-decoration: none; font-weight: 600;">interface de administração</a>.
-                </p>
-            </div>
-        </div>
-
-        <!-- Conversas Tab -->
-        <div class="tab-pane fade" id="conversations" role="tabpanel" aria-labelledby="conversations-tab">
-            <h3 style="color: #ecf0f1; margin-bottom: 20px;">Conversas Recentes</h3>
-            <div class="conversation-list">
-                {% for conversation in recent_conversations %}
-                <div class="conversation-item">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <span style="font-weight: 600; color: #ecf0f1;">{{ conversation.user.username }} - {{ conversation.started_at|date:"d/m/Y H:i" }}</span>
-                            <form action="/admin/chatbot/treinamento/adicionar-da-conversa/" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <input type="hidden" name="user_input" value="{{ conversation.user_input }}">
-                                <input type="hidden" name="bot_response" value="{{ conversation.bot_response }}">
-                                <button type="submit" class="btn btn-success" style="padding: 6px 12px; font-size: 12px;">Adicionar à Base</button>
-                            </form>
+                    <!-- Status dos embeddings -->
+                    <div class="stats-card">
+                        <div class="stats-header">
+                            <h3>🧠 Status dos Embeddings</h3>
                         </div>
-                        <div class="card-body">
-                            <p><strong style="color: #79aec8;">Usuário:</strong> {{ conversation.user_input }}</p>
-                            <p><strong style="color: #79aec8;">Chatbot:</strong> {{ conversation.bot_response }}</p>
-                            {% if conversation.feedback %}
-                            <div class="mt-2">
-                                <span class="badge {% if conversation.feedback.helpful %}bg-success{% else %}bg-danger{% endif %}">
-                                    {% if conversation.feedback.helpful %}Útil{% else %}Não útil{% endif %}
-                                </span>
-                                {% if conversation.feedback.comment %}
-                                <p class="mt-1" style="margin-top: 8px;"><small style="color: #95a5a6;">{{ conversation.feedback.comment }}</small></p>
+                        <div class="stats-body">
+                            <p class="status-info">
+                                {% if stats.embeddings_available %}
+                                <span class="badge badge-success">✅ Disponível</span>
+                                Modelo de embeddings disponível para busca semântica.
+                                {% else %}
+                                <span class="badge badge-warning">⚠️ Indisponível</span>
+                                Modelo de embeddings não disponível. Instale o pacote sentence-transformers para habilitar.
                                 {% endif %}
+                            </p>
+
+                            {% if stats.with_embeddings > 0 or stats.without_embeddings > 0 %}
+                            <div class="progress-section">
+                                <p class="progress-title">Progresso de Geração de Embeddings</p>
+                                <div class="progress-wrapper">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: {% if stats.total_knowledge > 0 %}{% widthratio stats.with_embeddings stats.total_knowledge 100 %}{% else %}0{% endif %}%">
+                                            <span class="progress-text">{% if stats.total_knowledge > 0 %}{% widthratio stats.with_embeddings stats.total_knowledge 100 %}%{% else %}0%{% endif %}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="progress-details">{{ stats.with_embeddings }} de {{ stats.total_knowledge }} itens com embeddings</small>
+                            </div>
+
+                            <div class="action-section">
+                                <form action="{% url 'update_embeddings' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="batch_size" value="100">
+                                    <button type="submit" class="btn btn-primary" {% if not stats.embeddings_available %}disabled{% endif %}>
+                                        🔄 Atualizar Embeddings
+                                    </button>
+                                </form>
                             </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                <p style="text-align: center; color: #95a5a6; padding: 40px;">Nenhuma conversa recente encontrada.</p>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- Importar/Exportar Tab -->
-        <div class="tab-pane fade" id="import-export" role="tabpanel" aria-labelledby="import-export-tab">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-                <div class="file-import-section">
-                    <h3 style="margin-bottom: 20px; color: #ecf0f1;">Importar Base de Conhecimento</h3>
-                    <form action="/admin/chatbot/treinamento/importar/" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="importFile" class="form-label">Arquivo</label>
-                            <input class="form-control" type="file" id="importFile" name="import_file" required>
+                <!-- Simulador Tab -->
+                <div class="tab-pane fade" id="simulator" role="tabpanel" aria-labelledby="simulator-tab">
+                    <div class="chat-simulator">
+                        <div class="chat-header">
+                            <h3>🤖 Simulador do Chatbot</h3>
                         </div>
-                        <div class="mb-3">
-                            <label for="formatSelect" class="form-label">Formato</label>
-                            <select class="form-select" id="formatSelect" name="format" style="width: 100%;">
-                                <option value="csv">CSV</option>
-                                <option value="json">JSON</option>
-                            </select>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="bot-message">
+                                👋 Olá! Sou o assistente virtual da CG.BookStore.Online. Como posso ajudar?
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Importar</button>
-                    </form>
+                        <div class="chat-input">
+                            <div class="input-group">
+                                <input type="text" id="chatInput" class="form-control" placeholder="Digite sua mensagem...">
+                                <button class="btn btn-primary" id="sendMessage">📤 Enviar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interaction-card">
+                        <div class="card-header">
+                            <h3>💭 Última Interação</h3>
+                        </div>
+                        <div class="card-body" id="lastInteraction">
+                            <p class="no-interaction">Nenhuma interação recente.</p>
+                        </div>
+                        <div class="card-footer">
+                            <form action="{% url 'add_from_conversation' %}" method="post" id="addInteractionForm">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_input" id="userInputHidden">
+                                <input type="hidden" name="bot_response" id="botResponseHidden">
+                                <button type="submit" class="btn btn-success" disabled id="addInteractionBtn">
+                                    ✅ Adicionar à Base de Conhecimento
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="file-import-section">
-                    <h3 style="margin-bottom: 20px; color: #ecf0f1;">Exportar Base de Conhecimento</h3>
-                    <form action="/admin/chatbot/treinamento/exportar/" method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="exportFormatSelect" class="form-label">Formato</label>
-                            <select class="form-select" id="exportFormatSelect" name="format" style="width: 100%;">
-                                <option value="csv">CSV</option>
-                                <option value="json">JSON</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Exportar</button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
-        <!-- Ferramentas Tab -->
-        <div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
-            <div class="tools-grid">
-                <!-- Comandos do Sistema -->
-                <div class="file-import-section">
-                    <h3 style="margin-bottom: 20px; color: #ecf0f1;">Comandos do Sistema</h3>
-
-                    <!-- Adicionar Datas Específicas -->
-                    <div class="tool-card">
-                        <h4 class="tool-title">🗓️ Adicionar Datas de Publicação</h4>
-                        <p class="tool-description">
-                            Adiciona datas específicas de publicação para livros principais (Hobbit, Senhor dos Anéis, etc.)
-                        </p>
-                        <form action="/admin/chatbot/treinamento/add-specific-dates/" method="post">
+                <!-- Base de Conhecimento Tab -->
+                <div class="tab-pane fade" id="knowledge" role="tabpanel" aria-labelledby="knowledge-tab">
+                    <div class="knowledge-form">
+                        <h3>🧠 Adicionar Item de Conhecimento</h3>
+                        <form action="{% url 'add_knowledge_item' %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-success">Executar Comando</button>
+                            <div class="form-group">
+                                <label for="question" class="form-label">❓ Pergunta</label>
+                                <textarea class="form-control" id="question" name="question" rows="2" required placeholder="Digite a pergunta aqui..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="answer" class="form-label">💡 Resposta</label>
+                                <textarea class="form-control" id="answer" name="answer" rows="3" required placeholder="Digite a resposta aqui..."></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category" class="form-label">🏷️ Categoria</label>
+                                    <input type="text" class="form-control" id="category" name="category" placeholder="Ex: livros, autores, navegação">
+                                </div>
+                                <div class="form-group">
+                                    <label for="source" class="form-label">📋 Fonte</label>
+                                    <input type="text" class="form-control" id="source" name="source" value="manual">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">✅ Adicionar</button>
                         </form>
                     </div>
 
-                    <!-- Debug do Chatbot -->
-                    <div class="tool-card">
-                        <h4 class="tool-title">🔍 Debug do Chatbot</h4>
-                        <p class="tool-description">
-                            Executa diagnóstico completo do chatbot com diferentes tipos de análise
+                    <div class="info-card">
+                        <p>
+                            💡 Para visualizar e gerenciar todos os itens de conhecimento, use a
+                            <a href="/admin/chatbot_literario/knowledgeitem/" class="admin-link">interface de administração</a>.
                         </p>
-                        <form action="/admin/chatbot/treinamento/debug-chatbot/" method="post">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label class="form-label" style="color: #ecf0f1; font-weight: 600;">Tipo de Debug:</label>
-                                <select class="form-control" name="debug_action" id="debugAction" style="margin-bottom: 10px;" onchange="toggleDebugFields()">
-                                    <option value="knowledge">📚 Knowledge - Analisar base de conhecimento</option>
-                                    <option value="test">🧪 Test - Testar query específica</option>
-                                    <option value="integration">🔗 Integration - Testar integração Ollama</option>
-                                    <option value="benchmark">⚡ Benchmark - Teste de performance</option>
-                                    <option value="context">📋 Context - Verificar contexto do usuário</option>
-                                    <option value="conversation">💬 Conversation - Analisar conversas</option>
-                                </select>
-                            </div>
-
-                            <!-- Campo para Query (apenas para Test) -->
-                            <div class="mb-3" id="queryField" style="display: none;">
-                                <label class="form-label" style="color: #ecf0f1; font-weight: 600;">Query:</label>
-                                <input type="text" class="form-control" name="debug_query"
-                                       placeholder="Ex: Fale sobre O Hobbit" value="Fale sobre O Hobbit">
-                                <small style="color: #95a5a6; font-size: 12px; margin-top: 5px; display: block;">
-                                    💡 Pergunta para testar o chatbot
-                                </small>
-                            </div>
-
-                            <!-- Campo para User ID (apenas para Context) -->
-                            <div class="mb-3" id="userIdField" style="display: none;">
-                                <label class="form-label" style="color: #ecf0f1; font-weight: 600;">User ID:</label>
-                                <input type="number" class="form-control" name="user_id" value="{{ request.user.id }}" min="1">
-                                <small style="color: #95a5a6; font-size: 12px; margin-top: 5px; display: block;">
-                                    💡 ID do usuário para análise de contexto
-                                </small>
-                            </div>
-
-                            <!-- Campo para Conversation ID (apenas para Conversation) -->
-                            <div class="mb-3" id="conversationIdField" style="display: none;">
-                                <label class="form-label" style="color: #ecf0f1; font-weight: 600;">Conversation ID (opcional):</label>
-                                <input type="number" class="form-control" name="conversation_id" placeholder="Ex: 1" min="1">
-                                <small style="color: #95a5a6; font-size: 12px; margin-top: 5px; display: block;">
-                                    💡 Deixe vazio para listar todas as conversas
-                                </small>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Executar Debug</button>
-                        </form>
-                    </div>
-
-                    <!-- Limpeza de Dados -->
-                    <div class="tool-card">
-                        <h4 class="tool-danger-title">🧹 Limpeza da Base de Conhecimento</h4>
-                        <p class="tool-description">
-                            ⚠️ Identifica e marca como inativos dados contaminados ou incorretos
-                        </p>
-                        <form action="/admin/chatbot/treinamento/clean-knowledge/" method="post"
-                              onsubmit="return confirm('Tem certeza? Esta ação irá marcar dados problemáticos como inativos.')">
-                            {% csrf_token %}
-                            <button type="submit" class="btn" style="background-color: #e74c3c; color: white;">
-                                Executar Limpeza
-                            </button>
-                        </form>
                     </div>
                 </div>
 
-                <!-- Relatórios e Configurações -->
-                <div class="file-import-section">
-                    <h3 style="margin-bottom: 20px; color: #ecf0f1;">Relatórios e Configurações</h3>
-
-                    <!-- Estatísticas Avançadas -->
-                    <div class="tool-card">
-                        <h4 class="tool-title">📊 Estatísticas Avançadas</h4>
-                        <p class="tool-description">
-                            Visualiza estatísticas detalhadas com gráficos e métricas avançadas
-                        </p>
-                        <a href="/admin/chatbot/treinamento/statistics/" class="btn btn-primary">Ver Estatísticas</a>
-                    </div>
-
-                    <!-- Configurações do Sistema -->
-                    <div class="tool-card">
-                        <h4 class="tool-title">⚙️ Configurações do Sistema</h4>
-                        <p class="tool-description">
-                            Ajusta parâmetros do chatbot como thresholds e configurações de busca
-                        </p>
-                        <a href="/admin/chatbot/treinamento/config/" class="btn btn-primary">Configurações</a>
-                    </div>
-
-                    <!-- Status do Sistema -->
-                    <div class="tool-card">
-                        <h4 class="tool-title">📈 Status do Sistema</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                            <div style="text-align: center; padding: 10px; background-color: #34495e; border-radius: 6px;">
-                                <div style="font-size: 18px; font-weight: bold; color: {% if stats.embeddings_available %}#27ae60{% else %}#f39c12{% endif %};">
-                                    {% if stats.embeddings_available %}✓{% else %}⚠{% endif %}
+                <!-- Conversas Tab -->
+                <div class="tab-pane fade" id="conversations" role="tabpanel" aria-labelledby="conversations-tab">
+                    <h3>💬 Conversas Recentes</h3>
+                    <div class="conversation-list">
+                        {% for conversation in recent_conversations %}
+                        <div class="conversation-item">
+                            <div class="conversation-header">
+                                <span class="conversation-user">👤 {{ conversation.user.username }}</span>
+                                <span class="conversation-date">📅 {{ conversation.started_at|date:"d/m/Y H:i" }}</span>
+                                <form action="{% url 'add_from_conversation' %}" method="post" class="inline-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_input" value="{{ conversation.user_input }}">
+                                    <input type="hidden" name="bot_response" value="{{ conversation.bot_response }}">
+                                    <button type="submit" class="btn btn-success btn-sm">✅ Adicionar à Base</button>
+                                </form>
+                            </div>
+                            <div class="conversation-content">
+                                <p><strong>👤 Usuário:</strong> {{ conversation.user_input }}</p>
+                                <p><strong>🤖 Chatbot:</strong> {{ conversation.bot_response }}</p>
+                                {% if conversation.feedback %}
+                                <div class="feedback-section">
+                                    <span class="badge {% if conversation.feedback.helpful %}badge-success{% else %}badge-danger{% endif %}">
+                                        {% if conversation.feedback.helpful %}👍 Útil{% else %}👎 Não útil{% endif %}
+                                    </span>
+                                    {% if conversation.feedback.comment %}
+                                    <p class="feedback-comment">💬 {{ conversation.feedback.comment }}</p>
+                                    {% endif %}
                                 </div>
-                                <div style="font-size: 12px; color: #95a5a6;">Embeddings</div>
-                            </div>
-                            <div style="text-align: center; padding: 10px; background-color: #34495e; border-radius: 6px;">
-                                <div style="font-size: 18px; font-weight: bold; color: {% if stats.total_knowledge > 0 %}#27ae60{% else %}#e74c3c{% endif %};">
-                                    {{ stats.total_knowledge }}
-                                </div>
-                                <div style="font-size: 12px; color: #95a5a6;">Itens Ativos</div>
+                                {% endif %}
                             </div>
                         </div>
-                        <div style="font-size: 12px; color: #95a5a6;">
-                            Última atualização: agora
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Seção de Logs Recentes -->
-            <div class="stats-card">
-                <div class="stats-header">
-                    <h3 style="margin: 0;">📋 Ações Recentes</h3>
-                </div>
-                <div class="stats-body">
-                    <div id="recentActions" style="max-height: 300px; overflow-y: auto;">
-                        <div style="padding: 10px; border-bottom: 1px solid #455a75; color: #95a5a6;">
-                            <small>💡 Use as ferramentas acima para executar comandos e ver os resultados aqui</small>
-                        </div>
-
-                        {% if messages %}
-                        {% for message in messages %}
-                        <div style="padding: 10px; border-bottom: 1px solid #455a75; display: flex; align-items: flex-start; gap: 10px;">
-                            <div style="font-size: 16px;">
-                                {% if message.level == 25 %}✅{% elif message.level == 30 %}⚠️{% else %}❌{% endif %}
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 12px; color: #95a5a6; margin-bottom: 5px;">
-                                    {% now "d/m/Y H:i:s" %}
-                                </div>
-                                <div style="color: #ecf0f1; white-space: pre-line;">{{ message }}</div>
-                            </div>
-                        </div>
+                        {% empty %}
+                        <p class="no-data">😔 Nenhuma conversa recente encontrada.</p>
                         {% endfor %}
-                        {% endif %}
                     </div>
                 </div>
-            </div>
 
-            <!-- Seção de Ajuda -->
-            <div class="stats-card" style="margin-top: 25px;">
-                <div class="stats-header">
-                    <h3 style="margin: 0;">💡 Guia de Ferramentas</h3>
+                <!-- Importar/Exportar Tab -->
+                <div class="tab-pane fade" id="import-export" role="tabpanel" aria-labelledby="import-export-tab">
+                    <div class="import-export-grid">
+                        <div class="import-section">
+                            <h3>📥 Importar Base de Conhecimento</h3>
+                            <form action="{% url 'import_knowledge' %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="importFile" class="form-label">📁 Arquivo</label>
+                                    <input class="form-control" type="file" id="importFile" name="import_file" accept=".json,.csv" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="formatSelect" class="form-label">📋 Formato</label>
+                                    <select class="form-control" id="formatSelect" name="format">
+                                        <option value="json">JSON</option>
+                                        <option value="csv">CSV</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">📥 Importar</button>
+                            </form>
+                        </div>
+
+                        <div class="export-section">
+                            <h3>📤 Exportar Base de Conhecimento</h3>
+                            <form action="{% url 'export_knowledge' %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="exportFormatSelect" class="form-label">📋 Formato</label>
+                                    <select class="form-control" id="exportFormatSelect" name="format">
+                                        <option value="json">JSON</option>
+                                        <option value="csv">CSV</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">📤 Exportar</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="stats-body">
-                    <div class="help-grid">
-                        <div class="help-card">
-                            <h4 style="color: #79aec8; margin-bottom: 8px;">🗓️ Datas de Publicação</h4>
-                            <p>
-                                Adiciona informações específicas sobre quando os livros foram publicados.
-                                Resolve problemas contextuais como "Quando foi publicado?"
-                            </p>
+
+                <!-- Ferramentas Tab -->
+                <div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
+                    <div class="tools-grid">
+                        <div class="tools-section">
+                            <h3>🛠️ Comandos do Sistema</h3>
+
+                            <div class="tool-card">
+                                <h4>🗓️ Adicionar Datas de Publicação</h4>
+                                <p>Adiciona datas específicas de publicação para livros principais (Hobbit, Senhor dos Anéis, etc.)</p>
+                                <form action="{% url 'add_specific_dates' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">▶️ Executar Comando</button>
+                                </form>
+                            </div>
+
+                            <div class="tool-card">
+                                <h4>🔍 Debug do Chatbot</h4>
+                                <p>Executa diagnóstico completo do chatbot com diferentes tipos de análise</p>
+                                <form action="{% url 'debug_chatbot' %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label class="form-label">🎯 Tipo de Debug:</label>
+                                        <select class="form-control" name="debug_action">
+                                            <option value="knowledge">📚 Knowledge - Analisar base de conhecimento</option>
+                                            <option value="test">🧪 Test - Testar query específica</option>
+                                            <option value="integration">🔗 Integration - Testar integração Ollama</option>
+                                            <option value="benchmark">⚡ Benchmark - Teste de performance</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">🔍 Executar Debug</button>
+                                </form>
+                            </div>
+
+                            <div class="tool-card danger">
+                                <h4>🧹 Limpeza da Base de Conhecimento</h4>
+                                <p>⚠️ Identifica e marca como inativos dados contaminados ou incorretos</p>
+                                <form action="{% url 'clean_knowledge' %}" method="post" onsubmit="return confirm('Tem certeza? Esta ação irá marcar dados problemáticos como inativos.')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">🧹 Executar Limpeza</button>
+                                </form>
+                            </div>
                         </div>
-                        <div class="help-card">
-                            <h4 style="color: #79aec8; margin-bottom: 8px;">🔍 Debug</h4>
-                            <p>
-                                Executa diagnóstico completo para verificar como o chatbot está processando
-                                uma pergunta específica. Útil para identificar problemas.
-                            </p>
-                        </div>
-                        <div class="help-card">
-                            <h4 style="color: #e74c3c; margin-bottom: 8px;">🧹 Limpeza</h4>
-                            <p>
-                                Remove dados contaminados ou incorretos da base de conhecimento.
-                                Execute quando houver respostas inconsistentes.
-                            </p>
-                        </div>
-                        <div class="help-card">
-                            <h4 style="color: #79aec8; margin-bottom: 8px;">📊 Relatórios</h4>
-                            <p>
-                                Visualiza métricas avançadas, gráficos de uso e estatísticas detalhadas
-                                sobre o desempenho do chatbot.
-                            </p>
+
+                        <div class="tools-section">
+                            <h3>📊 Relatórios e Configurações</h3>
+
+                            <div class="tool-card">
+                                <h4>📊 Estatísticas Avançadas</h4>
+                                <p>Visualiza estatísticas detalhadas com gráficos e métricas avançadas</p>
+                                <a href="{% url 'advanced_statistics' %}" class="btn btn-primary">📈 Ver Estatísticas</a>
+                            </div>
+
+                            <div class="tool-card">
+                                <h4>⚙️ Configurações do Sistema</h4>
+                                <p>Ajusta parâmetros do chatbot como thresholds e configurações de busca</p>
+                                <a href="{% url 'system_config' %}" class="btn btn-primary">⚙️ Configurações</a>
+                            </div>
+
+                            <div class="status-card">
+                                <h4>📈 Status do Sistema</h4>
+                                <div class="status-grid">
+                                    <div class="status-item">
+                                        <div class="status-icon {% if stats.embeddings_available %}success{% else %}warning{% endif %}">
+                                            {% if stats.embeddings_available %}✅{% else %}⚠️{% endif %}
+                                        </div>
+                                        <div class="status-label">Embeddings</div>
+                                    </div>
+                                    <div class="status-item">
+                                        <div class="status-number {% if stats.total_knowledge > 0 %}success{% else %}danger{% endif %}">
+                                            {{ stats.total_knowledge }}
+                                        </div>
+                                        <div class="status-label">Itens Ativos</div>
+                                    </div>
+                                </div>
+                                <div class="status-timestamp">⏰ Última atualização: agora</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1166,454 +410,4 @@
         </div>
     </div>
 </div>
-
-<!-- JavaScript adicional para forçar cores após carregamento da página -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Função para forçar cores escuras nos cards
-    function forceCardColors() {
-        // Selecionar todos os cards
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
-            card.style.setProperty('background', '#34495e', 'important');
-            card.style.setProperty('background-color', '#34495e', 'important');
-            card.style.setProperty('border', '1px solid #2c3e50', 'important');
-        });
-
-        // Headers dos cards
-        const cardHeaders = document.querySelectorAll('.card-header');
-        cardHeaders.forEach(header => {
-            header.style.setProperty('background', '#2c3e50', 'important');
-            header.style.setProperty('background-color', '#2c3e50', 'important');
-            header.style.setProperty('color', '#ecf0f1', 'important');
-            header.style.setProperty('border-bottom', '1px solid #455a75', 'important');
-        });
-
-        // Body dos cards
-        const cardBodies = document.querySelectorAll('.card-body');
-        cardBodies.forEach(body => {
-            body.style.setProperty('background', '#34495e', 'important');
-            body.style.setProperty('background-color', '#34495e', 'important');
-
-            // Manter texto escuro para legibilidade no fundo escuro
-            const paragraphs = body.querySelectorAll('p');
-            paragraphs.forEach(p => {
-                // Se não tem strong (labels), deixar texto claro
-                if (!p.querySelector('strong')) {
-                    p.style.setProperty('color', '#ecf0f1', 'important');
-                }
-            });
-        });
-
-        // Footer dos cards
-        const cardFooters = document.querySelectorAll('.card-footer');
-        cardFooters.forEach(footer => {
-            footer.style.setProperty('background', '#2c3e50', 'important');
-            footer.style.setProperty('background-color', '#2c3e50', 'important');
-            footer.style.setProperty('border-top', '1px solid #455a75', 'important');
-        });
-
-        // Forçar cores nos inputs e textareas
-        const inputs = document.querySelectorAll('input, textarea, select');
-        inputs.forEach(input => {
-            input.style.setProperty('background', '#2c3e50', 'important');
-            input.style.setProperty('background-color', '#2c3e50', 'important');
-            input.style.setProperty('color', '#ecf0f1', 'important');
-            input.style.setProperty('border', '1px solid #455a75', 'important');
-        });
-
-        // Forçar cores nos parágrafos da última interação - MAIS AGRESSIVO
-        const lastInteractionPs = document.querySelectorAll('#lastInteraction p');
-        lastInteractionPs.forEach(p => {
-            p.style.setProperty('background', '#455a75', 'important');
-            p.style.setProperty('background-color', '#455a75', 'important');
-            p.style.setProperty('color', '#ecf0f1', 'important');
-            p.style.setProperty('border', '1px solid #34495e', 'important');
-
-            // Remover qualquer classe que possa estar interferindo
-            p.className = '';
-
-            // Aplicar atributos diretos como fallback
-            p.setAttribute('style', 'margin: 5px 0 !important; padding: 10px !important; background: #455a75 !important; background-color: #455a75 !important; border-radius: 6px !important; color: #ecf0f1 !important; border: 1px solid #34495e !important;');
-        });
-
-        // NOVA FUNCÃO: Aplicar cores específicas para última interação
-        const lastInteractionDiv = document.getElementById('lastInteraction');
-        if (lastInteractionDiv) {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'childList' || mutation.type === 'characterData') {
-                        setTimeout(() => {
-                            const ps = lastInteractionDiv.querySelectorAll('p');
-                            ps.forEach(p => {
-                                p.style.setProperty('background', '#455a75', 'important');
-                                p.style.setProperty('background-color', '#455a75', 'important');
-                                p.style.setProperty('color', '#ecf0f1', 'important');
-                                p.style.setProperty('border', '1px solid #34495e', 'important');
-                                p.className = '';
-                                p.setAttribute('style', 'margin: 5px 0 !important; padding: 10px !important; background: #455a75 !important; background-color: #455a75 !important; border-radius: 6px !important; color: #ecf0f1 !important; border: 1px solid #34495e !important;');
-                                console.log('Cor forçada em parágrafo da última interação');
-                            });
-                        }, 10);
-                    }
-                });
-            });
-
-            observer.observe(lastInteractionDiv, {
-                childList: true,
-                subtree: true,
-                characterData: true
-            });
-        }
-
-        // Placeholder com cor específica
-        const style = document.createElement('style');
-        style.textContent = `
-            input::placeholder, textarea::placeholder {
-                color: #95a5a6 !important;
-                opacity: 1 !important;
-            }
-        `;
-        if (!document.querySelector('#placeholder-style')) {
-            style.id = 'placeholder-style';
-            document.head.appendChild(style);
-        }
-
-        console.log('Cores dos cards forçadas via JavaScript');
-    }
-
-    // Função para controlar campos do formulário de debug
-    function toggleDebugFields() {
-        const action = document.getElementById('debugAction');
-        if (!action) return; // Se não existe o campo, sair
-
-        const actionValue = action.value;
-        const queryField = document.getElementById('queryField');
-        const userIdField = document.getElementById('userIdField');
-        const conversationIdField = document.getElementById('conversationIdField');
-
-        // Ocultar todos os campos primeiro
-        if (queryField) queryField.style.display = 'none';
-        if (userIdField) userIdField.style.display = 'none';
-        if (conversationIdField) conversationIdField.style.display = 'none';
-
-        // Mostrar campos específicos baseado na ação
-        if (actionValue === 'test' && queryField) {
-            queryField.style.display = 'block';
-        } else if (actionValue === 'context' && userIdField) {
-            userIdField.style.display = 'block';
-        } else if (actionValue === 'conversation' && conversationIdField) {
-            conversationIdField.style.display = 'block';
-        }
-    }
-
-    // Executar imediatamente
-    forceCardColors();
-
-    // Executar novamente após um pequeno delay para garantir
-    setTimeout(forceCardColors, 500);
-    setTimeout(forceCardColors, 1000);
-
-    // Observer para detectar quando novos cards são adicionados
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1 && (node.classList.contains('card') || node.querySelector('.card'))) {
-                        setTimeout(forceCardColors, 100);
-                    }
-                });
-            }
-        });
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-
-    // Funcionalidade das abas (código anterior mantido)
-    const tabButtons = document.querySelectorAll('.nav-link');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-
-    console.log('Abas encontradas:', tabButtons.length);
-    console.log('Painéis encontrados:', tabPanes.length);
-
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            console.log('Aba clicada:', this.textContent);
-
-            // Remove active class from all buttons and panes
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabPanes.forEach(pane => {
-                pane.classList.remove('show', 'active');
-                pane.style.display = 'none';
-            });
-
-            // Add active class to clicked button
-            this.classList.add('active');
-
-            // Show corresponding tab pane
-            const targetId = this.getAttribute('data-bs-target');
-            console.log('Target ID:', targetId);
-
-            const targetPane = document.querySelector(targetId);
-            if (targetPane) {
-                targetPane.classList.add('show', 'active');
-                targetPane.style.display = 'block';
-                console.log('Painel ativado:', targetId);
-
-                // Forçar cores novamente quando mudamos de aba
-                setTimeout(forceCardColors, 100);
-            } else {
-                console.error('Painel não encontrado:', targetId);
-            }
-        });
-    });
-
-    // Funcionalidade do simulador de chat
-    const chatInput = document.getElementById('chatInput');
-    const chatMessages = document.getElementById('chatMessages');
-    const sendButton = document.getElementById('sendMessage');
-    const lastInteraction = document.getElementById('lastInteraction');
-    const userInputHidden = document.getElementById('userInputHidden');
-    const botResponseHidden = document.getElementById('botResponseHidden');
-    const addInteractionBtn = document.getElementById('addInteractionBtn');
-
-    // Função para enviar mensagem
-    function sendMessage() {
-        const message = chatInput.value.trim();
-        if (!message) return;
-
-        // Adicionar mensagem do usuário
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'user-message';
-        userMessageDiv.textContent = message;
-        chatMessages.appendChild(userMessageDiv);
-
-        // Limpar input
-        chatInput.value = '';
-
-        // Rolar para o fim das mensagens
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Enviar para o servidor
-        fetch('/admin/chatbot/treinamento/testar/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({
-                message: message
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Adicionar resposta do bot
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'bot-message';
-            botMessageDiv.textContent = data.response;
-            chatMessages.appendChild(botMessageDiv);
-
-            // NOVO: Mostrar se houve resolução contextual
-            if (data.processed_message && data.processed_message !== message) {
-                const contextInfoDiv = document.createElement('div');
-                contextInfoDiv.className = 'bot-message';
-                contextInfoDiv.style.borderLeft = '4px solid #f39c12';
-                contextInfoDiv.style.fontSize = '12px';
-                contextInfoDiv.style.opacity = '0.8';
-                contextInfoDiv.innerHTML = `💡 <em>Interpretei como: "${data.processed_message}"</em>`;
-                chatMessages.appendChild(contextInfoDiv);
-            }
-
-            // Rolar para o fim das mensagens
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            // Atualizar última interação
-            const displayMessage = data.processed_message || message;
-            lastInteraction.innerHTML = `
-                <div style="margin-bottom: 15px;">
-                    <strong style="color: #417690;">Pergunta:</strong>
-                    <p style="margin: 5px 0; padding: 10px; background-color: #455a75; border-radius: 6px; color: #ecf0f1; border: 1px solid #34495e;">${message}</p>
-                    ${data.processed_message && data.processed_message !== message ?
-                        `<small style="color: #f39c12;">💡 Interpretado como: "${data.processed_message}"</small>` : ''
-                    }
-                </div>
-                <div>
-                    <strong style="color: #417690;">Resposta:</strong>
-                    <p style="margin: 5px 0; padding: 10px; background-color: #455a75; border-radius: 6px; color: #ecf0f1; border: 1px solid #34495e;">${data.response}</p>
-                    ${data.source ? `<small style="color: #95a5a6;">Fonte: ${data.source}</small>` : ''}
-                </div>
-            `;
-
-            // Atualizar campos ocultos
-            userInputHidden.value = message;
-            botResponseHidden.value = data.response;
-
-            // Habilitar botão
-            addInteractionBtn.disabled = false;
-
-            // Forçar cores na última interação
-            setTimeout(forceCardColors, 100);
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            // Adicionar mensagem de erro
-            const errorMessageDiv = document.createElement('div');
-            errorMessageDiv.className = 'bot-message';
-            errorMessageDiv.style.borderLeft = '4px solid #dc3545';
-            errorMessageDiv.textContent = 'Erro ao processar a mensagem. Por favor, tente novamente.';
-            chatMessages.appendChild(errorMessageDiv);
-
-            // Rolar para o fim das mensagens
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        });
-    }
-
-    // Event listeners para o chat
-    if (sendButton) {
-        sendButton.addEventListener('click', sendMessage);
-    }
-
-    if (chatInput) {
-        chatInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendMessage();
-            }
-        });
-    }
-
-    // Função para enviar mensagem
-    function sendMessage() {
-        const message = chatInput.value.trim();
-        if (!message) return;
-
-        // Adicionar mensagem do usuário
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'user-message';
-        userMessageDiv.textContent = message;
-        chatMessages.appendChild(userMessageDiv);
-
-        // Limpar input e desabilitar para evitar envios duplicados
-        chatInput.value = '';
-        chatInput.disabled = true;
-        sendButton.disabled = true;
-
-        // ✅ MOSTRAR O INDICADOR DE "DIGITANDO..."
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'bot-typing-indicator';
-        typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-        chatMessages.appendChild(typingIndicator);
-
-        // Rolar para o fim das mensagens para que o indicador seja visível
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Enviar para o servidor
-        fetch('/admin/chatbot/treinamento/testar/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({
-                message: message
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // ✅ REMOVER O INDICADOR DE "DIGITANDO..."
-            typingIndicator.remove();
-
-            // Adicionar resposta do bot
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'bot-message';
-            botMessageDiv.textContent = data.response || "Recebi uma resposta vazia.";
-            chatMessages.appendChild(botMessageDiv);
-
-            // ... (resto do código para mostrar contexto e atualizar a última interação) ...
-
-            // Atualizar última interação
-            const displayMessage = data.processed_message || message;
-            lastInteraction.innerHTML = `
-                <div style="margin-bottom: 15px;">
-                    <strong style="color: #417690;">Pergunta:</strong>
-                    <p style="margin: 5px 0; padding: 10px; background-color: #455a75; border-radius: 6px; color: #ecf0f1; border: 1px solid #34495e;">${message}</p>
-                </div>
-                <div>
-                    <strong style="color: #417690;">Resposta:</strong>
-                    <p style="margin: 5px 0; padding: 10px; background-color: #455a75; border-radius: 6px; color: #ecf0f1; border: 1px solid #34495e;">${data.response}</p>
-                    ${data.source ? `<small style="color: #95a5a6;">Fonte: ${data.source}</small>` : ''}
-                </div>
-            `;
-
-            // Atualizar campos ocultos e habilitar botão de adicionar
-            userInputHidden.value = message;
-            botResponseHidden.value = data.response;
-            addInteractionBtn.disabled = false;
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-
-            // ✅ REMOVER O INDICADOR DE "DIGITANDO..." MESMO SE DER ERRO
-            typingIndicator.remove();
-
-            // Adicionar mensagem de erro
-            const errorMessageDiv = document.createElement('div');
-            errorMessageDiv.className = 'bot-message';
-            errorMessageDiv.style.borderLeft = '4px solid #dc3545';
-            errorMessageDiv.textContent = 'Erro ao processar a mensagem. Por favor, tente novamente.';
-            chatMessages.appendChild(errorMessageDiv);
-        })
-        .finally(() => {
-            // ✅ REABILITAR O INPUT E O BOTÃO DEPOIS QUE TUDO TERMINAR (SUCESSO OU ERRO)
-            chatInput.disabled = false;
-            sendButton.disabled = false;
-            chatInput.focus(); // Coloca o foco de volta no input
-
-            // Rolar para o fim das mensagens para garantir que a resposta final seja visível
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        });
-    }
-
-    // Animação para as barras de categoria
-    const categoryBars = document.querySelectorAll('.category-bar-fill');
-    categoryBars.forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0%';
-        setTimeout(() => {
-            bar.style.width = width;
-        }, 500);
-    });
-
-    // Animação para os números das estatísticas
-    const statNumbers = document.querySelectorAll('.stat-number');
-    statNumbers.forEach(stat => {
-        const finalValue = parseInt(stat.textContent);
-        if (!isNaN(finalValue)) {
-            stat.textContent = '0';
-            let currentValue = 0;
-            const increment = finalValue / 50;
-            const timer = setInterval(() => {
-                currentValue += increment;
-                if (currentValue >= finalValue) {
-                    stat.textContent = finalValue;
-                    clearInterval(timer);
-                } else {
-                    stat.textContent = Math.floor(currentValue);
-                }
-            }, 20);
-        }
-    });
-
-    // Configurar o formulário de debug após carregar a página
-    toggleDebugFields();
-
-    // Expor função globalmente para acesso via onchange
-    window.toggleDebugFields = toggleDebugFields;
-});
-</script>
 {% endblock %}

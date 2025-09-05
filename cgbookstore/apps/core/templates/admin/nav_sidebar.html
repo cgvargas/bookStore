@@ -69,38 +69,110 @@
         </table>
       </div>
 
-      <!-- 🤖 MÓDULO CHATBOT LITERÁRIO -->
+      <!-- 🤖 MÓDULO CHATBOT LITERÁRIO - ✅ CORRIGIDO COM TREINAMENTO -->
       <div class="app-module" id="app-chatbot_literario">
         <table>
           <caption>
-            <a href="{% url 'admin:chatbot_literario_training' %}" class="section">🤖 Chatbot Literário</a>
+            <a href="/admin/chatbot_literario/" class="section">🤖 Chatbot Literário</a>
           </caption>
+
+          <!-- ✅ NOVO: Link direto para Interface de Treinamento -->
           <tr class="model-training{% if 'chatbot/treinamento' in request.path %} current-model{% endif %}">
             <th scope="row">
-              <a href="{% url 'admin:chatbot_literario_training' %}"{% if 'chatbot/treinamento' in request.path %} aria-current="page"{% endif %}>
-                🎓 Treinamento
+              <a href="{% url 'chatbot_training_dashboard' %}"{% if 'chatbot/treinamento' in request.path %} aria-current="page"{% endif %}>
+                🎓 Interface de Treinamento
               </a>
             </th>
           </tr>
+
+          <!-- Separador visual -->
+          <tr><th scope="row" style="padding: 5px 0; border-bottom: 1px solid #ddd;"></th></tr>
+
+          <!-- URLs tradicionais do admin -->
           <tr class="model-conversation{% if 'chatbot_literario/conversation' in request.path %} current-model{% endif %}">
             <th scope="row">
-              <a href="{% url 'admin:chatbot_literario_conversation_changelist' %}"{% if 'chatbot_literario/conversation' in request.path %} aria-current="page"{% endif %}>
+              <a href="/admin/chatbot_literario/conversation/"{% if 'chatbot_literario/conversation' in request.path %} aria-current="page"{% endif %}>
                 💬 Conversas
               </a>
             </th>
           </tr>
           <tr class="model-conversationfeedback{% if 'chatbot_literario/conversationfeedback' in request.path %} current-model{% endif %}">
             <th scope="row">
-              <a href="{% url 'admin:chatbot_literario_conversationfeedback_changelist' %}"{% if 'chatbot_literario/conversationfeedback' in request.path %} aria-current="page"{% endif %}>
+              <a href="/admin/chatbot_literario/conversationfeedback/"{% if 'chatbot_literario/conversationfeedback' in request.path %} aria-current="page"{% endif %}>
                 ⭐ Feedbacks
+              </a>
+            </th>
+          </tr>
+          <tr class="model-message{% if 'chatbot_literario/message' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="/admin/chatbot_literario/message/"{% if 'chatbot_literario/message' in request.path %} aria-current="page"{% endif %}>
+                📝 Mensagens
+              </a>
+            </th>
+          </tr>
+          <tr class="model-knowledgeitem{% if 'chatbot_literario/knowledgeitem' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="/admin/chatbot_literario/knowledgeitem/"{% if 'chatbot_literario/knowledgeitem' in request.path %} aria-current="page"{% endif %}>
+                🧠 Base de Conhecimento
+              </a>
+            </th>
+          </tr>
+          <tr class="model-chatbotconfiguration{% if 'chatbot_literario/chatbotconfiguration' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="/admin/chatbot_literario/chatbotconfiguration/"{% if 'chatbot_literario/chatbotconfiguration' in request.path %} aria-current="page"{% endif %}>
+                ⚙️ Configurações
+              </a>
+            </th>
+          </tr>
+          <tr class="model-trainingsession{% if 'chatbot_literario/trainingsession' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="/admin/chatbot_literario/trainingsession/"{% if 'chatbot_literario/trainingsession' in request.path %} aria-current="page"{% endif %}>
+                🎓 Sessões de Treinamento
+              </a>
+            </th>
+          </tr>
+          <tr class="model-conversationsummary{% if 'chatbot_literario/conversationsummary' in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="/admin/chatbot_literario/conversationsummary/"{% if 'chatbot_literario/conversationsummary' in request.path %} aria-current="page"{% endif %}>
+                📊 Resumos de Conversas
               </a>
             </th>
           </tr>
         </table>
       </div>
+      <!-- 🔐 NOVO MÓDULO DE AUTENTICAÇÃO COMBINADO -->
+      <div class="app-module active" id="app-auth-customized">
+        <table>
+          <caption>
+            <a href="/admin/auth/" class="section">🔐 Autenticação</a>
+          </caption>
+
+          <!-- Busca o modelo User do app 'core' -->
+          {% for app in available_apps %}{% if app.app_label == 'core' %}{% for model in app.models %}{% if model.object_name == 'User' %}
+          <tr class="model-user{% if model.admin_url in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{{ model.admin_url }}"{% if model.admin_url in request.path %} aria-current="page"{% endif %}>
+                👤 {{ model.name }}
+              </a>
+            </th>
+          </tr>
+          {% endif %}{% endfor %}{% endif %}{% endfor %}
+
+          <!-- Busca os modelos do app 'auth' (ex: Group) -->
+          {% for app in available_apps %}{% if app.app_label == 'auth' %}{% for model in app.models %}
+          <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current-model{% endif %}">
+            <th scope="row">
+              <a href="{{ model.admin_url }}"{% if model.admin_url in request.path %} aria-current="page"{% endif %}>
+                👥 {{ model.name }}
+              </a>
+            </th>
+          </tr>
+          {% endfor %}{% endif %}{% endfor %}
+        </table>
+      </div>
 
       {% for app in available_apps %}
-        {% if app.app_label != 'chatbot_literario' %}
+        {% if app.app_label != 'chatbot_literario' and app.app_label != 'auth' %}
           <div class="app-module{% if app.active %} active{% endif %}" id="app-{{ app.app_label }}">
             <table>
               <caption>
@@ -112,7 +184,8 @@
                   <a href="{{ app.app_url }}" class="section">{{ app.name }}</a>
                 {% endif %}
               </caption>
-              {% for model in app.models %}
+                {% for model in app.models %}
+                {% if model.object_name != 'User' %}
                 <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current-model{% endif %}">
                   <th scope="row">
                     {% if model.admin_url %}
@@ -144,6 +217,7 @@
                     {% endif %}
                   </th>
                 </tr>
+                {% endif %}
               {% endfor %}
             </table>
           </div>
@@ -160,3 +234,38 @@
 
 <!-- Incluir Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- CSS adicional para destacar o link de treinamento -->
+<style>
+/* Destaque especial para o link de treinamento */
+.model-training a {
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #417690, #79aec8) !important;
+    color: white !important;
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+    margin: 2px 0 !important;
+    display: inline-block !important;
+    width: calc(100% - 24px) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.model-training a:hover {
+    background: linear-gradient(135deg, #366080, #6a9db8) !important;
+    transform: translateX(2px) !important;
+    box-shadow: 0 2px 8px rgba(65, 118, 144, 0.3) !important;
+}
+
+.model-training.current-model a {
+    background: linear-gradient(135deg, #2c4f63, #5a8ca5) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Separador visual */
+.app-module table tr th[style*="border-bottom"] {
+    height: 1px !important;
+    padding: 0 !important;
+    background: linear-gradient(90deg, transparent, #ddd 20%, #ddd 80%, transparent) !important;
+}
+</style>

@@ -304,62 +304,84 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 10);
   }
 
-  // Função para atualizar modal com dados completos
-  function updateExternalBookModal(bookData) {
-    if (!hasModals) return;
-
-    const volumeInfo = bookData.volumeInfo || {};
-
-    if (externalBookTitle) {
-      externalBookTitle.textContent = volumeInfo.title || 'Título indisponível';
-    }
-
-    if (externalBookAuthor) {
-      externalBookAuthor.textContent = volumeInfo.authors
-        ? volumeInfo.authors.join(', ')
-        : 'Autor desconhecido';
-    }
-
-    if (externalBookCategories) {
-      externalBookCategories.textContent = volumeInfo.categories
-        ? volumeInfo.categories.join(', ')
-        : '-';
-    }
-
-    if (externalBookPublisher) {
-      externalBookPublisher.textContent = volumeInfo.publisher || '-';
-    }
-
-    if (externalBookYear) {
-      externalBookYear.textContent = volumeInfo.publishedDate
-        ? volumeInfo.publishedDate.substring(0, 4)
-        : '-';
-    }
-
-    if (externalBookPages) {
-      externalBookPages.textContent = volumeInfo.pageCount || '-';
-    }
-
-    if (externalBookCover) {
-      if (volumeInfo.imageLinks && volumeInfo.imageLinks.thumbnail) {
-        externalBookCover.src = volumeInfo.imageLinks.thumbnail;
+    // Função para capturar capas específicas para o Google Books
+    function ensureGoogleBooksCover(url) {
+      if (!url || url === '') {
+        return '/static/images/no-cover.svg';
       }
 
-      externalBookCover.onerror = function() {
-        this.src = '/static/images/no-cover.svg';
-      };
+      // Verifica se a imagem já é a de fallback
+      if (url.includes('no-cover.svg')) {
+        return url;
+      }
+
+      return url;
     }
 
-    if (externalBookDescription) {
-      externalBookDescription.textContent = volumeInfo.description
-        || 'Sem descrição disponível para este livro.';
-    }
+    // Sobrescrever a função de atualização do modal com tratamento melhorado de capa
+    function updateExternalBookModal(bookData) {
+      if (!hasModals) return;
 
-    if (addExternalBookBtn) {
-      addExternalBookBtn.disabled = false;
-      addExternalBookBtn.innerHTML = 'Adicionar à minha prateleira';
+      const volumeInfo = bookData.volumeInfo || {};
+
+      if (externalBookTitle) {
+        externalBookTitle.textContent = volumeInfo.title || 'Título indisponível';
+      }
+
+      if (externalBookAuthor) {
+        externalBookAuthor.textContent = volumeInfo.authors
+          ? volumeInfo.authors.join(', ')
+          : 'Autor desconhecido';
+      }
+
+      if (externalBookCategories) {
+        externalBookCategories.textContent = volumeInfo.categories
+          ? volumeInfo.categories.join(', ')
+          : '-';
+      }
+
+      if (externalBookPublisher) {
+        externalBookPublisher.textContent = volumeInfo.publisher || '-';
+      }
+
+      if (externalBookYear) {
+        externalBookYear.textContent = volumeInfo.publishedDate
+          ? volumeInfo.publishedDate.substring(0, 4)
+          : '-';
+      }
+
+      if (externalBookPages) {
+        externalBookPages.textContent = volumeInfo.pageCount || '-';
+      }
+
+      if (externalBookCover) {
+        // Usar a nova função para garantir uma capa válida
+        let coverUrl = '/static/images/no-cover.svg';
+
+        if (volumeInfo.imageLinks && volumeInfo.imageLinks.thumbnail) {
+          coverUrl = volumeInfo.imageLinks.thumbnail;
+        }
+
+        externalBookCover.src = coverUrl;
+
+        // Garantir que o onerror sempre use a imagem de fallback
+        externalBookCover.onerror = function() {
+          if (this.src !== '/static/images/no-cover.svg') {
+            this.src = '/static/images/no-cover.svg';
+          }
+        };
+      }
+
+      if (externalBookDescription) {
+        externalBookDescription.textContent = volumeInfo.description
+          || 'Sem descrição disponível para este livro.';
+      }
+
+      if (addExternalBookBtn) {
+        addExternalBookBtn.disabled = false;
+        addExternalBookBtn.innerHTML = 'Adicionar à minha prateleira';
+      }
     }
-  }
 
   // Função para adicionar livro à prateleira - CORRIGIDO
   function addBookToShelf(bookId, shelfType, buttonElement = null) {

@@ -1,64 +1,16 @@
+# cgbookstore/apps/chatbot_literario/models.py
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.utils import timezone
 
-from django.core.validators import MinValueValidator, MaxValueValidator
-
-class KnowledgeItem(models.Model):
-    """
-    Armazena uma unidade de conhecimento para o chatbot (pergunta e resposta).
-    """
-    question = models.TextField(
-        unique=True,
-        help_text="A pergunta ou padrão de consulta do usuário."
-    )
-    answer = models.TextField(
-        help_text="A resposta que o chatbot deve fornecer."
-    )
-    category = models.CharField(
-        max_length=100,
-        default='general',
-        db_index=True,
-        help_text="Categoria do conhecimento (ex: 'saudação', 'preços', 'autores')."
-    )
-    source = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Origem da informação (ex: 'manual', 'learned_from_chat')."
-    )
-    # ===== CAMPO ADICIONADO ABAIXO =====
-    confidence = models.FloatField(
-        default=0.8,
-        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
-        help_text="Nível de confiança na exatidão da resposta (0.0 a 1.0)."
-    )
-    # ===================================
-    embedding = models.JSONField(
-        null=True,
-        blank=True,
-        help_text="Vetor de embedding para a busca semântica."
-    )
-    active = models.BooleanField(
-        default=True,
-        db_index=True,
-        help_text="Indica se o item de conhecimento está ativo e pode ser usado."
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Item de Conhecimento"
-        verbose_name_plural = "Itens de Conhecimento"
-        ordering = ['-updated_at']
-
-    def __str__(self):
-        return self.question[:80]
+User = get_user_model()
 
 
 class Conversation(models.Model):
     """
-    Representa uma sessão de conversa entre um usuário e o chatbot.
+    Modelo para armazenar conversas do chatbot literário.
+    Mantém ID original para compatibilidade com dados existentes.
     """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -67,107 +19,78 @@ class Conversation(models.Model):
     )
     started_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    context_data = models.JSONField(
-        default=dict,
-        blank=True,
-        help_text="Armazena o contexto da conversa, se necessário."
-    )
-    is_training_session = models.BooleanField(
-        default=False,
-        verbose_name='Sessão de Treinamento',
-        help_text='Indica se esta conversa é do simulador de treinamento'
-    )
-    # REMOVIDO: Campo is_training_session duplicado
-
-    title = models.CharField(
-        max_length=200,
-        blank=True,
-        verbose_name='Título',
-        help_text='Título descritivo da conversa'
-    )
+    is_active = models.BooleanField(default=True)
+    title = models.CharField(max_length=200, blank=True, default="Nova Conversa")
 
     class Meta:
-        verbose_name = "Conversa do Chatbot"
-        verbose_name_plural = "Conversas do Chatbot"
         ordering = ['-updated_at']
+        verbose_name = "Conversa"
+        verbose_name_plural = "Conversas"
 
     def __str__(self):
-        return f"Conversa com {self.user.username} iniciada em {self.started_at.strftime('%Y-%m-%d %H:%M')}"
+        return f"Conversa {self.id} - {self.user.username} ({self.started_at.strftime('%d/%m/%Y %H:%M')})"
 
-    def get_context(self):
-        """
-        Retorna o dicionário de dados de contexto da conversa.
-        """
-        return self.context_data
+    def deactivate(self):
+        """Desativa a conversa"""
+        self.is_active = False
+        self.save(update_fields=['is_active', 'updated_at'])
 
-    def update_context(self, context_dict):
-        """
-        Atualiza o contexto da conversa.
-        """
-        self.context_data = context_dict
-        self.save(update_fields=['context_data', 'updated_at'])
+    def activate(self):
+        """Reativa a conversa"""
+        self.is_active = True
+        self.save(update_fields=['is_active', 'updated_at'])
 
 
 class Message(models.Model):
     """
-    Armazena uma única mensagem dentro de uma conversa.
+    Modelo para armazenar mensagens individuais de uma conversa.
+    Mantém ID original para compatibilidade.
     """
-    SENDER_CHOICES = [
+    ROLE_CHOICES = [
         ('user', 'Usuário'),
-        ('bot', 'Chatbot'),
+        ('assistant', 'Assistente'),
+        ('system', 'Sistema'),
     ]
+
+    SOURCE_CHOICES = [
+        ('ai', 'IA'),
+        ('knowledge_base', 'Base de Conhecimento'),
+        ('hybrid', 'Híbrido'),
+    ]
+
     conversation = models.ForeignKey(
         Conversation,
         on_delete=models.CASCADE,
         related_name='messages'
     )
-    sender = models.CharField(
-        max_length=10,
-        choices=SENDER_CHOICES
-    )
-    was_corrected = models.BooleanField(
-        default=False,
-        verbose_name='Foi Corrigida',
-        help_text='Indica se esta resposta foi corrigida via treinamento'
-    )
-
-    corrected_response = models.TextField(
-        blank=True,
-        verbose_name='Resposta Corrigida',
-        help_text='A resposta correta fornecida durante o treinamento'
-    )
-
-    corrected_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # CORRIGIDO: Era User, agora settings.AUTH_USER_MODEL
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='corrected_messages',
-        verbose_name='Corrigida por',
-        help_text='Admin que realizou a correção'
-    )
-
-    corrected_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name='Corrigida em',
-        help_text='Data e hora da correção'
-    )
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='ai')
+
+    # Metadados de resposta (opcionais para compatibilidade)
+    response_time = models.FloatField(null=True, blank=True, help_text="Tempo de resposta em segundos")
+    model_used = models.CharField(max_length=50, blank=True, help_text="Modelo usado para gerar a resposta")
+    token_count = models.IntegerField(null=True, blank=True, help_text="Número de tokens da resposta")
 
     class Meta:
-        verbose_name = "Mensagem do Chatbot"
-        verbose_name_plural = "Mensagens do Chatbot"
         ordering = ['timestamp']
+        verbose_name = "Mensagem"
+        verbose_name_plural = "Mensagens"
 
     def __str__(self):
-        return f"Mensagem de '{self.sender}' em {self.timestamp.strftime('%H:%M:%S')}"
+        return f"{self.role}: {self.content[:50]}..." if len(self.content) > 50 else f"{self.role}: {self.content}"
+
+    # Compatibilidade com functional_chatbot.py
+    @property
+    def sender(self):
+        """Propriedade para compatibilidade com código existente"""
+        return self.role
 
 
 class ConversationFeedback(models.Model):
     """
-    Armazena o feedback do usuário para uma mensagem específica do chatbot.
+    Modelo para armazenar feedback das conversas.
     """
     RATING_CHOICES = [
         (1, '⭐'),
@@ -177,234 +100,297 @@ class ConversationFeedback(models.Model):
         (5, '⭐⭐⭐⭐⭐'),
     ]
 
-    message = models.ForeignKey(
-        Message,
+    conversation = models.OneToOneField(
+        Conversation,
         on_delete=models.CASCADE,
         related_name='feedback',
-        help_text="A mensagem do chatbot que está recebendo o feedback."
+        null=True, blank=True
     )
-    helpful = models.BooleanField(
-        'Foi útil?',
-        default=True,
-        help_text="Indica se o usuário considerou a resposta útil."
-    )
-    comment = models.TextField(
-        'Comentário',
-        blank=True,
-        null=True,
-        help_text="Comentário opcional do usuário."
-    )
-    timestamp = models.DateTimeField(
-        'Data do Feedback',
-        auto_now_add=True
-    )
+    rating = models.IntegerField(choices=RATING_CHOICES, null=True, blank=True)
+    comment = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        verbose_name = "Feedback de Conversa"
-        verbose_name_plural = "Feedbacks de Conversas"
-        ordering = ['-timestamp']
+        verbose_name = "Feedback"
+        verbose_name_plural = "Feedbacks"
 
     def __str__(self):
-        return f"Feedback para a mensagem {self.message.id}"
+        rating_display = dict(self.RATING_CHOICES).get(self.rating, 'Sem nota')
+        return f"Feedback - {rating_display} - {self.conversation.user.username if self.conversation else 'Sem conversa'}"
 
 
-class ChatAnalytics(models.Model):
+class KnowledgeItem(models.Model):
     """
-    Registra métricas e estatísticas de uso do chatbot para análise.
+    Modelo para item de conhecimento da base literária.
+    ✅ CORRIGIDO: Compatível com training_service.py e embeddings_service.py
     """
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
+    CONTENT_TYPE_CHOICES = [
+        ('book', 'Livro'),
+        ('author', 'Autor'),
+        ('genre', 'Gênero'),
+        ('movement', 'Movimento Literário'),
+        ('analysis', 'Análise'),
+        ('quote', 'Citação'),
+        ('biography', 'Biografia'),
+        ('context', 'Contexto Histórico'),
+        ('geral', 'Geral'),  # Para compatibilidade com training_service
+    ]
+
+    # ✅ CAMPOS PARA TRAINING_SERVICE.PY (OBRIGATÓRIOS)
+    question = models.CharField(
+        max_length=500,
+        help_text="Pergunta ou tópico principal",
+        db_index=True,
+        default="Tópico a ser definido"  # Valor padrão para migração
+    )
+    answer = models.TextField(
+        help_text="Resposta ou conteúdo detalhado",
+        default="Conteúdo a ser preenchido"  # Valor padrão para migração
+    )
+    category = models.CharField(
+        max_length=50,
+        choices=CONTENT_TYPE_CHOICES,
+        default='geral',
+        help_text="Categoria do conhecimento"
+    )
+    source = models.CharField(
+        max_length=200,
+        blank=True,
+        default="knowledge_base",  # Valor padrão para migração
+        help_text="Fonte da informação"
+    )
+    confidence = models.FloatField(
+        default=1.0,
+        help_text="Nível de confiança (0.0 a 1.0)"
+    )
+    active = models.BooleanField(
+        default=True,
+        help_text="Item ativo na base de conhecimento"
+    )
+
+    # ✅ CAMPOS PARA EMBEDDINGS_SERVICE.PY (OBRIGATÓRIOS)
+    embedding = models.JSONField(
         null=True,
         blank=True,
-        related_name='chat_analytics'
-    )
-    session_id = models.CharField(
-        max_length=100,
-        db_index=True,
-        help_text="ID da sessão para agrupar interações de um mesmo usuário anônimo."
-    )
-    intent = models.CharField(
-        max_length=100,
-        db_index=True,
-        help_text="Intenção detectada pelo chatbot (ex: 'search', 'recommendation')."
-    )
-    response_time = models.FloatField(
-        help_text="Tempo de resposta do chatbot em segundos."
-    )
-    timestamp = models.DateTimeField(
-        default=timezone.now,
-        help_text="Data e hora da interação."
+        help_text="Vetor de embedding para busca semântica"
     )
 
+    # ✅ CAMPOS EXISTENTES MANTIDOS (COMPATIBILIDADE)
+    title = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Título alternativo (compatibilidade)"
+    )
+    content_type = models.CharField(
+        max_length=20,
+        choices=CONTENT_TYPE_CHOICES,
+        default='book',
+        help_text="Tipo de conteúdo (compatibilidade)"
+    )
+    content = models.TextField(
+        blank=True,
+        help_text="Conteúdo adicional (compatibilidade)"
+    )
+    metadata = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Metadados adicionais"
+    )
+    embedding_vector = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Vetor de embedding alternativo (compatibilidade)"
+    )
+    tags = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Tags para categorização"
+    )
+
+    # ✅ CAMPOS DE CONTROLE
+    is_active = models.BooleanField(default=True)  # Compatibilidade
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
-        verbose_name = "Análise do Chat"
-        verbose_name_plural = "Análises do Chat"
-        ordering = ['-timestamp']
+        ordering = ['-updated_at']
+        verbose_name = "Item de Conhecimento"
+        verbose_name_plural = "Itens de Conhecimento"
         indexes = [
-            models.Index(fields=['timestamp', 'intent']),
-            models.Index(fields=['user']),
+            models.Index(fields=['category', 'active']),
+            models.Index(fields=['question']),
+            models.Index(fields=['content_type', 'is_active']),
+            models.Index(fields=['created_at']),
         ]
 
     def __str__(self):
-        user_display = self.user.username if self.user else "Anônimo"
-        return f"Interação de {user_display} em {self.timestamp.strftime('%Y-%m-%d %H:%M')} (Intenção: {self.intent})"
+        return f"{self.get_category_display()}: {self.question[:50]}..."
+
+    def save(self, *args, **kwargs):
+        """
+        ✅ SINCRONIZAÇÃO AUTOMÁTICA: Garante compatibilidade entre campos
+        ✅ MIGRAÇÃO INTELIGENTE: Popula campos automaticamente
+        """
+        # Sincronizar campos para compatibilidade
+        if not self.title and self.question:
+            self.title = self.question[:200]
+        elif not self.question and self.title:
+            self.question = self.title[:500]
+
+        if not self.content and self.answer:
+            self.content = self.answer
+        elif not self.answer and self.content:
+            self.answer = self.content
+
+        if not self.category and self.content_type:
+            self.category = self.content_type
+        elif not self.content_type and self.category:
+            self.content_type = self.category
+
+        # Garantir valores padrão para campos obrigatórios
+        if not self.question:
+            self.question = self.title or "Tópico a ser definido"
+
+        if not self.answer:
+            self.answer = self.content or "Conteúdo a ser preenchido"
+
+        if not self.source:
+            self.source = "knowledge_base"
+
+        # Sincronizar campos active
+        if self.active != self.is_active:
+            self.is_active = self.active
+
+        # Sincronizar embeddings
+        if self.embedding and not self.embedding_vector:
+            self.embedding_vector = self.embedding
+        elif self.embedding_vector and not self.embedding:
+            self.embedding = self.embedding_vector
+
+        super().save(*args, **kwargs)
+
+    # ✅ PROPRIEDADES PARA COMPATIBILIDADE COM TRAINING_SERVICE
+    @property
+    def confidence_base(self):
+        """Alias para compatibilidade"""
+        return self.confidence
+
+    @confidence_base.setter
+    def confidence_base(self, value):
+        """Setter para compatibilidade"""
+        self.confidence = value
 
 
 class TrainingSession(models.Model):
     """
-    Model para rastrear sessões de treinamento e correções do chatbot.
-    Registra todas as intervenções manuais para analytics e auditoria.
+    Modelo para sessões de treinamento do chatbot.
     """
-
-    TRAINING_TYPES = [
-        ('manual_correction', 'Correção Manual via Simulador'),
-        ('manual_addition', 'Adição Manual de Conhecimento'),
-        ('bulk_training', 'Treinamento em Lote'),
-        ('auto_learning', 'Aprendizado Automático'),
-        ('embedding_update', 'Atualização de Embeddings'),
-        ('knowledge_cleanup', 'Limpeza da Base de Conhecimento'),
+    STATUS_CHOICES = [
+        ('pending', 'Pendente'),
+        ('running', 'Executando'),
+        ('completed', 'Concluído'),
+        ('failed', 'Falhou'),
+        ('cancelled', 'Cancelado'),
     ]
 
-    # Informações da sessão
-    trainer_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='Usuário Treinador',
-        help_text='Admin que realizou o treinamento'
-    )
+    name = models.CharField(max_length=200, default="Sessão de Treinamento", help_text="Nome da sessão de treinamento")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
-    session_id = models.CharField(
-        max_length=100,
-        blank=True,
-        verbose_name='ID da Sessão',
-        help_text='Identificador único da sessão de treinamento'
-    )
+    # Configurações do treinamento
+    items_trained = models.IntegerField(default=0, help_text="Número de itens processados")
+    items_total = models.IntegerField(default=0, help_text="Total de itens para processar")
 
-    training_type = models.CharField(
-        max_length=20,
-        choices=TRAINING_TYPES,
-        default='manual_correction',
-        verbose_name='Tipo de Treinamento'
-    )
+    # Resultados e métricas (opcionais)
+    accuracy_score = models.FloatField(null=True, blank=True, help_text="Score de acurácia")
+    embeddings_generated = models.IntegerField(default=0, help_text="Embeddings gerados")
+    processing_time = models.FloatField(null=True, blank=True, help_text="Tempo de processamento em segundos")
 
-    # Conteúdo do treinamento
-    original_question = models.TextField(
-        verbose_name='Pergunta Original',
-        help_text='Pergunta que gerou a necessidade de treinamento'
-    )
+    # Logs e erros (opcionais)
+    log_data = models.JSONField(default=dict, blank=True, help_text="Logs do treinamento")
+    error_message = models.TextField(blank=True, default="", help_text="Mensagem de erro se houver")
 
-    original_answer = models.TextField(
-        blank=True,
-        verbose_name='Resposta Original',
-        help_text='Resposta incorreta que foi dada pelo sistema'
-    )
-
-    corrected_answer = models.TextField(
-        verbose_name='Resposta Corrigida',
-        help_text='Resposta correta fornecida durante o treinamento'
-    )
-
-    # Relacionamentos
-    knowledge_item = models.ForeignKey(
-        'KnowledgeItem',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='Item de Conhecimento',
-        help_text='Item da KB criado/modificado durante esta sessão'
-    )
-
-    conversation = models.ForeignKey(
-        'Conversation',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='Conversa Relacionada',
-        help_text='Conversa onde ocorreu o erro (se aplicável)'
-    )
-
-    # Metadados
-    notes = models.TextField(
-        blank=True,
-        verbose_name='Observações',
-        help_text='Notas adicionais sobre a sessão de treinamento'
-    )
-
-    success = models.BooleanField(
-        default=True,
-        verbose_name='Sucesso',
-        help_text='Indica se o treinamento foi aplicado com sucesso'
-    )
-
-    error_message = models.TextField(
-        blank=True,
-        verbose_name='Mensagem de Erro',
-        help_text='Detalhes do erro caso o treinamento tenha falhado'
-    )
-
-    # Métricas de performance
-    response_time = models.FloatField(
-        null=True,
-        blank=True,
-        verbose_name='Tempo de Resposta (ms)',
-        help_text='Tempo que levou para processar o treinamento'
-    )
-
-    confidence_score = models.FloatField(
-        null=True,
-        blank=True,
-        verbose_name='Score de Confiança',
-        help_text='Score de confiança na correção aplicada (0.0 a 1.0)'
-    )
-
-    # Timestamps
-    created_at = models.DateTimeField(
-        default=timezone.now,
-        verbose_name='Criado em'
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name='Atualizado em'
-    )
+    # Timestamps com valores padrão para migração
+    created_at = models.DateTimeField(default=timezone.now)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        verbose_name = 'Sessão de Treinamento'
-        verbose_name_plural = 'Sessões de Treinamento'
         ordering = ['-created_at']
-        indexes = [
-            models.Index(fields=['trainer_user', '-created_at']),
-            models.Index(fields=['training_type', '-created_at']),
-            models.Index(fields=['success', '-created_at']),
-            models.Index(fields=['-created_at']),
-        ]
+        verbose_name = "Sessão de Treinamento"
+        verbose_name_plural = "Sessões de Treinamento"
 
     def __str__(self):
-        return f'Treinamento #{self.id} - {self.get_training_type_display()}'
-
-    def save(self, *args, **kwargs):
-        # Gera session_id automático se não fornecido
-        if not self.session_id:
-            timestamp = self.created_at.strftime('%Y%m%d_%H%M%S')
-            user_id = self.trainer_user.id if self.trainer_user else 'system'
-            self.session_id = f'train_{user_id}_{timestamp}'
-
-        super().save(*args, **kwargs)
+        return f"{self.name} - {self.get_status_display()}"
 
     @property
-    def duration_display(self):
-        """Retorna o tempo de resposta em formato legível."""
-        if self.response_time:
-            if self.response_time < 1000:
-                return f'{self.response_time:.2f}ms'
-            else:
-                return f'{self.response_time / 1000:.2f}s'
-        return 'N/A'
+    def progress_percentage(self):
+        """Calcula a porcentagem de progresso"""
+        if self.items_total == 0:
+            return 0
+        return (self.items_trained / self.items_total) * 100
 
-    @property
-    def was_successful(self):
-        """Indica se a sessão foi bem-sucedida."""
-        return self.success and not self.error_message
+    def mark_as_running(self):
+        """Marca a sessão como executando"""
+        self.status = 'running'
+        self.started_at = timezone.now()
+        self.save(update_fields=['status', 'started_at'])
+
+    def mark_as_completed(self, accuracy_score=None, embeddings_count=0):
+        """Marca a sessão como concluída"""
+        self.status = 'completed'
+        self.completed_at = timezone.now()
+        self.accuracy_score = accuracy_score
+        self.embeddings_generated = embeddings_count
+        if self.started_at:
+            processing_delta = self.completed_at - self.started_at
+            self.processing_time = processing_delta.total_seconds()
+        self.save(update_fields=['status', 'completed_at', 'accuracy_score', 'embeddings_generated', 'processing_time'])
+
+    def mark_as_failed(self, error_message):
+        """Marca a sessão como falhou"""
+        self.status = 'failed'
+        self.error_message = error_message
+        self.completed_at = timezone.now()
+        self.save(update_fields=['status', 'error_message', 'completed_at'])
+
+
+class ChatbotConfiguration(models.Model):
+    """
+    Modelo para configurações do chatbot.
+    """
+    key = models.CharField(max_length=100, unique=True)
+    value = models.TextField(default="")
+    description = models.TextField(blank=True, default="")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Configuração do Chatbot"
+        verbose_name_plural = "Configurações do Chatbot"
+
+    def __str__(self):
+        return f"{self.key}: {self.value[:50]}..."
+
+
+class ConversationSummary(models.Model):
+    """
+    Modelo para resumos de conversas (para otimização de performance).
+    """
+    conversation = models.OneToOneField(
+        Conversation,
+        on_delete=models.CASCADE,
+        related_name='summary'
+    )
+    summary_text = models.TextField(default="")
+    key_topics = models.JSONField(default=list, blank=True)
+    sentiment = models.CharField(max_length=20, blank=True, default="")
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Resumo da Conversa"
+        verbose_name_plural = "Resumos das Conversas"
+
+    def __str__(self):
+        return f"Resumo - {self.conversation.user.username} - {self.created_at.strftime('%d/%m/%Y')}"

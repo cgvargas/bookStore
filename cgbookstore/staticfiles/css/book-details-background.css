@@ -1,0 +1,13 @@
+/* Garantir que o background personalizado funcione com os temas */
+.custom-background {
+    z-index: -1 !important;
+}
+
+/* Ajustar opacidade do background conforme o tema */
+body.light-mode .custom-background {
+    opacity: 0.5 !important;
+}
+
+body.dark-mode .custom-background {
+    opacity: 0.3 !important;
+}

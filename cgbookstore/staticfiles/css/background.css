@@ -1,0 +1,74 @@
+/* Background personalizado com esmaecimento */
+.custom-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Esmaecimento para tema claro */
+.light-mode .custom-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0) 30%,
+        rgba(255, 255, 255, 0.85) 80%,
+        rgba(255, 255, 255, 0.95) 100%
+    );
+    transition: background 0.3s ease;
+}
+
+/* Esmaecimento para tema escuro */
+.dark-mode .custom-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 0, 0, 0) 30%,
+        rgba(0, 0, 0, 0.85) 80%,
+        rgba(0, 0, 0, 0.95) 100%
+    );
+    transition: background 0.3s ease;
+}
+
+/* Posicionamentos alternativos */
+.custom-background.position-top {
+    background-position: center top;
+}
+
+.custom-background.position-bottom {
+    background-position: center bottom;
+}
+
+/* Classes de opacidade (10% a 100%) */
+.custom-background.opacity-10::after { opacity: 0.1; }
+.custom-background.opacity-20::after { opacity: 0.2; }
+.custom-background.opacity-30::after { opacity: 0.3; }
+.custom-background.opacity-40::after { opacity: 0.4; }
+.custom-background.opacity-50::after { opacity: 0.5; }
+.custom-background.opacity-60::after { opacity: 0.6; }
+.custom-background.opacity-70::after { opacity: 0.7; }
+.custom-background.opacity-80::after { opacity: 0.8; }
+.custom-background.opacity-90::after { opacity: 0.9; }
+.custom-background.opacity-100::after { opacity: 1; }
+
+/* Seletores para aplicar em temas específicos */
+.light-mode .custom-background.only-dark,
+.dark-mode .custom-background.only-light {
+    display: none;
+}

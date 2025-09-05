@@ -1,0 +1,426 @@
+/* profile-card-reading-status.css */
+/* Estilos para o widget de status de leitura atual no card de perfil */
+
+/* Estilo do widget principal */
+.reading-status-widget {
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.dark-mode .reading-status-widget {
+    border-top-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Cabeçalho */
+.reading-status-header h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: inherit;
+}
+
+/* Botões de ação */
+.reading-actions .btn-link,
+.add-reading-btn {
+    color: var(--bs-primary);
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.reading-actions .btn-link:hover,
+.add-reading-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Conteúdo do status de leitura */
+.reading-status-content {
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 0.5rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.dark-mode .reading-status-content {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Livro atual */
+.current-book {
+    gap: 0.75rem;
+}
+
+.book-thumbnail {
+    flex: 0 0 60px;
+    width: 60px;
+    height: 85px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.book-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.book-thumbnail:hover img {
+    transform: scale(1.05);
+}
+
+.book-info {
+    flex: 1;
+    min-width: 0; /* Para garantir que o text-truncate funcione */
+}
+
+.book-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.book-author {
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+/* Barra de progresso */
+.reading-progress {
+    margin-top: 0.5rem;
+}
+
+.progress {
+    height: 6px;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.dark-mode .progress {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.progress-bar {
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
+}
+
+/* Detalhes adicionais */
+.reading-details {
+    margin-top: 0.75rem;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.dark-mode .detail-item {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.detail-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.05);
+}
+
+.detail-item i {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Estado vazio - sem livro atual */
+.empty-reading-status {
+    padding: 0.5rem;
+    color: var(--bs-secondary);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+/* Modal de atualização de progresso */
+#updateProgressModal .modal-body {
+    padding: 1.5rem;
+}
+
+#updateProgressModal .progress {
+    height: 8px;
+    margin: 1rem 0;
+}
+
+#updateProgressModal .form-text {
+    font-size: 0.75rem;
+    color: var(--bs-secondary);
+}
+
+/* Personalização para marcar como concluído */
+#updateProgressModal .form-check {
+    padding-left: 1.75rem;
+}
+
+#updateProgressModal .form-check-input {
+    margin-top: 0.2rem;
+}
+
+/* Notificações temporárias */
+.reading-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    z-index: 9999;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    transform: translateX(150%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.reading-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.reading-notification-success {
+    background-color: #28a745;
+    color: white;
+    border-left: 5px solid #1e7e34;
+}
+
+.reading-notification-error {
+    background-color: #dc3545;
+    color: white;
+    border-left: 5px solid #a71d2a;
+}
+
+.reading-notification-info {
+    background-color: #17a2b8;
+    color: white;
+    border-left: 5px solid #138496;
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ajustes específicos para temas literários */
+
+/* Tema Fantasia */
+.theme-fantasy .reading-status-widget {
+    border-top-color: rgba(147, 112, 219, 0.3) !important;
+    border-bottom-color: rgba(147, 112, 219, 0.3) !important;
+}
+
+.theme-fantasy .reading-status-content {
+    background-color: rgba(147, 112, 219, 0.1) !important;
+}
+
+.theme-fantasy .detail-item {
+    background-color: rgba(147, 112, 219, 0.1) !important;
+}
+
+.theme-fantasy .progress-bar {
+    background-color: #9370db !important;
+}
+
+/* Tema Ficção Científica */
+.theme-scifi .reading-status-widget {
+    border-top-color: rgba(0, 176, 255, 0.3) !important;
+    border-bottom-color: rgba(0, 176, 255, 0.3) !important;
+}
+
+.theme-scifi .reading-status-content {
+    background-color: rgba(0, 176, 255, 0.1) !important;
+}
+
+.theme-scifi .detail-item {
+    background-color: rgba(0, 176, 255, 0.1) !important;
+}
+
+.theme-scifi .progress-bar {
+    background-color: #00b0ff !important;
+}
+
+/* Tema Romance */
+.theme-romance .reading-status-widget {
+    border-top-color: rgba(255, 105, 180, 0.3) !important;
+    border-bottom-color: rgba(255, 105, 180, 0.3) !important;
+}
+
+.theme-romance .reading-status-content {
+    background-color: rgba(255, 182, 193, 0.2) !important;
+}
+
+.theme-romance .detail-item {
+    background-color: rgba(255, 182, 193, 0.2) !important;
+}
+
+.theme-romance .progress-bar {
+    background-color: #ff69b4 !important;
+}
+
+/* Tema Horror */
+.theme-horror .reading-status-widget {
+    border-top-color: rgba(128, 0, 0, 0.3) !important;
+    border-bottom-color: rgba(128, 0, 0, 0.3) !important;
+}
+
+.theme-horror .reading-status-content {
+    background-color: rgba(26, 26, 26, 0.8) !important;
+}
+
+.theme-horror .detail-item {
+    background-color: rgba(26, 26, 26, 0.7) !important;
+}
+
+.theme-horror .progress-bar {
+    background-color: #ff4d4d !important;
+}
+
+/* Tema Mistério */
+.theme-mystery .reading-status-widget {
+    border-top-color: rgba(243, 156, 18, 0.3) !important;
+    border-bottom-color: rgba(243, 156, 18, 0.3) !important;
+}
+
+.theme-mystery .reading-status-content {
+    background-color: rgba(44, 62, 80, 0.6) !important;
+}
+
+.theme-mystery .detail-item {
+    background-color: rgba(44, 62, 80, 0.5) !important;
+}
+
+.theme-mystery .progress-bar {
+    background-color: #f39c12 !important;
+}
+
+/* Tema Histórico */
+.theme-historical .reading-status-widget {
+    border-top-color: rgba(139, 69, 19, 0.3) !important;
+    border-bottom-color: rgba(139, 69, 19, 0.3) !important;
+}
+
+.theme-historical .reading-status-content {
+    background-color: rgba(210, 180, 140, 0.2) !important;
+}
+
+.theme-historical .detail-item {
+    background-color: rgba(210, 180, 140, 0.3) !important;
+}
+
+.theme-historical .progress-bar {
+    background-color: #8b4513 !important;
+}
+
+/* Efeitos de iluminação para a barra de progresso */
+.theme-fantasy .progress-bar,
+.theme-scifi .progress-bar,
+.theme-horror .progress-bar {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Estilos para os ícones nos itens de detalhe */
+.theme-fantasy .detail-item i {
+    text-shadow: 0 0 5px rgba(147, 112, 219, 0.5);
+}
+
+.theme-scifi .detail-item i {
+    text-shadow: 0 0 5px rgba(0, 176, 255, 0.5);
+}
+
+.theme-romance .detail-item i {
+    text-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+}
+
+.theme-horror .detail-item i {
+    text-shadow: 0 0 5px rgba(255, 77, 77, 0.7);
+}
+
+.theme-mystery .detail-item i {
+    text-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+}
+
+.theme-historical .detail-item i {
+    text-shadow: 0 0 5px rgba(139, 69, 19, 0.3);
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+    .book-thumbnail {
+        width: 50px;
+        height: 70px;
+    }
+
+    .reading-details .row {
+        --bs-gutter-x: 0.5rem;
+    }
+
+    .detail-item {
+        padding: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 0.7rem;
+    }
+
+    .detail-item i {
+        font-size: 0.9rem;
+    }
+}
+
+/* Transições efeito hover na miniatura do livro */
+.book-thumbnail {
+    overflow: hidden;
+    position: relative;
+}
+
+.book-thumbnail::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 70%, rgba(0, 0, 0, 0.5) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.book-thumbnail:hover::after {
+    opacity: 1;
+}

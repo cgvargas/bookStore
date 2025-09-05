@@ -230,3 +230,58 @@
         }
     }
 })();
+
+/**
+ * Adicione este script ao final do arquivo admin_base.js
+ * Ele aplicará o efeito zebrado diretamente no DOM, superando quaisquer conflitos de CSS
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Função para aplicar o zebrado
+    function fixZebraStripes() {
+        console.log("Aplicando zebrado nas tabelas...");
+
+        // Seleciona todas as linhas da tabela de resultados
+        const tableRows = document.querySelectorAll('#result_list tbody tr, #changelist table tbody tr');
+
+        if (tableRows.length > 0) {
+            console.log(`Encontradas ${tableRows.length} linhas para aplicar zebrado`);
+
+            tableRows.forEach(function(row, index) {
+                // Determina a cor de fundo baseada no índice (par/ímpar)
+                const bgColor = index % 2 === 0 ? '#121212' : '#2A2A3A';
+
+                // Aplica a cor em todas as células da linha
+                const cells = row.querySelectorAll('td');
+                cells.forEach(function(cell) {
+                    cell.style.backgroundColor = bgColor;
+                });
+
+                // Adiciona classes para facilitar estilização via CSS
+                row.classList.add(index % 2 === 0 ? 'zebra-odd' : 'zebra-even');
+
+                // Adiciona evento hover para melhorar a experiência do usuário
+                row.addEventListener('mouseenter', function() {
+                    cells.forEach(function(cell) {
+                        cell.style.backgroundColor = 'rgba(43, 43, 64, 0.2)';
+                    });
+                });
+
+                row.addEventListener('mouseleave', function() {
+                    cells.forEach(function(cell) {
+                        cell.style.backgroundColor = bgColor;
+                    });
+                });
+            });
+
+            console.log("Zebrado aplicado com sucesso!");
+        } else {
+            console.log("Nenhuma linha de tabela encontrada.");
+        }
+    }
+
+    // Executa a função após um pequeno atraso para garantir que a tabela esteja carregada
+    setTimeout(fixZebraStripes, 100);
+
+    // Execute novamente caso haja carregamento dinâmico de conteúdo
+    setTimeout(fixZebraStripes, 500);
+});

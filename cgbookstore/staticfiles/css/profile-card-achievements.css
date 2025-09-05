@@ -1,0 +1,222 @@
+/* profile-card-achievements.css */
+/* Estilos para o widget de conquistas destacadas no card de perfil */
+
+/* Estilo do widget principal */
+.achievements-widget {
+    padding: 0.5rem 0;
+    margin-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.dark-mode .achievements-widget {
+    border-top-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Cabeçalho */
+.achievements-header h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: inherit;
+}
+
+.achievements-header .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 10px;
+}
+
+/* Lista de conquistas */
+.achievements-list {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+/* Badge individual de conquista */
+.achievement-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 70px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.25rem;
+    border-radius: 8px;
+}
+
+.achievement-badge:hover {
+    transform: translateY(-3px);
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.dark-mode .achievement-badge:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Ícone da conquista */
+.achievement-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    color: white;
+    background-color: #6c757d;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-badge:hover .achievement-icon {
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.achievement-icon i {
+    font-size: 1.1rem;
+}
+
+/* Nome da conquista */
+.achievement-name {
+    font-size: 0.7rem;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: inherit;
+}
+
+/* Rodapé com link para ver todas */
+.achievements-footer {
+    margin-top: 0.25rem;
+}
+
+.view-all-achievements {
+    font-size: 0.75rem;
+    color: #0d6efd;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.view-all-achievements:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+    transform: translateY(-1px);
+}
+
+/* Tier das conquistas */
+.achievement-badge.tier-1 .achievement-icon {
+    background-color: #6c757d; /* Comum - Cinza */
+}
+
+.achievement-badge.tier-2 .achievement-icon {
+    background-color: #0d6efd; /* Incomum - Azul */
+}
+
+.achievement-badge.tier-3 .achievement-icon {
+    background-color: #6f42c1; /* Raro - Roxo */
+}
+
+.achievement-badge.tier-4 .achievement-icon {
+    background-color: #fd7e14; /* Épico - Laranja */
+}
+
+.achievement-badge.tier-5 .achievement-icon {
+    background-color: #ffc107; /* Lendário - Dourado */
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+}
+
+/* Efeito de brilho para conquistas de tier alto */
+.achievement-badge.tier-5 .achievement-icon {
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+    }
+    to {
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.8);
+    }
+}
+
+/* Estilos para o modal de detalhes */
+#achievementDetailsModal .achievement-modal-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background-color: #6c757d;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+#achievementDetailsModal .achievement-modal-icon i {
+    font-size: 2rem;
+}
+
+#achievementDetailsModal .achievement-modal-title {
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#achievementDetailsModal .achievement-modal-description {
+    font-size: 1rem;
+    max-width: 400px;
+    margin: 0 auto 1.5rem;
+}
+
+#achievementDetailsModal .achievement-modal-details {
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 10px;
+}
+
+.dark-mode #achievementDetailsModal .achievement-modal-details {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+#achievementDetailsModal .row {
+    --bs-gutter-x: 1rem;
+}
+
+/* Estado de vazio - sem conquistas */
+.empty-achievements {
+    padding: 0.5rem;
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .achievement-badge {
+        width: 60px;
+    }
+
+    .achievement-icon {
+        width: 35px;
+        height: 35px;
+    }
+
+    .achievement-icon i {
+        font-size: 1rem;
+    }
+
+    .achievement-name {
+        font-size: 0.65rem;
+    }
+}

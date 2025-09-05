@@ -1,86 +1,68 @@
-/* ==========================================================================
-   Variáveis CSS (Custom Properties) - Unificadas
-   ========================================================================== */
-:root {
-    /* Cores Principais */
-    --primary-color: #ff6600;
-    --primary-hover: #ff4500;
-    --secondary-color: #0d6efd;
-    --secondary-hover: #0a58ca;
+/* styles.css */
 
-    /* Cores de Background */
-    --dark-bg: #343a40;
-    --light-bg: #f9f9f9;
-    --white: #ffffff;
+/* ==========================================================================
+   PAINEL DE CONTROLE DE TEMAS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DEFINIÇÃO DAS VARIÁVEIS (TEMA CLARO POR PADRÃO)
+   -------------------------------------------------------------------------- */
+html[data-theme='light'], :root {
+    /* Cores de Fundo */
+    --cor-fundo-primario: #ffffff;      /* Fundo principal da página */
+    --cor-fundo-secundario: rgba(248, 249, 250, 0.7);    /* Fundos de seções, navbar, footer */
+    --cor-fundo-card: rgba(255, 255, 255, 0.85);    /* Fundo de cards, modais, dropdowns */
+    --cor-fundo-input: #ffffff;         /* Fundo de campos de formulário */
+    --cor-fundo-hover: #f1f3f5;         /* Cor de fundo para itens em hover */
 
     /* Cores de Texto */
-    --text-dark: #1a1a1a;          /* Mais escuro que o anterior */
-    --text-muted: #4a5568;         /* Mais escuro que o anterior */
-    --text-light: #f7fafc;
+    --cor-texto-primario: #212529;      /* Texto principal, títulos */
+    --cor-texto-secundario: #6c757d;    /* Texto de apoio, placeholders */
+    --cor-texto-link: #0d6efd;          /* Cor para links */
+    --cor-texto-invertido: #ffffff;     /* Texto para usar sobre fundos escuros (ex: botões) */
 
-    /* Cores de Destaque */
-    --orange: #ff6600;
-    --yellow: #ffcc00;
-    --gold: #ffd700;
-    --google-blue: #1a73e8;
-    --google-blue-hover: #1557b0;
+    /* Cores de Borda e Divisores */
+    --cor-borda: #dee2e6;
+    --cor-borda-input-foco: #86b7fe;
+
+    /* Cores de Ação e Destaque */
+    --cor-acao-primaria: #0d6efd;        /* Botões primários, links importantes */
+    --cor-acao-primaria-hover: #0b5ed7;
+    --cor-acao-secundaria: #ff6600;      /* Cor laranja da marca */
+    --cor-acao-secundaria-hover: #e65c00;
 
     /* Sombras */
-    --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.05);
-    --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.08);
+    --sombra-card: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 
-    /* Transições */
+    /* Variáveis de Design Mantidas */
     --transition-default: 0.3s ease;
     --transition-fast: 0.2s ease;
     --transition-slow: 0.5s ease;
-
-    /* Dimensões */
     --header-height: 60px;
     --footer-height: 250px;
     --sidebar-width: 250px;
     --container-max-width: 1100px;
-
-    /* Inputs e Formulários */
     --input-height: 48px;
     --input-height-mobile: 42px;
     --input-padding: 12px;
-
-    /* Componentes */
     --avatar-size: 150px;
     --avatar-size-mobile: 120px;
     --book-cover-height: 400px;
     --book-cover-width: 280px;
-
-    /* Border Radius */
     --radius-xs: 3px;
     --radius-sm: 5px;
     --radius-md: 8px;
     --radius-lg: 15px;
     --radius-full: 24px;
     --radius-circle: 50%;
-
-    /* Z-index */
     --z-dropdown: 1000;
     --z-sticky: 1020;
     --z-modal: 1030;
     --z-popover: 1040;
     --z-tooltip: 1050;
-
-    /* Grid */
     --grid-gap: 20px;
     --grid-gap-sm: 10px;
     --grid-gap-lg: 30px;
-
-    /* Breakpoints */
-    --breakpoint-xs: 360px;
-    --breakpoint-sm: 576px;
-    --breakpoint-md: 768px;
-    --breakpoint-lg: 992px;
-    --breakpoint-xl: 1200px;
-
-    /* Espaçamentos */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
@@ -88,1037 +70,35 @@
     --spacing-xl: 2rem;
 }
 
-/* ==========================================================================
-   Suporte a Temas - Claro, Escuro e Automático
-   ========================================================================== */
-
-/* Tema Claro (Padrão) - Modificação da navbar */
-:root, .light-mode {
-    /* Cores Principais */
-    --primary-color: #ff6600;
-    --primary-hover: #ff4500;
-    --secondary-color: #0d6efd;
-    --secondary-hover: #0a58ca;
-
-    /* Cores de Background */
-    --dark-bg: #343a40;
-    --light-bg: #f9f9f9;
-    --body-bg: #ffffff;
-    --card-bg: #ffffff;
-    --white: #ffffff;
-    --navbar-bg: #ffffff; /* Nova variável para fundo da navbar no tema claro */
-    --navbar-text: #333333; /* Nova variável para texto da navbar no tema claro */
-    --footer-bg: #ffffff; /* Footer branco no tema claro */
-    --footer-text: #333333; /* Cor do texto no footer claro */
+/* --------------------------------------------------------------------------
+   2. REDEFINIÇÃO DAS VARIÁVEIS PARA O TEMA ESCURO
+   -------------------------------------------------------------------------- */
+html[data-theme='dark'] {
+    /* Cores de Fundo */
+    --cor-fundo-primario: #121212;
+    --cor-fundo-secundario: rgba(30, 30, 30, 0.7);
+    --cor-fundo-card: rgba(43, 48, 53, 0.85);
+    --cor-fundo-input: #343a40;
+    --cor-fundo-hover: #343a40;
 
     /* Cores de Texto */
-    --text-dark: #1a1a1a;
-    --text-muted: #4a5568;
-    --text-light: #f7fafc;
-
-    /* Cores de Elementos */
-    --border-color: rgba(0, 0, 0, 0.1);
-    --input-bg: #ffffff;
-    --input-border: #ced4da;
-    --modal-bg: #ffffff;
-    --dropdown-bg: #ffffff;
-    --dropdown-hover: #f8f9fa;
-}
-
-/* Tema Escuro */
-.dark-mode {
-    /* Cores Principais - mantém as cores de destaque para acessibilidade */
-    --primary-color: #ff6600;
-    --primary-hover: #ff4500;
-    --secondary-color: #3b82f6;
-    --secondary-hover: #2563eb;
-
-    /* Cores de Background */
-    --dark-bg: #121212;
-    --light-bg: #1e1e1e;
-    --body-bg: #121212;
-    --card-bg: #1e1e1e;
-    --white: #1e1e1e;
-    --navbar-bg: #121212; /* Fundo da navbar no tema escuro */
-    --navbar-text: #e2e8f0; /* Texto da navbar no tema escuro */
-    --footer-bg: #121212; /* Footer escuro no tema escuro */
-    --footer-text: #f7fafc; /* Cor do texto no footer */
-
-    /* Cores de Texto */
-    --text-dark: #e2e8f0;
-    --text-muted: #a0aec0;
-    --text-light: #f7fafc;
-
-    /* Cores de Elementos */
-    --border-color: rgba(255, 255, 255, 0.1);
-    --input-bg: #2d2d2d;
-    --input-border: #444444;
-    --modal-bg: #1e1e1e;
-    --dropdown-bg: #1e1e1e;
-    --dropdown-hover: #2d2d2d;
-}
-
-/* Aplicação dos temas à navbar e footer */
-.navbar {
-    background-color: var(--navbar-bg) !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.light-mode .navbar {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.light-mode .navbar-nav .nav-link {
-    color: var(--navbar-text) !important;
-}
-
-.light-mode .navbar-nav .nav-link:hover,
-.light-mode .navbar-nav .nav-link.active {
-    color: var(--primary-color) !important;
-}
-
-.light-mode .navbar-brand .store-name {
-    /* Mantém o gradiente laranja/amarelo para o nome da loja */
-    background: linear-gradient(45deg, var(--orange) 30%, var(--yellow) 90%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.light-mode .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 0, 0, 0.75)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-}
-
-/* Ajustes específicos para os ícones no modo claro */
-.light-mode .navbar-nav .nav-item .bi {
-    color: var(--navbar-text);
-}
-
-.light-mode .navbar-nav .nav-item:hover .bi {
-    color: var(--primary-color);
-}
-
-/* Ajustes para footer */
-.footer {
-    background-color: var(--footer-bg);
-    color: var(--footer-text);
-    border-top: 3px solid var(--primary-color);
-}
-
-/* Estilos específicos do footer no modo claro */
-/* Estilos específicos do footer no modo claro */
-.light-mode .footer {
-    background-color: var(--footer-bg);
-    color: var(--text-dark);
-}
-
-.light-mode .footer-heading {
-    color: #1a1a1a; /* Cor escura para os títulos do footer */
-    font-weight: 600;
-}
-
-.light-mode .brand-name {
-    color: var(--secondary-color); /* Mantém "CG BookStore" em azul */
-}
-
-.light-mode .footer-about {
-    color: #333333; /* Cor escura para a descrição */
-}
-
-.light-mode .footer-links a {
-    color: #333333; /* Cor escura para os links */
-}
-
-.light-mode .footer-links a:hover {
-    color: var(--primary-color);
-    transform: translateX(5px);
-}
-
-.light-mode .footer-links a i {
-    color: var(--primary-color);
-}
-
-/* Ajuste para os links de mídias sociais */
-.light-mode .social-links {
-    display: flex;
-    gap: var(--spacing-sm);
-    justify-content: center;
-}
-
-.light-mode .social-link {
-    background-color: rgba(0, 0, 0, 0.08);
-    color: #333333;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-circle);
-    transition: all var(--transition-default);
-    text-decoration: none;
-}
-
-.light-mode .social-link:hover {
-    background-color: var(--primary-color);
-    color: white;
-    transform: translateY(-3px);
-}
-
-.light-mode .social-link i {
-    font-size: 1.1rem;
-}
-
-.light-mode .copyright,
-.light-mode .credits {
-    color: #333333; /* Cor escura para textos de copyright/créditos */
-}
-
-/* Personalização da linha decorativa */
-.light-mode .line {
-    background-color: var(--primary-color);
-}
-
-/* Aplicação dos temas aos elementos do corpo */
-body {
-    background-color: var(--body-bg);
-    color: var(--text-dark);
-}
-
-.card, .book-card {
-    background-color: var(--card-bg);
-    border-color: var(--border-color);
-}
-
-.modal-content {
-    background-color: var(--modal-bg);
-    color: var(--text-dark);
-}
-
-.dropdown-menu {
-    background-color: var(--dropdown-bg);
-    border-color: var(--border-color);
-}
-
-.dropdown-item {
-    color: var(--text-dark);
-}
-
-.dropdown-item:hover {
-    background-color: var(--dropdown-hover);
-}
-
-/* Ajuste para cor do texto nos dropdowns em modo claro */
-.dropdown-menu {
-    background-color: #ffffff; /* Fundo branco para garantir contraste */
-}
-
-.dropdown-item {
-    color: #000000 !important; /* Texto preto para alta visibilidade no modo claro */
-    transition: color 0.3s ease; /* Transição suave para a mudança de cor */
-}
-
-.dropdown-item:hover {
-    color: var(--primary-color) !important; /* Cor laranja no hover (usando a variável primária) */
-    background-color: rgba(0, 0, 0, 0.05); /* Fundo levemente cinza no hover */
-}
-
-/* Ajuste específico para o dropdown de tema quando no modo claro */
-.light-mode .dropdown-menu {
-    background-color: #ffffff;
-    border-color: rgba(0, 0, 0, 0.15);
-}
-
-.light-mode .dropdown-item {
-    color: #000000 !important;
-}
-
-.light-mode .dropdown-item:hover {
-    color: var(--primary-color) !important; /* FF6600 */
-}
-
-.form-control {
-    background-color: var(--input-bg);
-    border-color: var(--input-border);
-    color: var(--text-dark);
-}
-
-.form-control:focus {
-    background-color: var(--input-bg);
-    color: var(--text-dark);
-}
-
-/* Ajustes para componentes específicos no modo escuro */
-.dark-mode .navbar {
-    background-color: var(--dark-bg);
-}
-
-.dark-mode .book-title {
-    color: var(--text-dark);
-}
-
-.dark-mode .section-title {
-    color: var(--text-dark);
-}
-
-.dark-mode .footer {
-    background-color: var(--dark-bg);
-}
-
-.dark-mode .footer-heading {
-    color: var(--text-light);
-}
-
-.dark-mode .footer-links a {
-    color: var(--text-muted);
-}
-
-.dark-mode .footer-links a:hover {
-    color: var(--text-light);
-}
-
-/* Ajuste de contraste para elementos de texto no modo escuro */
-.dark-mode .text-muted {
-    color: var(--text-muted) !important;
-}
-
-.dark-mode .text-dark {
-    color: var(--text-dark) !important;
-}
-
-/* Ajustes para elementos de formulário no modo escuro */
-.dark-mode .form-check-input {
-    background-color: var(--input-bg);
-    border-color: var(--input-border);
-}
-
-.dark-mode .form-select {
-    background-color: var(--input-bg);
-    border-color: var(--input-border);
-    color: var(--text-dark);
-}
-
-/* Ajustes para tabelas no modo escuro */
-.dark-mode .table {
-    color: var(--text-dark);
-}
-
-.dark-mode .table-bordered {
-    border-color: var(--border-color);
-}
-
-.dark-mode .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* Ajustes para notificações e alertas no modo escuro */
-.dark-mode .alert-info {
-    background-color: rgba(59, 130, 246, 0.15);
-    border-color: rgba(59, 130, 246, 0.4);
-    color: #93c5fd;
-}
-
-.dark-mode .alert-success {
-    background-color: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.4);
-    color: #6ee7b7;
-}
-
-.dark-mode .alert-warning {
-    background-color: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.4);
-    color: #fcd34d;
-}
-
-.dark-mode .alert-danger {
-    background-color: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.4);
-    color: #fca5a5;
-}
-
-/* Transição suave entre os temas */
-body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
-.footer, .alert, .table, .btn-outline-secondary {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-/* Correções para problemas específicos no modo escuro */
-
-/* Correção dos cards que permanecem brancos */
-.dark-mode .card,
-.dark-mode .book-card,
-.dark-mode .ranking-card {
-    background-color: var(--card-bg);
-    color: var(--text-dark);
-    border-color: var(--border-color);
-}
-
-/* Correção para títulos das prateleiras que ficam muito escuros */
-.dark-mode .section-title {
-    color: #e2e8f0;
-    border-bottom-color: var(--primary-color);
-}
-
-/* Correção para o fundo das imagens de livros */
-.dark-mode .book-cover {
-    background: linear-gradient(45deg, #2d2d2d, #333333);
-}
-
-/* Correção para seções de vídeo e ranking que permanecem brancas */
-.dark-mode .video-section,
-.dark-mode .reader-ranking-section,
-.dark-mode .bg-light {
-    background-color: var(--light-bg) !important;
-}
-
-/* Correção para textos dentro das seções */
-.dark-mode .video-title,
-.dark-mode .reader-ranking-section h2,
-.dark-mode .reader-ranking-section .text-muted {
-    color: var(--text-dark);
-}
-
-/* Correção para o widget de previsão do tempo */
-.dark-mode .weather-widget {
-    background-color: var(--card-bg);
-    color: var(--text-dark);
-    border-color: var(--border-color);
-}
-
-/* Ajustes para o componente de recomendações */
-.dark-mode .recommendations-widget {
-    background-color: var(--card-bg);
-    border-color: var(--border-color);
-}
-
-.dark-mode .recommendations-widget-content {
-    background-color: var(--card-bg);
-}
-
-.dark-mode .book-card-compact .book-title {
-    color: var(--text-dark);
-}
-
-/* Ajuste para progresso em ranking */
-.dark-mode .progress {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Ajustes para botões outline que podem ficar com baixo contraste */
-.dark-mode .btn-outline-primary,
-.dark-mode .btn-outline-secondary {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.dark-mode .btn-outline-primary:hover,
-.dark-mode .btn-outline-secondary:hover {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* Ajuste para links dentro de texto */
-.dark-mode a:not(.btn):not(.nav-link):not(.dropdown-item) {
-    color: var(--primary-color);
-}
-
-/* Ajustes para modais no tema escuro */
-.dark-mode .modal-header,
-.dark-mode .modal-footer {
-    background-color: var(--dark-bg);
-    border-color: var(--border-color);
-}
-
-.dark-mode .modal-body {
-    background-color: var(--card-bg);
-}
-
-/* Ajustes para banners */
-.dark-mode .banner-text {
-    color: white;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-/* Ajustes para o carrossel de livros */
-.dark-mode .swiper-button-next,
-.dark-mode .swiper-button-prev {
-    background-color: var(--dark-bg);
-    color: var(--text-light);
-}
-
-.dark-mode .swiper-button-next:after,
-.dark-mode .swiper-button-prev:after {
-    color: var(--text-light);
-}
-
-/* Ajustes para ícones */
-.dark-mode .bi {
-    filter: none;
-}
-
-/* Corrigir badges e progresso */
-.dark-mode .badge {
-    border: none;
-}
-
-.dark-mode .badge.bg-primary {
-    background-color: var(--primary-color) !important;
-}
-
-/* Ajuste para melhorar visibilidade em itens de listas */
-.dark-mode li {
-    color: var(--text-dark);
-}
-
-/* Correções mais específicas para 'títulos' da pagina 'inicial' no modo escuro */
-
-/* Força todos os títulos a usar a cor de texto definida para o modo escuro */
-.dark-mode h1,
-.dark-mode h2,
-.dark-mode h3,
-.dark-mode h4,
-.dark-mode h5,
-.dark-mode h6,
-.dark-mode .h1,
-.dark-mode .h2,
-.dark-mode .h3,
-.dark-mode .h4,
-.dark-mode .h5,
-.dark-mode .h6 {
-    color: var(--text-dark) !important;
-}
-
-/* Regras específicas para títulos de seção */
-.dark-mode .section-title,
-.dark-mode .section-title.main,
-.dark-mode .section-title.sub {
-    color: var(--text-dark) !important;
-    border-bottom-color: var(--primary-color);
-}
-
-/* Títulos dentro de cards */
-.dark-mode .card-title,
-.dark-mode .book-title,
-.dark-mode .video-title {
-    color: var(--text-dark) !important;
-}
-
-/* Títulos do footer */
-.dark-mode .footer-heading,
-.dark-mode .brand-name {
-    color: var(--text-light) !important;
-}
-
-/* Títulos no carrossel de banner */
-.dark-mode .banner-text h2,
-.dark-mode .banner-text h3 {
-    color: white !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
-}
-
-/* Estilo para títulos específicos da página inicial */
-.dark-mode .reader-ranking-section .section-title,
-.dark-mode .reader-ranking-section .display-6 {
-    color: var(--text-dark) !important;
-}
-
-/* Títulos em modais */
-.dark-mode .modal-title {
-    color: var(--text-light) !important;
-}
-
-/* Para casos onde há um color: inherit ou outros estilos herdados */
-.dark-mode [class*="title"],
-.dark-mode [class*="heading"] {
-    color: var(--text-dark) !important;
-}
-
-/* Padronização de cores de fundo para 'seções' no modo escuro */
-
-/* Define a mesma cor de fundo para todas as seções especiais */
-.dark-mode .video-section,
-.dark-mode .reader-ranking-section,
-.dark-mode .bg-light,
-.dark-mode section[class*="section"] {
-    background-color: var(--body-bg) !important;
-}
-
-/* Corrige especificamente a seção de vídeos */
-.dark-mode .video-section .container {
-    background-color: var(--body-bg);
-}
-
-/* Corrige especificamente a seção de ranking de leitores */
-.dark-mode .reader-ranking-section.bg-light {
-    background-color: var(--body-bg) !important;
-}
-
-/* Corrige classes bg-light usadas em divs e outros elementos */
-.dark-mode .bg-light {
-    background-color: var(--body-bg) !important;
-}
-
-/* Ajusta o fundo dos cards dentro dessas seções */
-.dark-mode .video-section .card,
-.dark-mode .reader-ranking-section .card {
-    background-color: var(--card-bg);
-}
-
-/* Garante que elementos dentro das seções tenham o contraste correto */
-.dark-mode .video-section *,
-.dark-mode .reader-ranking-section * {
-    border-color: var(--border-color);
-}
-
-/* Ajusta fundo de cartões dentro da seção de ranking */
-.dark-mode .reader-ranking-section .ranking-card {
-    background-color: var(--card-bg);
-}
-
-/* Ajusta cores para os cardsde vídeo */
-.dark-mode .video-card {
-    background-color: transparent;
-}
-
-/* Corrige a cor da classe rounded que pode estar afetando essas seções */
-.dark-mode .rounded {
-    background-color: inherit;
-}
-
-/* Correções específicas para a seção de ranking de leitores */
-
-/* Corrige a seção de ranking na página principal */
-.dark-mode .reader-ranking-section.mt-5.py-4.bg-light.rounded {
-    background-color: var(--body-bg) !important;
-}
-
-/* Corrige a página completa de ranking de leitores */
-.dark-mode .reader-ranking-section {
-    background-color: var(--body-bg) !important;
-}
-
-/* Corrige os itens individuais do ranking na página específica */
-.dark-mode .bg-white {
-    background-color: var(--card-bg) !important;
-}
-
-/* Garante que os itens de ranking tenham a cor correta */
-.dark-mode .d-flex.align-items-center.justify-content-between.bg-white {
-    background-color: var(--card-bg) !important;
-    color: var(--text-dark);
-}
-
-/* Corrige o contraste do texto nos itens de ranking */
-.dark-mode .reader-ranking-section strong,
-.dark-mode .reader-ranking-section .fs-4 {
-    color: var(--text-dark);
-}
-
-/* Melhora a visibilidade dos emojis de medalha */
-.dark-mode .fs-4.fw-bold.me-3 {
-    text-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
-}
-
-/* Corrige a cor do texto no título da página de ranking */
-.dark-mode .reader-ranking-section h1,
-.dark-mode .reader-ranking-section .display-5 {
-    color: var(--text-dark) !important;
-}
-
-/* Garante que todos os elementos com fundo branco na página de ranking sejam tratados */
-.dark-mode .reader-ranking-section [class*="bg-white"],
-.dark-mode .reader-ranking-section .bg-white {
-    background-color: var(--card-bg) !important;
-}
-
-/* Correções para página de 'busca' no modo escuro */
-
-/* Ajuste do placeholder no campo de busca */
-.dark-mode .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-/* Correção para formulários */
-.dark-mode .form-control,
-.dark-mode .form-select {
-    background-color: var(--input-bg);
-    border-color: var(--border-color);
-    color: var(--text-dark);
-}
-
-/* Ajuste para paginação */
-.dark-mode .page-link {
-    background-color: var(--card-bg);
-    border-color: var(--border-color);
-    color: var(--text-dark);
-}
-
-.dark-mode .page-link:hover {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.dark-mode .page-item.active .page-link {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-}
-
-.dark-mode .page-item.disabled .page-link {
-    background-color: var(--card-bg);
-    border-color: var(--border-color);
-    color: var(--text-muted);
-}
-
-/* Ajustes para cor do texto em modais */
-.dark-mode .modal-title {
-    color: var(--text-light);
-}
-
-/* Ajustes para a descrição do livro */
-.dark-mode .book-description {
-    color: var(--text-muted) !important;
-}
-
-/* Ajuste para cartões de livro */
-.dark-mode .book-cover {
-    background-color: var(--card-bg);
-}
-
-/* Ajustes para cores de texto de título e autor */
-.dark-mode .book-title {
-    color: var(--primary-color) !important;
-}
-
-.dark-mode .book-author {
-    color: #f57c00 !important;
-}
-
-/* Ajustes para itens da lista no modal */
-.dark-mode .list-group-item {
-    background-color: var(--card-bg);
-    border-color: var(--border-color);
-    color: var(--text-dark);
-}
-
-.dark-mode .list-group-item:hover {
-    background-color: var(--dark-bg);
-}
-
-/* Garantir que os ícones dentro dos botões de lista sejam visíveis */
-.dark-mode .list-group-item i.bi-heart-fill {
-    color: #dc3545 !important;
-}
-
-.dark-mode .list-group-item i.bi-book-half {
-    color: #0d6efd !important;
-}
-
-.dark-mode .list-group-item i.bi-bookmark-plus {
-    color: #198754 !important;
-}
-
-.dark-mode .list-group-item i.bi-check-circle-fill {
-    color: #0dcaf0 !important;
-}
-
-/* Correções específicas para a página 'Sobre' no modo escuro */
-
-/* Cards com fundo claro definido inline */
-.dark-mode .card {
-    background-color: var(--card-bg) !important;
-    background: var(--card-bg) !important;
-}
-
-/* Correção para cards com gradientes */
-.dark-mode .journey-card,
-.dark-mode .tech-card {
-    background: var(--card-bg) !important;
-    background-image: none !important;
-}
-
-/* Badges customizados */
-.dark-mode .badge-custom {
-    background: var(--primary-color) !important;
-    color: white !important;
-}
-
-/* Future features cards */
-.dark-mode .future-feature {
-    background-color: var(--card-bg) !important;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Tech badges */
-.dark-mode .tech-badge {
-    background: var(--dark-bg) !important;
-    color: var(--text-dark) !important;
-}
-
-/* Quote card */
-.dark-mode .quote-card {
-    background-color: var(--dark-bg) !important;
-    border-left: 5px solid var(--primary-color) !important;
-    color: var(--text-dark) !important;
-}
-
-/* Commitment card */
-.dark-mode .commitment-card {
-    background: var(--card-bg) !important;
-    background-image: none !important;
-}
-
-/* Listas e itens */
-.dark-mode .list-unstyled li,
-.dark-mode .list-group-item.bg-transparent {
-    color: var(--text-dark) !important;
-}
-
-/* Títulos de seção */
-.dark-mode .section-title {
-    color: var(--text-dark) !important;
-}
-
-.dark-mode .section-title::after {
-    background: var(--primary-color) !important;
-}
-
-/* Cores para texto */
-.dark-mode .lead,
-.dark-mode .text-muted,
-.dark-mode .card-text,
-.dark-mode p {
-    color: var(--text-dark) !important;
-}
-
-/* Cores para links e ícones */
-.dark-mode .feature-icon {
-    color: var(--primary-color) !important;
-}
-
-/* Background claro definido no modal */
-.dark-mode .modal-body .bg-light {
-    background-color: var(--dark-bg) !important;
-}
-
-/* Ajusta cor do texto nos modais */
-.dark-mode .modal-body p,
-.dark-mode .modal-body ul,
-.dark-mode .modal-body li,
-.dark-mode .modal-title {
-    color: var(--text-dark) !important;
-}
-
-/* Ajusta cor de fundo do cabeçalho do modal de recomendações */
-.dark-mode .modal-header.bg-primary {
-    background-color: var(--primary-color) !important;
-}
-
-/* Ajustes específicos para títulos e textos em cards */
-.dark-mode .card-title,
-.dark-mode .card h3,
-.dark-mode .card h4,
-.dark-mode .card h5 {
-    color: var(--text-dark) !important;
-}
-
-/* Ajuste para texto muted dentro de cards */
-.dark-mode .card .text-muted {
-    color: var(--text-muted) !important;
-}
-
-/* Lista de grupo transparente no modal */
-.dark-mode .list-group-item.bg-transparent {
-    background-color: transparent !important;
-}
-
-/* Correções específicas para a página de registro no modo escuro */
-
-/* Correção para o card principal */
-.dark-mode .card {
-    background-color: var(--card-bg) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
-    border-color: var(--border-color) !important;
-}
-
-/* Correção para textos e labels */
-.dark-mode .card h2 {
-    color: var(--text-dark) !important;
-}
-
-.dark-mode .card label {
-    color: var(--text-dark) !important;
-}
-
-.dark-mode .text-muted {
-    color: var(--text-muted) !important;
-}
-
-/* Correção para campos de formulário */
-.dark-mode .form-control,
-.dark-mode .form-select {
-    background-color: var(--input-bg) !important;
-    border-color: var(--border-color) !important;
-    color: var(--text-dark) !important;
-}
-
-.dark-mode .form-control:focus,
-.dark-mode .form-select:focus {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25) !important;
-}
-
-/* Correção para mensagens de erro */
-.dark-mode .alert-danger {
-    background-color: rgba(220, 53, 69, 0.2) !important;
-    color: #f8d7da !important;
-    border-color: rgba(220, 53, 69, 0.3) !important;
-}
-
-.dark-mode .invalid-feedback {
-    color: #f77 !important;
-}
-
-/* Correção para o checkbox de termos */
-.dark-mode .form-check-input {
-    background-color: var(--input-bg) !important;
-    border-color: var(--border-color) !important;
-}
-
-.dark-mode .form-check-input:checked {
-    background-color: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
-}
-
-/* Correção para links */
-.dark-mode .card a {
-    color: var(--primary-color) !important;
-}
-
-.dark-mode .card a:hover {
-    color: var(--primary-hover) !important;
-    text-decoration: underline;
-}
-
-/* Correção para botão */
-.dark-mode .btn-primary {
-    background-color: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
-}
-
-.dark-mode .btn-primary:hover {
-    background-color: var(--primary-hover) !important;
-    border-color: var(--primary-hover) !important;
-}
-
-/* Correção específica para o alerta na política de privacidade */
-.dark-mode .alert-light {
-    background-color: var(--card-bg) !important;
-    color: var(--text-dark) !important;
-    border-color: var(--primary-color) !important;
-}
-
-/* Garante que o texto do alerta tenha boa legibilidade no modo escuro */
-.dark-mode .alert-light p {
-    color: var(--text-dark) !important;
-}
-
-/* ===============================================================================
-   Ajustes específicos para cards no modo claro - correção do fundo e legibilidade
-   =============================================================================== */
-
-/* Remover efeito hover dos cards */
-.light-mode .card:hover,
-.light-mode .author-card:hover,
-.light-mode .book-card:hover,
-.light-mode .custom-section .card:hover,
-.light-mode .reader-ranking-section .card:hover {
-    background-color: rgba(255, 255, 255, 0.95) !important; /* Mantém a mesma cor de fundo */
-    transform: none !important; /* Remove o efeito de elevação */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; /* Mantém a mesma sombra */
-}
-
-/* Ajustes específicos para cards no modo claro - correção do fundo e legibilidade */
-.light-mode .card,
-.light-mode .alert-light,
-.light-mode .politica-privacidade .card,
-.light-mode .termos-uso .card {
-    background-color: rgba(255, 255, 255, 0.95) !important; /* Fundo branco mais opaco */
-    color: #333333 !important; /* Texto escuro para legibilidade */
-    border: 1px solid rgba(0, 0, 0, 0.1) !important; /* Borda leve para melhor definição */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; /* Sombra suave */
-    transition: none !important; /* Remove transições */
-}
-
-/* Ajustes para textos dentro dos cards */
-.light-mode .card h1,
-.light-mode .card h2,
-.light-mode .card h3,
-.light-mode .card h4,
-.light-mode .card h5,
-.light-mode .card h6,
-.light-mode .card .card-title,
-.light-mode .alert-light h1,
-.light-mode .alert-light h2,
-.light-mode .alert-light h3,
-.light-mode .alert-light h4 {
-    color: #1a1a1a !important; /* Garante que os títulos sejam escuros e legíveis */
-}
-
-.light-mode .card p,
-.light-mode .card li,
-.light-mode .card .card-text,
-.light-mode .alert-light p {
-    color: #333333 !important; /* Texto normal em cor escura para legibilidade */
-}
-
-/* Específico para textos do card em páginas institucionais */
-.light-mode .card .text-muted,
-.light-mode .card .text-primary {
-    color: #555555 !important; /* Garante cores adequadas para textos específicos */
-}
-
-/* Correção para o alert-light dentro dos cards */
-.light-mode .alert-light {
-    background-color: rgba(248, 249, 250, 0.9) !important;
-    border-left: 4px solid var(--primary-color) !important;
-}
-
-/* Correção para items de lista nos cards */
-.light-mode .card .list-group-item {
-    background-color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Garantir que os ícones mantenham suas cores */
-.light-mode .card .bi {
-    color: var(--primary-color) !important;
-}
-
-/* Ajustes específicos para títulos de páginas institucionais no tema claro */
-.light-mode .text-center h1,
-.light-mode .container .row .col-lg-10 h1,
-.light-mode .politica-privacidade h1,
-.light-mode .termos-uso h1 {
-    color: #1a1a1a !important; /* Cor escura para títulos principais */
-    font-weight: bold !important;
-    text-shadow: none !important; /* Remove qualquer sombra que possa afetar a legibilidade */
-}
-
-/* Ajuste específico para o texto abaixo do título (data de atualização) */
-.light-mode .text-center .text-muted,
-.light-mode .container .row .col-lg-10 .text-muted {
-    color: #555555 !important; /* Cinza escuro para melhor legibilidade */
-}
-
-/* Ajuste para ícones acima dos títulos */
-.light-mode .text-center .bi-shield-lock,
-.light-mode .text-center .bi-file-text {
-    color: var(--primary-color) !important;
-}
-
-/* Garantir que os títulos de seções também sejam legíveis */
-.light-mode .privacy-sections h2,
-.light-mode .terms-sections h2 {
-    color: var(--primary-color) !important;
+    --cor-texto-primario: #f8f9fa;
+    --cor-texto-secundario: #adb5bd;
+    --cor-texto-link: #6ea8fe;
+    --cor-texto-invertido: #ffffff;
+
+    /* Cores de Borda e Divisores */
+    --cor-borda: #495057;
+    --cor-borda-input-foco: #3a9dff;
+
+    /* Cores de Ação e Destaque (manter cores vivas para contraste) */
+    --cor-acao-primaria: #3a9dff;
+    --cor-acao-primaria-hover: #6ea8fe;
+    --cor-acao-secundaria: #ff6600;
+    --cor-acao-secundaria-hover: #ff8533;
+
+    /* Sombras */
+    --sombra-card: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
 }
 
 /* ==========================================================================
@@ -1128,7 +108,6 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
 /* Dispositivos Extra Pequenos (telefones em retrato, menos de 576px) */
 @media (max-width: 575.98px) {
     :root {
-        /* Ajustes de tamanho para dispositivos muito pequenos */
         --container-max-width: 100%;
         --avatar-size: var(--avatar-size-mobile);
         --book-cover-height: 300px;
@@ -1136,19 +115,16 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
         --input-height: var(--input-height-mobile);
     }
 
-    /* Layout */
     .container {
         padding-right: var(--spacing-sm);
         padding-left: var(--spacing-sm);
     }
 
-    /* Grid */
     .book-container {
         grid-template-columns: repeat(2, 1fr);
         gap: var(--grid-gap-sm);
     }
 
-    /* Navegação */
     .navbar-brand .logo {
         height: 40px;
     }
@@ -1182,14 +158,12 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
         grid-template-columns: repeat(3, 1fr);
     }
 
-    /* Ajustes de Layout */
     .profile-container {
         padding: var(--spacing-lg);
     }
 
-    /* Navegação */
     .navbar-nav {
-    margin-left: auto; /* Empurra os links para a direita */
+        margin-left: auto;
         margin-right: var(--spacing-lg);
     }
 }
@@ -1227,16 +201,6 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
     }
 }
 
-/* Suporte a Dark Mode */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --dark-bg: #1a1a1a;
-        --light-bg: #2c2c2c;
-        --text-dark: #e2e8f0;
-        --text-muted: #a0aec0;
-    }
-}
-
 /* Preferências de Redução de Movimento */
 @media (prefers-reduced-motion: reduce) {
     * {
@@ -1248,10 +212,10 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
 /* High Contrast Mode */
 @media (prefers-contrast: high) {
     :root {
-        --primary-color: #ff0000;
-        --secondary-color: #0000ff;
-        --text-dark: #000000;
-        --text-muted: #444444;
+        --cor-acao-primaria: #ff0000;
+        --cor-acao-secundaria: #0000ff;
+        --cor-texto-primario: #000000;
+        --cor-texto-secundario: #444444;
     }
 }
 
@@ -1270,25 +234,88 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
 }
 
 /* ==========================================================================
+   Aplicação dos Temas aos Elementos Base
+   ========================================================================== */
+
+body {
+    background-color: var(--cor-fundo-primario);
+    color: var(--cor-texto-primario);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.card, .book-card, .modal-content, .dropdown-menu {
+    background-color: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    box-shadow: var(--sombra-card);
+    backdrop-filter: blur(8px);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.navbar {
+    background-color: var(--cor-fundo-secundario) !important;
+    box-shadow: var(--sombra-card);
+    border-bottom: 1px solid var(--cor-borda);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-link {
+    color: var(--cor-texto-primario);
+    transition: color var(--transition-default);
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+.footer {
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-texto-primario);
+    border-top: 3px solid var(--cor-acao-secundaria);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.form-control, .form-select {
+    background-color: var(--cor-fundo-input);
+    border: 1px solid var(--cor-borda);
+    color: var(--cor-texto-primario);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--cor-borda-input-foco);
+    background-color: var(--cor-fundo-input);
+    color: var(--cor-texto-primario);
+}
+
+.dropdown-item {
+    color: var(--cor-texto-primario);
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: var(--cor-fundo-hover);
+    color: var(--cor-acao-secundaria);
+}
+
+/* ==========================================================================
    Componentes - Sistema Unificado
    ========================================================================== */
 
-/* Home Page Components
-   ========================================================================== */
+/* Home Page Components */
 .section-title {
     font-size: 2rem;
-    color: var(--text-dark);
+    color: var(--cor-texto-primario);
     margin-bottom: var(--spacing-lg);
     padding-bottom: var(--spacing-sm);
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 2px solid var(--cor-acao-secundaria);
 }
 
 .section-title.main {
-    color: var(--primary-color);
+    color: var(--cor-acao-secundaria);
 }
 
 .section-title.sub {
-    color: var(--text-dark);
+    color: var(--cor-texto-primario);
     font-size: 1.8rem;
 }
 
@@ -1299,8 +326,7 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
     padding: var(--spacing-md) 0;
 }
 
-/* Home Page Carousels
-   ========================================================================== */
+/* Home Page Carousels */
 .banner-carousel {
     width: 100%;
     margin-bottom: var(--spacing-xl);
@@ -1331,38 +357,40 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
     right: 0;
     padding: var(--spacing-lg);
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-    color: var(--white);
+    color: var(--cor-texto-invertido);
 }
 
 .banner-text h2 {
     font-size: 2rem;
     margin-bottom: var(--spacing-sm);
+    color: var(--cor-texto-invertido);
 }
 
 .banner-text h3 {
     font-size: 1.5rem;
     margin-bottom: var(--spacing-sm);
+    color: var(--cor-texto-invertido);
 }
 
 .banner-text p {
     font-size: 1.1rem;
     margin-bottom: var(--spacing-md);
+    color: var(--cor-texto-invertido);
 }
 
-/* Book Shelf Components
-   ========================================================================== */
+/* Book Shelf Components */
 .book-shelf {
     padding: var(--spacing-xl) 0;
+    background-color: var(--cor-fundo-secundario);
 }
 
-.book-shelf .section-title {
-    margin-bottom: var(--spacing-lg);
-    color: #ffffff;  /* Branco para melhor contraste */
-    font-size: 1.8rem;
-    position: relative;
-    padding-left: var(--spacing-md);
-    border-left: 4px solid var(--primary-color);
-    font-weight: 600;  /* Adicionado para melhor legibilidade */
+/* Garante que as seções da página inicial tenham um fundo visível */
+.book-shelf, .video-section, .author-section, .reader-ranking-section, .custom-section, .recommendations-section {
+    background-color: var(--cor-fundo-secundario);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--cor-borda);
 }
 
 .bookSwiper {
@@ -1371,11 +399,12 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
 }
 
 .book-card {
-    background: var(--white);
+    background: var(--cor-fundo-card);
     border-radius: var(--radius-md);
     overflow: hidden;
     transition: transform var(--transition-default);
     height: 100%;
+    border: 1px solid var(--cor-borda);
 }
 
 .book-card:hover {
@@ -1391,9 +420,9 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
 .book-cover img {
     width: 100%;
     height: 100%;
-    object-fit: cover;    /* Mudado para cover */
-    object-position: center; /* Centraliza a imagem */
-    background-color: #f8f9fa;
+    object-fit: cover;
+    object-position: center;
+    background-color: var(--cor-fundo-secundario);
     transition: transform var(--transition-default);
 }
 
@@ -1403,19 +432,18 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
 
 .book-author {
     font-size: 0.9rem;
-    color: var(--text-muted);
+    color: var(--cor-texto-secundario);
     margin: 0;
 }
 
-/* Swiper Navigation Custom Styles
-   ========================================================================== */
+/* Swiper Navigation Custom Styles */
 .swiper-button-next,
 .swiper-button-prev {
     width: 40px;
     height: 40px;
-    background-color: var(--white);
+    background-color: var(--cor-fundo-card);
     border-radius: var(--radius-circle);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--sombra-card);
     opacity: 0;
     transition: all var(--transition-default);
 }
@@ -1423,7 +451,7 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
 .swiper-button-next:after,
 .swiper-button-prev:after {
     font-size: 1.2rem;
-    color: var(--text-dark);
+    color: var(--cor-texto-primario);
 }
 
 .swiper:hover .swiper-button-next,
@@ -1433,118 +461,42 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
 
 .swiper-button-next:hover,
 .swiper-button-prev:hover {
-    background-color: var(--primary-color);
+    background-color: var(--cor-acao-secundaria);
 }
 
 .swiper-button-next:hover:after,
 .swiper-button-prev:hover:after {
-    color: var(--white);
+    color: var(--cor-texto-invertido);
 }
 
 .swiper-pagination-bullet {
     width: 10px;
     height: 10px;
-    background-color: var(--white);
+    background-color: var(--cor-texto-invertido);
     opacity: 0.5;
 }
 
 .swiper-pagination-bullet-active {
     opacity: 1;
-    background-color: var(--primary-color);
+    background-color: var(--cor-acao-secundaria);
 }
 
-/* Responsive Adjustments for Home Carousels
-   ========================================================================== */
-@media (max-width: 768px) {
-    .bannerSwiper {
-        height: 300px;
-    }
-
-    .banner-text h2 {
-        font-size: 1.5rem;
-    }
-
-    .banner-text h3 {
-        font-size: 1.2rem;
-    }
-
-    .banner-text p {
-        font-size: 1rem;
-    }
-
-    .book-shelf .section-title {
-        font-size: 1.5rem;
-    }
-
-    .swiper-button-next,
-    .swiper-button-prev {
-        display: none;
-    }
-}
-
-@media (max-width: 576px) {
-    .bannerSwiper {
-        height: 250px;
-    }
-
-    .banner-text {
-        padding: var(--spacing-md);
-    }
-
-    .banner-text h2 {
-        font-size: 1.2rem;
-    }
-
-    .banner-text h3 {
-        font-size: 1rem;
-    }
-
-    .book-title {
-        font-size: 0.9rem;
-    }
-
-    .book-author {
-        font-size: 0.8rem;
-    }
-}
-
-/* Dark Mode Adjustments
-   ========================================================================== */
-@media (prefers-color-scheme: dark) {
-    .book-card {
-        background: var(--dark-bg);
-    }
-
-    .swiper-button-next,
-    .swiper-button-prev {
-        background-color: var(--dark-bg);
-    }
-
-    .swiper-button-next:after,
-    .swiper-button-prev:after {
-        color: var(--white);
-    }
-}
-
-/* Card Base
-   ========================================================================== */
+/* Card Base */
 .card {
-    background-color: var(--white);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
     border: none;
     transition: transform var(--transition-default),
                 box-shadow var(--transition-default);
 }
 
 .card:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--sombra-card);
     transform: translateY(-2px);
 }
 
 .card-header {
     background-color: transparent;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--cor-borda);
     padding: var(--spacing-md) var(--spacing-lg);
 }
 
@@ -1552,23 +504,21 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
     padding: var(--spacing-lg);
 }
 
-/* Book Components
-   ========================================================================== */
+/* Book Components */
 .book-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
-    background: var(--white);
+    background: var(--cor-fundo-card);
     transition: all var(--transition-default);
     will-change: transform;
 }
 
-/* Book Cover Enhancement */
 .book-cover {
     position: relative;
-    height: 220px; /* Altura fixa para todas as imagens */
+    height: 220px;
     width: 100%;
     overflow: hidden;
     margin-bottom: 10px;
@@ -1576,8 +526,8 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-md);
-    background: linear-gradient(45deg, #f3f4f6, #ffffff);
-    box-shadow: var(--shadow-sm);
+    background: linear-gradient(45deg, var(--cor-fundo-secundario), var(--cor-fundo-card));
+    box-shadow: var(--sombra-card);
     padding: var(--spacing-sm);
 }
 
@@ -1585,45 +535,44 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
     width: auto;
     height: 100%;
     max-width: 100%;
-    object-fit: contain; /* Mantém a proporção sem cortar */
+    object-fit: contain;
     transition: transform var(--transition-default);
 }
 
-/* Container de informações com altura fixa */
 .book-info {
     padding: 10px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centraliza os elementos filhos */
-    justify-content: center; /* Centraliza verticalmente */
+    align-items: center;
+    justify-content: center;
     flex-grow: 1;
-    width: 100%; /* Garante que ocupe toda a largura disponível */
+    width: 100%;
     overflow: hidden;
 }
 
-/* Título do livro padronizado */
 .book-title {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #333333; /* Cor escura para melhor contraste no modo claro */
+    color: var(--cor-texto-primario);
     margin-bottom: 5px;
     line-height: 1.3;
     max-height: 2.6em;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limita a 2 linhas */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    text-align: center;
 }
 
-/* Autor do livro padronizado */
 .book-author {
     font-size: 0.85rem;
-    color: #666666; /* Cinza médio para autor */
+    color: var(--cor-texto-secundario);
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: center;
 }
 
 /* Book Price Components */
@@ -1632,29 +581,28 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
     font-weight: 600;
 }
 
-/* Ajuste para preços */
 .book-price.has-discount {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Já está centralizado, mas reforçamos */
+    align-items: center;
     gap: 4px;
 }
 
 .original-price {
-    color: var(--text-muted);
+    color: var(--cor-texto-secundario);
     text-decoration: line-through;
     font-size: 0.9rem;
-    font-weight: 500;              /* Adicionado weight */
+    font-weight: 500;
 }
 
 .promotional-price {
-    color: var(--primary-color);
+    color: var(--cor-acao-secundaria);
     font-size: 1.1rem;
-    font-weight: 700;              /* Aumentado weight para preços promocionais */
+    font-weight: 700;
 }
 
 .regular-price {
-    color: var(--text-dark);
+    color: var(--cor-texto-primario);
     font-size: 1.1rem;
 }
 
@@ -1662,230 +610,39 @@ body, .card, .navbar, .dropdown-menu, .modal-content, .form-control,
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--cor-acao-secundaria);
+    color: var(--cor-texto-invertido);
     padding: 4px 8px;
     border-radius: var(--radius-full);
     font-size: 0.9rem;
     font-weight: 600;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--sombra-card);
 }
 
-/* Book Card Enhancement */
-.book-card {
-    height: 420px; /* Aumentada a altura para dar mais espaço */
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centraliza horizontalmente */
-    text-align: center; /* Centraliza o texto */
-    background-color: rgba(255, 255, 255, 0.85) !important; /* Fundo mais opaco para melhor legibilidade */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    margin-bottom: 20px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    padding: 12px; /* Padding em todos os lados */
-    position: relative; /* Para posicionamento de elementos internos */
-}
-
-.book-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-5px);
-    background-color: rgba(255, 255, 255, 0.95) !important; /* Ainda mais opaco no hover */
-}
-
-.book-card:hover .book-cover img {
-    transform: scale(1.05);
-}
-
-.book-title,
-.book-author,
-.book-price {
-    text-align: center; /* Centraliza o texto */
-    width: 90%; /* Reduz ligeiramente para evitar problemas de overflow */
-    margin-left: auto;
-    margin-right: auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Garantir que no modo claro as cores sejam consistentes */
-.light-mode .book-title {
-    color: #333333;
-}
-
-.light-mode .book-author {
-    color: #666666;
-}
-
-/* Ajuste de cor dos títulos para melhor legibilidade em cards transparentes */
-.book-title {
-    color: #ffffff; /* Cor branca para o título */
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Sombra de texto para melhorar legibilidade */
-    font-weight: 600;
-}
-
-/* Ajuste para o autor também */
-.book-author {
-    color: rgba(255, 255, 255, 0.85); /* Branco com transparência para o autor */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* Garantir que os preços também sejam legíveis */
-.regular-price {
-    color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* Ajuste para o modo escuro, caso necessário manter consistência */
-.dark-mode .book-title {
-    color: #ffffff;
-}
-
-.dark-mode .book-author {
-    color: rgba(255, 255, 255, 0.85);
-}
-
-/* Ajuste forçado de cor para os títulos dos livros em cards transparentes */
-.book-card .book-title {
-    color: #ffffff !important; /* Forçando cor branca com !important */
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important; /* Sombra mais forte */
-}
-
-.book-card .book-author {
-    color: var(--bs-warning) !important; /* Usando a variável de cor de alerta do Bootstrap */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* Sobrescrever regras específicas do tema claro */
-.light-mode .book-card .book-title {
-    color: #ffffff !important;
-}
-
-.light-mode .book-card .book-author {
-    color: var(--bs-warning) !important; /* Usando a variável de cor de alerta do Bootstrap */
-}
-
-/* Sobrescrever qualquer outro estilo que possa estar interferindo */
-body .book-card .book-title,
-html .book-card .book-title {
-    color: #ffffff !important;
-}
-
-body .book-card .book-author,
-html .book-card .book-author {
-    color: var(--bs-warning) !important; /* Usando a variável de cor de alerta do Bootstrap */
-}
-
-/* Gestão de quebra de texto para múltiplos autores ou textos longos */
-.book-card .book-author,
-.book-card .book-title {
-    text-align: center;
-    width: 90%; /* Reduzindo ligeiramente a largura para criar margem dos dois lados */
-    margin-left: auto;
-    margin-right: auto;
-    white-space: normal; /* Permite que o texto quebre */
-    word-wrap: break-word; /* Quebra palavras muito longas se necessário */
-    overflow-wrap: break-word; /* Alternativa moderna para word-wrap */
-    hyphens: none; /* Evita hifenização automática */
-}
-
-/* Ajuste específico para múltiplos autores */
-.book-card .book-author {
-    white-space: normal; /* Sobrescreve o 'white-space: nowrap' definido anteriormente */
-    max-height: 2.4em; /* Permite até duas linhas aproximadamente */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limita a 2 linhas */
-    -webkit-box-orient: vertical;
-}
-
-/* Ajuste para evitar sobreposição entre autores e preços */
-.book-card {
-    height: 380px; /* Mantendo a altura fixa */
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-/* Ajustando o container de informações para garantir espaço */
-.book-info {
-    padding: 10px 10px 10px 10px; /* Aumentando o padding inferior */
-    display: flex;
-    flex-direction: column;
-    flex-grow: 0; /* Não crescer além do necessário */
-    flex-shrink: 0; /* Não encolher */
-    flex-basis: auto; /* Tamanho baseado no conteúdo */
-    height: auto; /* Altura baseada no conteúdo */
-    max-height: 100px; /* Altura máxima limitada */
-    overflow: visible; /* Permite que o conteúdo fique visível */
-    margin-bottom: 5px; /* Espaço adicional antes do preço */
-}
-
-/* Ajustando o autor para garantir que seja visível */
-.book-card .book-author {
-    font-size: 0.68rem; /* Reduzindo ligeiramente o tamanho da fonte */
-    margin-bottom: 3px; /* Espaço após o autor */
-    line-height: 1.2; /* Reduzindo o espaçamento entre linhas */
-}
-
-/* Posicionando o preço mais abaixo */
-.book-price {
-    position: absolute; /* Posicionamento absoluto */
-    bottom: 10px; /* 10px a partir do fundo */
-    left: 0;
-    right: 0;
-    text-align: center;
-    background: transparent; /* Fundo transparente */
-    padding: 5px 0;
-    margin: 0;
-    font-size: 0.9rem; /* Fonte ligeiramente menor */
-}
-
-/* Garantindo que os preços com desconto também fiquem bem posicionados */
-.book-price.has-discount {
-    padding: 5px 0;
-}
-
-.original-price {
-    font-size: 0.8rem; /* Fonte menor para o preço original */
-}
-
-.promotional-price {
-    font-size: 0.9rem; /* Fonte menor para o preço promocional */
-}
-
-
-
-/* Profile Components
-   ========================================================================== */
+/* Profile Components */
 .profile-card {
     border-radius: var(--radius-lg);
     overflow: hidden;
 }
 
 .profile-header {
-    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+    background: linear-gradient(45deg, var(--cor-acao-secundaria), var(--cor-acao-secundaria-hover));
     padding: var(--spacing-xl);
-    color: var(--white);
+    color: var(--cor-texto-invertido);
 }
 
 .profile-avatar {
     width: var(--avatar-size);
     height: var(--avatar-size);
     border-radius: var(--radius-circle);
-    border: 4px solid var(--white);
-    box-shadow: var(--shadow-md);
+    border: 4px solid var(--cor-texto-invertido);
+    box-shadow: var(--sombra-card);
     margin-bottom: var(--spacing-md);
 }
 
-/* Navigation Components
-   ========================================================================== */
+/* Navigation Components */
 .navbar {
     height: var(--header-height);
-    background-color: var(--dark-bg);
-    box-shadow: var(--shadow-sm);
     padding: 0.5rem var(--spacing-lg);
     position: fixed;
     top: 0;
@@ -1909,7 +666,7 @@ html .book-card .book-author {
 .store-name {
     font-family: 'Playfair Display', serif;
     font-size: 2.6rem;
-    background: linear-gradient(45deg, var(--orange) 30%, var(--yellow) 90%);
+    background: linear-gradient(45deg, var(--cor-acao-secundaria) 30%, #ffcc00 90%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1918,7 +675,7 @@ html .book-card .book-author {
 }
 
 .navbar-nav {
-    margin-left: auto; /* Empurra os links para a direita */
+    margin-left: auto;
     gap: var(--spacing-md);
 }
 
@@ -1928,71 +685,33 @@ html .book-card .book-author {
 }
 
 .nav-link {
-    color: var(--white);
+    color: var(--cor-texto-primario);
     padding: var(--spacing-sm) var(--spacing-md);
     transition: color var(--transition-default);
     position: relative;
-}
-
-.nav-link:hover,
-.nav-link.active {
-    color: var(--orange);
-}
-
-.nav-link {
-    color: var(--text-light);
     font-weight: 500;
-    padding: var(--spacing-sm) var(--spacing-md);
-    transition: color var(--transition-default);
-    position: relative;
 }
 
 .nav-link::after {
-    content: none; /* Alterado de '' para none */
+    content: none;
 }
 
 .nav-link:hover::after,
 .nav-link.active::after {
-    width: 0; /* Alterado de 100% para 0 */
+    width: 0;
 }
 
-/* Garante que os links ativos mantenham a cor laranja */
-.nav-link.active,
-.nav-link:hover {
-    color: var(--primary-color) !important; /* Usa a cor primária (laranja) e sobrescreve outros estilos */
-}
-
-/* Ajuste específico para modo claro */
-.light-mode .navbar-nav .nav-link.active {
-    color: var(--primary-color) !important; /* Garante a cor laranja no modo claro */
-}
-
-/* Linha decorativa
-   ========================================================================== */
-.line {
-    width: 100%;
-    height: 4px; /* Ajuste conforme necessário */
-    background-color: var(--orange); /* Laranja da paleta de cores */
-    margin-top: var(--spacing-md) 0;
-}
-
-.line:hover {
-    background-color: var(--primary-color);
-}
-
-/* Form Components
-   ========================================================================== */
+/* Form Components */
 .form-control {
     height: var(--input-height);
     border-radius: var(--radius-md);
-    border: 1px solid rgba(0, 0, 0, 0.1);
     padding: 0 var(--input-padding);
     transition: border-color var(--transition-default),
                 box-shadow var(--transition-default);
 }
 
 .form-control:focus {
-    border-color: var(--primary-color);
+    border-color: var(--cor-borda-input-foco);
     box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
 }
 
@@ -2005,18 +724,17 @@ html .book-card .book-author {
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--cor-acao-primaria);
+    border-color: var(--cor-acao-primaria);
+    color: var(--cor-texto-invertido);
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
+    background-color: var(--cor-acao-primaria-hover);
+    border-color: var(--cor-acao-primaria-hover);
 }
 
-/* Alert Components
-   ========================================================================== */
+/* Alert Components */
 .alert {
     border-radius: var(--radius-md);
     padding: var(--spacing-md) var(--spacing-lg);
@@ -2039,19 +757,31 @@ html .book-card .book-author {
     color: #721c24;
 }
 
-/* Modal Components
-   ========================================================================== */
+.alert-info {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #3b82f6;
+}
+
+.alert-warning {
+    background-color: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+}
+
+/* Modal Components */
 .modal-content {
     border-radius: var(--radius-lg);
     border: none;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--sombra-card);
 }
 
 .modal-header {
-    background-color: var(--dark-bg);
-    color: var(--white);
+    background-color: var(--cor-fundo-secundario);
+    color: var(--cor-texto-primario);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--cor-borda);
 }
 
 .modal-body {
@@ -2060,11 +790,14 @@ html .book-card .book-author {
 
 .modal-footer {
     padding: var(--spacing-md) var(--spacing-lg);
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--cor-borda);
 }
 
-/* Badge Components
-   ========================================================================== */
+.modal-title {
+    color: var(--cor-texto-primario);
+}
+
+/* Badge Components */
 .badge {
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-full);
@@ -2073,19 +806,11 @@ html .book-card .book-author {
 }
 
 .badge-primary {
-    background-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--cor-acao-primaria);
+    color: var(--cor-texto-invertido);
 }
 
-/* Footer Components
-   ========================================================================== */
-.footer {
-    background-color: var(--dark-bg);
-    color: var(--text-light);
-    margin-top: var(--spacing-xl);
-    border-top: 3px solid var(--primary-color);
-}
-
+/* Footer Components */
 .footer-brand {
     display: flex;
     flex-direction: column;
@@ -2105,20 +830,20 @@ html .book-card .book-author {
 }
 
 .brand-name {
-    color: var(--primary-color);
+    color: var(--cor-acao-secundaria);
     font-family: 'Playfair Display', serif;
     margin: 0;
 }
 
 .footer-about {
-    color: var(--text-muted);
+    color: var(--cor-texto-secundario);
     line-height: 1.6;
     font-size: 0.95rem;
     text-align: center;
 }
 
 .footer-heading {
-    color: var(--white);
+    color: var(--cor-texto-primario);
     font-size: 1.2rem;
     margin-bottom: var(--spacing-lg);
     position: relative;
@@ -2132,7 +857,7 @@ html .book-card .book-author {
     bottom: 0;
     width: 40px;
     height: 2px;
-    background-color: var(--primary-color);
+    background-color: var(--cor-acao-secundaria);
 }
 
 .footer-links {
@@ -2146,7 +871,7 @@ html .book-card .book-author {
 }
 
 .footer-links a {
-    color: var(--text-muted);
+    color: var(--cor-texto-secundario);
     text-decoration: none;
     transition: all var(--transition-default);
     display: flex;
@@ -2157,12 +882,12 @@ html .book-card .book-author {
 .footer-links a i {
     font-size: 0.8rem;
     margin-right: var(--spacing-sm);
-    color: var(--primary-color);
+    color: var(--cor-acao-secundaria);
     transition: transform var(--transition-default);
 }
 
 .footer-links a:hover {
-    color: var(--white);
+    color: var(--cor-texto-primario);
     transform: translateX(5px);
 }
 
@@ -2183,16 +908,16 @@ html .book-card .book-author {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--cor-fundo-hover);
     border-radius: var(--radius-circle);
-    color: var(--white);
+    color: var(--cor-texto-primario);
     transition: all var(--transition-default);
     text-decoration: none;
 }
 
 .social-link:hover {
-    background-color: var(--primary-color);
-    color: var(--white);
+    background-color: var(--cor-acao-secundaria);
+    color: var(--cor-texto-invertido);
     transform: translateY(-3px);
 }
 
@@ -2206,17 +931,17 @@ html .book-card .book-author {
 }
 
 .copyright {
-    color: var(--text-muted);
+    color: var(--cor-texto-secundario);
     font-size: 0.9rem;
 }
 
 .credits {
-    color: var(--text-muted);
+    color: var(--cor-texto-secundario);
     font-size: 0.9rem;
 }
 
 .credits .bi-heart-fill {
-    color: var(--primary-color) !important;
+    color: var(--cor-acao-secundaria) !important;
     animation: heartBeat 1.5s ease infinite;
 }
 
@@ -2263,8 +988,85 @@ html .book-card .book-author {
     }
 }
 
-/* Loading States
-   ========================================================================== */
+/* Linha decorativa */
+.line {
+    width: 100%;
+    height: 4px;
+    background-color: var(--cor-acao-secundaria);
+    margin: var(--spacing-md) 0;
+}
+
+.line:hover {
+    background-color: var(--cor-acao-secundaria-hover);
+}
+
+/* Tabelas */
+.table {
+    color: var(--cor-texto-primario);
+}
+
+.table-bordered {
+    border-color: var(--cor-borda);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--cor-fundo-hover);
+}
+
+/* Paginação */
+.page-link {
+    background-color: var(--cor-fundo-card);
+    border-color: var(--cor-borda);
+    color: var(--cor-texto-primario);
+}
+
+.page-link:hover {
+    background-color: var(--cor-acao-secundaria);
+    color: var(--cor-texto-invertido);
+}
+
+.page-item.active .page-link {
+    background-color: var(--cor-acao-secundaria);
+    border-color: var(--cor-acao-secundaria);
+    color: var(--cor-texto-invertido);
+}
+
+.page-item.disabled .page-link {
+    background-color: var(--cor-fundo-card);
+    border-color: var(--cor-borda);
+    color: var(--cor-texto-secundario);
+}
+
+/* List Groups */
+.list-group-item {
+    background-color: var(--cor-fundo-card);
+    border-color: var(--cor-borda);
+    color: var(--cor-texto-primario);
+}
+
+.list-group-item:hover {
+    background-color: var(--cor-fundo-hover);
+}
+
+.list-group-item.bg-transparent {
+    background-color: transparent !important;
+}
+
+/* Progress */
+.progress {
+    background-color: var(--cor-fundo-hover);
+}
+
+/* Links */
+a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: var(--cor-acao-secundaria);
+}
+
+a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+    color: var(--cor-acao-secundaria-hover);
+}
+
+/* Loading States */
 .skeleton {
     background: linear-gradient(90deg,
         rgba(0, 0, 0, 0.06) 25%,
@@ -2287,8 +1089,7 @@ html .book-card .book-author {
    Animações e Transições - Sistema Unificado
    ========================================================================== */
 
-/* Keyframes
-   ========================================================================== */
+/* Keyframes */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -2343,8 +1144,7 @@ html .book-card .book-author {
     }
 }
 
-/* Classes de Animação
-   ========================================================================== */
+/* Classes de Animação */
 .animate-fade-in {
     animation: fadeIn var(--transition-default);
     will-change: transform, opacity;
@@ -2360,8 +1160,7 @@ html .book-card .book-author {
     will-change: transform, opacity;
 }
 
-/* Transições Otimizadas
-   ========================================================================== */
+/* Transições Otimizadas */
 .hover-lift {
     transition: transform var(--transition-default);
     will-change: transform;
@@ -2380,8 +1179,7 @@ html .book-card .book-author {
     transform: scale(1.05);
 }
 
-/* Elementos Interativos
-   ========================================================================== */
+/* Elementos Interativos */
 .book-item {
     transition: transform var(--transition-default),
                 box-shadow var(--transition-default);
@@ -2390,11 +1188,7 @@ html .book-card .book-author {
 
 .book-item:hover {
     transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
-}
-
-.nav-link {
-    transition: color var(--transition-default);
+    box-shadow: var(--sombra-card);
 }
 
 .btn {
@@ -2408,8 +1202,7 @@ html .book-card .book-author {
     transform: scale(0.98);
 }
 
-/* Estados de Loading
-   ========================================================================== */
+/* Estados de Loading */
 .loading-shimmer {
     background: linear-gradient(
         90deg,
@@ -2428,8 +1221,7 @@ html .book-card .book-author {
     will-change: transform;
 }
 
-/* Transições de Página
-   ========================================================================== */
+/* Transições de Página */
 .page-transition {
     opacity: 0;
     transform: translateY(20px);
@@ -2437,8 +1229,7 @@ html .book-card .book-author {
     will-change: transform, opacity;
 }
 
-/* Feedback Visual
-   ========================================================================== */
+/* Feedback Visual */
 .feedback-click {
     position: relative;
     overflow: hidden;
@@ -2469,16 +1260,14 @@ html .book-card .book-author {
     }
 }
 
-/* Otimizações de Performance
-   ========================================================================== */
+/* Otimizações de Performance */
 .gpu-accelerated {
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
 }
 
-/* Transições Suaves para Modal
-   ========================================================================== */
+/* Transições Suaves para Modal */
 .modal {
     transition: opacity var(--transition-default);
 }
@@ -2491,8 +1280,7 @@ html .book-card .book-author {
     transition: opacity var(--transition-default);
 }
 
-/* Suporte a Preferências do Usuário
-   ========================================================================== */
+/* Suporte a Preferências do Usuário */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -2512,257 +1300,377 @@ html .book-card .book-author {
     }
 }
 
-/* Estilos para componente de recomendações
-   =========================================================================== */
+/* ==========================================================================
+   Componentes Específicos
+   ========================================================================== */
+
+/* Responsive Adjustments for Home Carousels */
+@media (max-width: 768px) {
+    .bannerSwiper {
+        height: 300px;
+    }
+
+    .banner-text h2 {
+        font-size: 1.5rem;
+    }
+
+    .banner-text h3 {
+        font-size: 1.2rem;
+    }
+
+    .banner-text p {
+        font-size: 1rem;
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .bannerSwiper {
+        height: 250px;
+    }
+
+    .banner-text {
+        padding: var(--spacing-md);
+    }
+
+    .banner-text h2 {
+        font-size: 1.2rem;
+    }
+
+    .banner-text h3 {
+        font-size: 1rem;
+    }
+
+    .book-title {
+        font-size: 0.9rem;
+    }
+
+    .book-author {
+        font-size: 0.8rem;
+    }
+}
+
+/* Estilos para componente de recomendações */
 .recommendations-widget {
-  margin-bottom: 2rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--sombra-card);
+    background-color: var(--cor-fundo-card);
 }
 
 .recommendations-widget-header {
-  background: linear-gradient(to right, #4f46e5, #3b82f6);
-  color: white;
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    background: linear-gradient(to right, var(--cor-acao-primaria), var(--cor-acao-secundaria));
+    color: var(--cor-texto-invertido);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .recommendations-widget-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
 }
 
 .recommendations-widget-content {
-  padding: 1rem;
+    padding: 1rem;
+    background-color: var(--cor-fundo-card);
 }
 
 .recommendations-row {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding: 0.5rem 0;
-  scroll-padding: 1rem;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    scroll-padding: 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
 }
 
 .recommendations-row::-webkit-scrollbar {
-  height: 6px;
+    height: 6px;
 }
 
 .recommendations-row::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+    background: var(--cor-fundo-hover);
+    border-radius: 3px;
 }
 
 .recommendations-row::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+    background: var(--cor-borda);
+    border-radius: 3px;
 }
 
 .book-card-compact {
-  min-width: 120px;
-  width: 120px;
-  scroll-snap-align: start;
+    min-width: 120px;
+    width: 120px;
+    scroll-snap-align: start;
 }
 
 .book-cover-compact {
-  height: 150px;
-  width: 100%;
-  object-fit: cover;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 150px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: var(--sombra-card);
 }
 
 .book-card-compact .book-title {
-  font-weight: 600;
-  font-size: 0.85rem;
-  margin: 0.5rem 0 0.25rem;
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin: 0.5rem 0 0.25rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    color: var(--cor-texto-primario);
 }
 
 .book-card-compact .book-author {
-  font-size: 0.75rem;
-  color: #6b7280;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    font-size: 0.75rem;
+    color: var(--cor-texto-secundario);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .external-book {
-  position: relative;
+    position: relative;
 }
 
 .external-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background-color: #3b82f6;
-  color: white;
-  border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 0.65rem;
-  font-weight: bold;
-}
-
-/* Estilos dos modais */
-.modal-container {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0s 0.2s, opacity 0.2s;
-}
-
-.modal-container.active {
-  visibility: visible;
-  opacity: 1;
-  transition: visibility 0s, opacity 0.2s;
-}
-
-.modal-content {
-  background-color: white;
-  border-radius: 0.5rem;
-  max-width: 32rem;
-  width: 100%;
-  margin: 1rem;
-  max-height: 90vh;
-  overflow-y: auto;
-  transform: translateY(20px);
-  transition: transform 0.3s;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-}
-
-.modal-container.active .modal-content {
-  transform: translateY(0);
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: var(--cor-acao-primaria);
+    color: var(--cor-texto-invertido);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    font-weight: bold;
 }
 
 /* Notificações */
 .notification-toast {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  background-color: #3b82f6;
-  color: white;
-  padding: 0.75rem 1.25rem;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  opacity: 0;
-  transition: opacity 0.3s;
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: var(--cor-acao-primaria);
+    color: var(--cor-texto-invertido);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--sombra-card);
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
 .notification-toast.success {
-  background-color: #10b981;
+    background-color: #10b981;
 }
 
 .notification-toast.error {
-  background-color: #ef4444;
+    background-color: #ef4444;
 }
 
+/* Event Components */
+.event-widget-wrapper {
+    position: sticky;
+    top: 80px;
+    z-index: var(--z-sticky);
+}
+
+.event-widget {
+    background: var(--cor-fundo-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--sombra-card);
+    border: 1px solid var(--cor-borda);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.event-widget-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--cor-texto-primario);
+}
+
+.event-widget-body {
+    display: block;
+    padding: var(--spacing-md);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+}
+
+.event-widget-body:hover {
+    background-color: var(--cor-fundo-hover);
+}
+
+.event-widget .event-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.event-widget .event-info p {
+    margin: 0.5rem 0 0 0;
+    color: var(--cor-texto-secundario);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.event-widget .event-title {
+    font-size: 1.1rem;
+    color: var(--cor-texto-primario);
+    margin: 0;
+    font-weight: 600;
+}
+
+.event-widget-wrapper .event-widget-footer {
+    border-top: 1px solid var(--cor-borda);
+    padding: 0;
+    background-color: var(--cor-fundo-secundario);
+    height: 50px;
+}
+
+.event-widget .btn-view-all {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    line-height: 50px;
+    color: var(--cor-texto-primario);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.event-widget .btn-view-all:hover {
+    background-color: var(--cor-fundo-hover);
+    color: var(--cor-acao-secundaria);
+}
+
+/* Eventos Page */
+.eventos-page .page-title {
+    color: var(--cor-texto-primario);
+    margin-bottom: var(--spacing-lg);
+}
+
+.eventos-page .main-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--grid-gap-lg);
+}
+
+@media (min-width: 992px) {
+    .eventos-page .main-content {
+        grid-template-columns: 3fr 1fr;
+    }
+}
+
+.event-card {
+    background: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .event-card {
+        flex-direction: row;
+    }
+}
+
+.event-card-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+@media (min-width: 768px) {
+    .event-card-image {
+        width: 250px;
+        height: auto;
+    }
+}
+
+.event-card-body {
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card-title {
+    font-size: 1.5rem;
+    color: var(--cor-texto-primario);
+    margin: 0 0 1rem 0;
+}
+
+.event-card-date,
+.event-card-location {
+    color: var(--cor-texto-secundario);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.event-card-description {
+    color: var(--cor-texto-primario);
+    margin: 1rem 0;
+    flex-grow: 1;
+}
+
+.event-card .btn-primary {
+    align-self: flex-start;
+}
+
+.sidebar-ads h3 {
+    color: var(--cor-texto-primario);
+    border-bottom: 2px solid var(--cor-acao-secundaria);
+    padding-bottom: 0.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.sidebar-ads .ad-card img {
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Ajustes para responsividade em componentes específicos */
 @media (max-width: 640px) {
-  .recommendations-widget-header {
-    padding: 0.75rem 1rem;
-  }
-
-  .recommendations-widget-title {
-    font-size: 1rem;
-  }
-
-  .book-card-compact {
-    min-width: 100px;
-    width: 100px;
-  }
-
-  .book-cover-compact {
-    height: 130px;
-  }
-}
-
-/* Estilo para cards transparentes em toda a aplicação */
-.card, .author-card, .book-card, .custom-section .card, .reader-ranking-section .card {
-    background-color: rgba(255, 255, 255, 0.7) !important; /* Background semi-transparente */
-    backdrop-filter: blur(5px); /* Efeito de desfoque no fundo */
-    transition: all 0.3s ease; /* Transição suave */
-    border: none !important; /* Remove bordas */
-}
-
-.card:hover, .author-card:hover, .book-card:hover, .custom-section .card:hover, .reader-ranking-section .card:hover {
-    background-color: rgba(255, 255, 255, 0.9) !important; /* Mais opaco no hover */
-    transform: translateY(-5px); /* Leve efeito de elevação */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important; /* Sombra aumentada */
-}
-
-/* Estilo para seções */
-.book-shelf, .video-section, .ad-section, .link-grid, .custom-section, .author-section, .reader-ranking-section {
-    background-color: rgba(248, 249, 250, 0.7) !important; /* Background semi-transparente */
-    backdrop-filter: blur(3px); /* Efeito de desfoque no fundo */
-    border-radius: 12px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-}
-
-.book-shelf:hover, .video-section:hover, .ad-section:hover, .link-grid:hover, .custom-section:hover, .author-section:hover, .reader-ranking-section:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-/* Ajuste para modo escuro */
-@media (prefers-color-scheme: dark) {
-    .card, .author-card, .book-card, .custom-section .card, .reader-ranking-section .card {
-        background-color: rgba(33, 37, 41, 0.7) !important;
+    .recommendations-widget-header {
+        padding: 0.75rem 1rem;
     }
 
-    .card:hover, .author-card:hover, .book-card:hover, .custom-section .card:hover, .reader-ranking-section .card:hover {
-        background-color: rgba(33, 37, 41, 0.9) !important;
+    .recommendations-widget-title {
+        font-size: 1rem;
     }
 
-    .book-shelf, .video-section, .ad-section, .link-grid, .custom-section, .author-section, .reader-ranking-section {
-        background-color: rgba(33, 37, 41, 0.7) !important;
-    }
-}
-
-/* Melhoria de contraste para tema claro */
-.card, .book-card, .video-card, .custom-section .card, .reader-ranking-section .card { /* Removendo .author-card */
-    background-color: rgba(255, 255, 255, 0.85) !important; /* Menos transparente */
-    color: #212529 !important; /* Garante texto escuro */
-}
-
-/* Melhorar legibilidade do conteúdo */
-.card-title, .card-text {
-    /*color: #000 !important;  Removendo !important */
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
-}
-
-/* Mantém o ajuste de modo escuro existente */
-@media (prefers-color-scheme: dark) {
-    .card, .author-card, .book-card, .custom-section .card, .reader-ranking-section .card {
-        background-color: rgba(33, 37, 41, 0.7) !important;
+    .book-card-compact {
+        min-width: 100px;
+        width: 100px;
     }
 
-    .card:hover, .author-card:hover, .book-card:hover, .custom-section .card:hover, .reader-ranking-section .card:hover {
-        background-color: rgba(33, 37, 41, 0.9) !important;
-    }
-
-    /* Ajuste de cores para textos no modo escuro */
-    .card-title, .card-text {
-        color: var(--text-dark) !important;
-        text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    .book-cover-compact {
+        height: 130px;
     }
 }
 
@@ -2770,25 +1678,1262 @@ html .book-card .book-author {
     border-radius: var(--radius-md) !important;
 }
 
-/* Correções específicas para a página de detalhes do livro */
-.light-mode .book-details-page .navbar {
-    background-color: #ffffff !important;
+/* Placeholder para form-control */
+.form-control::placeholder {
+    color: var(--cor-texto-secundario);
 }
 
-.light-mode .book-details-page .navbar .nav-link {
-    color: #333333 !important;
+/* Botões outline */
+.btn-outline-primary,
+.btn-outline-secondary {
+    color: var(--cor-acao-secundaria);
+    border-color: var(--cor-acao-secundaria);
 }
 
-.light-mode .book-details-page .footer {
-    background-color: #ffffff !important;
-    color: #333333 !important;
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover {
+    background-color: var(--cor-acao-secundaria);
+    color: var(--cor-texto-invertido);
 }
 
-.light-mode .book-details-page .footer-links a {
-    color: #333333 !important;
+/* ==========================================================================
+   SISTEMA DE BACKGROUND - VERSÃO FINAL DE PRODUÇÃO
+   ========================================================================== */
+
+.custom-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    opacity: 1;
+    transition: opacity 0.3s ease;
 }
 
-/* Garantir que cards na página de detalhes sejam brancos */
-.light-mode .book-details-page .card {
-    background-color: #ffffff !important;
+.custom-background.position-center { background-position: center center; }
+.custom-background.position-top { background-position: center top; }
+.custom-background.position-bottom { background-position: center bottom; }
+
+.custom-background.opacity-10 { opacity: 0.15; }
+.custom-background.opacity-20 { opacity: 0.25; }
+.custom-background.opacity-30 { opacity: 0.35; }
+.custom-background.opacity-40 { opacity: 0.45; }
+.custom-background.opacity-50 { opacity: 0.55; }
+.custom-background.opacity-60 { opacity: 0.65; }
+.custom-background.opacity-70 { opacity: 0.75; }
+.custom-background.opacity-80 { opacity: 0.85; }
+.custom-background.opacity-90 { opacity: 0.95; }
+.custom-background.opacity-100 { opacity: 1.0; }
+
+.custom-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0) 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.4) 80%,
+        rgba(255, 255, 255, 0.7) 100%
+    );
+    pointer-events: none;
+    transition: background 0.3s ease;
+}
+
+html[data-theme='dark'] .custom-background::after {
+    background: radial-gradient(
+        ellipse at center,
+        rgba(18, 18, 18, 0) 30%,
+        rgba(18, 18, 18, 0.1) 50%,
+        rgba(18, 18, 18, 0.4) 80%,
+        rgba(18, 18, 18, 0.7) 100%
+    );
+}
+
+html[data-theme='dark'] .custom-background.only-light { display: none !important; }
+html[data-theme='light'] .custom-background.only-dark { display: none !important; }
+
+body.page-home .main-content-wrapper {
+    background-color: transparent !important;
+}
+
+body.page-home .navbar,
+body.page-home .footer {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+body.page-home[data-theme='dark'] .navbar,
+body.page-home[data-theme='dark'] .footer {
+    background-color: rgba(30, 30, 30, 0.9) !important;
+}
+
+body.page-home .book-shelf,
+body.page-home .recommendations-section,
+body.page-home .event-widget,
+body.page-home .author-section,
+body.page-home .video-section,
+body.page-home .reader-ranking-section {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(222, 226, 230, 0.5);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+body.page-home[data-theme='dark'] .book-shelf,
+body.page-home[data-theme='dark'] .recommendations-section,
+body.page-home[data-theme='dark'] .event-widget,
+body.page-home[data-theme='dark'] .author-section,
+body.page-home[data-theme='dark'] .video-section,
+body.page-home[data-theme='dark'] .reader-ranking-section {
+    background-color: rgba(18, 18, 18, 0.85);
+    border-color: rgba(73, 80, 87, 0.5);
+}
+
+body.page-home .book-card,
+body.page-home .card {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+body.page-home[data-theme='dark'] .book-card,
+body.page-home[data-theme='dark'] .card {
+    background-color: rgba(43, 48, 53, 0.9);
+}
+
+/* ==========================================================================
+   INVÓLUCRO DO CONTEÚDO PRINCIPAL
+   ========================================================================== */
+
+.main-content-wrapper {
+    position: relative;
+    z-index: 2;
+    background-color: var(--cor-fundo-primario);
+}
+
+body.page-home[data-theme='light'] .main-content-wrapper {
+    background-color: transparent;
+}
+
+/* ==========================================================================
+   CORREÇÃO TEMA ESCURO - SEÇÕES DE LIVROS
+   ========================================================================== */
+
+body.page-home .book-shelf,
+body.page-home .recommendations-section,
+body.page-home .event-widget,
+body.page-home .author-section,
+body.page-home .video-section,
+body.page-home .reader-ranking-section {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(222, 226, 230, 0.5);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+html[data-theme='dark'] body.page-home .book-shelf,
+html[data-theme='dark'] body.page-home .recommendations-section,
+html[data-theme='dark'] body.page-home .event-widget,
+html[data-theme='dark'] body.page-home .author-section,
+html[data-theme='dark'] body.page-home .video-section,
+html[data-theme='dark'] body.page-home .reader-ranking-section {
+    background-color: rgba(18, 18, 18, 0.85) !important;
+    border-color: rgba(73, 80, 87, 0.5) !important;
+}
+
+html[data-theme='dark'] body.page-home .book-card,
+html[data-theme='dark'] body.page-home .book-item {
+    background-color: rgba(43, 48, 53, 0.9) !important;
+    border-color: var(--cor-borda) !important;
+}
+
+html[data-theme='dark'] body.page-home .swiper {
+    background-color: transparent !important;
+}
+
+html[data-theme='dark'] body.page-home .book-title,
+html[data-theme='dark'] body.page-home .book-author,
+html[data-theme='dark'] body.page-home .book-price {
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] body.page-home .recommendations-widget {
+    background-color: rgba(18, 18, 18, 0.85) !important;
+    border-color: rgba(73, 80, 87, 0.5) !important;
+}
+
+html[data-theme='dark'] body.page-home .recommendations-widget-content {
+    background-color: transparent !important;
+}
+
+html[data-theme='dark'] body.page-home .event-widget-wrapper .event-widget {
+    background-color: rgba(18, 18, 18, 0.85) !important;
+    border-color: rgba(73, 80, 87, 0.5) !important;
+}
+
+html[data-theme='dark'] .swiper-button-next,
+html[data-theme='dark'] .swiper-button-prev {
+    background-color: rgba(43, 48, 53, 0.9) !important;
+}
+
+html[data-theme='dark'] .swiper-button-next:after,
+html[data-theme='dark'] .swiper-button-prev:after {
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] .swiper-button-next:hover,
+html[data-theme='dark'] .swiper-button-prev:hover {
+    background-color: var(--cor-acao-secundaria) !important;
+}
+
+html[data-theme='dark'] .swiper-button-next:hover:after,
+html[data-theme='dark'] .swiper-button-prev:hover:after {
+    color: var(--cor-texto-invertido) !important;
+}
+
+/* ==========================================================================
+   CORREÇÃO NAVBAR E FOOTER - TEMA ESCURO
+   ========================================================================== */
+
+/* NAVBAR - Tema Escuro */
+html[data-theme='dark'] .navbar {
+    background-color: rgba(30, 30, 30, 0.95) !important;
+    border-bottom-color: var(--cor-borda) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Específico para página home */
+html[data-theme='dark'] body.page-home .navbar {
+    background-color: rgba(30, 30, 30, 0.9) !important;
+}
+
+/* Links da navbar no tema escuro */
+html[data-theme='dark'] .navbar .nav-link:hover,
+html[data-theme='dark'] .navbar .nav-link.active {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+/* FOOTER - Tema Escuro */
+html[data-theme='dark'] .footer {
+    background-color: var(--cor-fundo-secundario) !important;
+    color: var(--cor-texto-primario) !important;
+    border-top-color: var(--cor-acao-secundaria) !important;
+}
+
+/* Específico para página home */
+html[data-theme='dark'] body.page-home .footer {
+    background-color: rgba(30, 30, 30, 0.9) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* ==========================================================================
+   PADRONIZAÇÃO DOS TÍTULOS DA PÁGINA INICIAL
+   ========================================================================== */
+
+/*
+  Regra unificada e com alta prioridade para todos os títulos de seção
+  na página inicial. Isso garante que qualquer elemento com a classe .section-title
+  dentro da tag body.page-home terá o mesmo estilo visual.
+*/
+body.page-home .section-title {
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    color: var(--cor-texto-primario) !important;
+    text-align: center !important;
+
+    /* Borda inferior laranja */
+    border-bottom: 2px solid var(--cor-acao-secundaria) !important;
+    padding-bottom: var(--spacing-sm) !important;
+
+    /* Garante que ocupe a largura total para centralização correta */
+    display: block;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--spacing-lg) !important;
+    border-left: none !important;
+    padding-left: 0 !important;
+    text-shadow: none !important;
+    position: static;
+}
+
+html[data-theme='dark'] body.page-home .section-title {
+    color: var(--cor-texto-primario) !important;
+}
+
+/* ==========================================================================
+   PAINEL DE CONTROLE DE TEMAS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DEFINIÇÃO DAS VARIÁVEIS (TEMA CLARO POR PADRÃO)
+   -------------------------------------------------------------------------- */
+html[data-theme='light'], :root {
+    /* Cores de Fundo */
+    --cor-fundo-primario: #ffffff;      /* Fundo principal da página */
+    --cor-fundo-secundario: rgba(248, 249, 250, 0.7);    /* Fundos de seções, navbar, footer */
+    --cor-fundo-card: rgba(255, 255, 255, 0.85);    /* Fundo de cards, modais, dropdowns */
+    --cor-fundo-input: #ffffff;         /* Fundo de campos de formulário */
+    --cor-fundo-hover: #f1f3f5;         /* Cor de fundo para itens em hover */
+
+    /* Cores de Texto */
+    --cor-texto-primario: #212529;      /* Texto principal, títulos */
+    --cor-texto-secundario: #6c757d;    /* Texto de apoio, placeholders */
+    --cor-texto-link: #0d6efd;          /* Cor para links */
+    --cor-texto-invertido: #ffffff;     /* Texto para usar sobre fundos escuros (ex: botões) */
+
+    /* Cores de Borda e Divisores */
+    --cor-borda: #dee2e6;
+    --cor-borda-input-foco: #86b7fe;
+
+    /* Cores de Ação e Destaque */
+    --cor-acao-primaria: #0d6efd;        /* Botões primários, links importantes */
+    --cor-acao-primaria-hover: #0b5ed7;
+    --cor-acao-secundaria: #ff6600;      /* Cor laranja da marca */
+    --cor-acao-secundaria-hover: #e65c00;
+
+    /* Sombras */
+    --sombra-card: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+
+    /* Variáveis de Design Mantidas */
+    --transition-default: 0.3s ease;
+    --transition-fast: 0.2s ease;
+    --transition-slow: 0.5s ease;
+    --header-height: 60px;
+    --footer-height: 250px;
+    --sidebar-width: 250px;
+    --container-max-width: 1100px;
+    --input-height: 48px;
+    --input-height-mobile: 42px;
+    --input-padding: 12px;
+    --avatar-size: 150px;
+    --avatar-size-mobile: 120px;
+    --book-cover-height: 400px;
+    --book-cover-width: 280px;
+    --radius-xs: 3px;
+    --radius-sm: 5px;
+    --radius-md: 8px;
+    --radius-lg: 15px;
+    --radius-full: 24px;
+    --radius-circle: 50%;
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-modal: 1030;
+    --z-popover: 1040;
+    --z-tooltip: 1050;
+    --grid-gap: 20px;
+    --grid-gap-sm: 10px;
+    --grid-gap-lg: 30px;
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+}
+
+/* --------------------------------------------------------------------------
+   2. REDEFINIÇÃO DAS VARIÁVEIS PARA O TEMA ESCURO
+   -------------------------------------------------------------------------- */
+html[data-theme='dark'] {
+    /* Cores de Fundo */
+    --cor-fundo-primario: #121212;
+    --cor-fundo-secundario: rgba(30, 30, 30, 0.7);
+    --cor-fundo-card: rgba(43, 48, 53, 0.85);
+    --cor-fundo-input: #343a40;
+    --cor-fundo-hover: #343a40;
+
+    /* Cores de Texto */
+    --cor-texto-primario: #f8f9fa;
+    --cor-texto-secundario: #adb5bd;
+    --cor-texto-link: #6ea8fe;
+    --cor-texto-invertido: #ffffff;
+
+    /* Cores de Borda e Divisores */
+    --cor-borda: #495057;
+    --cor-borda-input-foco: #3a9dff;
+
+    /* Cores de Ação e Destaque (manter cores vivas para contraste) */
+    --cor-acao-primaria: #3a9dff;
+    --cor-acao-primaria-hover: #6ea8fe;
+    --cor-acao-secundaria: #ff6600;
+    --cor-acao-secundaria-hover: #ff8533;
+
+    /* Sombras */
+    --sombra-card: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   UNIFICAÇÃO DE ESTILOS DA PÁGINA INICIAL
+   ========================================================================== */
+
+/* 1. Unifica o fundo de TODAS as seções no TEMA CLARO */
+body.page-home[data-theme='light'] .book-shelf,
+body.page-home[data-theme='light'] .recommendations-section,
+body.page-home[data-theme='light'] .video-section,
+body.page-home[data-theme='light'] .author-section,
+body.page-home[data-theme='light'] .reader-ranking-section {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(222, 226, 230, 0.3);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* 2. Unifica o fundo de TODAS as seções no TEMA ESCURO */
+body.page-home[data-theme='dark'] .book-shelf,
+body.page-home[data-theme='dark'] .recommendations-section,
+body.page-home[data-theme='dark'] .video-section,
+body.page-home[data-theme='dark'] .author-section,
+body.page-home[data-theme='dark'] .reader-ranking-section {
+    background-color: rgba(18, 18, 18, 0.9) !important;
+    border-color: rgba(73, 80, 87, 0.3);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+}
+
+/* 3. Reforça o estilo UNIFICADO dos títulos para sobrescrever qualquer outra regra */
+body.page-home .section-title {
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    color: var(--cor-texto-primario) !important;
+    text-align: center !important;
+    border-bottom: 2px solid var(--cor-acao-secundaria) !important;
+    padding-bottom: var(--spacing-sm) !important;
+    display: block;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--spacing-lg) !important;
+    border-left: none !important;
+    padding-left: 0 !important;
+    text-shadow: none !important;
+    position: static;
+}
+
+/* 4. Garante que os subtítulos também fiquem consistentes */
+body.page-home .section-subtitle,
+body.page-home .section-description,
+body.page-home p.text-muted {
+    color: var(--cor-texto-secundario) !important;
+    text-shadow: none !important;
+}
+
+html[data-theme='dark'] body.page-home .section-subtitle,
+html[data-theme='dark'] body.page-home .section-description,
+html[data-theme='dark'] body.page-home p.text-muted {
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* ==========================================================================
+   CORREÇÃO ESPECÍFICA - ÍCONE DE TEMA NO NAVBAR
+   ========================================================================== */
+
+/* TEMA CLARO - Botão de tema sempre preto */
+html[data-theme='light'] #themeToggle {
+    color: #000000 !important;
+}
+
+html[data-theme='light'] #themeToggle:hover {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+html[data-theme='light'] #themeToggle i {
+    color: #000000 !important;
+}
+
+html[data-theme='light'] #themeToggle:hover i {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+/* TEMA ESCURO - Botão de tema sempre branco */
+html[data-theme='dark'] #themeToggle {
+    color: #ffffff !important;
+}
+
+html[data-theme='dark'] #themeToggle:hover {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+html[data-theme='dark'] #themeToggle i {
+    color: #ffffff !important;
+}
+
+html[data-theme='dark'] #themeToggle:hover i {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+/* Garantir especificidade máxima para sobrescrever qualquer regra conflitante */
+html[data-theme='light'] .navbar #themeToggle,
+html[data-theme='light'] .nav-item #themeToggle {
+    color: #000000 !important;
+}
+
+html[data-theme='light'] .navbar #themeToggle:hover,
+html[data-theme='light'] .nav-item #themeToggle:hover {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+html[data-theme='dark'] .navbar #themeToggle,
+html[data-theme='dark'] .nav-item #themeToggle {
+    color: #ffffff !important;
+}
+
+html[data-theme='dark'] .navbar #themeToggle:hover,
+html[data-theme='dark'] .nav-item #themeToggle:hover {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+/* Garantir que o ícone dentro do botão também siga as regras */
+html[data-theme='light'] #themeToggle .bi,
+html[data-theme='light'] #themeToggle .bi-circle-half {
+    color: #000000 !important;
+}
+
+html[data-theme='light'] #themeToggle:hover .bi,
+html[data-theme='light'] #themeToggle:hover .bi-circle-half {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+html[data-theme='dark'] #themeToggle .bi,
+html[data-theme='dark'] #themeToggle .bi-circle-half {
+    color: #ffffff !important;
+}
+
+html[data-theme='dark'] #themeToggle:hover .bi,
+html[data-theme='dark'] #themeToggle:hover .bi-circle-half {
+    color: var(--cor-acao-secundaria) !important;
+}
+
+/* Remover qualquer transição que possa estar causando inconsistência */
+#themeToggle,
+#themeToggle i,
+#themeToggle .bi {
+    transition: color 0.2s ease !important;
+}
+
+/* Forçar aplicação em todos os estados possíveis */
+html[data-theme='light'] #themeToggle:link,
+html[data-theme='light'] #themeToggle:visited,
+html[data-theme='light'] #themeToggle:focus,
+html[data-theme='light'] #themeToggle:active {
+    color: #000000 !important;
+}
+
+html[data-theme='dark'] #themeToggle:link,
+html[data-theme='dark'] #themeToggle:visited,
+html[data-theme='dark'] #themeToggle:focus,
+html[data-theme='dark'] #themeToggle:active {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   CORREÇÃO ESPECÍFICA - SEÇÃO DE AUTORES APENAS NO TEMA CLARO
+   ========================================================================== */
+
+/* APENAS TEMA CLARO - Fazer a seção de autores ficar igual às outras */
+html[data-theme='light'] body.page-home .author-section {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(222, 226, 230, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    padding: var(--spacing-xl) !important;
+    margin-bottom: var(--spacing-xl) !important;
+}
+
+/* Garantir que o elemento section também seja afetado */
+html[data-theme='light'] body.page-home section.author-section {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(222, 226, 230, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    padding: var(--spacing-xl) !important;
+}
+
+/* Container interno transparente no tema claro */
+html[data-theme='light'] body.page-home .author-section .container {
+    background-color: transparent !important;
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+}
+
+/* Swiper transparente no tema claro */
+html[data-theme='light'] body.page-home .author-section .authorSwiper {
+    background-color: transparent !important;
+    padding: var(--spacing-md) 0;
+    margin: 0;
+}
+
+/* Cards dos autores no tema claro */
+html[data-theme='light'] body.page-home .author-section .author-card {
+    background: var(--cor-fundo-card) !important;
+    border: 1px solid var(--cor-borda) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+}
+
+/* Força máxima para garantir que funcione */
+html[data-theme='light'] body.page-home .author-section[class*="author"] {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(222, 226, 230, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Aplicar com especificidade máxima */
+html[data-theme='light'] body.page-home div.author-section,
+html[data-theme='light'] body.page-home section[class*="author"],
+html[data-theme='light'] body.page-home *[class*="author-section"] {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(222, 226, 230, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    padding: var(--spacing-xl) !important;
+    margin-bottom: var(--spacing-xl) !important;
+}
+
+/* ==========================================================================
+   CORREÇÃO ESPECÍFICA - SEÇÃO DE RANKING APENAS NO TEMA CLARO
+   ========================================================================== */
+
+/* APENAS TEMA CLARO - Fazer a seção de ranking ficar igual às outras */
+html[data-theme='light'] body.page-home .reader-ranking-section {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(222, 226, 230, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    padding: var(--spacing-xl) !important;
+    margin-bottom: var(--spacing-xl) !important;
+}
+
+/* Garantir que o elemento section também seja afetado */
+html[data-theme='light'] body.page-home section.reader-ranking-section {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(222, 226, 230, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    padding: var(--spacing-xl) !important;
+    margin-top: var(--spacing-xl) !important;
+    margin-bottom: var(--spacing-xl) !important;
+}
+
+/* Container interno transparente no tema claro */
+html[data-theme='light'] body.page-home .reader-ranking-section .container {
+    background-color: transparent !important;
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+}
+
+/* Cards de ranking no tema claro - ajustar para ficarem mais neutros */
+html[data-theme='light'] body.page-home .reader-ranking-section .ranking-card {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(222, 226, 230, 0.5) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+}
+
+/* Cards da lista do ranking no tema claro */
+html[data-theme='light'] body.page-home .reader-ranking-section .d-flex.align-items-center.justify-content-between {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(222, 226, 230, 0.5) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Textos no tema claro - usar cores normais */
+html[data-theme='light'] body.page-home .reader-ranking-section .ranking-card .card-title {
+    color: var(--cor-texto-primario) !important;
+    text-shadow: none !important;
+}
+
+html[data-theme='light'] body.page-home .reader-ranking-section .d-flex.align-items-center.justify-content-between strong,
+html[data-theme='light'] body.page-home .reader-ranking-section .d-flex.align-items-center.justify-content-between .fs-4 {
+    color: var(--cor-texto-primario) !important;
+    text-shadow: none !important;
+}
+
+/* Remover o ::before que pode estar causando problemas */
+html[data-theme='light'] body.page-home .reader-ranking-section::before {
+    display: none !important;
+    content: none !important;
+}
+
+/* Força máxima para garantir que funcione */
+html[data-theme='light'] body.page-home .reader-ranking-section[class*="ranking"] {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(222, 226, 230, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Se ainda não funcionar, aplicar com especificidade máxima */
+html[data-theme='light'] body.page-home div.reader-ranking-section,
+html[data-theme='light'] body.page-home section[class*="ranking"],
+html[data-theme='light'] body.page-home *[class*="reader-ranking-section"] {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(222, 226, 230, 0.3) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    padding: var(--spacing-xl) !important;
+    margin-bottom: var(--spacing-xl) !important;
+}
+
+/* Título da seção de ranking - garantir que use o padrão global */
+html[data-theme='light'] body.page-home .reader-ranking-section .section-title {
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    color: var(--cor-texto-primario) !important;
+    text-align: center !important;
+    border-bottom: 2px solid var(--cor-acao-secundaria) !important;
+    padding-bottom: var(--spacing-sm) !important;
+    margin-bottom: var(--spacing-lg) !important;
+    text-shadow: none !important;
+}
+
+/* Subtexto no tema claro */
+html[data-theme='light'] body.page-home .reader-ranking-section p.text-muted {
+    color: var(--cor-texto-secundario) !important;
+    text-shadow: none !important;
+}
+
+/* ==========================================================================
+   BOTÃO DO WIDGET DE EVENTOS
+   ========================================================================== */
+
+/* 1. CONTAINER DO FOOTER - SEM CORTES */
+.event-widget-wrapper .event-widget-footer {
+    border-top: 1px solid var(--cor-borda);
+    padding: 0;
+    margin: 0;
+    height: 50px;
+    overflow: hidden;
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+/* Tema claro */
+html[data-theme='light'] .event-widget-wrapper .event-widget-footer {
+    background-color: var(--cor-acao-secundaria) !important;
+    border-top: 1px solid var(--cor-acao-secundaria) !important;
+}
+
+/* Tema escuro */
+html[data-theme='dark'] .event-widget-wrapper .event-widget-footer {
+    background-color: var(--cor-fundo-secundario);
+    border-top: 1px solid var(--cor-borda);
+}
+
+/* 2. BOTÃO - FORMATO COMPLETO E CENTRALIZADO */
+.event-widget .btn-view-all {
+    /* Layout */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 50px !important;
+    margin: 0 !important;
+    padding: 0 1rem !important;
+
+    /* Tipografia */
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+
+    /* Visual */
+    border: none !important;
+    border-radius: 0 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+
+    /* Remover estilos de link */
+    text-underline-offset: none !important;
+    text-decoration-line: none !important;
+    text-decoration-style: none !important;
+    text-decoration-color: transparent !important;
+}
+
+/* 3. CORES TEMA CLARO */
+html[data-theme='light'] .event-widget .btn-view-all {
+    background-color: var(--cor-acao-secundaria) !important;
+    color: #ffffff !important;
+}
+
+html[data-theme='light'] .event-widget .btn-view-all:hover {
+    background-color: var(--cor-acao-secundaria-hover) !important;
+    color: #ffffff !important;
+    transform: none !important;
+}
+
+/* 4. CORES TEMA ESCURO */
+html[data-theme='dark'] .event-widget .btn-view-all {
+    background-color: var(--cor-fundo-secundario) !important;
+    color: var(--cor-texto-primario) !important;
+}
+
+html[data-theme='dark'] .event-widget .btn-view-all:hover {
+    background-color: var(--cor-acao-secundaria) !important;
+    color: #ffffff !important;
+}
+
+/* 5. REMOVER SUBLINHADO EM TODOS OS ESTADOS */
+.event-widget .btn-view-all:link,
+.event-widget .btn-view-all:visited,
+.event-widget .btn-view-all:hover,
+.event-widget .btn-view-all:active,
+.event-widget .btn-view-all:focus {
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 6. WIDGET PRINCIPAL - GARANTIR INTEGRIDADE */
+.event-widget {
+    border-radius: var(--radius-md) !important;
+    overflow: hidden !important;
+    margin-bottom: 2rem;
+}
+
+html[data-theme='light'] .event-widget {
+    background-color: rgba(248, 249, 250, 0.9) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(222, 226, 230, 0.3);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* 7. TEXTOS DO EVENTO - PRETOS NO TEMA CLARO */
+html[data-theme='light'] .event-widget .event-title {
+    color: var(--cor-texto-primario) !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+    margin: 0 0 0.5rem 0 !important;
+}
+
+html[data-theme='light'] .event-widget .event-info p {
+    color: var(--cor-texto-primario) !important;
+    text-shadow: none !important;
+    margin: 0.25rem 0 !important;
+}
+
+/* 8. ÍCONES - LARANJA NO TEMA CLARO */
+html[data-theme='light'] .event-widget .event-info i {
+    color: var(--cor-acao-secundaria) !important;
+    margin-right: 8px;
+}
+
+/* 9. FORÇA MÁXIMA - SOBRESCREVER QUALQUER REGRA */
+html[data-theme='light'] a.btn-view-all[href] {
+    background-color: var(--cor-acao-secundaria) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    text-decoration-line: none !important;
+}
+
+html[data-theme='light'] a.btn-view-all[href]:hover {
+    background-color: var(--cor-acao-secundaria-hover) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    text-decoration-line: none !important;
+}
+
+/* 10. RESET COMPLETO DE LINK */
+.event-widget .btn-view-all::before,
+.event-widget .btn-view-all::after {
+    display: none !important;
+}
+
+.event-widget .btn-view-all {
+    border-bottom: none !important;
+    text-underline-position: unset !important;
+    text-decoration-skip: unset !important;
+    text-decoration-skip-ink: unset !important;
+}
+
+/* 11. RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .event-widget-wrapper .event-widget-footer {
+        height: 48px;
+    }
+
+    .event-widget .btn-view-all {
+        height: 48px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* 12. SWIPER - GARANTIR QUE NÃO INTERFIRA */
+.event-swiper {
+    border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
+}
+
+.event-swiper .swiper-slide {
+    height: auto !important;
+}
+
+/* 13. WIDGET WRAPPER */
+.event-widget-wrapper {
+    position: sticky;
+    top: 80px;
+    z-index: 100;
+    margin-bottom: 2rem;
+}
+
+/* ==========================================================================
+   CORREÇÃO GLOBAL DE MODAIS
+   ========================================================================== */
+
+/*
+  Esta regra garante que os modais e seus backdrops sempre tenham um
+  z-index alto o suficiente para sobrepor todos os outros conteúdos da página,
+  prevenindo problemas de contexto de empilhamento (stacking context).
+*/
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050 !important; /* Valor padrão alto do Bootstrap */
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1055 !important; /* Acima do backdrop */
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+}
+
+/* ==========================================================================
+   PÃGINAS ESPECÃFICAS - LOGIN E REGISTRO - VERSÃO CORRIGIDA
+   ========================================================================== */
+
+.login-card {
+    max-width: 400px;
+    width: 100%;
+    border-radius: var(--radius-lg) !important;
+    padding: var(--spacing-xl) !important;
+    background-color: var(--cor-fundo-card) !important;
+    border: 1px solid var(--cor-borda) !important;
+    box-shadow: var(--sombra-card);
+}
+
+.register-card {
+    max-width: 900px;
+    width: 100%;
+    border-radius: var(--radius-lg) !important;
+    padding: var(--spacing-xl) !important;
+    background-color: var(--cor-fundo-card) !important;
+    border: 1px solid var(--cor-borda) !important;
+    box-shadow: var(--sombra-card);
+}
+
+.login-card,
+.register-card {
+    transition: transform var(--transition-default), box-shadow var(--transition-default);
+}
+
+.login-card:hover,
+.register-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--sombra-card);
+}
+
+/* TÍTULOS - Garantir cor correta em ambos os temas */
+.login-card h1,
+.login-card h2,
+.register-card h1,
+.register-card h2 {
+    color: var(--cor-texto-primario) !important;
+}
+
+/* LABELS - Garantir cor correta em ambos os temas */
+.login-card label,
+.register-card label {
+    color: var(--cor-texto-primario) !important;
+    font-weight: 500;
+}
+
+/* TEXTO SECUNDÁRIO */
+.login-card .text-muted,
+.register-card .text-muted {
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* CAMPOS DE FORMULÁRIO */
+.login-card .form-control,
+.register-card .form-control,
+.login-card .form-select,
+.register-card .form-select {
+    background-color: var(--cor-fundo-input) !important;
+    border: 1px solid var(--cor-borda) !important;
+    color: var(--cor-texto-primario) !important;
+}
+
+.login-card .form-control:focus,
+.register-card .form-control:focus,
+.login-card .form-select:focus,
+.register-card .form-select:focus {
+    border-color: var(--cor-borda-input-foco) !important;
+    background-color: var(--cor-fundo-input) !important;
+    color: var(--cor-texto-primario) !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.1) !important;
+}
+
+/* PLACEHOLDERS */
+.login-card .form-control::placeholder,
+.register-card .form-control::placeholder {
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* LINKS */
+.login-card a,
+.register-card a {
+    color: var(--cor-acao-secundaria) !important;
+    text-decoration: none;
+}
+
+.login-card a:hover,
+.register-card a:hover {
+    color: var(--cor-acao-secundaria-hover) !important;
+    text-decoration: underline;
+}
+
+/* BOTÕES */
+.login-card .btn-primary,
+.register-card .btn-primary {
+    background-color: var(--cor-acao-primaria) !important;
+    border-color: var(--cor-acao-primaria) !important;
+    color: var(--cor-texto-invertido) !important;
+}
+
+.login-card .btn-primary:hover,
+.register-card .btn-primary:hover {
+    background-color: var(--cor-acao-primaria-hover) !important;
+    border-color: var(--cor-acao-primaria-hover) !important;
+    color: var(--cor-texto-invertido) !important;
+}
+
+/* CHECKBOXES E FORM-CHECK */
+.login-card .form-check-label,
+.register-card .form-check-label {
+    color: var(--cor-texto-primario) !important;
+}
+
+.login-card .form-check-input,
+.register-card .form-check-input {
+    background-color: var(--cor-fundo-input) !important;
+    border-color: var(--cor-borda) !important;
+}
+
+.login-card .form-check-input:checked,
+.register-card .form-check-input:checked {
+    background-color: var(--cor-acao-primaria) !important;
+    border-color: var(--cor-acao-primaria) !important;
+}
+
+/* MENSAGENS DE ERRO */
+.login-card .invalid-feedback,
+.register-card .invalid-feedback {
+    color: #dc3545 !important;
+}
+
+.login-card .alert,
+.register-card .alert {
+    border-radius: var(--radius-md) !important;
+}
+
+/* TEMA ESCURO - Correções específicas se necessário */
+html[data-theme='dark'] .login-card h1,
+html[data-theme='dark'] .login-card h2,
+html[data-theme='dark'] .register-card h1,
+html[data-theme='dark'] .register-card h2 {
+    color: var(--cor-texto-primario) !important; /* Branco/cinza claro */
+}
+
+html[data-theme='dark'] .login-card label,
+html[data-theme='dark'] .register-card label {
+    color: var(--cor-texto-primario) !important; /* Branco/cinza claro */
+}
+
+html[data-theme='dark'] .login-card .form-check-label,
+html[data-theme='dark'] .register-card .form-check-label {
+    color: var(--cor-texto-primario) !important; /* Branco/cinza claro */
+}
+
+/* RESPONSIVIDADE PARA O CARD DE REGISTRO */
+@media (max-width: 768px) {
+    .register-card {
+        max-width: 95%;
+        padding: var(--spacing-lg) !important;
+        margin: var(--spacing-md);
+    }
+
+    .register-card .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .register-card .row > .col-md-6 {
+        padding-left: var(--spacing-xs);
+        padding-right: var(--spacing-xs);
+    }
+}
+
+@media (max-width: 576px) {
+    .register-card {
+        max-width: 100%;
+        margin: var(--spacing-sm);
+        padding: var(--spacing-md) !important;
+        border-radius: var(--radius-md) !important;
+    }
+
+    .register-card h2 {
+        font-size: 1.5rem;
+    }
+
+    .register-card .btn {
+        height: var(--input-height-mobile);
+    }
+}
+
+/* ==========================================================================
+   PÁGINA DE CONTATO
+   ========================================================================== */
+
+/* Card principal da página de contato */
+.contact-page-card {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--cor-borda);
+    height: 100%;
+}
+
+/* Garante que os títulos h1, h3, etc, usem as cores do tema */
+.container h1, .container h3, .container strong {
+    color: var(--cor-texto-primario);
+}
+
+.text-muted {
+    color: var(--cor-texto-secundario) !important;
+}
+
+/* Estilização para os itens de informação (Email, Horário) */
+.contact-info-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast);
+}
+
+.contact-info-item:hover {
+    background-color: var(--cor-fundo-hover);
+}
+
+.contact-info-item i {
+    font-size: 1.5rem;
+    color: var(--cor-acao-secundaria);
+}
+
+.contact-info-item div {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-info-item span {
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+}
+
+/* Estilização para os ícones das redes sociais */
+.social-link-contact-page {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border-radius: var(--radius-circle);
+    background-color: var(--cor-fundo-hover);
+    color: var(--cor-texto-primario);
+    transition: all var(--transition-fast);
+}
+
+.social-link-contact-page:hover {
+    background-color: var(--cor-acao-secundaria);
+    color: var(--cor-texto-invertido);
+    transform: translateY(-3px);
+    box-shadow: var(--sombra-card);
+}
+
+/* Estilos para os formulários com "floating labels" */
+.form-floating > .form-control {
+    background-color: var(--cor-fundo-input);
+    color: var(--cor-texto-primario);
+}
+
+.form-floating > label {
+    color: var(--cor-texto-secundario);
+}
+
+/* Cor do texto ao digitar */
+.form-floating > .form-control:not(:placeholder-shown) {
+    background-color: var(--cor-fundo-input);
+}
+
+/* Cor da borda e sombra no foco, usando as variáveis do tema */
+.form-control:focus {
+    border-color: var(--cor-borda-input-foco);
+    box-shadow: 0 0 0 0.25rem rgba(var(--cor-acao-secundaria-rgb, 255, 102, 0), 0.25);
+}
+
+html[data-theme='dark'] .form-control:focus {
+     box-shadow: 0 0 0 0.25rem rgba(58, 157, 255, 0.25);
+}
+
+/* Adaptação do mapa para o tema escuro para reduzir o brilho */
+html[data-theme='dark'] iframe {
+    filter: invert(90%) hue-rotate(180deg);
 }

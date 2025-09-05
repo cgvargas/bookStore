@@ -1,0 +1,492 @@
+/* cgbookstore/static/css/book-edit.css */
+
+/* Estilos para a página de edição de livros */
+.book-edit-page {
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+    padding: 2rem 0;
+}
+
+/* Card de edição */
+.card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Abas de navegação */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 2rem;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    border: none;
+    border-bottom: 2px solid var(--primary-color);
+    background-color: transparent;
+    font-weight: 600;
+}
+
+.nav-tabs .nav-link i {
+    font-size: 1.1rem;
+}
+
+/* Formulário */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Feedback de validação */
+.invalid-feedback {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Preview da capa atual */
+.current-cover {
+    margin: 1rem 0;
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.current-cover img {
+    max-height: 200px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Upload de capa */
+.form-control[type="file"] {
+    padding: 0.5rem;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button {
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    border: none;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #dee2e6;
+}
+
+/* Botões de ação */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn i {
+    font-size: 1.1rem;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 102, 0, 0.25);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.25);
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: #adb5bd;
+}
+
+.breadcrumb-item a {
+    color: #6c757d;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb-item.active {
+    color: #495057;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .nav-tabs .nav-link i {
+        font-size: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        margin-bottom: 1.5rem;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.5rem 1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .row.g-3 > * {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+}
+
+/* Ajustes para tema escuro */
+.dark-mode .card {
+    background-color: var(--dark-bg);
+    color: var(--text-dark);
+}
+
+.dark-mode .card-header {
+    background-color: var(--primary-color);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .form-control,
+.dark-mode .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-dark);
+}
+
+.dark-mode .form-control:focus,
+.dark-mode .form-select:focus {
+    background-color: var(--input-bg);
+    color: var(--text-dark);
+}
+
+.dark-mode .nav-tabs {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .nav-tabs .nav-link {
+    color: #adb5bd;
+}
+
+.dark-mode .nav-tabs .nav-link:hover {
+    color: #e9ecef;
+}
+
+.dark-mode .nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.dark-mode .current-cover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .breadcrumb-item a {
+    color: #adb5bd;
+}
+
+.dark-mode .breadcrumb-item.active {
+    color: #e9ecef;
+}
+
+/* Animações */
+.tab-pane {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ajuste específico para tema escuro */
+.dark-mode .book-edit-page {
+    background-color: var(--dark-bg);
+}
+
+.dark-mode .card {
+    background-color: #2c2c2c !important;
+    color: var(--text-dark) !important;
+}
+
+/* Aumentar espaço para sinopse/descrição */
+textarea[name="descricao"] {
+    min-height: 150px !important;
+    resize: vertical;
+}
+
+/* Garantir espaçamento adequado entre campos */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Correção específica para tema escuro na página de edição */
+body.dark-mode {
+    background-color: #121212 !important;
+}
+
+.dark-mode .container {
+    background-color: transparent !important;
+}
+
+/* Card principal da página de edição no tema escuro */
+.dark-mode .card {
+    background-color: #1e1e1e !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Correção do cabeçalho do card */
+.dark-mode .card-header {
+    background-color: var(--primary-color) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Breadcrumb no tema escuro */
+.dark-mode .breadcrumb {
+    background-color: transparent !important;
+}
+
+.dark-mode .breadcrumb-item a {
+    color: #9ca3af !important;
+}
+
+.dark-mode .breadcrumb-item.active {
+    color: #e2e8f0 !important;
+}
+
+/* Correções para compatibilidade com data-bs-theme="dark" do Bootstrap 5 */
+[data-bs-theme="dark"] body,
+[data-bs-theme="dark"] .container,
+[data-bs-theme="dark"] .py-4 {
+    background-color: #212529 !important;
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .card {
+    background-color: #343a40 !important;
+    color: #f8f9fa !important;
+    border-color: #495057 !important;
+}
+
+[data-bs-theme="dark"] .card-header {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #2b3035 !important;
+    color: #f8f9fa !important;
+    border-color: #495057 !important;
+}
+
+[data-bs-theme="dark"] .form-label {
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .nav-tabs {
+    border-color: #495057 !important;
+}
+
+[data-bs-theme="dark"] .nav-link {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .nav-link.active {
+    color: #f8f9fa !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+    border-bottom: 2px solid var(--primary-color) !important;
+}
+
+[data-bs-theme="dark"] .breadcrumb-item a {
+    color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .breadcrumb-item.active {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .current-cover {
+    background-color: #2b3035 !important;
+}
+
+/* Garantir que o fundo do corpo e outros elementos principais estão corretos */
+[data-bs-theme="dark"] {
+    --bs-body-bg: #212529 !important;
+    --bs-body-color: #f8f9fa !important;
+}
+
+/* Estilos para corrigir o footer na página de edição */
+footer, .footer {
+    background-color: #1e1e1e;
+    color: #e2e8f0;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+    border-top: 1px solid #ff6600;
+}
+
+.book-edit-page footer,
+.book-edit-page .footer {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+/* Garantir que o container principal não interfira no footer */
+.container.py-4 {
+    min-height: calc(100vh - 350px);
+    padding-bottom: 2rem !important;
+}
+
+/* Corrigir a margem inferior do card principal */
+.card.shadow-sm {
+    margin-bottom: 2rem;
+}
+
+/* Ajuste para o tema escuro no footer */
+.dark-mode footer,
+.dark-mode .footer {
+    background-color: #121212;
+    border-top-color: #ff6600;
+}
+
+/* Ajuste para data-bs-theme="dark" */
+[data-bs-theme="dark"] footer,
+[data-bs-theme="dark"] .footer {
+    background-color: #212529 !important;
+    color: #f8f9fa !important;
+    border-top-color: #0d6efd !important;
+}
+
+/* Garantir que o footer fique no fim da página */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.book-edit-page {
+    flex: 1 0 auto;
+}
+
+footer, .footer {
+    flex-shrink: 0;
+}

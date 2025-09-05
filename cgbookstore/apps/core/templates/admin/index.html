@@ -2,780 +2,915 @@
 {% load static i18n %}
 
 {% block content %}
-<div class="dashboard-container">
-    {# Listagem de aplicações e modelos #}
-    {% if app_list %}
-        <div class="app-grid">
-            {% for app in app_list %}
-            <div
-                class="app-{{ app.app_label }} module{% if app.app_url in request.path %} current{% endif %} {% if app.name == 'Core' %}module-organizer{% elif app.name == 'Authentication and Authorization' %}module-auth{% endif %}"
-                {% if app.name == 'Authentication and Authorization' %}style="height: auto !important; align-self: start !important; min-height: 0 !important; max-height: none !important;"{% endif %}
-                aria-label="Modelos do aplicativo {{ app.name }}"
-            >
-                <div class="app-header">
-                    <a
-                        href="{{ app.app_url }}"
-                        class="section"
-                        title="Modelos em {{ app.name }}"
-                    >
-                        {% if app.name == 'Core' %}Organizador{% else %}{{ app.name }}{% endif %}
+<div class="dashboard-modern">
+    <!-- Header do Dashboard -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="dashboard-title">
+                <i class="fas fa-tachometer-alt"></i>
+                Painel de Controle CG BookStore
+            </h1>
+            <p class="dashboard-subtitle">Gerencie seu sistema de forma eficiente</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-card" data-tooltip="Usuários registrados no sistema">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number">1,247</span>
+                    <span class="stat-label">Usuários Ativos</span>
+                </div>
+            </div>
+            <div class="stat-card" data-tooltip="Total de livros no catálogo">
+                <div class="stat-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number">15,632</span>
+                    <span class="stat-label">Livros Cadastrados</span>
+                </div>
+            </div>
+            <div class="stat-card" data-tooltip="Vendas realizadas hoje">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number">89</span>
+                    <span class="stat-label">Pedidos Hoje</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Módulo Principal - Organizador de Conteúdo (sempre mostrar) -->
+        <div class="module-card main-module" data-module="core">
+            <div class="card-header">
+                <div class="header-info">
+                    <h2>
+                        <i class="fas fa-layer-group"></i>
+                        Organizador de Conteúdo
+                    </h2>
+                    <p class="module-description">Gerencie livros, autores e conteúdo da home</p>
+                </div>
+                <div class="header-actions">
+                    <a href="/admin/core/book/" class="btn btn-outline">
+                        <i class="fas fa-chart-line"></i>
+                        Ver Livros
                     </a>
                 </div>
+            </div>
 
-                {% if app.name == 'Core' %}
-                {# ORGANIZADOR: Estrutura especial para o módulo Core renomeado #}
-                <div class="app-content">
-                    <div class="app-section">
-                        <div class="section-header">
-                            <h3>Seções</h3>
-                        </div>
-                        <div class="section-content">
-                            <ul class="model-list">
-                                {% for model in app.models %}
-                                    {% if model.object_name == 'HomeSection' %}
-                                    <li class="model-item model-homesection">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Seções da Home</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-
-                                    {% if model.object_name == 'CustomSectionType' %}
-                                    <li class="model-item model-customsectiontype">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Tipos de Seções</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-
-                                    {% if model.object_name == 'CustomSectionLayout' %}
-                                    <li class="model-item model-customsectionlayout">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Layouts de Seções</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="app-section">
-                        <div class="section-header">
-                            <h3>Estantes</h3>
-                        </div>
-                        <div class="section-content">
-                            <ul class="model-list">
-                                {% for model in app.models %}
-                                    {% if model.object_name == 'DefaultShelfType' %}
-                                    <li class="model-item model-defaultshelftype">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Tipos de Estantes</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-
-                                    {% if model.object_name == 'BookShelfSection' %}
-                                    <li class="model-item model-bookshelfsection">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Estantes de Livros</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="app-section">
-                        <div class="section-header">
-                            <h3>Prateleiras</h3>
-                        </div>
-                        <div class="section-content">
-                            <ul class="model-list">
-                                {% for model in app.models %}
-                                    {% if model.object_name == 'BookShelfItem' %}
-                                    <li class="model-item model-bookshelfitem">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Itens de Prateleira</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-                                {% endfor %}
-
-                                <li class="model-item model-visual-manager">
-                                    <div class="model-info">
-                                        <a href="/admin/visual-shelf-manager/" class="model-link">
-                                            Gerenciador Visual
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="/admin/visual-shelf-manager/" class="action-link viewlink">
-                                            Visualizar
-                                        </a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="app-section">
-                        <div class="section-header">
-                            <h3>Outros Conteúdos</h3>
-                        </div>
-                        <div class="section-content">
-                            <ul class="model-list">
-                                {% for model in app.models %}
-                                    {% if model.object_name == 'Advertisement' %}
-                                    <li class="model-item model-advertisement">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Propagandas</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-
-                                    {% if model.object_name == 'VideoSection' %}
-                                    <li class="model-item model-videosection">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Seções de Vídeo</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-
-                                    {% if model.object_name == 'VideoItem' %}
-                                    <li class="model-item model-videoitem">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Vídeos</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-
-                                    {% if model.object_name == 'LinkGridItem' %}
-                                    <li class="model-item model-linkgriditem">
-                                        <div class="model-info">
-                                            <a href="{{ model.admin_url }}" class="model-link">Itens de Grade</a>
-                                        </div>
-                                        <div class="model-actions">
-                                            <a href="{{ model.add_url }}" class="action-link addlink">Adicionar</a>
-                                            <a href="{{ model.admin_url }}" class="action-link changelink">Alterar</a>
-                                        </div>
-                                    </li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                {% else %}
-                {# Outros módulos permanecem com formato padrão, mas com estilo atualizado #}
-                <div class="app-content">
-                    <ul class="model-list">
-                        {% for model in app.models %}
-                        <li class="model-item model-{{ model.object_name|lower }}{% if model.admin_url in request.path %} current{% endif %}">
+            <div class="card-content">
+                <div class="section-group">
+                    <h3 class="section-title">
+                        <i class="fas fa-home"></i>
+                        Gerenciamento da Home
+                    </h3>
+                    <div class="model-grid">
+                        <div class="model-item">
+                            <div class="model-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
                             <div class="model-info">
-                                <a href="{% firstof model.admin_url model.add_url '#' %}" class="model-link">
-                                    {{ model.name }}
-                                </a>
+                                <h4 class="model-name">Seções da Home</h4>
+                                <p class="model-desc">Configure as seções da página inicial</p>
                             </div>
                             <div class="model-actions">
-                                {% if model.add_url %}
-                                <a
-                                    href="{{ model.add_url }}"
-                                    class="action-link addlink"
-                                    aria-label="Adicionar novo {{ model.name }}"
-                                >
-                                    Adicionar
+                                <a href="/admin/core/homesection/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                    <i class="fas fa-plus"></i>
                                 </a>
-                                {% endif %}
-
-                                {% if model.admin_url %}
-                                <a
-                                    href="{{ model.admin_url }}"
-                                    class="action-link changelink"
-                                    aria-label="Alterar {{ model.name }}"
-                                >
-                                    Alterar
+                                <a href="/admin/core/homesection/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                    <i class="fas fa-cog"></i>
                                 </a>
-                                {% endif %}
                             </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                        </div>
+                        <div class="model-item">
+                            <div class="model-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <div class="model-info">
+                                <h4 class="model-name">Banners</h4>
+                                <p class="model-desc">Gerencie banners promocionais</p>
+                            </div>
+                            <div class="model-actions">
+                                <a href="/admin/core/banner/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                                <a href="/admin/core/banner/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                    <i class="fas fa-cog"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="model-item">
+                            <div class="model-icon">
+                                <i class="fas fa-pen-fancy"></i>
+                            </div>
+                            <div class="model-info">
+                                <h4 class="model-name">Seções de Autores</h4>
+                                <p class="model-desc">Organize apresentação de autores</p>
+                            </div>
+                            <div class="model-actions">
+                                <a href="/admin/core/authorsection/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                                <a href="/admin/core/authorsection/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                    <i class="fas fa-cog"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                {% endif %}
-            </div>
-            {% endfor %}
 
-            {# Seção de Ferramentas do Sistema #}
-            <div
-                class="module system-tools"
-                aria-labelledby="system-tools-caption"
-            >
-                <div class="app-header">
-                    <h2 id="system-tools-caption" class="section">Ferramentas do Sistema</h2>
-                </div>
-
-                <div class="app-content">
-                    <div class="app-section">
-                        <div class="section-header">
-                            <h3>Gestão de Conteúdo</h3>
+                <div class="section-group">
+                    <h3 class="section-title">
+                        <i class="fas fa-books"></i>
+                        Conteúdo Principal
+                    </h3>
+                    <div class="model-grid">
+                        <div class="model-item featured">
+                            <div class="model-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="model-info">
+                                <h4 class="model-name">Livros</h4>
+                                <p class="model-desc">Catálogo completo de livros</p>
+                            </div>
+                            <div class="model-actions">
+                                <a href="/admin/core/book/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                                <a href="/admin/core/book/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                    <i class="fas fa-cog"></i>
+                                </a>
+                            </div>
                         </div>
-                        <div class="section-content">
-                            <ul class="model-list">
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/shelf-management/" class="model-link">
-                                            📚 Gestão Completa de Conteúdo
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/quick-shelf-creation/" class="model-link">
-                                            ⚡ Criação Rápida de Prateleira
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/book-category-config/" class="model-link">
-                                            ⚙️ Configurar Modalidades de Livros
-                                        </a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="app-section">
-                        <div class="section-header">
-                            <h3>Documentação e Análise</h3>
-                        </div>
-                        <div class="section-content">
-                            <ul class="model-list">
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/generate-schema/"
-                                           onclick="return confirm('Deseja gerar o schema do banco de dados?')"
-                                           class="model-link">
-                                            📊 Gerar Schema do Banco
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/generate-structure/"
-                                           onclick="return confirm('Deseja gerar a estrutura do projeto?')"
-                                           class="model-link">
-                                            📁 Gerar Estrutura do Projeto
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/view-database/"
-                                           onclick="return confirm('Deseja visualizar o banco de dados?')"
-                                           class="model-link">
-                                            📄 Visualizar Banco de Dados
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/analytics/admin_dashboard/dashboard/" class="model-link">
-                                            📊 Dashboard de Analytics
-                                        </a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="app-section">
-                        <div class="section-header">
-                            <h3>Limpeza de Pastas</h3>
-                        </div>
-                        <div class="section-content">
-                            <ul class="model-list">
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/clear-folders/all/"
-                                           onclick="return confirm('Deseja limpar o conteúdo da pasta do sistema?')"
-                                           class="model-link">
-                                            🗑️ Limpar Pasta de Estrutura
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/clear-folders/all/"
-                                           onclick="return confirm('Deseja limpar o conteúdo da pasta do sistema?')"
-                                           class="model-link">
-                                            🗑️ Limpar Pasta de Schemas
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="/admin/clear-folders/all/"
-                                           onclick="return confirm('Deseja limpar o conteúdo de TODAS as pastas do sistema?')"
-                                           class="model-link">
-                                            ️🗑️ Limpar Todas as Pastas
-                                        </a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="app-section">
-                        <div class="section-header">
-                            <h3>🛠️ Diagnósticos e Manutenção</h3>
-                        </div>
-                        <div class="section-content">
-                            <ul class="model-list">
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="{% url 'admin:diagnostics_dashboard' %}" class="model-link">
-                                            🚀 Dashboard de Diagnósticos
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="{% url 'admin:diagnostics_dashboard' %}" class="action-link viewlink">
-                                            Acessar
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="{% url 'admin:performance_diagnostics' %}" class="model-link">
-                                            ⚡ Diagnóstico de Performance
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="{% url 'admin:performance_diagnostics' %}" class="action-link addlink">
-                                            Executar
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="{% url 'admin:redis_info' %}" class="model-link">
-                                            💾 Informações do Redis
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="{% url 'admin:redis_info' %}" class="action-link viewlink">
-                                            Visualizar
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="{% url 'admin:clear_cache' %}" class="model-link">
-                                            🧹 Limpar Cache
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="{% url 'admin:clear_cache' %}" class="action-link changelink">
-                                            Limpar
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="{% url 'admin:system_health_check' %}" class="model-link">
-                                            💚 Health Check do Sistema
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="{% url 'admin:system_health_check' %}" class="action-link viewlink">
-                                            Verificar
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="{% url 'admin:fix_corrupted_covers' %}" class="model-link">
-                                            🖼️ Corrigir Capas Corrompidas
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="{% url 'admin:fix_corrupted_covers' %}" class="action-link changelink">
-                                            Corrigir
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="{% url 'admin:debug_book_images' %}" class="model-link">
-                                            🔍 Debug de Imagens
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="{% url 'admin:debug_book_images' %}" class="action-link viewlink">
-                                            Analisar
-                                        </a>
-                                    </div>
-                                </li>
-                                <li class="model-item">
-                                    <div class="model-info">
-                                        <a href="{% url 'admin:debug_recommendations' %}" class="model-link">
-                                            🎯 Debug de Recomendações
-                                        </a>
-                                    </div>
-                                    <div class="model-actions">
-                                        <a href="{% url 'admin:debug_recommendations' %}" class="action-link viewlink">
-                                            Analisar
-                                        </a>
-                                    </div>
-                                </li>
-                            </ul>
+                        <div class="model-item featured">
+                            <div class="model-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="model-info">
+                                <h4 class="model-name">Autores</h4>
+                                <p class="model-desc">Base de dados de autores</p>
+                            </div>
+                            <div class="model-actions">
+                                <a href="/admin/core/author/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                                <a href="/admin/core/author/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                    <i class="fas fa-cog"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    {% else %}
-        <p class="no-permission" aria-label="Sem permissões">
-            Você não tem permissão para visualizar ou editar nada.
-        </p>
-    {% endif %}
+
+        <!-- Módulo Segurança & Usuários (Versão Estática Corrigida) -->
+        <div class="module-card" data-module="auth">
+            <div class="card-header">
+                <div class="header-info">
+                    <h2>
+                        <i class="fas fa-shield-alt"></i>
+                        Segurança & Usuários
+                    </h2>
+                    <p class="module-description">Controle de acesso e permissões</p>
+                </div>
+            </div>
+
+            <div class="card-content">
+                <div class="model-grid">
+                    <!-- Item: Usuários -->
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Usuários</h4>
+                            <p class="model-desc">Gerencie contas de usuário</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="/admin/core/user/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                            <a href="/admin/core/user/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Item: Grupos -->
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Grupos</h4>
+                            <p class="model-desc">Configure grupos e permissões</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="/admin/auth/group/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                            <a href="/admin/auth/group/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Se não encontrou o módulo auth, mostrar versão estática -->
+        {% if not app_list %}
+        <div class="module-card" data-module="auth">
+            <div class="card-header">
+                <div class="header-info">
+                    <h2>
+                        <i class="fas fa-shield-alt"></i>
+                        Segurança & Usuários
+                    </h2>
+                    <p class="module-description">Controle de acesso e permissões</p>
+                </div>
+            </div>
+
+            <div class="card-content">
+                <div class="model-grid">
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Usuários</h4>
+                            <p class="model-desc">Gerencie contas de usuário</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="/admin/auth/user/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                            <a href="/admin/auth/user/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Grupos</h4>
+                            <p class="model-desc">Configure grupos e permissões</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="/admin/auth/group/add/" class="action-btn add-btn" data-tooltip="Adicionar novo">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                            <a href="/admin/auth/group/" class="action-btn edit-btn" data-tooltip="Gerenciar">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Módulo Chatbot Literário (sempre mostrar) -->
+        <div class="module-card" data-module="chatbot">
+            <div class="card-header">
+                <div class="header-info">
+                    <h2>
+                        <i class="fas fa-robot"></i>
+                        Chatbot Literário
+                    </h2>
+                    <p class="module-description">IA conversacional e treinamento</p>
+                </div>
+                <div class="header-actions">
+                    <a href="{% url 'chatbot_training_dashboard' %}" class="btn btn-outline">
+                        <i class="fas fa-graduation-cap"></i>
+                        Treinamento
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-content">
+                <div class="model-grid">
+                    <div class="model-item featured">
+                        <div class="model-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Interface de Treinamento</h4>
+                            <p class="model-desc">Treine e configure o chatbot</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="{% url 'chatbot_training_dashboard' %}" class="action-btn edit-btn" data-tooltip="Acessar treinamento">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Conversas</h4>
+                            <p class="model-desc">Histórico de conversações</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="/admin/chatbot_literario/conversation/" class="action-btn edit-btn" data-tooltip="Ver conversas">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Base de Conhecimento</h4>
+                            <p class="model-desc">Itens de conhecimento da IA</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="/admin/chatbot_literario/knowledgeitem/" class="action-btn edit-btn" data-tooltip="Gerenciar conhecimento">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Feedbacks</h4>
+                            <p class="model-desc">Avaliações das conversas</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="/admin/chatbot_literario/conversationfeedback/" class="action-btn edit-btn" data-tooltip="Ver feedbacks">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulo de Ferramentas do Sistema (sempre mostrar) -->
+        <div class="module-card system-tools" data-module="system">
+            <div class="card-header">
+                <div class="header-info">
+                    <h2>
+                        <i class="fas fa-tools"></i>
+                        Ferramentas do Sistema
+                    </h2>
+                    <p class="module-description">Diagnósticos, manutenção e monitoramento</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" data-action="refresh-stats">
+                        <i class="fas fa-sync-alt"></i>
+                        Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-content">
+                <div class="model-grid">
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Dashboard de Diagnósticos</h4>
+                            <p class="model-desc">Visão geral do sistema</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="{% url 'admin:diagnostics_dashboard' %}" class="action-btn edit-btn" data-tooltip="Acessar diagnósticos">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-broom"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Limpar Cache</h4>
+                            <p class="model-desc">Limpe o cache do sistema</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="{% url 'admin:clear_cache' %}" class="action-btn edit-btn" data-tooltip="Executar limpeza">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Health Check</h4>
+                            <p class="model-desc">Verificação de saúde do sistema</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="{% url 'admin:system_health_check' %}" class="action-btn edit-btn" data-tooltip="Verificar saúde">
+                                <i class="fas fa-stethoscope"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Redis Info</h4>
+                            <p class="model-desc">Informações do banco Redis</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="{% url 'admin:redis_info' %}" class="action-btn edit-btn" data-tooltip="Ver informações">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Performance</h4>
+                            <p class="model-desc">Métricas de performance</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="{% url 'admin:performance_diagnostics' %}" class="action-btn edit-btn" data-tooltip="Ver performance">
+                                <i class="fas fa-chart-bar"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="model-item">
+                        <div class="model-icon">
+                            <i class="fas fa-bug"></i>
+                        </div>
+                        <div class="model-info">
+                            <h4 class="model-name">Debug Imagens</h4>
+                            <p class="model-desc">Diagnóstico de imagens de livros</p>
+                        </div>
+                        <div class="model-actions">
+                            <a href="{% url 'admin:debug_book_images' %}" class="action-btn edit-btn" data-tooltip="Debug imagens">
+                                <i class="fas fa-image"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
-{# Estilos específicos para esta página #}
 {% block extrastyle %}
 {{ block.super }}
 <style>
-    /* Estilos específicos para a página index do admin */
-    .dashboard-container {
+    /* CSS Integrado para o Dashboard Moderno */
+    .dashboard-modern {
+        padding: 24px;
+        background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark-secondary) 100%);
+        min-height: calc(100vh - 120px);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* Header do Dashboard */
+    .dashboard-header {
         display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        padding: 24px;
+        background: rgba(43, 43, 64, 0.8);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .header-content {
+        flex: 1;
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .dashboard-title i {
+        color: var(--primary-color);
+    }
+
+    .dashboard-subtitle {
+        color: var(--text-secondary);
+        margin: 8px 0 0 0;
+        font-size: 1.1rem;
+    }
+
+    .header-stats {
+        display: flex;
+        gap: 16px;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: rgba(54, 153, 255, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(54, 153, 255, 0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        background: rgba(54, 153, 255, 0.15);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
         justify-content: center;
-        padding: 5px !important;
-        width: 100%;  /* Fazer o container usar mais largura da tela */
-        margin: 0 auto;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        border-radius: 12px;
+        color: white;
+        font-size: 1.2rem;
     }
 
-    .app-grid {
-        width: 100%;
-        max-width: 1600px;
-        display: grid;
-        grid-template-columns: minmax(600px, 1fr) minmax(600px, 1fr);
-        grid-auto-rows: min-content; /* Isso fará os cards se ajustarem ao conteúdo */
-        grid-gap: 10px;
-    }
-
-    /* Sistema de posicionamento baseado em grid */
-    .module-organizer {
-        grid-column: 1;
-        grid-row: 1;
-    }
-
-    /* Adicione estas regras específicas para o card de autenticação */
-    .module-auth {
-        grid-column: 2;
-        grid-row: 1;
-        height: auto !important;
-        align-self: start !important;
-        min-height: 0 !important;
-        max-height: none !important;
-    }
-
-    /* Garantir que o conteúdo interno também não force altura extra */
-    .module-auth .app-content {
-        height: auto !important;
-        min-height: 0 !important;
-    }
-
-    /* Se necessário, ajuste também o container interno */
-    .module-auth .model-list {
-        height: auto !important;
-        min-height: 0 !important;
-    }
-
-    .system-tools {
-        grid-column: 1;
-        grid-row: 2;
-        align-self: start;
-    }
-
-    /* Ajuste para outros módulos */
-    .app-grid .module {
-    width: 100% !important;
-    margin: 0 !important;
-    height: auto !important; /* Forçar altura automática */
-    }
-
-    /* Mantenha a responsividade */
-    @media (max-width: 992px) {
-        .app-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .module-organizer, .module-auth, .system-tools {
-            grid-column: 1;
-        }
-
-        .module-organizer {
-            grid-row: 1;
-        }
-
-        .module-auth {
-            grid-row: 2;
-        }
-
-        .system-tools {
-            grid-row: 3;
-        }
-    }
-
-    @media (max-width: 767px) {
-        .dashboard-container {
-            padding: 10px !important;
-        }
-        .app-grid {
-            max-width: 100%;
-        }
-    }
-
-    .app-header {
-        background: linear-gradient(135deg, var(--primary-color, #3699FF), var(--secondary-color, #6D28D9));
-        padding: 15px 20px;
-        border-radius: var(--border-radius, 8px) var(--border-radius, 8px) 0 0;
-    }
-
-    .app-header .section {
-        color: white !important;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 16px;
-        letter-spacing: 0.5px;
-        text-decoration: none;
-        display: block;
-    }
-
-    /* Garantir que o conteúdo determine a altura */
-    .app-content {
-        height: auto;
+    .stat-info {
         display: flex;
         flex-direction: column;
     }
 
-    .app-section {
-        margin-bottom: 0;
-        border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.1));
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
     }
 
-    .app-section:last-child {
-        border-bottom: none;
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
     }
 
-    .section-header {
-        background-color: var(--bg-element, #2B2B40);
-        padding: 10px 20px;
+    /* Grid Principal */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 24px;
+        align-items: start;
     }
 
-    .section-header h3 {
-        color: var(--warning-color, #FFA800);
-        margin: 0;
-        font-size: 14px;
+    /* Cards dos Módulos */
+    .module-card {
+        background: rgba(43, 43, 64, 0.6);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: rgba(54, 153, 255, 0.3);
+    }
+
+    .module-card.main-module {
+        grid-column: 1 / -1;
+    }
+
+    .module-card.system-tools {
+        background: rgba(109, 40, 217, 0.1);
+        border-color: rgba(109, 40, 217, 0.2);
+    }
+
+    /* Header dos Cards */
+    .card-header {
+        padding: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-info h2 {
+        font-size: 1.5rem;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .section-content {
-        padding: 0;
-    }
-
-    .model-list {
-        list-style: none;
+        color: var(--text-primary);
         margin: 0;
-        padding: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .header-info h2 i {
+        color: var(--primary-color);
+    }
+
+    .module-description {
+        color: var(--text-secondary);
+        margin: 8px 0 0 0;
+        font-size: 0.95rem;
+    }
+
+    .header-actions .btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn.btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        border: none;
+    }
+
+    .btn.btn-outline {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Conteúdo dos Cards */
+    .card-content {
+        padding: 24px;
+    }
+
+    .section-group {
+        margin-bottom: 32px;
+    }
+
+    .section-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 16px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .section-title i {
+        color: var(--warning-color);
+    }
+
+    /* Grid dos Modelos */
+    .model-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
     }
 
     .model-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 12px 20px;
-        border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.1));
-        transition: background-color 0.2s ease;
-    }
-
-    .model-item:last-child {
-        border-bottom: none;
+        gap: 16px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
     }
 
     .model-item:hover {
-        background-color: var(--bg-hover, #2A2A42);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(54, 153, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .model-item.featured {
+        background: rgba(54, 153, 255, 0.1);
+        border-color: rgba(54, 153, 255, 0.3);
+    }
+
+    .model-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--bg-element), var(--bg-panel));
+        border-radius: 12px;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+
+    .model-item.featured .model-icon {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+    }
+
+    .model-item:hover .model-icon {
+        transform: scale(1.1) rotate(5deg);
     }
 
     .model-info {
         flex: 1;
     }
 
-    .model-link {
-        color: var(--text-primary, #FFFFFF);
-        text-decoration: none;
-        font-size: 14px;
-        display: block;
+    .model-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 4px 0;
     }
 
-    .model-link:hover {
-        color: var(--primary-color, #3699FF);
+    .model-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin: 0;
     }
 
     .model-actions {
         display: flex;
-        gap: 5px;
+        gap: 8px;
     }
 
-    .action-link {
-        display: inline-block;
-        padding: 4px 10px;
-        font-size: 12px;
-        border-radius: 4px;
-        color: white !important;
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
         text-decoration: none;
-        font-weight: 600;
-        text-transform: uppercase;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .addlink {
-        background-color: var(--accent-color, #0BB783);
+    .add-btn {
+        background: rgba(11, 183, 131, 0.2);
+        color: #0BB783;
+        border-color: rgba(11, 183, 131, 0.3);
     }
 
-    .changelink {
-        background-color: var(--warning-color, #FFA800);
+    .edit-btn {
+        background: rgba(54, 153, 255, 0.2);
+        color: var(--primary-color);
+        border-color: rgba(54, 153, 255, 0.3);
     }
 
-    .viewlink {
-        background-color: var(--primary-color, #3699FF);
+    .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
     }
 
-    .addlink:hover {
-        background-color: #09a173;
+    /* Animações */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    .changelink:hover {
-        background-color: #e09600;
+    .module-card {
+        animation: fadeInUp 0.6s ease-out;
     }
 
-    .viewlink:hover {
-        background-color: var(--primary-hover, #187DE4);
+    .module-card:nth-child(1) { animation-delay: 0.1s; }
+    .module-card:nth-child(2) { animation-delay: 0.2s; }
+    .module-card:nth-child(3) { animation-delay: 0.3s; }
+    .module-card:nth-child(4) { animation-delay: 0.4s; }
+
+    /* Responsividade */
+    @media (max-width: 1200px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .header-stats {
+            flex-wrap: wrap;
+        }
     }
 
-    /* Sistema de ferramentas com estilo especial */
-    .system-tools .app-header {
-        background: linear-gradient(135deg, var(--danger-color, #F64E60), #FF6B8A);
-    }
+    @media (max-width: 768px) {
+        .dashboard-modern {
+            padding: 16px;
+        }
 
-    .no-permission {
-        background-color: var(--bg-panel, #1A1A2E);
-        color: var(--text-primary, #FFFFFF);
-        text-align: center;
-        padding: 30px;
-        border-radius: var(--border-radius, 8px);
-        box-shadow: var(--shadow-sm, 0 2px 6px rgba(0,0,0,0.15));
-        margin: 20px 0;
-    }
-
-    /* Responsividade adicional para itens específicos */
-    @media (max-width: 767px) {
-        .model-item {
+        .dashboard-header {
             flex-direction: column;
-            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
         }
 
-        .model-info {
-            margin-bottom: 8px;
+        .header-stats {
+            width: 100%;
+            justify-content: center;
         }
 
-        .model-actions {
-            display: flex;
+        .dashboard-title {
+            font-size: 2rem;
+        }
+
+        .model-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dashboard-title {
+            font-size: 1.75rem;
+        }
+
+        .header-stats {
+            flex-direction: column;
             width: 100%;
         }
 
-        .action-link {
-            flex: 1;
-            text-align: center;
+        .card-header,
+        .card-content {
+            padding: 16px;
         }
+    }
 
-        .app-header, .section-header {
-            padding: 10px 15px;
-        }
+    /* Tooltips */
+    [data-tooltip] {
+        position: relative;
+    }
 
-        .model-item {
-            padding: 10px 15px;
-        }
+    [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 1000;
+        margin-bottom: 5px;
+    }
+
+    [data-tooltip]:hover::before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
     }
 </style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Função para aplicar estilos específicos apenas ao card de autenticação
-    function fixAuthCardHeight() {
-      // Encontrar card de autenticação por diferentes seletores possíveis
-      const authCard = document.querySelector('.module-auth') ||
-                       document.querySelector('[aria-label*="Autenticação"]') ||
-                       document.querySelector('[aria-label*="Authentication"]');
-
-      if (authCard) {
-        // Aplicar estilos inline com alta prioridade para controlar a altura
-        authCard.style.cssText += "height: fit-content !important; min-height: 0 !important; max-height: none !important; overflow: hidden !important;";
-
-        // Ajustar todos os elementos internos que podem estar forçando altura
-        const innerElements = authCard.querySelectorAll('.app-content, .model-list, ul, li, div');
-        innerElements.forEach(el => {
-          el.style.cssText += "height: auto !important; min-height: 0 !important; max-height: none !important;";
-        });
-      }
-    }
-
-    // Executar imediatamente
-    fixAuthCardHeight();
-
-    // Executar novamente após um pequeno atraso para garantir que sobreponha outros scripts
-    setTimeout(fixAuthCardHeight, 100);
-    setTimeout(fixAuthCardHeight, 500);  // Backup para garantir
-  });
-</script>
 {% endblock %}

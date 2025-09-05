@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from cgbookstore.apps.chatbot_literario.services.training_service import training_service
+from cgbookstore.apps.chatbot_literario.services import training_service
 
 
 class Command(BaseCommand):

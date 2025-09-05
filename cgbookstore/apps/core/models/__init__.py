@@ -1,41 +1,43 @@
-# cgbookstore/apps/core/models/__init__.py
-"""
-Inicialização do pacote de modelos.
+# Arquivo: cgbookstore/apps/core/models/__init__.py
 
-Este arquivo importa todos os modelos individuais e os expõe
-para uso em outros módulos do projeto.
-"""
-from .profile import Profile, Achievement, UserAchievement, ReadingStats
-# Importações de usuário e perfil
-from .user import User
-from .author import Author
-
-# Importações de livro e prateleira
-from .book import Book, UserBookShelf, BookAuthor
-
-# Importações de conteúdo da home
+# Do home_content.py
 from .home_content import (
-    HomeSection, BookShelfSection, BookShelfItem,
-    VideoSection, VideoItem, VideoSectionItem,
-    Advertisement, LinkGridItem,
-    DefaultShelfType,
-    CustomSectionType, CustomSectionLayout, CustomSection,
-    EventItem, BackgroundSettings
+    HomeSection,
+    HomeSectionBookItem,
+    VideoItem,
+    VideoSection,
+    VideoSectionItem,
+    Advertisement,
+    LinkGridItem,
+    CustomSectionType,
+    CustomSectionLayout,
+    CustomSection,
+    EventItem,
+    BackgroundSettings,
 )
 
-# Importações de banner
+# Do book.py
+from .book import Book, BookAuthor, UserBookShelf
+
+# Do author.py
+from .author import Author, AuthorSection, AuthorSectionItem
+
+# Do banner.py
 from .banner import Banner
 
+# Do profile.py
+from .profile import Profile
+from .profile import ReadingProgress, ReadingStats
 
-# Lista de modelos disponíveis para importação
+# Do user.py
+from .user import User
+
+# O __all__ define quais nomes são exportados publicamente.
+# Garantimos que todos os modelos estejam listados aqui.
 __all__ = [
-    'User', 'Profile',
-    'Achievement', 'UserAchievement', 'ReadingStats',
-    'Book', 'UserBookShelf', 'BookAuthor',
-    'HomeSection', 'BookShelfSection', 'BookShelfItem',
-    'VideoSection', 'VideoItem', 'VideoSectionItem',
-    'Advertisement', 'LinkGridItem',
-    'DefaultShelfType',
-    'CustomSectionType', 'CustomSectionLayout', 'CustomSection',
-    'EventItem', 'Banner', 'BackgroundSettings', 'Author',
+    'HomeSection', 'HomeSectionBookItem', 'VideoItem', 'VideoSection',
+    'VideoSectionItem', 'Advertisement', 'LinkGridItem', 'CustomSectionType',
+    'CustomSectionLayout', 'CustomSection', 'EventItem', 'BackgroundSettings',
+    'Book', 'BookAuthor', 'UserBookShelf', 'Author', 'AuthorSection',
+    'AuthorSectionItem', 'Banner', 'Profile', 'ReadingProgress', 'ReadingStats', 'User',
 ]

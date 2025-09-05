@@ -17,24 +17,64 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
 
-    // Função para mostrar notificações
     function showNotification(message, type = 'success') {
         const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
 
         const alertElement = document.createElement('div');
+        // Remova qualquer menção a alert-dismissible
         alertElement.className = `alert ${alertClass} position-fixed top-0 start-50 translate-middle-x mt-4`;
         alertElement.style.zIndex = '9999';
-        alertElement.innerHTML = message;
+        alertElement.style.transition = 'all 0.3s ease';
+        alertElement.style.transform = 'translateY(-20px)';
+        alertElement.style.opacity = '0';
+        alertElement.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        alertElement.style.minWidth = '300px';
+        alertElement.style.maxWidth = '500px';
+
+        // Determinar ícone baseado no tipo
+        let icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+
+        // HTML sem o botão de fechar
+        alertElement.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi bi-${icon} me-2" style="font-size: 1.25rem;"></i>
+                <div>${message}</div>
+            </div>
+        `;
 
         document.body.appendChild(alertElement);
 
-        // Remove após 3 segundos
+        // Adicionar efeito de entrada
         setTimeout(() => {
-            alertElement.classList.add('fade');
+            alertElement.style.transform = 'translateY(0)';
+            alertElement.style.opacity = '1';
+        }, 10);
+
+        function removeAlert() {
+            alertElement.style.transform = 'translateY(-20px)';
+            alertElement.style.opacity = '0';
             setTimeout(() => {
-                document.body.removeChild(alertElement);
-            }, 500);
+                if (document.body.contains(alertElement)) {
+                    document.body.removeChild(alertElement);
+                }
+            }, 300);
+        }
+
+        // Remover após 3 segundos
+        const removeTimeout = setTimeout(() => {
+            removeAlert();
         }, 3000);
+
+        // Pausar o timer quando mouse estiver sobre o alerta
+        alertElement.addEventListener('mouseenter', () => {
+            clearTimeout(removeTimeout);
+        });
+
+        alertElement.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+                removeAlert();
+            }, 1000);
+        });
     }
 
     // Inicializa sortable para cada prateleira
